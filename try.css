@@ -1,0 +1,10 @@
+    
+    .authenticator-card{
+    background: white;
+    border: 2px solid black;
+    border-radius: 20px;
+    width: 320px;
+    padding: 25px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: perspective(1000px) rotateY(-10deg);
+    }
