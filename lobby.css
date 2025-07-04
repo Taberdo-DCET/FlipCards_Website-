@@ -261,6 +261,10 @@ ul {
   font-size: 2rem;
   line-height: 1.4;
   display: flex;
+  background-image: url('backgroundlobby.png');
+  background-size:auto;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .catchphrase h1 {
@@ -295,6 +299,11 @@ span {
 .social-icon img:hover {
   transform: scale(1.1);
 }
+.folder-getstarted {
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+}
 
 .container2 {
   display: flex;
@@ -306,13 +315,24 @@ span {
   max-width: 1200px;
   width: 100%;
   align-content: center;
+  margin-bottom: 170px;
+}
+.gemini-btn {
+  width: 70px !important;
+  height: 70px !important;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
+.gemini-btn:hover {
+  transform: scale(1.1);
+}
 .catch-text h1 {
   font-size: 3.5rem;
   color: white;
   line-height: 1.4;
   margin: 70px;
+  margin-top: 150px;
 }
 
 .orb {
@@ -320,7 +340,7 @@ span {
   width: 200px;
   height: 200px;
   margin: auto;
-  margin-top: 140px;
+  margin-top: 240px;
   border-radius: 50%;
   position: relative;
   box-shadow:
@@ -625,7 +645,190 @@ span {
 .music-icon:hover img {
   transform: scale(1.1);
 }
+.folder-section {
+  background-color: #141414;
+  padding: 80px 20px;
+  color: white;
+  text-align: center;
+}
 
+.folder-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: start;
+  gap: 30px;
+  margin-top: 30px;
+  margin-left: 40px;
+}
+
+.folder-card {
+  background: #1e1e1e;
+  border-radius: 20px;
+  border: 1px solid black;
+  padding: 20px 25px;
+  width: 260px;
+  text-align: center;
+  font-family: 'Accasia', sans-serif;
+  color: white;
+  box-shadow:
+    8px 8px 20px #111,
+    -8px -8px 20px #222,
+    inset 1px 1px 2px rgba(255, 255, 255, 0.03),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.06);
+  transition: transform 0.3s ease;
+}
+
+.folder-card:hover {
+  transform: translateY(-6px);
+  border: 1px solid rgb(255, 255, 255);
+}
+
+.folder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 15px;
+  color: #ccc;
+}
+
+.folder-icons img {
+  width: 50px;
+  height: 50px;
+  margin-left: -10px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: 0.3s ease;
+}
+.folder-icons {
+  gap: 0px;
+}
+.folder-icons img:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.folder-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+  margin: 2px 0 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+
+.folder-subtitle {
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #ffffffcc;
+  margin-bottom: 20px;
+  max-height: 3.6em; /* around 2 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+   
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+
+.review-btn {
+  background-color: #ffffff;
+  color: black;
+  font-weight: bold;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+  margin-bottom: 19px;
+}
+
+.review-btn:hover {
+  background-color: #a3a3a3;
+}
+.folder-date {
+  font-size: 13px;
+  color: #f4f4f4;
+  background: #222;
+  padding: 3px 10px;
+  border-radius: 8px;
+  box-shadow:
+    inset 1px 1px 2px rgba(0, 0, 0, 0.2),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.05);
+  font-family: sans-serif;
+  letter-spacing: 0.5px;
+}
+.gemini-modal-backdrop {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  justify-content: center;
+  align-items: center;
+}
+.gemini-modal-backdrop.show {
+  display: flex;
+}
+.gemini-modal-content {
+  background: #101010;
+  color: #fff;
+  border: 2px solid #444;
+  border-radius: 12px;
+  padding: 30px 25px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  font-family: sans-serif;
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+.gemini-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 18px;
+  font-size: 24px;
+  cursor: pointer;
+}
+.gemini-modal-title {
+  margin-bottom: 20px;
+  font-size: 20px;
+  text-align: center;
+}
+.gemini-dropzone {
+  border: 2px dashed #888;
+  padding: 40px 20px;
+  text-align: center;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  background-color: #1a1a1a;
+  transition: border-color 0.2s;
+}
+.gemini-dropzone:hover {
+  border-color: #00bfff;
+}
+.gemini-flashcards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.gemini-flashcards .card {
+  background: #222;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #333;
+}
+.gemini-flashcards .card strong {
+  font-size: 15px;
+  color: #ffcf00;
+}
 
 
 

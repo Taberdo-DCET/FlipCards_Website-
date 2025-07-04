@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlipCards | Add Card</title>
+    <link rel="stylesheet" href="card.css">
+    <link rel="stylesheet" href="lobb.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+</head>
+<body>
+    <div class="flashcard-wrapper">
+    <div class="header-with-home">
+  <h1>Create a flashcard set</h1>
+  <a href="lobby.html">
+    <img src="homeenc.png" alt="Home" class="home-btn" />
+  </a>
+</div>
+    <label class="public-toggle">
+      <input type="checkbox" id="publicToggle" /> Make this set public
+    </label>
+    <input type="text" class="input title" placeholder="Title" />
+    <textarea class="input description" placeholder="Add a description...(Optional)"></textarea>
+
+    <div class="flashcard">
+      <div class="flashcard-header">
+        <span>1</span>
+        <div class="card-buttons">
+          <button class="add-btn" title="Add Card"></button>
+          <button class="delete-btn" title="Delete Card"></button>
+        </div>
+      </div>
+      <div class="flashcard-body">
+        <input type="text" class="input term" placeholder="Enter term" />
+        <input type="text" class="input definition" placeholder="Enter definition" />
+        
+      </div>
+    </div>
+
+    <div class="btn-row">
+  <button class="btn create" id="mainActionBtn">Create</button>
+  <button class="btn practice" id="mainActionBtnn">Create and Practice</button>
+</div>
+
+  </div>
+  <script type="module" src="addcard.js"></script>
+  <script src="menu.js"></script>
+  
+</body>
+</html>

@@ -8,10 +8,13 @@ import {
 import {
   getFirestore,
   doc,
-  getDoc
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// Firebase config (yours)
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
   authDomain: "flipcards-7adab.firebaseapp.com",
@@ -26,6 +29,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Generate or load device ID from localStorage
+function getDeviceId() {
+  let id = localStorage.getItem('deviceId');
+  if (!id) {
+    id = 'device-' + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('deviceId', id);
+  }
+  return id;
+}
+
 window.login = async function () {
   const email = document.querySelector('input[name="username"]').value;
   const password = document.querySelector('input[name="password"]').value;
@@ -35,26 +48,47 @@ window.login = async function () {
     return;
   }
 
-  const userDocRef = doc(db, "approved_emails", email);
-  const docSnap = await getDoc(userDocRef);
-
-  if (!docSnap.exists() || docSnap.data().allowed !== true) {
+  const approvedRef = doc(db, "approved_emails", email);
+  const approvedSnap = await getDoc(approvedRef);
+  if (!approvedSnap.exists() || approvedSnap.data().allowed !== true) {
     alert("This email is not whitelisted.");
     return;
   }
 
+  const deviceId = getDeviceId();
+  const userDocRef = doc(db, "users", email);
+  const userSnap = await getDoc(userDocRef);
+
+  // BLOCK if user exists and device doesn't match
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    if (data.deviceId && data.deviceId !== deviceId) {
+      alert("This account is already active on another device.");
+      return;
+    }
+  }
+
+  // Try sign in or create user
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    // ✅ Redirect to lobby.html on success
+    // ✅ Update device info
+    await setDoc(userDocRef, {
+      deviceId: deviceId,
+      lastLogin: serverTimestamp()
+    }, { merge: true });
+
     window.location.href = "lobby.html";
   } catch (error) {
     if (error.code === "auth/user-not-found") {
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-        // ✅ Redirect after successful account creation
+        await setDoc(userDocRef, {
+          deviceId: deviceId,
+          lastLogin: serverTimestamp()
+        });
         window.location.href = "lobby.html";
-      } catch (createErr) {
-        alert("Error creating account: " + createErr.message);
+      } catch (err) {
+        alert("Account creation failed: " + err.message);
       }
     } else {
       alert("Login failed: " + error.message);

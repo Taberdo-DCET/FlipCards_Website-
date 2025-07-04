@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard | FlipCards</title>
+    <link rel="stylesheet" href="flashcard.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+</head>
+<body>
+      <div class="container">
+    <div class="title-row">
+  <h1 class="page-title" id="setTitle"></h1>
+</div>
+
+    <div class="button-container">
+      <button class="neumorphic-button active">Flashcard</button>
+      <button class="neumorphic-button">Test</button>
+      <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
+      <button class="neumorphic-button">Match</button>
+    </div>
+    <div class="card-row">
+  <a href="lobby.html#Folderr">
+    <img src="homeenc.png" alt="Home" class="home-icon hover-switch" data-default="homeenc.png" data-hover="homeec.png" />
+  </a>
+
+  <div class="flashcard-container">
+    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+      <div class="front">What is a variable?</div>
+      <div class="back">A container used to store data in a program.</div>
+    </div>
+  </div>
+</div>
+
+<div class="navigation-buttons">
+  <img src="prevnc.png" alt="Previous" class="nav-btn" id="prevBtn" />
+  <div id="card-counter" class="card-counter">1 / 10</div>
+  <img src="nextnc.png" alt="Next" class="nav-btn" id="nextBtn" />
+</div>
+<div class="description-wrapper">
+  <div class="description-label">Description:</div>
+  <div class="description-box" id="descriptionBox">Loading description...</div>
+</div>
+
+  </div>
+
+ <script>
+    const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+
+    if (!reviewingSet || !reviewingSet.flashcards || reviewingSet.flashcards.length === 0) {
+      document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcards to review.</h2>";
+      throw new Error("No flashcard data.");
+    }
+
+    document.getElementById("setTitle").textContent = reviewingSet.title || "Untitled Flashcard Set";
+    document.getElementById("descriptionBox").textContent = reviewingSet.description?.trim() || "Nothing to see here...";
+
+    let currentIndex = 0;
+    const flashcards = reviewingSet.flashcards;
+
+    const front = document.querySelector(".flashcard .front");
+    const back = document.querySelector(".flashcard .back");
+    const card = document.querySelector(".flashcard");
+    const counter = document.getElementById("card-counter");
+
+    function updateCard(index) {
+      front.textContent = flashcards[index].term;
+      back.textContent = flashcards[index].definition;
+      counter.textContent = `${index + 1} / ${flashcards.length}`;
+    }
+
+    function goToCard(direction) {
+      card.classList.remove("flipped");
+      setTimeout(() => {
+        currentIndex = (currentIndex + direction + flashcards.length) % flashcards.length;
+        updateCard(currentIndex);
+      }, 300);
+    }
+
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      goToCard(1);
+    });
+
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      goToCard(-1);
+    });
+
+    updateCard(currentIndex);
+
+    function goToLearn() {
+      window.location.href = "learn.html";
+    }
+
+    // Hover-switch logic for icons
+    document.querySelectorAll(".hover-switch").forEach(img => {
+      const def = img.getAttribute("data-default");
+      const hov = img.getAttribute("data-hover");
+      img.addEventListener("mouseover", () => img.src = hov);
+      img.addEventListener("mouseout", () => img.src = def);
+    });
+  </script>
+
+
+<script>
+  // Existing logic here...
+
+  // Hover-switch for home icon
+  document.querySelectorAll(".hover-switch").forEach(img => {
+    const def = img.getAttribute("data-default");
+    const hov = img.getAttribute("data-hover");
+    img.addEventListener("mouseover", () => img.src = hov);
+    img.addEventListener("mouseout", () => img.src = def);
+  });
+</script>
+
+
+</body>
+</html>

@@ -52,16 +52,39 @@
                         <a href="#featuress" class="Features">
                         Features
                         </a>
-                    </li>           
+                    </li>
                     <li>
-                        <button class="getstarted">
+                        <a href="#Folderr" class="Features">
+                        Folder
+                        </a>
+                    </li>            
+                    <li>
+                        <a href="addcard.html"><button class="getstarted">
                         <img class="group-8" src="group-8.png" />Get Started
-                        </button>
-                    </li>           
+                        </button></a>
+                    </li>    
+                    <!-- Gemini Button -->
+<!-- Gemini Button -->
+                    <li>
+                      <button id="geminiBtn" class="getstarted folder-getstarted">
+                          <img class="group-8 hover-switch" src="gemininc.png" data-default="gemininc.png" data-hover="geminic.png" />
+                      </button>
+                    </li>
+
+ 
                 </ul>
         </div>
     </header>
-    
+   <!-- Gemini Upload Modal -->
+<div class="gemini-modal-backdrop" id="geminiModal">
+  <div class="gemini-modal-content">
+    <span class="gemini-modal-close" id="closeGeminiModal">&times;</span>
+    <h2 class="gemini-modal-title">Upload a PPTX to Generate Flashcards</h2>
+    <div class="gemini-dropzone" id="geminiDropZone">📂 Drag & drop or click to upload .pptx</div>
+    <input type="file" id="geminiFileInput" accept=".pptx" style="display: none;" />
+    <div class="gemini-flashcards" id="geminiFlashcards"></div>
+  </div>
+</div> 
     <section class="catchphrase">
         <div class="social-column">
             <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon fb" aria-label="Visit Facebook">
@@ -112,6 +135,25 @@
 
 </div>     
     </section>
+    <section class="folder-section" id="Folderr">
+  <h2 class="features-title" style="color: white;">Flashcard Folders</h2>
+  <a href="addcard.html">
+  <button class="getstarted folder-getstarted">
+    <img class="group-8" src="group-8.png" />Add More Card Sets!
+  </button>
+</a>
+  <div style="margin: 20px auto; max-width: 300px; margin-bottom: 60px;">
+    <input id="folderSearch" type="text" placeholder="Search folders..." style="width: 100%; padding: 10px; border-radius: 8px; border: none; font-family: 'Accasia'; font-size: 15px;">
+     <select id="folderFilter" style="padding: 10px 12px; border-radius: 8px; font-family: 'Accasia'; font-size: 15px; margin-top: 40px;">
+    <option value="your" selected>Your Flashcard Sets</option>
+    <option value="public">Public Flashcard Sets</option>
+  </select>
+  </div>
+  <div class="folder-grid">
+    
+  </div>
+</section>
+
 <section class="featuress" id="featuress">
   <h2 class="features-title">Our Features</h2>
   <div class="features-grid">
@@ -144,9 +186,38 @@
 </section>
 
     <script src="menu.js"></script>
+    <script type="module" src="public.js"></script>
+    <script src="search.js"></script>
     <script src="icon.js"></script>
     <script src="orb.js"></script>
     <script src="music.js"></script>
+    <script src="displaylocalsets.js"></script>
+
+    <script>
+  document.querySelectorAll('.hover-switch').forEach(img => {
+    const defaultSrc = img.getAttribute('data-default');
+    const hoverSrc = img.getAttribute('data-hover');
+
+    img.addEventListener('mouseover', () => {
+      img.src = hoverSrc;
+    });
+
+    img.addEventListener('mouseout', () => {
+      img.src = defaultSrc;
+    });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const geminiBtn = document.getElementById("geminiBtn");
+    if (geminiBtn) {
+      geminiBtn.addEventListener("click", () => {
+        alert("🚧 Coming Soon!");
+      });
+    }
+  });
+</script>
+
 
 
 
