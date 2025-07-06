@@ -1,6 +1,4 @@
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import {
   getFirestore,
   collection,
@@ -77,6 +75,7 @@ async function renderFilteredFolders() {
 
   const keyword = searchInput?.value.toLowerCase() || "";
   const type = filterSelect?.value || "your";
+  const existingKeys = new Set();
 
   if (type === "your") {
     const sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
@@ -84,7 +83,9 @@ async function renderFilteredFolders() {
       const title = set.title?.toLowerCase() || "";
       const desc = set.description?.toLowerCase() || "";
       const match = title.includes(keyword) || desc.includes(keyword);
-      if (!match) return;
+      const uniqueKey = `${set.title}___${set.createdOn}`;
+      if (!match || existingKeys.has(uniqueKey)) return;
+      existingKeys.add(uniqueKey);
       container.appendChild(createCard(set, false));
     });
   } else if (type === "public") {
@@ -94,13 +95,20 @@ async function renderFilteredFolders() {
       const set = doc.data();
       const title = set.title?.toLowerCase() || "";
       const desc = set.description?.toLowerCase() || "";
-      const match = title.includes(keyword) || desc.includes(keyword);
-      if (!match) return;
+      const email = set.user?.toLowerCase() || "";
+
+      const match =
+        title.includes(keyword) ||
+        desc.includes(keyword) ||
+        email.includes(keyword);
+
+      const uniqueKey = `${set.title}___${set.createdOn}`;
+      if (!match || existingKeys.has(uniqueKey)) return;
+      existingKeys.add(uniqueKey);
       container.appendChild(createCard(set, true));
     });
   }
 
-  // Hover effect on icons
   document.querySelectorAll(".hover-switch").forEach(img => {
     const def = img.getAttribute("data-default");
     const hov = img.getAttribute("data-hover");
@@ -109,9 +117,20 @@ async function renderFilteredFolders() {
   });
 }
 
+// Debounce utility
+function debounce(func, delay) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+const debouncedRender = debounce(renderFilteredFolders, 300);
+
 window.addEventListener("DOMContentLoaded", renderFilteredFolders);
-searchInput?.addEventListener("input", renderFilteredFolders);
-filterSelect?.addEventListener("change", renderFilteredFolders);
+searchInput?.addEventListener("input", debouncedRender);
+filterSelect?.addEventListener("change", debouncedRender);
 
 // ✅ Unified Review Handler: Local or Public
 window.reviewSet = async function (key) {

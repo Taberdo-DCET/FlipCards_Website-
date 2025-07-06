@@ -12,10 +12,15 @@
     <div class="flashcard-wrapper">
     <div class="header-with-home">
   <h1>Create a flashcard set</h1>
-  <a href="lobby.html">
+  <a href="lobby.html#Folderr">
     <img src="homeenc.png" alt="Home" class="home-btn" />
   </a>
+  <button class="music-icon notes" aria-label="Notes">
+  <img src="notenc.png" alt="Notes" class="hover-switch" data-hover="notec.png" data-default="notenc.png">
+</button>
+
 </div>
+
     <label class="public-toggle">
       <input type="checkbox" id="publicToggle" /> Make this set public
     </label>
@@ -43,8 +48,72 @@
 </div>
 
   </div>
+<div id="createAlertModal" class="custom-modal hidden">
+  <div class="modal-content">
+    <div class="modal-message" id="createAlertMessage">
+      <!-- Message will be set via JS -->
+    </div>
+    <div class="modal-buttons">
+      <button id="closeCreateAlert" class="neumorphic-button">OK</button>
+    </div>
+  </div>
+</div>
+<div id="notepad" class="notepad-modal hidden">
+  <div id="notepadHeader" class="notepad-header">📝 Notepad</div>
+  <textarea id="notepadText" placeholder="Type here..."></textarea>
+</div>
   <script type="module" src="addcard.js"></script>
   <script src="menu.js"></script>
-  
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const noteBtn = document.querySelector(".music-icon.notes");
+    const notepad = document.getElementById("notepad");
+    const notepadHeader = document.getElementById("notepadHeader");
+    const notepadText = document.getElementById("notepadText");
+
+    // Load saved note
+    notepadText.value = localStorage.getItem("userNote") || "";
+
+    // Real-time saving
+    notepadText.addEventListener("input", () => {
+      localStorage.setItem("userNote", notepadText.value);
+    });
+
+    // Toggle visibility
+    noteBtn.addEventListener("click", () => {
+      notepad.classList.toggle("hidden");
+    });
+
+    // Drag functionality
+    let offsetX = 0, offsetY = 0, isDragging = false;
+
+    notepadHeader.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      offsetX = e.clientX - notepad.offsetLeft;
+      offsetY = e.clientY - notepad.offsetTop;
+      document.body.style.userSelect = "none";
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+      document.body.style.userSelect = "";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      notepad.style.left = `${e.clientX - offsetX}px`;
+      notepad.style.top = `${e.clientY - offsetY}px`;
+    });
+  });
+</script>
+<script>
+  document.querySelectorAll('.hover-switch').forEach(img => {
+    const def = img.getAttribute('data-default');
+    const hov = img.getAttribute('data-hover');
+    img.addEventListener('mouseover', () => img.src = hov);
+    img.addEventListener('mouseout', () => img.src = def);
+  });
+</script>
+
 </body>
 </html>

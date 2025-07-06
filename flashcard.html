@@ -12,12 +12,15 @@
     <div class="title-row">
   <h1 class="page-title" id="setTitle"></h1>
 </div>
+<div class="dot-tracker-wrapper">
+  <div class="dot-tracker" id="dotTracker"></div>
+</div>
 
     <div class="button-container">
       <button class="neumorphic-button active">Flashcard</button>
-      <button class="neumorphic-button">Test</button>
+      <button class="neumorphic-button" onclick="goToTest()">Test</button>
       <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
-      <button class="neumorphic-button">Match</button>
+      <button class="neumorphic-button" onclick="goToMatch()">Match</button>
     </div>
     <div class="card-row">
   <a href="lobby.html#Folderr">
@@ -25,7 +28,8 @@
   </a>
 
   <div class="flashcard-container">
-    <div class="flashcard" onclick="this.classList.toggle('flipped')">
+    <div class="flashcard">
+
       <div class="front">What is a variable?</div>
       <div class="back">A container used to store data in a program.</div>
     </div>
@@ -44,61 +48,99 @@
 
   </div>
 
- <script>
-    const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+<script>
+  const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+  if (!reviewingSet || !reviewingSet.flashcards) {
+    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data available.</h2>";
+    throw new Error("No flashcards found.");
+  }
 
-    if (!reviewingSet || !reviewingSet.flashcards || reviewingSet.flashcards.length === 0) {
-      document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcards to review.</h2>";
-      throw new Error("No flashcard data.");
+  let currentIndex = 0;
+  const flashcards = reviewingSet.flashcards;
+document.getElementById("setTitle").textContent = reviewingSet.title || "Untitled Flashcard Set";
+document.getElementById("descriptionBox").textContent = reviewingSet.description || "No description provided.";
+
+
+  const front = document.querySelector(".flashcard .front");
+  const back = document.querySelector(".flashcard .back");
+  const card = document.querySelector(".flashcard");
+  const counter = document.getElementById("card-counter");
+
+  setupDotTracker(flashcards.length); // must come AFTER flashcards are defined
+
+function updateCard(index) {
+  // Instantly show term side without animation
+  card.style.transition = "none";           // Disable animation
+  card.classList.remove("flipped");         // Show front instantly
+
+  // Update flashcard content
+  const cardData = flashcards[index];
+  front.textContent = cardData.term;
+  back.textContent = cardData.definition;
+  counter.textContent = `${index + 1} / ${flashcards.length}`;
+  updateDotTracker(index, flashcards.length);
+
+  // Re-enable flip animation for manual clicks
+  setTimeout(() => {
+    card.style.transition = "transform 0.8s";
+  }, 10); // Small delay ensures style gets applied
+}
+
+
+  function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement("div");
+      dot.classList.add("dot");
+      container.appendChild(dot);
     }
+  }
 
-    document.getElementById("setTitle").textContent = reviewingSet.title || "Untitled Flashcard Set";
-    document.getElementById("descriptionBox").textContent = reviewingSet.description?.trim() || "Nothing to see here...";
+  function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVisible = 6) {
+    const container = document.getElementById(containerId);
+    const dots = container.querySelectorAll(".dot");
 
-    let currentIndex = 0;
-    const flashcards = reviewingSet.flashcards;
-
-    const front = document.querySelector(".flashcard .front");
-    const back = document.querySelector(".flashcard .back");
-    const card = document.querySelector(".flashcard");
-    const counter = document.getElementById("card-counter");
-
-    function updateCard(index) {
-      front.textContent = flashcards[index].term;
-      back.textContent = flashcards[index].definition;
-      counter.textContent = `${index + 1} / ${flashcards.length}`;
-    }
-
-    function goToCard(direction) {
-      card.classList.remove("flipped");
-      setTimeout(() => {
-        currentIndex = (currentIndex + direction + flashcards.length) % flashcards.length;
-        updateCard(currentIndex);
-      }, 300);
-    }
-
-    document.getElementById("nextBtn").addEventListener("click", () => {
-      goToCard(1);
+    dots.forEach((dot, i) => {
+      dot.classList.toggle("active", i === currentIndex);
     });
 
-    document.getElementById("prevBtn").addEventListener("click", () => {
-      goToCard(-1);
-    });
+    // Scroll behavior
+    let start = Math.max(0, currentIndex - Math.floor(maxVisible / 2));
+    start = Math.min(start, Math.max(0, total - maxVisible));
+    const offset = start * (12 + 10); // dot width + gap
+    container.style.transform = `translateX(-${offset}px)`;
+  }
 
-    updateCard(currentIndex);
-
-    function goToLearn() {
-      window.location.href = "learn.html";
+  document.getElementById("prevBtn").addEventListener("click", () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateCard(currentIndex);
     }
+  });
 
-    // Hover-switch logic for icons
-    document.querySelectorAll(".hover-switch").forEach(img => {
-      const def = img.getAttribute("data-default");
-      const hov = img.getAttribute("data-hover");
-      img.addEventListener("mouseover", () => img.src = hov);
-      img.addEventListener("mouseout", () => img.src = def);
-    });
-  </script>
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    if (currentIndex < flashcards.length - 1) {
+      currentIndex++;
+      updateCard(currentIndex);
+    }
+  });
+
+  card.addEventListener("click", () => {
+    card.classList.toggle("flipped");
+  });
+
+  // Hover icon switch
+  document.querySelectorAll(".hover-switch").forEach(img => {
+    const def = img.getAttribute("data-default");
+    const hov = img.getAttribute("data-hover");
+    img.addEventListener("mouseover", () => img.src = hov);
+    img.addEventListener("mouseout", () => img.src = def);
+  });
+
+  updateCard(currentIndex); // Initialize view
+</script>
+
 
 
 <script>
@@ -112,7 +154,64 @@
     img.addEventListener("mouseout", () => img.src = def);
   });
 </script>
+<script>
+  function goToTest() {
+    localStorage.setItem("currentIndex", currentIndex); // Save current index
+    window.location.href = "test.html";
+  }
+</script>
+<script>
+document.addEventListener("keydown", function (e) {
+  if (document.activeElement.tagName !== "INPUT") {
+    if (e.key === "ArrowRight") {
+      goToCard(1); // next
+    } else if (e.key === "ArrowLeft") {
+      goToCard(-1); // previous
+    }
+  }
+});
 
+</script>
+<script>
+  function goToMatch() {
+    localStorage.setItem("currentIndex", currentIndex); // optional if you want to track card index
+    window.location.href = "match.html";
+  }
+</script>
+<script>
+  function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement("div");
+    dot.classList.add("dot");
+    container.appendChild(dot);
+  }
+}
+
+function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVisible = 6) {
+  const container = document.getElementById(containerId);
+  const dots = container.querySelectorAll(".dot");
+
+  dots.forEach((dot, i) => {
+    dot.classList.toggle("active", i === currentIndex);
+  });
+
+  // Calculate scroll window
+  let start = Math.max(0, currentIndex - Math.floor(maxVisible / 2));
+  start = Math.min(start, Math.max(0, total - maxVisible));
+  const offset = start * (12 + 10); // dot width + gap
+
+  container.style.transform = `translateX(-${offset}px)`;
+}
+
+</script>
+<script>
+  function goToLearn() {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "learn.html";
+  }
+</script>
 
 </body>
 </html>

@@ -2,29 +2,22 @@ function renderFlashcardSets() {
   const container = document.querySelector(".folder-grid");
   if (!container) return;
 
-  container.innerHTML = "";
-
   let sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
 
-  let updated = false;
   sets = sets.map(set => {
     const nowISO = new Date().toISOString();
     if (!set.createdOn || isNaN(Date.parse(set.createdOn))) {
       set.createdOn = set.createdAt && !isNaN(Date.parse(set.createdAt)) ? set.createdAt : nowISO;
-      updated = true;
     }
     if (!set.createdAt || isNaN(Date.parse(set.createdAt))) {
       set.createdAt = set.createdOn;
-      updated = true;
     }
     return set;
   });
 
-  if (updated) {
-    localStorage.setItem("flashcardSets", JSON.stringify(sets));
-  }
-
   sets.sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+
+  container.innerHTML = "";
 
   sets.forEach(set => {
     const card = document.createElement("div");
@@ -49,7 +42,6 @@ function renderFlashcardSets() {
     container.appendChild(card);
   });
 
-  // Hover effect for images (still local)
   document.querySelectorAll(".hover-switch").forEach(img => {
     const def = img.getAttribute("data-default");
     const hov = img.getAttribute("data-hover");
@@ -58,7 +50,6 @@ function renderFlashcardSets() {
   });
 }
 
-// ✅ Event Delegation for Edit & Delete
 document.addEventListener("click", e => {
   const editBtn = e.target.closest(".edit-btn");
   const deleteBtn = e.target.closest(".delete-btn");
@@ -81,17 +72,36 @@ document.addEventListener("click", e => {
     const key = deleteBtn.dataset.key;
     const [titleKey, createdOnKey] = key.split("___");
 
-    const confirmDelete = confirm(`Are you sure you want to delete "${titleKey}"?`);
-    if (!confirmDelete) return;
+    const modal = document.getElementById("deleteModal");
+    const message = document.getElementById("deleteMessage");
+    const cancelBtn = document.getElementById("cancelDelete");
+    const confirmBtn = document.getElementById("confirmDelete");
 
-    let sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
-    sets = sets.filter(set => !(set.title === titleKey && set.createdOn === createdOnKey));
-    localStorage.setItem("flashcardSets", JSON.stringify(sets));
-    window.dispatchEvent(new Event("flashcardSetsUpdated"));
+    message.textContent = `Are you sure you want to delete "${titleKey}"?`;
+    modal.classList.remove("hidden");
+
+    const confirmHandler = () => {
+      let sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
+      sets = sets.filter(set => !(set.title === titleKey && set.createdOn === createdOnKey));
+      localStorage.setItem("flashcardSets", JSON.stringify(sets));
+      window.dispatchEvent(new Event("flashcardSetsUpdated"));
+      modal.classList.add("hidden");
+
+      confirmBtn.removeEventListener("click", confirmHandler);
+      cancelBtn.removeEventListener("click", cancelHandler);
+    };
+
+    const cancelHandler = () => {
+      modal.classList.add("hidden");
+      confirmBtn.removeEventListener("click", confirmHandler);
+      cancelBtn.removeEventListener("click", cancelHandler);
+    };
+
+    confirmBtn.addEventListener("click", confirmHandler);
+    cancelBtn.addEventListener("click", cancelHandler);
   }
 });
 
-// REVIEW redirection
 window.reviewSet = function (key) {
   const [titleKey, createdOnKey] = key.split("___");
   const sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
@@ -120,8 +130,23 @@ function sanitize(str) {
     .replace(/>/g, "&gt;");
 }
 
-window.addEventListener("DOMContentLoaded", renderFlashcardSets);
-window.addEventListener("flashcardSetsUpdated", renderFlashcardSets);
+document.addEventListener("DOMContentLoaded", () => {
+  const filter = document.getElementById("folderFilter");
+  if (filter && filter.value === "your") {
+    renderFlashcardSets();
+  }
+});
+
+window.addEventListener("flashcardSetsUpdated", () => {
+  const filter = document.getElementById("folderFilter");
+  if (filter && filter.value === "your") {
+    renderFlashcardSets();
+  }
+});
+
 window.addEventListener("storage", e => {
-  if (e.key === "flashcardSets") renderFlashcardSets();
+  const filter = document.getElementById("folderFilter");
+  if (e.key === "flashcardSets" && filter && filter.value === "your") {
+    renderFlashcardSets();
+  }
 });

@@ -13,7 +13,7 @@
         <div class="container">
             <div class="left-side">
                 <button id="menu-toggle" class="menu-toggle">&#9776;</button>
-                <div class="logo"><img class="group-5" src="group-5.svg" /></div>
+                <div class="logo"><a href="#epbe"><img class="group-5" src="group-5.svg" /></a></div>
                 <div class="TTitle">FlipCards.</div>
             </div>
             <nav class="side-nav" id="sideNav">
@@ -88,7 +88,7 @@
     <section class="catchphrase">
         <div class="social-column">
             <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon fb" aria-label="Visit Facebook">
-                <img src="facebooknc.png" alt="Facebook" data-hover="Facebookc.png" data-default="facebooknc.png">
+                <img src="facebooknc.png" id="epbe" alt="Facebook" data-hover="Facebookc.png" data-default="facebooknc.png">
              </a>
             <a href="https://instagram.com/rph.wy" target="_blank"  class="social-icon">
                 <img src="instanc.png" data-hover="instac.png" data-default="instanc.png">
@@ -122,18 +122,34 @@
         <button class="music-icon profile" aria-label="Profile">
             <img src="profilenc.png" alt="Profile" data-hover="profilec.png" data-default="profilenc.png">
         </button>
+        <button class="music-icon notes" aria-label="Notes">
+            <img src="notenc.png" alt="Profile" data-hover="notec.png" data-default="notenc.png">
+        </button>
+        <button id="leaderboardsBtn" class="music-icon notes" aria-label="Leaderboards">
+    <img src="leadnc.png" alt="Leaderboards" data-hover="leadc.png" data-default="leadnc.png">
+</button>
+
+<!-- Chat button -->
+<button id="chatBtn" class="music-icon chat" aria-label="Chat">
+    <img src="chatnc.png" alt="Chat" data-hover="chatc.png" data-default="chatnc.png">
+</button>
     </div>
     <div id="musicModal" class="music-modal">
   <div id="musicModalHeader" class="music-modal-header">🎵 Spotify Playlist</div>
   <select id="playlistSelect">
-  <option value="3QhTLSPC91N9jQOqhDIODO">Playlist 1</option>
-  <option value="7ml2ua0UD8YWS9HULceCx1">Playlist 2</option>
-  <option value="6avG1f9f9Xahh5ljq98G2s">Playlist 3</option>
+  <option value="3QhTLSPC91N9jQOqhDIODO">Smiths</option>
+  <option value="7ml2ua0UD8YWS9HULceCx1">raaaph's Playlist</option>
+  <option value="6avG1f9f9Xahh5ljq98G2s">HUNTRX</option>
 </select>
 <iframe id="spotifyFrame" style="border-radius:12px; margin-top:10px;" width="100%" height="352"; min-height:200px;
  frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-</div>     
+</div> 
+<div id="notepad" class="notepad-modal hidden">
+  <div id="notepadHeader" class="notepad-header">📝 Notepad</div>
+  <textarea id="notepadText" placeholder="Type here..."></textarea>
+</div>
+
     </section>
     <section class="folder-section" id="Folderr">
   <h2 class="features-title" style="color: white;">Flashcard Folders</h2>
@@ -143,7 +159,7 @@
   </button>
 </a>
   <div style="margin: 20px auto; max-width: 300px; margin-bottom: 60px;">
-    <input id="folderSearch" type="text" placeholder="Search folders..." style="width: 100%; padding: 10px; border-radius: 8px; border: none; font-family: 'Accasia'; font-size: 15px;">
+    <input id="folderSearch" type="text" placeholder="Search folders...Emails or Users..." style="width: 100%; padding: 10px; border-radius: 8px; border: none; font-family: 'Accasia'; font-size: 15px;">
      <select id="folderFilter" style="padding: 10px 12px; border-radius: 8px; font-family: 'Accasia'; font-size: 15px; margin-top: 40px;">
     <option value="your" selected>Your Flashcard Sets</option>
     <option value="public">Public Flashcard Sets</option>
@@ -152,6 +168,8 @@
   <div class="folder-grid">
     
   </div>
+  
+
 </section>
 
 <section class="featuress" id="featuress">
@@ -166,24 +184,71 @@
     <p>Group your flashcards into decks for organized study sessions.</p>
   </div>
   <div class="feature-box">
-    <h3>Study Reminders</h3>
-    <p>Set reminders to keep your study habits consistent and on track.</p>
+    <h3>4 Modes to Review</h3>
+    <p>Master any topic using Flashcards, Learn, Match, and Test modes for flexible, effective studying.</p>
   </div>
   <div class="feature-box">
-    <h3>Progress Tracker</h3>
-    <p>Visualize your study performance and improvement over time.</p>
+    <h3>System Update Every Week</h3>
+    <p>Enjoy regular updates with bug fixes, UI improvements, and new feature rollouts every week.</p>
   </div>
   <div class="feature-box">
     <h3>Dark Mode</h3>
     <p>Reduce eye strain and study comfortably at night.</p>
   </div>
   <div class="feature-box">
-    <h3>Offline Access</h3>
-    <p>Review your decks anytime, even without an internet connection.</p>
+    <h3>Interact with Other Users</h3>
+    <p>Browse and study from public card sets shared by others to expand your learning and connect with the community.</p>
+  </div>
+</div>
+<div id="deleteModal" class="custom-modal hidden">
+  <div class="modal-content">
+    <div class="modal-message" id="deleteMessage">Are you sure you want to delete?</div>
+    <div class="modal-buttons">
+      <button id="confirmDelete" class="neumorphic-button">Okay</button>
+      <button id="cancelDelete" class="neumorphic-button">Cancel</button>
+      
+    </div>
+  </div>
+</div>
+<div id="comingSoonModal" class="custom-modal hidden">
+  <div class="modal-content">
+    <div class="modal-message">✨ Coming Soon!</div>
+    <div class="modal-buttons">
+      <button id="closeComingSoon" class="neumorphic-button">OK</button>
+    </div>
   </div>
 </div>
 
 </section>
+<section id="About" class="about-section">
+  <div class="about-container">
+    <h2 class="about-title">About Us</h2>
+    <p class="about-description">
+      We believe that quality education should be accessible to everyone. That’s why we built this platform—to provide students with a premium learning experience without the high costs found on other websites. Our goal is to support learners who may be struggling financially by offering powerful study tools, regular updates, and a vibrant community—all for free or at a minimal cost. Learning should empower, not burden—and we’re here to make that a reality.
+    </p>
+  </div>
+</section>
+<footer class="custom-footer">
+  <p class="footer-text">
+    Found any Bugs or Do you have Recommendations? Message us!
+  </p>
+
+  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=taberdoraphael189@gmail.com" target="_blank" class="footer-gmail">
+    <img src="gmeylnc.png" alt="Gmail" class="hover-switch" data-hover="gmeylc.png" data-default="gmeylnc.png">
+  </a>
+
+  <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="footer-gmail" aria-label="Visit Facebook">
+    <img src="facebooknc.png" alt="Facebook" class="hover-switch" data-hover="Facebookc.png" data-default="facebooknc.png">
+  </a>
+
+  <a href="https://instagram.com/rph.wy" target="_blank" class="footer-gmail">
+    <img src="instanc.png" alt="Instagram" class="hover-switch" data-hover="instac.png" data-default="instanc.png">
+  </a>
+  <div class="footer-logo">
+  <img src="group-5.svg" alt="Site Logo"><h1>FlipCards.</h1>
+</div>
+</footer>
+
 
     <script src="menu.js"></script>
     <script type="module" src="public.js"></script>
@@ -192,7 +257,7 @@
     <script src="orb.js"></script>
     <script src="music.js"></script>
     <script src="displaylocalsets.js"></script>
-
+    
     <script>
   document.querySelectorAll('.hover-switch').forEach(img => {
     const defaultSrc = img.getAttribute('data-default');
@@ -210,13 +275,70 @@
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const geminiBtn = document.getElementById("geminiBtn");
-    if (geminiBtn) {
-      geminiBtn.addEventListener("click", () => {
-        alert("🚧 Coming Soon!");
+    const leaderboardsBtn = document.getElementById("leaderboardsBtn");
+    const chatBtn = document.getElementById("chatBtn");
+    const comingModal = document.getElementById("comingSoonModal");
+    const closeComing = document.getElementById("closeComingSoon");
+
+    function showComingSoon() {
+      comingModal.classList.remove("hidden");
+    }
+
+    if (geminiBtn) geminiBtn.addEventListener("click", showComingSoon);
+    if (leaderboardsBtn) leaderboardsBtn.addEventListener("click", showComingSoon);
+    if (chatBtn) chatBtn.addEventListener("click", showComingSoon);
+
+    if (closeComing) {
+      closeComing.addEventListener("click", () => {
+        comingModal.classList.add("hidden");
       });
     }
   });
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const noteBtn = document.querySelector(".music-icon.notes");
+    const notepad = document.getElementById("notepad");
+    const notepadHeader = document.getElementById("notepadHeader");
+    const notepadText = document.getElementById("notepadText");
+
+    // Load saved note
+    notepadText.value = localStorage.getItem("userNote") || "";
+
+    // Real-time saving
+    notepadText.addEventListener("input", () => {
+      localStorage.setItem("userNote", notepadText.value);
+    });
+
+    // Toggle visibility
+    noteBtn.addEventListener("click", () => {
+      notepad.classList.toggle("hidden");
+    });
+
+    // Drag functionality
+    let offsetX = 0, offsetY = 0, isDragging = false;
+
+    notepadHeader.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      offsetX = e.clientX - notepad.offsetLeft;
+      offsetY = e.clientY - notepad.offsetTop;
+      document.body.style.userSelect = "none";
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+      document.body.style.userSelect = "";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      notepad.style.left = `${e.clientX - offsetX}px`;
+      notepad.style.top = `${e.clientY - offsetY}px`;
+    });
+  });
+</script>
+
 
 
 

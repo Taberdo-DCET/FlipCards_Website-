@@ -3,6 +3,12 @@
   src: url('Accasia_Demo.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
+}
+@font-face {
+  font-family: 'QilkaBold';
+  src: url('Qilka-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
 }body {
   background-color: #171717;
   font-family: 'Accasia', sans-serif;
@@ -30,11 +36,12 @@
 .page-title {
   font-size: 1.5rem;
   margin-bottom: 40px;
-  background: #171717;
-  border: 1px solid black;
+  
+ 
   border-radius: 15px;
-  box-shadow: 8px 8px 16px #0e0e0e, -8px -8px 16px #202020;
+
   padding: 11px 200px;
+  font-family: 'QilkaBold', sans-serif;
   
 }
 
@@ -127,6 +134,25 @@
 .flashcard .back {
   transform: rotateY(180deg);
 }
+.flashcard:not(.flipped) .back {
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.flashcard.flipped .back {
+  opacity: 1;
+  pointer-events: auto;
+}
+.flashcard .front {
+  transition: opacity 0.3s ease;
+}
+
+.flashcard.flipped .front {
+  opacity: 1;
+  pointer-events: none;
+}
+
 .navigation-buttons {
   margin-top: 90px;
   margin-left: 0px;
@@ -230,5 +256,35 @@
   border-radius: 12px;
   box-shadow: inset 4px 4px 10px #0e0e0e, inset -4px -4px 10px #202020;
   text-align: center;
+}
+.dot-tracker-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: -25px;
+  margin-bottom: 30px;
+  overflow: hidden;
+  max-width: calc((12px + 10px) * 10 + 150px); /* 6 visible dots */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.dot-tracker {
+  display: flex;
+  gap: 10px;
+  transition: transform 0.3s ease;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background-color: transparent;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.dot.active {
+  background-color: rgb(255, 225, 0);
 }
 

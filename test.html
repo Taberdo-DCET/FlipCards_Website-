@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test | FlipCards</title>
+  <link rel="stylesheet" href="test.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+</head>
+<body>
+
+  <div class="title-bar" id="titlee">
+    <h1>Flashcard Quiz</h1>
+  </div>
+  
+<div class="button-container">
+      <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
+      <button class="neumorphic-button active" onclick="goToMatch()">Test</button>
+      <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
+      <button class="neumorphic-button" onclick="goToMatch()">Match</button>
+    </div>
+    <a href="lobby.html#Folderr" class="home-wrapper">
+  <img src="homeenc.png" alt="Home" class="home-btn hover-switch" data-hover="homeec.png" data-default="homeenc.png" />
+</a>
+  <div class="card-container">
+    <div class="definition-text" id="definition">
+      This is where the definition or question will appear.
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="termInput" placeholder="What is the term? Enter answer here...">
+      <button onclick="submitAnswer()">Submit</button>
+    </div>
+  </div>
+  <div class="custom-alert" id="customAlert">
+  <div class="custom-alert-box">
+    <p id="customAlertMessage"></p>
+    <button class="neumorphic-button" onclick="closeCustomAlert()">Okay!</button>
+  </div>
+</div>
+<div class="dot-tracker-wrapper">
+  <div class="dot-tracker" id="dotTracker"></div>
+</div>
+
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    // Hover image switching
+    document.querySelectorAll('.hover-switch').forEach(img => {
+      const def = img.getAttribute('data-default');
+      const hov = img.getAttribute('data-hover');
+      img.addEventListener('mouseover', () => img.src = hov);
+      img.addEventListener('mouseout', () => img.src = def);
+    });
+
+    const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+    if (!reviewingSet || !reviewingSet.flashcards || reviewingSet.flashcards.length === 0) {
+      document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data to test.</h2>";
+      return;
+    }
+
+    let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
+    const flashcards = reviewingSet.flashcards;
+
+    document.querySelector('.title-bar h1').textContent = reviewingSet.title || "Flashcard Quiz";
+    const defElement = document.getElementById("definition");
+    const termInput = document.getElementById("termInput");
+
+    setupDotTracker(flashcards.length);
+    updateDefinition(currentIndex);
+
+    function updateDefinition(index) {
+      defElement.textContent = flashcards[index].definition;
+      updateDotTracker(index, flashcards.length);
+    }
+
+    function submitAnswer() {
+      const input = termInput.value.trim();
+      if (!input) {
+        showCustomAlert("⚠️ Please enter your answer.");
+        return;
+      }
+
+      const correct = flashcards[currentIndex].term;
+      if (input.toLowerCase() === correct.toLowerCase()) {
+        showCustomAlert("✅ Correct!");
+      } else {
+        showCustomAlert(`❌ Incorrect.<br>The correct answer was: <strong>${correct}</strong>`);
+      }
+
+      currentIndex = (currentIndex + 1) % flashcards.length;
+      localStorage.setItem("currentIndex", currentIndex);
+      updateDefinition(currentIndex);
+      termInput.value = "";
+    }
+
+    function showCustomAlert(message) {
+      const alertBox = document.getElementById("customAlert");
+      const alertMsg = document.getElementById("customAlertMessage");
+      alertMsg.innerHTML = message;
+      alertBox.style.display = "flex";
+    }
+
+    function closeCustomAlert() {
+      document.getElementById("customAlert").style.display = "none";
+    }
+
+    // Dot tracker setup
+    function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement("div");
+        dot.classList.add("dot");
+        container.appendChild(dot);
+      }
+    }
+
+    function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVisible = 6) {
+      const container = document.getElementById(containerId);
+      const dots = container.querySelectorAll(".dot");
+
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("active", i === currentIndex);
+      });
+
+      let start = Math.max(0, currentIndex - Math.floor(maxVisible / 2));
+      start = Math.min(start, Math.max(0, total - maxVisible));
+      const offset = start * (12 + 10); // dot width + gap
+      container.style.transform = `translateX(-${offset}px)`;
+    }
+
+    // Keyboard Events
+    termInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitAnswer();
+      }
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (document.activeElement.tagName !== "INPUT") {
+        if (e.key === "ArrowRight") {
+          currentIndex = (currentIndex + 1) % flashcards.length;
+          localStorage.setItem("currentIndex", currentIndex);
+          updateDefinition(currentIndex);
+        } else if (e.key === "ArrowLeft") {
+          currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+          localStorage.setItem("currentIndex", currentIndex);
+          updateDefinition(currentIndex);
+        }
+      }
+    });
+
+    // Navigation
+    window.goToFlashcard = function () {
+      localStorage.setItem("currentIndex", currentIndex);
+      window.location.href = "flashcard.html";
+    };
+
+    window.goToLearn = function () {
+      localStorage.setItem("currentIndex", currentIndex);
+      window.location.href = "learn.html";
+    };
+
+    window.goToMatch = function () {
+      localStorage.setItem("currentIndex", currentIndex);
+      window.location.href = "match.html";
+    };
+
+    window.closeCustomAlert = closeCustomAlert;
+    window.submitAnswer = submitAnswer;
+  });
+</script>
+
+
+</body>
+</html>

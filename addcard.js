@@ -126,9 +126,12 @@ createBtn.addEventListener("click", async () => {
   });
 
   if (!title || flashcards.length === 0 || !valid) {
-    alert("Please enter a title, and make sure all flashcards have both term and definition.");
-    return;
-  }
+  document.getElementById("createAlertMessage").textContent =
+    "Please enter a title, and make sure all flashcards have both term and definition.";
+  document.getElementById("createAlertModal").classList.remove("hidden");
+  return;
+}
+
 
   const user = auth.currentUser;
 
@@ -170,24 +173,32 @@ createBtn.addEventListener("click", async () => {
     alert("Flashcard set updated.");
   } else {
     existing.push(data);
-    localStorage.setItem("flashcardSets", JSON.stringify(existing));
-    alert(isPublic ? "Flashcard set saved to Firebase and localStorage!" : "Flashcard set saved locally only.");
+localStorage.setItem("flashcardSets", JSON.stringify(existing));
+
+if (isPublic && user) {
+  const firebaseData = { ...data, user: user.email };
+  try {
+    await addDoc(collection(db, "flashcard_sets"), firebaseData);
+    console.log("Public flashcard set uploaded to Firebase.");
+    document.getElementById("createAlertMessage").textContent =
+      "Flashcard set saved to Firebase and localStorage!";
+  } catch (error) {
+    console.error("Error uploading to Firebase:", error);
+    document.getElementById("createAlertMessage").textContent =
+      "Failed to upload public set to server. Saved locally only.";
+  }
+} else {
+  document.getElementById("createAlertMessage").textContent =
+    "Flashcard set saved locally only.";
+}
+
+document.getElementById("createAlertModal").classList.remove("hidden");
+
+
   }
 
   // ✅ Upload to Firebase if public
-  if (isPublic && user) {
-    const firebaseData = {
-      ...data,
-      user: user.email
-    };
-    try {
-      await addDoc(collection(db, "flashcard_sets"), firebaseData);
-      console.log("Public flashcard set uploaded to Firebase.");
-    } catch (error) {
-      console.error("Error uploading to Firebase:", error);
-      alert("Failed to upload public set to server.");
-    }
-  }
+  
 
   clearForm();
 });
@@ -227,3 +238,7 @@ onAuthStateChanged(auth, user => {
     alert("You must be logged in to create a public flashcard set.");
   }
 });
+document.getElementById("closeCreateAlert").addEventListener("click", () => {
+  document.getElementById("createAlertModal").classList.add("hidden");
+});
+
