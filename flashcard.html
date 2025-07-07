@@ -212,6 +212,9 @@ function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVi
     window.location.href = "learn.html";
   }
 </script>
-
+<script type="module">
+  import { checkUserStatus } from './userstatuscheck.js';
+  checkUserStatus();
+</script>
 </body>
 </html>

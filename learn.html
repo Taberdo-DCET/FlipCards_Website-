@@ -190,7 +190,10 @@ document.addEventListener("keydown", function (e) {
     window.location.href = "match.html";
   }
 </script>
-
+<script type="module">
+  import { checkUserStatus } from './userstatuscheck.js';
+  checkUserStatus();
+</script>
 
 </body>
 </html>

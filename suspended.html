@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Suspended Account.</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+  <style>
+    body {
+      background: #171717;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .suspend-box {
+      background: #1f1f1f;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow:
+        inset 5px 5px 15px #0f0f0f,
+        inset -5px -5px 15px #2f2f2f,
+        5px 5px 15px #0f0f0f80,
+        -5px -5px 15px #2f2f2f80;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .suspend-box h1 {
+      font-size: 1.6em;
+      margin-bottom: 10px;
+    }
+
+    .suspend-box p {
+      margin: 10px 0;
+      font-size: 1em;
+    }
+
+    .countdown {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #ffcf00;
+    }
+  </style>
+</head>
+<body>
+  <div class="suspend-box">
+    <h1>🚫 You're Suspended</h1>
+    <p id="reason">Checking reason...</p>
+    <p>You’ll regain access at:</p>
+    <p class="countdown" id="resumeTime">Loading...</p>
+    <p id="timer">--:--:-- remaining</p>
+  </div>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+
+    const firebaseConfig = {
+      // 🔁 Replace with your Firebase config
+      apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
+      authDomain: "flipcards-7adab.firebaseapp.com",
+      projectId: "flipcards-7adab",
+      // ...etc
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth();
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) return;
+
+      const docRef = doc(db, "users", user.email);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const suspendUntil = data.suspendUntil?.toDate?.();
+        const suspendReason = data.suspendReason || "No reason provided";
+
+        if (!suspendUntil || suspendUntil <= new Date()) {
+          window.location.href = "lobby.html";
+        } else {
+          document.getElementById("reason").textContent = "Reason: " + suspendReason;
+          document.getElementById("resumeTime").textContent =
+            suspendUntil.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
+            " on " +
+            suspendUntil.toLocaleDateString();
+
+          const timerEl = document.getElementById("timer");
+
+          function updateCountdown() {
+            const now = new Date();
+            const remaining = suspendUntil - now;
+
+            if (remaining <= 0) {
+              window.location.href = "lobby.html";
+              return;
+            }
+
+            const hrs = Math.floor((remaining / (1000 * 60 * 60)) % 24);
+            const mins = Math.floor((remaining / (1000 * 60)) % 60);
+            const secs = Math.floor((remaining / 1000) % 60);
+            timerEl.textContent = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} remaining`;
+          }
+
+          updateCountdown();
+          setInterval(updateCountdown, 1000);
+        }
+      } else {
+        window.location.href = "lobby.html";
+      }
+    });
+  </script>
+</body>
+</html>

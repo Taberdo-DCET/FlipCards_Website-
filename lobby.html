@@ -311,9 +311,15 @@
       localStorage.setItem("userNote", notepadText.value);
     });
 
-    // Toggle visibility
+    // Toggle visibility & reset position on open
     noteBtn.addEventListener("click", () => {
+      const isHidden = notepad.classList.contains("hidden");
       notepad.classList.toggle("hidden");
+
+      if (isHidden) {
+        notepad.style.left = '';
+        notepad.style.top = '';
+      }
     });
 
     // Drag functionality
@@ -339,6 +345,10 @@
   });
 </script>
 
+<script type="module">
+  import { checkUserStatus } from './userstatuscheck.js';
+  checkUserStatus();
+</script>
 
 
 

@@ -1,9 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import { updateDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import {
   getFirestore,
   collection,
   addDoc,
   getDocs,
+  getDoc,
+  doc,
   query,
   where
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
@@ -100,7 +103,6 @@ function clearForm() {
     }
   });
 
-  // Reset labels
   if (createBtn) createBtn.textContent = "Create";
   if (practiceBtn) practiceBtn.textContent = "Create and Practice";
 
@@ -126,24 +128,38 @@ createBtn.addEventListener("click", async () => {
   });
 
   if (!title || flashcards.length === 0 || !valid) {
-  document.getElementById("createAlertMessage").textContent =
-    "Please enter a title, and make sure all flashcards have both term and definition.";
-  document.getElementById("createAlertModal").classList.remove("hidden");
-  return;
-}
-
+    document.getElementById("createAlertMessage").textContent =
+      "Please enter a title, and make sure all flashcards have both term and definition.";
+    document.getElementById("createAlertModal").classList.remove("hidden");
+    return;
+  }
 
   const user = auth.currentUser;
 
   if (isPublic && user) {
+    let maxPublicSets = 2;
+
+    try {
+      const docRef = doc(db, "approved_emails", user.email);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.allowed === true) {
+          maxPublicSets = 5;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not check approval status:", err);
+    }
+
     const q = query(
       collection(db, "flashcard_sets"),
       where("user", "==", user.email),
       where("public", "==", true)
     );
     const snapshot = await getDocs(q);
-    if (snapshot.size >= 2) {
-      alert("You can only have 2 public flashcard sets.");
+    if (snapshot.size >= maxPublicSets) {
+      alert(`You can only have ${maxPublicSets} public flashcard set${maxPublicSets > 1 ? "s" : ""}.`);
       return;
     }
   }
@@ -163,47 +179,71 @@ createBtn.addEventListener("click", async () => {
   const existing = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
 
   if (isEditMode) {
-    const updated = existing.map(set => {
-      if (set.title === originalTitle && set.createdOn === originalCreatedOn) {
-        return data;
-      }
-      return set;
-    });
-    localStorage.setItem("flashcardSets", JSON.stringify(updated));
-    alert("Flashcard set updated.");
-  } else {
-    existing.push(data);
-localStorage.setItem("flashcardSets", JSON.stringify(existing));
+  const updated = existing.map(set => {
+    if (set.title === originalTitle && set.createdOn === originalCreatedOn) {
+      return data;
+    }
+    return set;
+  });
+  localStorage.setItem("flashcardSets", JSON.stringify(updated));
 
-if (isPublic && user) {
-  const firebaseData = { ...data, user: user.email };
-  try {
-    await addDoc(collection(db, "flashcard_sets"), firebaseData);
-    console.log("Public flashcard set uploaded to Firebase.");
-    document.getElementById("createAlertMessage").textContent =
-      "Flashcard set saved to Firebase and localStorage!";
-  } catch (error) {
-    console.error("Error uploading to Firebase:", error);
-    document.getElementById("createAlertMessage").textContent =
-      "Failed to upload public set to server. Saved locally only.";
+  // If set is public, update in Firebase too
+  if (isPublic && user) {
+    try {
+      const q = query(
+        collection(db, "flashcard_sets"),
+        where("user", "==", user.email),
+        where("title", "==", originalTitle),
+        where("createdOn", "==", originalCreatedOn)
+      );
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        const docRef = snapshot.docs[0].ref;
+// (make sure this import is at the top if not yet included)
+
+await updateDoc(docRef, { ...data, user: user.email });
+
+        alert("Flashcard set updated in Firebase and localStorage.");
+      } else {
+        alert("No matching public flashcard set found in Firebase to update.");
+      }
+    } catch (err) {
+      console.error("Error updating Firebase set:", err);
+      alert("Updated locally, but failed to update in Firebase.");
+    }
+  } else {
+    alert("Flashcard set updated locally.");
   }
-} else {
-  document.getElementById("createAlertMessage").textContent =
-    "Flashcard set saved locally only.";
 }
 
-document.getElementById("createAlertModal").classList.remove("hidden");
+  else {
+    existing.push(data);
+    localStorage.setItem("flashcardSets", JSON.stringify(existing));
 
+    if (isPublic && user) {
+      const firebaseData = { ...data, user: user.email };
+      try {
+        await addDoc(collection(db, "flashcard_sets"), firebaseData);
+        console.log("Public flashcard set uploaded to Firebase.");
+        document.getElementById("createAlertMessage").textContent =
+          "Flashcard set saved to Firebase and localStorage!";
+      } catch (error) {
+        console.error("Error uploading to Firebase:", error);
+        document.getElementById("createAlertMessage").textContent =
+          "Failed to upload public set to server. Saved locally only.";
+      }
+    } else {
+      document.getElementById("createAlertMessage").textContent =
+        "Flashcard set saved locally only.";
+    }
 
+    document.getElementById("createAlertModal").classList.remove("hidden");
   }
-
-  // ✅ Upload to Firebase if public
-  
 
   clearForm();
 });
 
-// 🔄 Load edit mode
 window.addEventListener("DOMContentLoaded", () => {
   const data = JSON.parse(localStorage.getItem("editingFlashcardSet"));
   if (!data) return;
@@ -226,7 +266,6 @@ window.addEventListener("DOMContentLoaded", () => {
     wrapper.insertBefore(card, document.querySelector(".btn-row"));
   });
 
-  // Update labels
   if (createBtn) createBtn.textContent = "Update";
   if (practiceBtn) practiceBtn.textContent = "Update and Practice";
 
@@ -238,7 +277,7 @@ onAuthStateChanged(auth, user => {
     alert("You must be logged in to create a public flashcard set.");
   }
 });
+
 document.getElementById("closeCreateAlert").addEventListener("click", () => {
   document.getElementById("createAlertModal").classList.add("hidden");
 });
-

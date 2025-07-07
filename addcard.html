@@ -114,6 +114,9 @@
     img.addEventListener('mouseout', () => img.src = def);
   });
 </script>
-
+<script type="module">
+  import { checkUserStatus } from './userstatuscheck.js';
+  checkUserStatus();
+</script>
 </body>
 </html>
