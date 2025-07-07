@@ -8,7 +8,8 @@ import {
   getDoc,
   doc,
   query,
-  where
+  where,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import {
   getAuth,
@@ -143,12 +144,11 @@ createBtn.addEventListener("click", async () => {
       const docRef = doc(db, "approved_emails", user.email);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-  const data = docSnap.data();
-  if (typeof data.maxPublicSets === "number") {
-    maxPublicSets = data.maxPublicSets;
-  }
-}
-
+        const data = docSnap.data();
+        if (typeof data.maxPublicSets === "number") {
+          maxPublicSets = data.maxPublicSets;
+        }
+      }
     } catch (err) {
       console.warn("Could not check approval status:", err);
     }
@@ -180,52 +180,49 @@ createBtn.addEventListener("click", async () => {
   const existing = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
 
   if (isEditMode) {
-  const updated = existing.map(set => {
-    if (set.title === originalTitle && set.createdOn === originalCreatedOn) {
-      return data;
-    }
-    return set;
-  });
-  localStorage.setItem("flashcardSets", JSON.stringify(updated));
-
-  // If set is public, update in Firebase too
-  if (isPublic && user) {
-    try {
-      const q = query(
-        collection(db, "flashcard_sets"),
-        where("user", "==", user.email),
-        where("title", "==", originalTitle),
-        where("createdOn", "==", originalCreatedOn)
-      );
-      const snapshot = await getDocs(q);
-
-      if (!snapshot.empty) {
-        const docRef = snapshot.docs[0].ref;
-// (make sure this import is at the top if not yet included)
-
-await updateDoc(docRef, { ...data, user: user.email });
-
-        alert("Flashcard set updated in Firebase and localStorage.");
-      } else {
-        alert("No matching public flashcard set found in Firebase to update.");
+    const updated = existing.map(set => {
+      if (set.title === originalTitle && set.createdOn === originalCreatedOn) {
+        return data;
       }
-    } catch (err) {
-      console.error("Error updating Firebase set:", err);
-      alert("Updated locally, but failed to update in Firebase.");
+      return set;
+    });
+    localStorage.setItem("flashcardSets", JSON.stringify(updated));
+
+    if (isPublic && user) {
+      try {
+        const q = query(
+          collection(db, "flashcard_sets"),
+          where("user", "==", user.email),
+          where("title", "==", originalTitle),
+          where("createdOn", "==", originalCreatedOn)
+        );
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          const docRef = snapshot.docs[0].ref;
+          await updateDoc(docRef, { ...data, user: user.email });
+          alert("Flashcard set updated in Firebase and localStorage.");
+        } else {
+          alert("No matching public flashcard set found in Firebase to update.");
+        }
+      } catch (err) {
+        console.error("Error updating Firebase set:", err);
+        alert("Updated locally, but failed to update in Firebase.");
+      }
+    } else {
+      alert("Flashcard set updated locally.");
     }
   } else {
-    alert("Flashcard set updated locally.");
-  }
-}
-
-  else {
     existing.push(data);
     localStorage.setItem("flashcardSets", JSON.stringify(existing));
 
     if (isPublic && user) {
       const firebaseData = { ...data, user: user.email };
+      const safeEmail = user.email.replace(/\./g, "_");
+      const timestamp = Date.now();
+      const docId = `${safeEmail}_${timestamp}`;
       try {
-        await addDoc(collection(db, "flashcard_sets"), firebaseData);
+        await setDoc(doc(db, "flashcard_sets", docId), firebaseData);
         console.log("Public flashcard set uploaded to Firebase.");
         document.getElementById("createAlertMessage").textContent =
           "Flashcard set saved to Firebase and localStorage!";

@@ -130,9 +130,14 @@
 </button>
 
 <!-- Chat button -->
-<button id="chatBtn" class="music-icon chat" aria-label="Chat">
+<a href="chat.html" class="chat-link">
+  <button class="music-icon chat" aria-label="Chat" id="chatIconButton">
+    <span id="chatDot" class="chat-dot" style="display: none;"></span>
     <img src="chatnc.png" alt="Chat" data-hover="chatc.png" data-default="chatnc.png">
-</button>
+  </button>
+</a>
+
+
     </div>
     <div id="musicModal" class="music-modal">
   <div id="musicModalHeader" class="music-modal-header">🎵 Spotify Playlist</div>
@@ -248,6 +253,59 @@
   <img src="group-5.svg" alt="Site Logo"><h1>FlipCards.</h1>
 </div>
 </footer>
+<!-- Profile Modal -->
+<div id="profileModal" class="custom-modal hidden" style="top: 80px; left: 20px; right: auto; bottom: auto; justify-content: flex-start; align-items: flex-start;">
+
+  <div class="modal-content">
+    <div class="modal-message" style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+      <!-- Avatar Upload -->
+      <label for="avatarInput" style="cursor: pointer;">
+        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+        <img src="profilenc.png" alt="Avatar" id="avatarPreview" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
+      </label>
+
+      <!-- Email Display -->
+      <div id="userEmail" style="color: white; font-family: 'Accasia', sans-serif;">your@email.com</div>
+    </div>
+
+    <div class="modal-buttons" style="margin-top: 30px; flex-direction: column; gap: 12px;">
+      <button class="neumorphic-button" onclick="alert('Leaderboards feature coming soon!')">🏆 Leaderboards</button>
+      <button class="neumorphic-button" onclick="alert('Settings feature coming soon!')">⚙️ Settings</button>
+      <a href="index.html"><button class="neumorphic-button">🚪 Logout</button></a>
+    </div>
+  </div>
+</div>
+<div id="welcomeModal" class="custom-modal hidden">
+  <div class="modal-content" style="background: #171717; border-radius: 20px; padding: 30px; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center;">
+    <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
+    <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
+    <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
+      <li>📅 New features in this Update:</li>
+      <li>💬 Chat is now Available!!</li>
+      <li>🙍 Profile is accessible!</li>
+      <li>✏️ You can now edit public card sets!</li>
+      <li>🛠 Bug Fixes</li>
+    </ul>
+    <button id="dismissWelcome" class="neumorphic-button" style="margin-top: 20px;">Okay</button>
+  </div>
+</div>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("welcomeModal");
+    const dismissBtn = document.getElementById("dismissWelcome");
+
+    if (sessionStorage.getItem("justLoggedIn") === "true") {
+      modal.classList.remove("hidden");
+      sessionStorage.removeItem("justLoggedIn"); // prevent repeat
+    }
+
+    dismissBtn?.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+  });
+</script>
+
+
 
 
     <script src="menu.js"></script>
@@ -257,7 +315,87 @@
     <script src="orb.js"></script>
     <script src="music.js"></script>
     <script src="displaylocalsets.js"></script>
-    
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import {
+    getFirestore, collection, query, orderBy, onSnapshot, getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
+    authDomain: "flipcards-7adab.firebaseapp.com",
+    projectId: "flipcards-7adab",
+    storageBucket: "flipcards-7adab.firebasestorage.app",
+    messagingSenderId: "836765717736",
+    appId: "1:836765717736:web:ff749a40245798307b655d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const currentUser = user.email;
+    const chatDot = document.getElementById("chatDot");
+
+    const snapshot = await getDocs(collection(db, "approved_emails"));
+    const otherUsers = [];
+    snapshot.forEach(doc => {
+      if (doc.id !== currentUser) otherUsers.push(doc.id);
+    });
+
+    const chatListeners = [];
+
+    otherUsers.forEach(otherEmail => {
+      const chatId = [currentUser, otherEmail].sort().join("_to_");
+      const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp'));
+
+      const unsub = onSnapshot(q, snap => {
+        let unread = false;
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          if (
+            data.sender === otherEmail &&
+            !(data.readBy || []).includes(currentUser)
+          ) {
+            unread = true;
+          }
+        });
+
+        if (unread) {
+          chatDot.style.display = "block";
+        } else {
+          // check if any other unread messages exist
+          let anyUnread = false;
+          for (const listener of chatListeners) {
+            if (listener.unread) {
+              anyUnread = true;
+              break;
+            }
+          }
+          if (!anyUnread) {
+            chatDot.style.display = "none";
+          }
+        }
+
+        // track this chat’s unread state
+        const listener = chatListeners.find(l => l.email === otherEmail);
+        if (listener) {
+          listener.unread = unread;
+        } else {
+          chatListeners.push({ email: otherEmail, unread });
+        }
+      });
+    });
+  });
+</script>
+
+
     <script>
   document.querySelectorAll('.hover-switch').forEach(img => {
     const defaultSrc = img.getAttribute('data-default');
@@ -349,6 +487,11 @@
   import { checkUserStatus } from './userstatuscheck.js';
   checkUserStatus();
 </script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="profile.js"></script>
+
+
 
 
 

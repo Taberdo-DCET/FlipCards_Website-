@@ -77,7 +77,9 @@ window.login = async function () {
       lastLogin: serverTimestamp()
     }, { merge: true });
 
-    window.location.href = "lobby.html";
+    sessionStorage.setItem("justLoggedIn", "true");
+window.location.href = "lobby.html";
+
   } catch (error) {
     if (error.code === "auth/user-not-found") {
       try {
@@ -86,7 +88,9 @@ window.login = async function () {
           deviceId: deviceId,
           lastLogin: serverTimestamp()
         });
-        window.location.href = "lobby.html";
+        sessionStorage.setItem("justLoggedIn", "true");
+window.location.href = "lobby.html";
+
       } catch (err) {
         alert("Account creation failed: " + err.message);
       }

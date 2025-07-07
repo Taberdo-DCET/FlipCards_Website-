@@ -19,7 +19,7 @@ export function checkUserStatus() {
           const suspendUntil = data.suspendUntil?.toDate?.();
 
           if (suspendUntil && suspendUntil > now) {
-            window.location.href = "/suspended.html";
+            window.location.href = "suspended.html";
           }
         }
       });
