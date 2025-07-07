@@ -143,11 +143,12 @@ createBtn.addEventListener("click", async () => {
       const docRef = doc(db, "approved_emails", user.email);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.allowed === true) {
-          maxPublicSets = 5;
-        }
-      }
+  const data = docSnap.data();
+  if (typeof data.maxPublicSets === "number") {
+    maxPublicSets = data.maxPublicSets;
+  }
+}
+
     } catch (err) {
       console.warn("Could not check approval status:", err);
     }
