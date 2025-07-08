@@ -26,10 +26,52 @@ let activeUnsubscribe = null;
 let allUserEmails = [];
 
 const messagesContainer = document.querySelector(".messages");
-const input = document.querySelector(".input-area input");
-const sendBtn = document.querySelector(".input-area button");
+const input = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const emojiBtn = document.getElementById("emojiBtn");
+const chatNavbar = document.getElementById("chatNavbar");
 const sidebarHeader = document.querySelector(".sidebar-header");
 const userListContainer = document.querySelector(".user-list");
+
+const emojis = ["😊", "😂", "❤️", "🔥", "👍", "🥺", "😭", "🥰", "😎", "😡", "😅", "🤔", "🎉", "🙄"];
+
+emojiBtn.addEventListener("click", () => {
+  let picker = document.getElementById("emojiPicker");
+  if (picker) {
+    picker.remove();
+    return;
+  }
+
+  picker = document.createElement("div");
+  picker.id = "emojiPicker";
+  picker.style.position = "absolute";
+  picker.style.bottom = "70px";
+  picker.style.right = "90px";
+  picker.style.background = "#1a1a1a";
+  picker.style.padding = "10px";
+  picker.style.borderRadius = "10px";
+  picker.style.boxShadow = "0 0 10px #000";
+  picker.style.display = "grid";
+  picker.style.gridTemplateColumns = "repeat(5, 1fr)";
+  picker.style.gap = "8px";
+  picker.style.zIndex = "999";
+
+  emojis.forEach(e => {
+    const btn = document.createElement("button");
+    btn.textContent = e;
+    btn.style.fontSize = "20px";
+    btn.style.background = "transparent";
+    btn.style.border = "none";
+    btn.style.cursor = "pointer";
+    btn.addEventListener("click", () => {
+      input.value += e;
+      input.focus();
+    });
+    picker.appendChild(btn);
+  });
+
+  document.body.appendChild(picker);
+});
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -47,14 +89,17 @@ sendBtn.addEventListener("click", async () => {
   if (!text || !selectedUser || !currentUser) return;
 
   const chatId = getChatId(currentUser, selectedUser);
-  const expireAt = Timestamp.fromDate(new Date(Date.now() + 30 * 60 * 1000));
 
   await addDoc(collection(db, 'chats', chatId, 'messages'), {
     sender: currentUser,
     text,
     timestamp: serverTimestamp(),
-    expireAt,
-    readBy: [currentUser] // sender has read their own message
+    readBy: [currentUser],
+    readByMap: {
+      [currentUser]: Timestamp.now()
+    },
+    deleted: false,
+    expiredAt: null
   });
 
   input.value = "";
@@ -64,25 +109,6 @@ input.addEventListener("keydown", async (e) => {
     sendBtn.click();
   }
 });
-async function deleteExpiredMessages(chatId) {
-  const now = Timestamp.now();
-  const messagesRef = collection(db, 'chats', chatId, 'messages');
-  const q = query(messagesRef, where('expireAt', '<=', now));
-  const snapshot = await getDocs(q);
-
-  snapshot.forEach(docSnap => {
-    const el = document.getElementById(docSnap.id);
-    if (el) {
-      el.classList.add('fade-out');
-      setTimeout(() => {
-        if (el.parentNode) el.parentNode.removeChild(el);
-        deleteDoc(docSnap.ref);
-      }, 500);
-    } else {
-      deleteDoc(docSnap.ref);
-    }
-  });
-}
 
 async function markMessagesAsRead(chatId, fromUser) {
   const q = query(
@@ -93,16 +119,22 @@ async function markMessagesAsRead(chatId, fromUser) {
   for (const docSnap of snapshot.docs) {
     const data = docSnap.data();
     const readBy = new Set(data.readBy || []);
+    const readByMap = data.readByMap || {};
+
     if (!readBy.has(currentUser)) {
       readBy.add(currentUser);
-      await updateDoc(docSnap.ref, { readBy: Array.from(readBy) });
+      readByMap[currentUser] = Timestamp.now();
+
+      await updateDoc(docSnap.ref, {
+        readBy: Array.from(readBy),
+        readByMap: readByMap
+      });
     }
   }
 }
 
 async function loadMessages(user1, user2) {
   const chatId = getChatId(user1, user2);
-  await deleteExpiredMessages(chatId);
   await markMessagesAsRead(chatId, user2);
 
   const messagesRef = collection(db, 'chats', chatId, 'messages');
@@ -115,16 +147,15 @@ async function loadMessages(user1, user2) {
   activeUnsubscribe = onSnapshot(q, snapshot => {
     if (selectedUser !== user2) return;
 
-    const seen = new Set();
     snapshot.forEach(doc => {
-      if (seen.has(doc.id)) return;
-      seen.add(doc.id);
-
-      if (document.getElementById(doc.id)) return;
-
       const msg = doc.data();
+
+      const existing = document.getElementById(doc.id);
+      if (existing) existing.remove();
+
       const div = document.createElement("div");
       div.className = `message ${msg.sender === currentUser ? 'sent' : 'received'} slide-in`;
+      if (msg.deleted) div.classList.add("deleted");
       div.id = doc.id;
 
       const meta = document.createElement("div");
@@ -136,11 +167,43 @@ async function loadMessages(user1, user2) {
       const body = document.createElement("div");
       body.textContent = msg.text;
 
+      const countdown = document.createElement("div");
+      countdown.className = "countdown";
+
       div.appendChild(meta);
       div.appendChild(body);
+      div.appendChild(countdown);
       messagesContainer.appendChild(div);
-
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      let expireStart = msg.expiredAt?.toMillis?.();
+      if (!expireStart) {
+        const readByMap = msg.readByMap || {};
+        const latestRead = Math.max(...Object.values(readByMap).map(ts => ts.toMillis?.() || 0));
+        expireStart = latestRead;
+      }
+
+      const interval = setInterval(() => {
+        const now = Date.now();
+        const remaining = 5 * 60 * 1000 - (now - expireStart);
+
+        if (remaining <= 0) {
+          clearInterval(interval);
+
+          if (!msg.deleted) {
+            updateDoc(doc.ref, {
+              text: "🗑️ Message expired after 10 minutes.",
+              deleted: true,
+              expiredAt: Timestamp.now()
+            });
+          } else {
+            deleteDoc(doc.ref).catch(err => console.error("Failed to delete", err));
+            div.remove();
+          }
+        } else {
+          countdown.textContent = `Deleting in ${Math.ceil(remaining / 1000)}s`;
+        }
+      }, 1000);
     });
   });
 }
@@ -190,7 +253,7 @@ function renderUserList(filteredEmails) {
       let showDot = false;
       snapshot.forEach(doc => {
         const data = doc.data();
-        if (data.sender === email && !(data.readBy || []).includes(currentUser)) {
+        if (data.sender === email && !(data.readBy || []).includes(currentUser) && !data.deleted) {
           showDot = true;
         }
       });
@@ -199,6 +262,7 @@ function renderUserList(filteredEmails) {
 
     userDiv.addEventListener("click", () => {
       selectedUser = email;
+      chatNavbar.textContent = `Chatting with: ${email}`;
       document.querySelectorAll(".user").forEach(el => el.classList.remove("active-user"));
       userDiv.classList.add("active-user");
 

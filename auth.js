@@ -71,25 +71,33 @@ window.login = async function () {
   // Try sign in or create user
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    // ✅ Update device info
+
+    // ✅ Store UID in approved_emails
+    await setDoc(approvedRef, { uid: auth.currentUser.uid }, { merge: true });
+
     await setDoc(userDocRef, {
       deviceId: deviceId,
       lastLogin: serverTimestamp()
     }, { merge: true });
 
     sessionStorage.setItem("justLoggedIn", "true");
-window.location.href = "lobby.html";
+    window.location.href = "lobby.html";
 
   } catch (error) {
     if (error.code === "auth/user-not-found") {
       try {
         await createUserWithEmailAndPassword(auth, email, password);
+
+        // ✅ Store UID in approved_emails
+        await setDoc(approvedRef, { uid: auth.currentUser.uid }, { merge: true });
+
         await setDoc(userDocRef, {
           deviceId: deviceId,
           lastLogin: serverTimestamp()
         });
+
         sessionStorage.setItem("justLoggedIn", "true");
-window.location.href = "lobby.html";
+        window.location.href = "lobby.html";
 
       } catch (err) {
         alert("Account creation failed: " + err.message);

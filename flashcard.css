@@ -288,3 +288,9 @@
   background-color: rgb(255, 225, 0);
 }
 
+@media (max-width: 768px) {
+ .home-icon {
+  margin-left: 19px;
+  margin-right: -20px;
+ }
+}

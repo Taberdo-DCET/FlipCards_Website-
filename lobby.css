@@ -207,7 +207,7 @@ ul {
   position: fixed;
   top: 0;
   right: -250px;
-  width: 150px;
+  width: 250px;
   height: 100vh;
   background-color: #171717;
   box-shadow: -2px 0 10px rgba(0,0,0,0.4);
@@ -1013,6 +1013,14 @@ span {
   display: flex;
   gap: 3px;
 }
+.sub-announcement {
+  display: block;
+  margin-left: 24px;
+  font-size: 13px;
+  color: #eaeaea;
+  opacity: 0.9;
+  background: transparent !important;
+}
 
 .footer-logo img {
   width: 70px;
@@ -1067,6 +1075,194 @@ span {
 .hidden {
   display: none !important;
 }
+.member-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translateX(-100%);
+  width: 280px;
+  height: 100vh;
+  background: #171717;
+  box-shadow: 8px 0 16px #0f0f0f, -8px 0 16px #1f1f1f;
+  padding: 20px;
+  color: white;
+  font-family: 'QilkaBold', sans-serif;
+  transition: transform 0.4s ease-in-out, opacity 0.3s ease-in-out;
+  z-index: 3000;
+  border-right: 1px solid black;
+  cursor: default;
+}
+
+.member-sidebar.show {
+  transform: translateX(0);
+}
+.member-sidebar {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.member-sidebar.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+.member-header {
+  font-size: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+.member-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.member-list li {
+  margin-bottom: 12px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.member-list .role {
+  font-size: 12px;
+  color: #ccc;
+  background: #1e1e1e;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+.member-list li {
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.member-list .email {
+  max-width: 140px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #0e0e0e;
+  font-family: 'QilkaBold', sans-serif;
+}
+
+.member-list .role {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-family: 'QilkaBold', sans-serif;
+  background-color: #1e1e1e;
+  border: 1px solid transparent;
+}
+.modal-content li {
+  font-family: 'QilkaBold', sans-serif !important;
+}
+/* Role text colors */
+.role.admin {
+  color: gold;
+}
+
+.role.moderator {
+  color: aqua;
+}
+
+.role.beta-tester {
+  color: red;
+}
+
+.role.member {
+  color: #fbe583;
+}
+.role-section {
+  margin-bottom: 25px;
+}
+
+.role-title {
+  font-size: 15px;
+  color: #ccc;
+  margin: 10px 0 8px;
+  font-family: 'QilkaBold', sans-serif;
+  padding-left: 5px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.role-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.member-list .email {
+  max-width: 140px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #ffffff;
+  font-family: 'QilkaBold', sans-serif;
+  background-color: transparent !important; /* ✅ Prevent default white */
+}
+
+.member-list .role {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-family: 'QilkaBold', sans-serif;
+  background-color: transparent;
+  border: none;
+}
+
+/* Role colors (text only) */
+.role.admin {
+  color: rgb(255, 98, 0);
+}
+.role.moderator {
+  color: aqua;
+}
+.role.beta-tester {
+  color: red;
+}
+.role.prepper {
+  color: #fbe583;
+}
+.online-dot {
+  display: inline-block;
+  width: 0px;
+  height: 8px;
+  margin: 0 8px;
+  background-color: #00ff73;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #3ddc84;
+}
+.role-badge {
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: transparent !important;
+  margin-left: 4px;
+}
+
+.badge-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  margin-top: 6px;
+}
+
 
 
 
@@ -1130,13 +1326,27 @@ span {
   .features-title {
     margin-left: -29px;
   }
- 
+  .folder-getstarted {
+  margin-left: 200px;
+  display: flex;
+  justify-content: center;
 }
+.group-8 {
+  margin-left: 500px;
+}
+.musicrow {
+  margin-right: 20px !important;
+}
+}
+
+
 @media (max-width: 1000px) {
   .getstarted {
     margin-left: -230px;
   }
 }
+
+
 @media (max-width: 1024px) {
  .orb {
   margin-top: -80px;

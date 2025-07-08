@@ -354,3 +354,13 @@ button {
   transition: 0.2s ease;
 }
 
+@media (max-width: 768px) {
+  .home-btn {
+    margin-left: 290px;
+    
+  }
+  .music-icon.notes {
+    margin-right: 0px;
+    margin-left: 00px;
+  }
+}

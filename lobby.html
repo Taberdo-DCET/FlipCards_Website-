@@ -22,16 +22,22 @@
                         <ul id="navmenu" class="navmenu">
                             <li><a href="#About" class="About">About Us</a></li>
                             <li><a href="#How" class="How">How it Works</a></li>
-                            <li><a href="#Features" class="Features">Features</a></li>
+                            <li><a href="#featuress" class="Features">Features</a></li>
                             <li>
-                                <button class="getstarted2">
+                        <a href="#Folderr" class="Features">
+                        Folder
+                        </a>
+                    </li>
+                            <li>
+                                <a href="addcard.html"><button class="getstarted2">
                                     <img class="group-82" src="group-8.png" />Get Started
-                                </button>
+                                </button></a>
                             </li>
+                            
                         </ul>
                     </div>
                         <div class="rayt">
-                            <div class="rights">Taberdo, Raphael E.</div>
+                            <div class="rights">FlipCards.</div>
                         </div>
                 </div>
             </nav>
@@ -136,6 +142,10 @@
     <img src="chatnc.png" alt="Chat" data-hover="chatc.png" data-default="chatnc.png">
   </button>
 </a>
+<!-- Members button -->
+<button class="music-icon" id="openMemberList" aria-label="Members">
+  <img src="memnc.png" alt="Members" data-hover="memc.png" data-default="memnc.png">
+</button>
 
 
     </div>
@@ -280,15 +290,33 @@
     <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
     <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
     <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-      <li>📅 New features in this Update:</li>
-      <li>💬 Chat is now Available!!</li>
+      <li>📅 New features in this Update: 08/07/25 </li>
+      <li>💬 Chat is now available!
+        <br>
+          <span class="sub-announcement">➥ Messages will now be deleted after being read. (five minutes)</span>
+          <span class="sub-announcement">➥ Emoji is now easily Accessible.</span>
+      </li>
       <li>🙍 Profile is accessible!</li>
       <li>✏️ You can now edit public card sets!</li>
-      <li>🛠 Bug Fixes</li>
+      <li>👥 Roles are Added!</li>
+      <span class="sub-announcement">➥ 🏅 New Feature: Badge Support Added!</span>
+      <li>📱 Tablet-Friendly Update: Full Responsiveness Now Live!</li>
+      <li>🛠 Bug Fixes
+        <span class="sub-announcement">➥ Bonus Cards Now Match with Each Other — Any Two Can Pair! 🃏🃏</span>
+      </li>
     </ul>
     <button id="dismissWelcome" class="neumorphic-button" style="margin-top: 20px;">Okay</button>
   </div>
 </div>
+<!-- Member List Sidebar -->
+<div id="memberSidebar" class="member-sidebar">
+
+  <div class="member-header">👥 Member List</div>
+  <ul id="memberList" class="member-list">
+    <!-- Members will be populated here -->
+  </ul>
+</div>
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("welcomeModal");
@@ -315,6 +343,8 @@
     <script src="orb.js"></script>
     <script src="music.js"></script>
     <script src="displaylocalsets.js"></script>
+    <script type="module" src="presence.js"></script>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import {
@@ -490,7 +520,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="profile.js"></script>
-
+<script type="module" src="member.js"></script>
 
 
 

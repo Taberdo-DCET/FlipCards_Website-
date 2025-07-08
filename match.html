@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Match Game | FlipCards</title>
   <link rel="stylesheet" href="match.css">
   <link rel="icon" type="image/png" href="Group-10.png">
@@ -77,8 +79,8 @@
   let timerInterval = null;
   let remainingTime = 0;
   let gameActive = false;
+  let totalPairs = 0;
 
-  // Initial render
   setupCards();
 
   function startGame() {
@@ -119,14 +121,15 @@
 
     const flashcards = [...reviewingSet.flashcards];
     flashcards.sort(() => 0.5 - Math.random());
-    const selected = flashcards.slice(0, 6);
 
+    const selected = flashcards.slice(0, 6);
     const missing = 6 - selected.length;
+
     for (let i = 1; i <= missing; i++) {
       selected.push({
         term: "Bonus Card",
         definition: "Bonus Card",
-        matchId: "bonus"
+        matchId: "bonus" // ✅ All bonus cards use same ID
       });
     }
 
@@ -137,6 +140,9 @@
       pairItems.push({ type: "definition", value: card.definition, matchId: id });
     });
 
+    totalPairs = pairItems.length / 2;
+    matchedCount = 0;
+
     pairItems.sort(() => 0.5 - Math.random());
 
     pairItems.forEach((item, i) => {
@@ -145,7 +151,7 @@
       div.dataset.matchId = item.matchId;
       div.dataset.type = item.type;
       div.dataset.index = i;
-      div.textContent = item.value;
+      div.textContent = item.matchId === "bonus" ? "🃏 Bonus Card" : item.value;
       div.addEventListener("click", handleCardClick);
       grid.appendChild(div);
     });
@@ -162,9 +168,14 @@
 
     if (flippedCards.length === 2) {
       const [first, second] = flippedCards;
-      const isMatch =
+
+      const isBonusMatch = first.dataset.matchId === "bonus" && second.dataset.matchId === "bonus";
+      const isStandardMatch = (
         first.dataset.matchId === second.dataset.matchId &&
-        first.dataset.type !== second.dataset.type;
+        first.dataset.type !== second.dataset.type
+      );
+
+      const isMatch = isBonusMatch || isStandardMatch;
 
       if (isMatch) {
         first.classList.add("correct", "matched");
@@ -177,7 +188,7 @@
 
         matchedCount += 2;
 
-        if (matchedCount === 12) {
+        if (matchedCount === totalPairs * 2) {
           clearInterval(timerInterval);
           gameActive = false;
           resetTimerBar();
@@ -213,7 +224,7 @@
     clearInterval(timerInterval);
     gameActive = false;
     resetTimerBar();
-    setupCards(); // reshuffle without auto-start
+    setupCards();
   }
 
   function restartGame() {
@@ -257,10 +268,12 @@
     img.addEventListener("mouseout", () => img.src = def);
   });
 </script>
+
 <script type="module">
   import { checkUserStatus } from './userstatuscheck.js';
   checkUserStatus();
 </script>
+<script type="module" src="presence.js"></script>
 
 
 

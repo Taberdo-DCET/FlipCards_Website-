@@ -245,6 +245,28 @@
 .hover-switch:hover {
   content: attr(data-hover);
 }
+.message.deleted {
+  font-style: italic;
+  opacity: 0.7;
+  background-color: #1a1a1a !important;
+  color: #888;
+}
+.countdown {
+  font-size: 0.7em;
+  color: #ffcf00;
+  margin-top: 4px;
+  text-align: right;
+}
+.chat-navbar {
+  padding: 15px 20px;
+  background-color: #171717;
+  font-size: 1.1em;
+  font-weight: bold;
+  border-bottom: 1px solid #333;
+  box-shadow: inset 4px 4px 8px #101010, inset -4px -4px 8px #1e1e1e;
+  text-align: start;
+  margin-bottom: 70px;
+}
 
   </style>
 </head>
@@ -266,14 +288,18 @@
   </div>
 
   <div class="chat-area">
+    <div class="chat-navbar" id="chatNavbar">Select a user to chat with</div>
+
     <div class="messages">
   <!-- Messages will appear here -->
 </div>
 
     <div class="input-area">
-      <input type="text" placeholder="Type your message...">
-      <button>Send</button>
-    </div>
+  <input type="text" id="messageInput" placeholder="Type your message...">
+  <button id="emojiBtn">😊</button>
+  <button id="sendBtn">Send</button>
+</div>
+
   </div>
   <script type="module" src="chat.js"></script>
 <script>
@@ -290,6 +316,7 @@
     });
   });
 </script>
+<script type="module" src="presence.js"></script>
 
 </body>
 </html>
