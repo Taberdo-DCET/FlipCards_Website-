@@ -125,16 +125,23 @@ body {
 }
 
 .choice {
-    background: #171717;
-    box-shadow: 6px 6px 12px #0f0f0f,
-                -6px -6px 12px #1f1f1f;
-    padding: 15px;
-    border-radius: 12px;
-    color: #ffffff;
-    cursor: pointer;
-    transition: 0.3s;
-    border: 1px solid black;
+  background: #171717;
+  box-shadow: 6px 6px 12px #0f0f0f,
+              -6px -6px 12px #1f1f1f;
+  padding: 15px;
+  border-radius: 12px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: 0.3s;
+  border: 1px solid black;
+  word-break: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-height: 80px;
+  overflow-y: auto;
+  text-align: center;
 }
+
 
 .choice:hover {
     background: #1d1d1d;
@@ -187,7 +194,106 @@ body {
   transition: transform 0.2s ease;
   cursor: pointer;
 }
+.definition-box {
+  background: #171717 !important;
+  box-shadow: inset 6px 6px 12px #0f0f0f,
+              inset -6px -6px 12px #1f1f1f;
+  padding: 30px !important;
+  border-radius: 16px;
+  color: #ffffff;
+  margin-bottom: 30px !important;
+  font-size: 20px;
+  font-family: 'QilkaBold', sans-serif;
+  border: 1px solid black;
+  max-height: 200px;            /* limit height */
+  overflow-y: auto;             /* scroll for long definitions */
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
 
 .home-icon:hover {
   transform: scale(1.1);
 }
+@media (max-width: 426px) {
+  .definition-box {
+    font-size: 16px !important;
+    padding: 16px !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  #learnDefinition {
+    font-size: 1rem;
+    word-break: break-word;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .choices-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .neumorphic-button {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .card-set-title {
+    font-size: 24px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .definition-box {
+    font-size: 18px !important;
+    padding: 20px !important;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  #learnDefinition {
+    font-size: 1.1rem;
+    word-break: break-word;
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .choices-container {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .neumorphic-button {
+    font-size: 15px;
+    padding: 10px 16px;
+  }
+
+  .card-set-title {
+    font-size: 26px;
+    padding: 0 10px;
+  }
+
+  .nav-btn {
+    width: 60px;
+    height: 60px;
+  }
+
+  .card-counter {
+    font-size: 1.1rem;
+    margin-top: 15px;
+  }
+
+  .progress-wrapper {
+    max-width: 90%;
+  }
+}
+

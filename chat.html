@@ -256,6 +256,7 @@
   color: #ffcf00;
   margin-top: 4px;
   text-align: right;
+  font-style: italic;
 }
 .chat-navbar {
   padding: 15px 20px;
@@ -266,6 +267,76 @@
   box-shadow: inset 4px 4px 8px #101010, inset -4px -4px 8px #1e1e1e;
   text-align: start;
   margin-bottom: 70px;
+}
+@media (max-width: 426px) {
+  body {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 10px;
+  }
+
+  .sidebar-header {
+    width: 100%;
+    text-align: center;
+    font-size: 1rem;
+  }
+
+  .search-bar {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .user-list {
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+  }
+
+  .home-button-container {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+
+  .chat-area {
+    padding: 10px;
+    margin-top: 10px;
+  }
+
+  .chat-navbar {
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .messages {
+    padding-bottom: 10px;
+  }
+
+  .message {
+    max-width: 90%;
+    font-size: 0.9rem;
+  }
+
+  .input-area {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .input-area input {
+    width: 100%;
+  }
+
+  .input-area button {
+    width: 100%;
+  }
 }
 
   </style>

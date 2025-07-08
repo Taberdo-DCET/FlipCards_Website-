@@ -7,7 +7,7 @@ import {
   where
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// Firebase config and initialization
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
   authDomain: "flipcards-7adab.firebaseapp.com",
@@ -50,14 +50,19 @@ function createCard(set, isPublic) {
   const uniqueKey = `${set.title}___${set.createdOn}`;
   const userLine = isPublic ? `<div style="font-size: 13px; color: #bbb;">by ${set.user || "Anonymous"}</div>` : "";
 
+  const likedSets = JSON.parse(localStorage.getItem("likedFlashcardSets") || "[]");
+  const isLiked = likedSets.some(s => s.title === set.title && s.createdOn === set.createdOn);
+
   card.innerHTML = `
     <div class="folder-header">
       <span class="folder-date">${date}</span>
       <div class="folder-icons">
-        ${!isPublic ? `
+        ${isPublic ? `
+          <img src="${isLiked ? 'liked.png' : 'notliked.png'}" class="like-icon" title="Like" style="width: 32px; cursor: pointer;" />
+        ` : `
           <img src="editttnc.png" data-hover="editttc.png" data-default="editttnc.png" class="edit-icon hover-switch edit-btn" title="Edit" data-key="${uniqueKey}" />
           <img src="delnc.png" data-hover="delc.png" data-default="delnc.png" class="delete-icon hover-switch delete-btn" title="Delete" data-key="${uniqueKey}" />
-        ` : ""}
+        `}
       </div>
     </div>
     <div class="folder-title">${sanitize(set.title)}</div>
@@ -65,6 +70,23 @@ function createCard(set, isPublic) {
     <button class="review-btn" onclick="reviewSet('${uniqueKey}')">REVIEW</button>
     ${userLine}
   `;
+
+  if (isPublic) {
+    const likeBtn = card.querySelector(".like-icon");
+    likeBtn.addEventListener("click", () => {
+      let liked = JSON.parse(localStorage.getItem("likedFlashcardSets") || "[]");
+      const exists = liked.find(s => s.title === set.title && s.createdOn === set.createdOn);
+      if (exists) {
+        liked = liked.filter(s => !(s.title === set.title && s.createdOn === set.createdOn));
+        likeBtn.src = "notliked.png";
+      } else {
+        liked.push(set);
+        likeBtn.src = "liked.png";
+      }
+      localStorage.setItem("likedFlashcardSets", JSON.stringify(liked));
+      window.dispatchEvent(new Event("flashcardSetsUpdated"));
+    });
+  }
 
   return card;
 }
@@ -107,6 +129,17 @@ async function renderFilteredFolders() {
       existingKeys.add(uniqueKey);
       container.appendChild(createCard(set, true));
     });
+  } else if (type === "liked") {
+    const sets = JSON.parse(localStorage.getItem("likedFlashcardSets") || "[]");
+    sets.forEach(set => {
+      const title = set.title?.toLowerCase() || "";
+      const desc = set.description?.toLowerCase() || "";
+      const match = title.includes(keyword) || desc.includes(keyword);
+      const uniqueKey = `${set.title}___${set.createdOn}`;
+      if (!match || existingKeys.has(uniqueKey)) return;
+      existingKeys.add(uniqueKey);
+      container.appendChild(createCard(set, true));
+    });
   }
 
   document.querySelectorAll(".hover-switch").forEach(img => {
@@ -132,7 +165,7 @@ window.addEventListener("DOMContentLoaded", renderFilteredFolders);
 searchInput?.addEventListener("input", debouncedRender);
 filterSelect?.addEventListener("change", debouncedRender);
 
-// ✅ Unified Review Handler: Local or Public
+// ✅ Unified Review Handler
 window.reviewSet = async function (key) {
   const [titleKey, createdOnKey] = key.split("___");
 

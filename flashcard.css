@@ -133,6 +133,7 @@
 
 .flashcard .back {
   transform: rotateY(180deg);
+  margin-left: -40px;
 }
 .flashcard:not(.flipped) .back {
   opacity: 1;
@@ -287,10 +288,100 @@
 .dot.active {
   background-color: rgb(255, 225, 0);
 }
+.flashcard .front,
+.flashcard .back {
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.4;
+  text-align: center;
+}
 
 @media (max-width: 768px) {
  .home-icon {
   margin-left: 19px;
   margin-right: -20px;
  }
+}
+@media (max-width: 768px) {
+  .flashcard .front,
+  .flashcard .back {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+}
+
+@media (max-width: 426px) {
+  .folder-getstarted {
+    margin-left: 0 !important;
+  }
+
+  .group-8 {
+    margin-left: -100px !important;
+  }
+
+  /* Optional enhancements for flashcard view */
+  .flashcard {
+  width: 300px;          /* Increased from 400px */
+  height: 250px;         /* Increased from 250px */
+  border-radius: 25px;
+  position: relative;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  box-shadow: 12px 12px 24px #0e0e0e, -12px -12px 24px #202020;
+  
+}
+.flashcard-container {
+  margin-top: 60px;
+  margin-left: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  perspective: 1000px;
+}
+  .page-title {
+    font-size: 1rem !important;
+    text-align: center;
+    padding: 10px 20px !important;
+  }
+
+  .description-box {
+    font-size: 0.9rem !important;
+    padding: 10px !important;
+  }
+ .home-icon{
+  margin-left: 100px;
+ }
+  .card-row {
+    flex-direction: column !important;
+    gap: 16px;
+    align-items: center !important;
+  }
+
+  .public-toggle {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 14px;
+  }
+
+  #publicUsage {
+    margin-left: 0;
+    margin-top: 4px;
+    font-size: 13px;
+  }
+   .flashcard .front,
+  .flashcard .back {
+    font-size: 1rem !important;
+    padding: 16px !important;
+    text-align: center;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    line-height: 1.4;
+    overflow: hidden;
+  }
+  
 }

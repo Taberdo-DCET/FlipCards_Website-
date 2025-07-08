@@ -196,6 +196,46 @@ h1 {
     8px 8px 15px #0f0f0f,
     -8px -8px 15px #1f1f1f;
 }
+.card {
+  background: #1e1e1e;
+  border-radius: 10px;
+  width: 250px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s, border 0.2s, opacity 0.3s;
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+  border: 1px solid black;
+  padding: 10px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  overflow-y: auto; /* enables scrolling if content overflows */
+}
+.card::-webkit-scrollbar {
+  width: 10px;
+}
+
+.card::-webkit-scrollbar-track {
+  background: #3b3b3b;
+  border-radius: 10px;
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+}
+
+.card::-webkit-scrollbar-thumb {
+  background: #363636;
+  border-radius: 10px;
+  box-shadow: inset 2px 2px 6px #0e0e0e, inset -2px -2px 6px #333;
+}
+
+.card::-webkit-scrollbar-thumb:hover {
+  background: #515151;
+}
+
 @media (max-width: 768px) {
   body {
     padding: 20px;
@@ -241,5 +281,107 @@ h1 {
   select.neumorphic-button {
     width: auto;
     padding: 8px 12px;
+  }
+  h1 {
+    font-size: 1.5rem;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px;
+    justify-items: center;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    min-height: 80px;
+    font-size: 15px;
+    padding: 16px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .neumorphic-button {
+    font-size: 15px;
+    padding: 12px 18px;
+  }
+
+  .win-box h2 {
+    font-size: 20px;
+    padding: 12px;
+    text-align: center;
+  }
+
+  .home-wrapper {
+    bottom: 15px;
+    left: 15px;
+    position: fixed;
+  }
+
+  #timerContainer {
+    width: 90%;
+    margin: 0 auto;
+  }
+
+  select.neumorphic-button {
+    font-size: 15px;
+    padding: 8px 12px;
+  }
+}
+@media (max-width: 426px) {
+  h1 {
+    font-size: 1.25rem;
+    padding: 10px;
+  }
+
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+    min-height: 70px;
+    font-size: 14px;
+    padding: 12px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+  }
+
+  .neumorphic-button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .win-box h2 {
+    font-size: 18px;
+    padding: 10px;
+  }
+
+  .home-wrapper {
+    top: auto;
+    bottom: 10px;
+    left: 10px;
+    position: fixed;
+  }
+
+  #timerContainer {
+    width: 95%;
+  }
+
+  select.neumorphic-button {
+    font-size: 14px;
+    padding: 6px 10px;
   }
 }

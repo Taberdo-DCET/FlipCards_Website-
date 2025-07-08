@@ -2,7 +2,16 @@ function renderFlashcardSets() {
   const container = document.querySelector(".folder-grid");
   if (!container) return;
 
-  let sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
+  const filter = document.getElementById("folderFilter");
+  const type = filter?.value || "your";
+
+  let sets = [];
+
+  if (type === "your") {
+    sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
+  } else if (type === "liked") {
+    sets = JSON.parse(localStorage.getItem("likedFlashcardSets") || "[]");
+  }
 
   sets = sets.map(set => {
     const nowISO = new Date().toISOString();
@@ -26,6 +35,8 @@ function renderFlashcardSets() {
     const formattedDate = formatDate(set.createdOn);
     const uniqueKey = `${set.title}___${set.createdOn}`;
 
+    const userLine = set.user ? `<div style="font-size: 13px; color: #bbb;">by ${set.user}</div>` : "";
+
     card.innerHTML = `
       <div class="folder-header">
         <span class="folder-date">${formattedDate}</span>
@@ -37,6 +48,7 @@ function renderFlashcardSets() {
       <div class="folder-title">${sanitize(set.title)}</div>
       <div class="folder-subtitle">${sanitize(set.description || "Flashcards Set")}</div>
       <button class="review-btn" onclick="reviewSet('${uniqueKey}')">REVIEW</button>
+      ${userLine}
     `;
 
     container.appendChild(card);
@@ -132,21 +144,23 @@ function sanitize(str) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const filter = document.getElementById("folderFilter");
-  if (filter && filter.value === "your") {
+  if (filter && (filter.value === "your" || filter.value === "liked")) {
     renderFlashcardSets();
   }
 });
 
 window.addEventListener("flashcardSetsUpdated", () => {
   const filter = document.getElementById("folderFilter");
-  if (filter && filter.value === "your") {
+  if (filter && (filter.value === "your" || filter.value === "liked")) {
     renderFlashcardSets();
   }
 });
 
 window.addEventListener("storage", e => {
   const filter = document.getElementById("folderFilter");
-  if (e.key === "flashcardSets" && filter && filter.value === "your") {
-    renderFlashcardSets();
+  if (e.key === "flashcardSets" || e.key === "likedFlashcardSets") {
+    if (filter && (filter.value === "your" || filter.value === "liked")) {
+      renderFlashcardSets();
+    }
   }
 });

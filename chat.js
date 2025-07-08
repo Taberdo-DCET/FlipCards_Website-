@@ -179,31 +179,36 @@ async function loadMessages(user1, user2) {
       let expireStart = msg.expiredAt?.toMillis?.();
       if (!expireStart) {
         const readByMap = msg.readByMap || {};
-        const latestRead = Math.max(...Object.values(readByMap).map(ts => ts.toMillis?.() || 0));
-        expireStart = latestRead;
+        const othersRead = Object.entries(readByMap).filter(([user]) => user !== msg.sender);
+        if (othersRead.length > 0) {
+          expireStart = Math.max(...othersRead.map(([_, ts]) => ts.toMillis?.() || 0));
+        }
       }
 
-      const interval = setInterval(() => {
-        const now = Date.now();
-        const remaining = 5 * 60 * 1000 - (now - expireStart);
+      if (expireStart) {
+        const interval = setInterval(() => {
+          const now = Date.now();
+          const remaining = 5 * 60 * 1000 - (now - expireStart);
 
-        if (remaining <= 0) {
-          clearInterval(interval);
-
-          if (!msg.deleted) {
-            updateDoc(doc.ref, {
-              text: "🗑️ Message expired after 10 minutes.",
-              deleted: true,
-              expiredAt: Timestamp.now()
-            });
+          if (remaining <= 0) {
+            clearInterval(interval);
+            if (!msg.deleted) {
+              updateDoc(doc.ref, {
+                text: "🗑️ Message expired after 10 minutes.",
+                deleted: true,
+                expiredAt: Timestamp.now()
+              });
+            } else {
+              deleteDoc(doc.ref).catch(err => console.error("Failed to delete", err));
+              div.remove();
+            }
           } else {
-            deleteDoc(doc.ref).catch(err => console.error("Failed to delete", err));
-            div.remove();
+            countdown.textContent = `Deleting in ${Math.ceil(remaining / 1000)}s`;
           }
-        } else {
-          countdown.textContent = `Deleting in ${Math.ceil(remaining / 1000)}s`;
-        }
-      }, 1000);
+        }, 1000);
+      } else {
+        countdown.textContent = "";
+      }
     });
   });
 }

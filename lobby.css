@@ -1155,6 +1155,7 @@ span {
   text-overflow: ellipsis;
   color: #0e0e0e;
   font-family: 'QilkaBold', sans-serif;
+
 }
 
 .member-list .role {
@@ -1212,6 +1213,7 @@ span {
   color: #ffffff;
   font-family: 'QilkaBold', sans-serif;
   background-color: transparent !important; /* ✅ Prevent default white */
+  margin-left: 0px;
 }
 
 .member-list .role {
@@ -1247,8 +1249,8 @@ span {
   box-shadow: 0 0 4px #3ddc84;
 }
 .role-badge {
-  width: 23px;
-  height: 23px;
+  width: 28px !important;
+  height: 28px !important;
   object-fit: contain;
   border-radius: 4px;
   background: transparent !important;
@@ -1260,7 +1262,74 @@ span {
   align-items: center;
   gap: 4px;
   background: transparent;
-  margin-top: 6px;
+  margin-top: 2px;
+  
+}
+.role-badge {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.badge-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.email-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.role-badge[alt="verified"] {
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0;
+  padding: 0;
+  transform: translateY(1px);
+}
+.member-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.member-list::-webkit-scrollbar-track {
+  background: #141414; /* Dark background */
+  border-radius: 10px;
+  box-shadow: inset 4px 4px 6px #0f0f0f, inset -4px -4px 6px #1f1f1f;
+  
+}
+
+.member-list::-webkit-scrollbar-thumb {
+  background: #1e1e1e; /* Slightly lifted */
+  border-radius: 10px;
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.6),
+    inset -2px -2px 4px rgba(255,255,255,0.05),
+    2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.member-list::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+}
+.member-list::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2a;
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 0.1),
+    inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+.member-list {
+ padding-right: 10px; /* Adjust as needed */
+}
+.folder-icons .like-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+.folder-icons .like-icon:hover {
+  transform: scale(1.1);
 }
 
 
@@ -1365,4 +1434,57 @@ span {
   }
 }
 
+@media (max-width: 426px) {
+  .folder-getstarted {
+  margin-left: 190px;
+}
+.group-8 {
+  margin-left: -100px !important;
+}
+.footer-logo img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  pointer-events: none;
+  opacity: 0.9;
+}
+.footer-logo h1 {
+  color: white;
+  font-size: 14px;
+}
+.music-modal {
+  display: none;
+  position: fixed;
+  top: 170px;
+  left: 100px;
+  width: 220px;
+  height: 260px;
+  background: #171717;
+  border: 2px solid #555;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.2);
+  z-index: 2000;
+  resize: both;
+  overflow: hidden;
+  padding-bottom: 10px;
+}
+.notepad-modal {
+  position: fixed;
+  top: 120px;
+  left: 100px;
+  width: 260px;
+  height: 260px;
+  background: #171717;
+  color: white;
+  border-radius: 16px;
+  box-shadow: 8px 8px 16px #0f0f0f, -8px -8px 16px #1f1f1f;
+  resize: both;
+  overflow: hidden;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid black;
+}
+
+}
 

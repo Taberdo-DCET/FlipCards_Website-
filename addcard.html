@@ -22,8 +22,10 @@
 </div>
 
     <label class="public-toggle">
-      <input type="checkbox" id="publicToggle" /> Make this set public
-    </label>
+  <input type="checkbox" id="publicToggle" /> Make this set public
+  <span id="publicUsage" style="font-size: 14px; margin-left: 8px;"></span>
+</label>
+
     <input type="text" class="input title" placeholder="Title" />
     <textarea class="input description" placeholder="Add a description...(Optional)"></textarea>
 
@@ -119,6 +121,7 @@
   checkUserStatus();
 </script>
 <script type="module" src="presence.js"></script>
+<script type="module" src="publicCount.js"></script>
 
 </body>
 </html>

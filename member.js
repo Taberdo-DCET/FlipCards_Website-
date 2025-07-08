@@ -102,11 +102,28 @@ document.addEventListener("DOMContentLoaded", () => {
         }).join(" ");
 
         const li = document.createElement("li");
-        li.innerHTML = `
-          <span class="email" title="${user.email}">${shortEmail}</span>
-          ${dotHTML}
-          <span class="badge-container">${badgeHTML}</span>
-        `;
+        const verifiedHTML = roleArray.includes("verified")
+  ? `<img src="${badgeIcons.verified}" alt="verified" class="role-badge" title="Verified">`
+  : "";
+
+const otherBadgesHTML = roleArray
+  .filter(r => r !== "verified")
+  .map(r => {
+    const badge = badgeIcons[r];
+    if (!badge) return "";
+    return `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">`;
+  }).join(" ");
+
+li.innerHTML = `
+  <div class="email-container">
+    ${verifiedHTML}
+    <span class="email" title="${user.email}">${shortEmail}</span>
+  </div>
+  ${dotHTML}
+  <span class="badge-container">${otherBadgesHTML}</span>
+`;
+
+
 
         roles[mainRole].push(li);
       });
