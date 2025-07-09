@@ -268,6 +268,39 @@
   text-align: start;
   margin-bottom: 70px;
 }
+
+.user-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.user-list::-webkit-scrollbar-track {
+  background: #141414;
+  border-radius: 10px;
+  box-shadow: inset 4px 4px 6px #0f0f0f, inset -4px -4px 6px #1f1f1f;
+}
+
+.user-list::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 10px;
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.6),
+    inset -2px -2px 4px rgba(255,255,255,0.05),
+    2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.user-list::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 0.1),
+    inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* For Firefox */
+.user-list {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a #141414;
+}
+
 @media (max-width: 426px) {
   body {
     flex-direction: column;

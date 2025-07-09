@@ -149,17 +149,19 @@
 
 
     </div>
-    <div id="musicModal" class="music-modal">
-  <div id="musicModalHeader" class="music-modal-header">🎵 Spotify Playlist</div>
-  <select id="playlistSelect">
-  <option value="3QhTLSPC91N9jQOqhDIODO">Smiths</option>
-  <option value="7ml2ua0UD8YWS9HULceCx1">raaaph's Playlist</option>
-  <option value="6avG1f9f9Xahh5ljq98G2s">HUNTRX</option>
-</select>
-<iframe id="spotifyFrame" style="border-radius:12px; margin-top:10px;" width="100%" height="352"; min-height:200px;
- frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+   <div id="musicModal" class="music-modal" style="width: 320px; height: auto; padding: 20px;">
+  <div id="musicModalHeader" class="music-modal-header">🎧 Listen on Spotify</div>
+  <div class="music-modal-content" style="display: flex; flex-direction: column; gap: 14px; align-items: center;">
+    <div style="font-size: 15px; font-family: 'Accasia'; margin-bottom: 5px; color: white;">🎵 Spotify Playlists</div>
+    <button class="neumorphic-button playlist-btn" data-id="3QhTLSPC91N9jQOqhDIODO" style="width: 240px;">🎶 The Smiths</button>
+    <button class="neumorphic-button playlist-btn" data-id="7ml2ua0UD8YWS9HULceCx1" style="width: 240px;">🌙 raaaph's Playlist</button>
+    <button class="neumorphic-button playlist-btn" data-id="6avG1f9f9Xahh5ljq98G2s" style="width: 240px;">💥 HUNTRX</button>
+    <p style="font-size: 12px; color: #aaa; margin-top: 12px; text-align: center;">
+    </p>
+  </div>
+</div>
 
-</div> 
+
 <div id="notepad" class="notepad-modal hidden">
   <div id="notepadHeader" class="notepad-header">📝 Notepad</div>
   <textarea id="notepadText" placeholder="Type here..."></textarea>
@@ -287,31 +289,40 @@
   </div>
 </div>
 <div id="welcomeModal" class="custom-modal hidden">
-  <div class="modal-content" style="background: #171717; border-radius: 20px; padding: 30px; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center;">
-    <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
-    <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
-    <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-      <li>📅 New features in this Update: 07/09/25 </li>
-      <li>💬 Chat is now available!
-        <br>
+<div class="modal-content" style="background: #171717; border: 1px solid white; border-radius: 20px; padding: 0; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center; max-height: 90vh; overflow: hidden;">
+  <div class="welcome-scroll-content">
+    <div style="padding: 30px;">
+      <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
+      <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
+      <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
+        <li>📅 New features in this Update: 07/09/25</li>
+        <li>💬 Chat is now available!
+          <br>
           <span class="sub-announcement">➥ Messages will now be deleted after being read. (five minutes)</span>
           <span class="sub-announcement">➥ Emoji is now easily Accessible.</span>
-      </li>
-      <li>💖 Like/Heart Button Added!</li>
-      <span class="sub-announcement">➥ You can now Heart other user's public card and add to your "Liked Flascard Sets!"</span>
-      <li>✏️ Addcard UI Improvements</li>
-      <span class="sub-announcement">➥ Public Usage Card Indicator Added!</span>
-      <li>✏️ You can now make locally saved cards go Public!</li>
-      <li>👥 Roles are Added!</li>
-      <span class="sub-announcement">➥ 🏅 New Feature: Badge Support Added!</span>
-      <li>📱 Tablet and Mobile-Friendly Update: Full Responsiveness Now Live!</li>
-      <li>👁️👁️ Visual Bugs Fixes</li>
-      <li>🛠 Bug Fixes
-        <span class="sub-announcement">➥ Bonus Cards Now Match with Each Other — Any Two Can Pair! 🃏🃏</span>
-      </li>
-    </ul>
-    <button id="dismissWelcome" class="neumorphic-button" style="margin-top: 20px;">Okay</button>
+        </li>
+        <li>💖 Like/Heart Button Added!</li>
+        <span class="sub-announcement">➥ You can now Heart other user's public card and add to your "Liked Flascard Sets!"</span>
+        <li>✏️ Addcard UI Improvements</li>
+        <span class="sub-announcement">➥ Public Usage Card Indicator Added!</span>
+        <li>✏️ You can now make locally saved cards go Public!</li>
+        <li>👥 Roles are Added!</li>
+        <span class="sub-announcement">➥ 🏅 New Feature: Badge Support Added!</span>
+        <li>🆕 New Mode in Flashcard Game Mode !</li>
+        <span class="sub-announcement">➥ ❗ New Reverse Mode: Now you can Display Definition of your Cards First!!</span>
+        <li>🎵 Redesigned Music Modal UI</li>
+        <span class="sub-announcement">➥ ❗ Music can now be played even when you are reviewing card sets.</span>
+        <li>📱 Tablet and Mobile-Friendly Update: Full Responsiveness Now Live!</li>
+        <li>👁️👁️ Visual Bugs Fixes</li>
+        <li>🛠 Bug Fixes
+          <span class="sub-announcement">➥ Bonus Cards Now Match with Each Other — Any Two Can Pair! 🃏🃏</span>
+        </li>
+      </ul>
+      <button id="dismissWelcome" class="neumorphic-button" style="margin-top: 20px;">Okay</button>
+    </div>
   </div>
+</div>
+
 </div>
 <!-- Member List Sidebar -->
 <div id="memberSidebar" class="member-sidebar">
@@ -349,7 +360,8 @@
     <script src="music.js"></script>
     <script src="displaylocalsets.js"></script>
     <script type="module" src="presence.js"></script>
-
+    <script src="protect.js"></script>
+    
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
   import {
@@ -526,6 +538,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="profile.js"></script>
 <script type="module" src="member.js"></script>
+
+
 
 
 

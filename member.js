@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
@@ -35,116 +35,130 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth, (user) => {
     if (!user) return;
 
-    const snapshot = await getDocs(collection(db, "approved_emails"));
-    const users = [];
+    onSnapshot(collection(db, "approved_emails"), (snapshot) => {
+      const users = [];
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      users.push({
-        email: doc.id,
-        uid: data.uid || "",
-        role: (data.role || "prepper").toLowerCase()
-      });
-    });
-
-    const roles = {
-      Admin: [],
-      Moderator: [],
-      "Beta Tester": [],
-      Prepper: [],
-    };
-
-    const icons = {
-      Admin: "👑 Admins",
-      Moderator: "🛡️ Moderators",
-      "Beta Tester": "🔥 Beta Testers",
-      Prepper: "📦 Preppers",
-    };
-
-    // Listen for presence
-    const statusRef = ref(rtdb, "/status");
-    onValue(statusRef, (statusSnap) => {
-      const onlineMap = statusSnap.val() || {};
-      memberList.innerHTML = "";
-
-      Object.keys(roles).forEach(key => roles[key] = []);
-
-      users.forEach(user => {
-        const roleString = user.role || "prepper";
-        const roleArray = roleString.split(',').map(r => r.trim().toLowerCase());
-
-        const mainRole =
-          roleArray.includes("admin") ? "Admin" :
-          roleArray.includes("moderator") ? "Moderator" :
-          roleArray.includes("beta tester") || roleArray.includes("betatester") ? "Beta Tester" :
-          "Prepper";
-
-        const shortEmail = user.email.length > 22 ? user.email.substring(0, 18) + "..." : user.email;
-        const isOnline = user.uid && onlineMap[user.uid]?.online === true;
-        const dotHTML = isOnline ? `<span class="online-dot"></span>` : "";
-
-        const badgeIcons = {
-          admin: "admin.png",
-          moderator: "moderator.png",
-          "beta tester": "betatester.png",
-          betatester: "betatester.png",
-          prepper: "prepper.png",
-          verified: "verified.png"
-        };
-
-        const badgeHTML = roleArray.map(r => {
-          const badge = badgeIcons[r];
-          if (!badge) return "";
-          return `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">`;
-        }).join(" ");
-
-        const li = document.createElement("li");
-        const verifiedHTML = roleArray.includes("verified")
-  ? `<img src="${badgeIcons.verified}" alt="verified" class="role-badge" title="Verified">`
-  : "";
-
-const otherBadgesHTML = roleArray
-  .filter(r => r !== "verified")
-  .map(r => {
-    const badge = badgeIcons[r];
-    if (!badge) return "";
-    return `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">`;
-  }).join(" ");
-
-li.innerHTML = `
-  <div class="email-container">
-    ${verifiedHTML}
-    <span class="email" title="${user.email}">${shortEmail}</span>
-  </div>
-  ${dotHTML}
-  <span class="badge-container">${otherBadgesHTML}</span>
-`;
-
-
-
-        roles[mainRole].push(li);
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        users.push({
+          email: doc.id,
+          uid: data.uid || "",
+          role: (data.role || "prepper").toLowerCase()
+        });
       });
 
-      Object.keys(roles).forEach(role => {
-        if (roles[role].length === 0) return;
+      const roles = {
+        Admin: [],
+        Pioneer: [],
+        Moderator: [],
+        "Beta Tester": [],
+        Prepper: [],
+        Test: []
+      };
 
-        const wrapper = document.createElement("div");
-        wrapper.classList.add("role-section");
+      const icons = {
+        Admin: "👑 Admins",
+        Pioneer: "💎 Pioneers",
+        Moderator: "🛡️ Moderators",
+        "Beta Tester": "🔥 Beta Testers",
+        Prepper: "📦 Preppers",
+        Test: "🤖 Test Accounts"
+      };
 
-        const title = document.createElement("div");
-        title.classList.add("role-title");
-        title.textContent = icons[role];
+      const statusRef = ref(rtdb, "/status");
+      onValue(statusRef, (statusSnap) => {
+        const onlineMap = statusSnap.val() || {};
+        memberList.innerHTML = "";
+        Object.keys(roles).forEach(key => roles[key] = []);
 
-        const ul = document.createElement("ul");
-        ul.classList.add("role-list");
+        users.forEach(user => {
+          const roleString = user.role || "prepper";
+          const roleArray = roleString.split(',').map(r => r.trim().toLowerCase());
 
-        roles[role].forEach(li => ul.appendChild(li));
-        wrapper.appendChild(title);
-        wrapper.appendChild(ul);
-        memberList.appendChild(wrapper);
+          const mainRole =
+            roleArray.includes("admin") ? "Admin" :
+            roleArray.includes("pioneer") ? "Pioneer" :
+            roleArray.includes("moderator") ? "Moderator" :
+            roleArray.includes("beta tester") || roleArray.includes("betatester") ? "Beta Tester" :
+            roleArray.includes("test") ? "Test" :
+            "Prepper";
+
+          const shortEmail = user.email.length > 22
+            ? user.email.substring(0, 18) + "..."
+            : user.email;
+
+          let dotHTML = "";
+          const userStatus = onlineMap[user.uid];
+          const now = Date.now();
+          const last = userStatus?.lastActive || 0;
+          const diff = now - last;
+
+          if (userStatus?.online === true) {
+            dotHTML = `<span class="online-dot green"></span>`;
+          } else if (diff <= 3 * 60 * 1000 + 1000) {
+            dotHTML = `<span class="online-dot orange"></span>`;
+          } else {
+            dotHTML = `<span class="online-dot red"></span>`;
+          }
+
+          const badgeIcons = {
+            admin: "admin.png",
+            pioneer: "pioneer.png",
+            moderator: "moderator.png",
+            "beta tester": "betatester.png",
+            betatester: "betatester.png",
+            prepper: "prepper.png",
+            test: "test.png",
+            verified: "verified.png"
+          };
+
+          const verifiedHTML = roleArray.includes("verified")
+            ? `<img src="${badgeIcons.verified}" alt="verified" class="role-badge" title="Verified">`
+            : "";
+
+          const otherBadgesHTML = roleArray
+            .filter(r => r !== "verified")
+            .map(r => {
+              const badge = badgeIcons[r];
+              if (!badge) return "";
+              const larger = r === "test" ? 'style="width:24px;height:24px;"' : "";
+              return `<img src="${badge}" alt="${r}" class="role-badge" title="${r}" ${larger}>`;
+            }).join(" ");
+
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <div class="email-container">
+              ${verifiedHTML}
+              ${dotHTML}
+              <span class="email" title="${user.email}" data-uid="${user.uid}">${shortEmail}</span>
+            </div>
+            <span class="badge-container">${otherBadgesHTML}</span>
+          `;
+
+          roles[mainRole].push(li);
+        });
+
+        Object.entries(roles).forEach(([role, elements]) => {
+          if (elements.length === 0) return;
+
+          const wrapper = document.createElement("div");
+          wrapper.classList.add("role-section");
+
+          const title = document.createElement("div");
+          title.classList.add("role-title");
+          title.textContent = icons[role];
+
+          const ul = document.createElement("ul");
+          ul.classList.add("role-list");
+
+          elements.forEach(li => ul.appendChild(li));
+          wrapper.appendChild(title);
+          wrapper.appendChild(ul);
+          memberList.appendChild(wrapper);
+        });
       });
     });
   });

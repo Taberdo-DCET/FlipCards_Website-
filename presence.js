@@ -1,8 +1,8 @@
-// presence.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getDatabase, ref, set, onDisconnect } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+import { getDatabase, ref, onDisconnect, update } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
   authDomain: "flipcards-7adab.firebaseapp.com",
@@ -19,11 +19,47 @@ const rtdb = getDatabase(app);
 onAuthStateChanged(auth, (user) => {
   if (!user) return;
 
-  const userStatusRef = ref(rtdb, `/status/${user.uid}`);
+  const statusRef = ref(rtdb, `/status/${user.uid}`);
+  let inactiveTimer = null;
 
-  // Mark online
-  set(userStatusRef, { online: true });
+  // Update status to active
+  function setActive() {
+    update(statusRef, {
+      online: true,
+      lastActive: Date.now()
+    });
+  }
 
-  // Mark offline when browser disconnects
-  onDisconnect(userStatusRef).set({ online: false });
+  // Update status to inactive
+  function setInactive() {
+    update(statusRef, {
+      online: false,
+      lastActive: Date.now()
+    });
+  }
+
+  // Reset activity timer based on interaction
+  function resetActivityTimer() {
+    clearTimeout(inactiveTimer);
+
+    setActive(); // Mark as online and update lastActive
+
+    inactiveTimer = setTimeout(() => {
+      setInactive(); // Set offline after 3 minutes of inactivity
+    }, 3 * 60 * 1000);
+  }
+
+  // Monitor user interactions
+  ['click', 'keydown', 'mousemove', 'touchstart'].forEach(event => {
+    document.addEventListener(event, resetActivityTimer, { passive: true });
+  });
+
+  // Initial setup
+  resetActivityTimer();
+
+  // Handle unexpected disconnects
+  onDisconnect(statusRef).set({
+    online: false,
+    lastActive: Date.now()
+  });
 });

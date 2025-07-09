@@ -41,6 +41,10 @@
   <div id="card-counter" class="card-counter">1 / 10</div>
   <img src="nextnc.png" alt="Next" class="nav-btn" id="nextBtn" />
 </div>
+<div style="margin-top: -70px; margin-bottom: 20px;">
+  <button id="reverseToggle" class="neumorphic-button">Reverse Mode: OFF</button>
+</div>
+
 <div class="description-wrapper">
   <div class="description-label">Description:</div>
   <div class="description-box" id="descriptionBox">Loading description...</div>
@@ -49,6 +53,14 @@
   </div>
 
 <script>
+  let reverseMode = false;
+
+  document.getElementById("reverseToggle").addEventListener("click", () => {
+    reverseMode = !reverseMode;
+    document.getElementById("reverseToggle").textContent = `Reverse Mode: ${reverseMode ? "ON" : "OFF"}`;
+    updateCard(currentIndex);
+  });
+
   const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
   if (!reviewingSet || !reviewingSet.flashcards) {
     document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data available.</h2>";
@@ -57,35 +69,34 @@
 
   let currentIndex = 0;
   const flashcards = reviewingSet.flashcards;
-document.getElementById("setTitle").textContent = reviewingSet.title || "Untitled Flashcard Set";
-document.getElementById("descriptionBox").textContent = reviewingSet.description || "No description provided.";
-
+  document.getElementById("setTitle").textContent = reviewingSet.title || "Untitled Flashcard Set";
+  document.getElementById("descriptionBox").textContent = reviewingSet.description || "No description provided.";
 
   const front = document.querySelector(".flashcard .front");
   const back = document.querySelector(".flashcard .back");
   const card = document.querySelector(".flashcard");
   const counter = document.getElementById("card-counter");
 
-  setupDotTracker(flashcards.length); // must come AFTER flashcards are defined
+  function updateCard(index) {
+    card.style.transition = "none";
+    card.classList.remove("flipped");
 
-function updateCard(index) {
-  // Instantly show term side without animation
-  card.style.transition = "none";           // Disable animation
-  card.classList.remove("flipped");         // Show front instantly
+    const cardData = flashcards[index];
+    if (!reverseMode) {
+      front.textContent = cardData.term;
+      back.textContent = cardData.definition;
+    } else {
+      front.textContent = cardData.definition;
+      back.textContent = cardData.term;
+    }
 
-  // Update flashcard content
-  const cardData = flashcards[index];
-  front.textContent = cardData.term;
-  back.textContent = cardData.definition;
-  counter.textContent = `${index + 1} / ${flashcards.length}`;
-  updateDotTracker(index, flashcards.length);
+    counter.textContent = `${index + 1} / ${flashcards.length}`;
+    updateDotTracker(index, flashcards.length);
 
-  // Re-enable flip animation for manual clicks
-  setTimeout(() => {
-    card.style.transition = "transform 0.8s";
-  }, 10); // Small delay ensures style gets applied
-}
-
+    setTimeout(() => {
+      card.style.transition = "transform 0.8s";
+    }, 10);
+  }
 
   function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
     const container = document.getElementById(containerId);
@@ -105,10 +116,9 @@ function updateCard(index) {
       dot.classList.toggle("active", i === currentIndex);
     });
 
-    // Scroll behavior
     let start = Math.max(0, currentIndex - Math.floor(maxVisible / 2));
     start = Math.min(start, Math.max(0, total - maxVisible));
-    const offset = start * (12 + 10); // dot width + gap
+    const offset = start * (12 + 10);
     container.style.transform = `translateX(-${offset}px)`;
   }
 
@@ -130,7 +140,6 @@ function updateCard(index) {
     card.classList.toggle("flipped");
   });
 
-  // Hover icon switch
   document.querySelectorAll(".hover-switch").forEach(img => {
     const def = img.getAttribute("data-default");
     const hov = img.getAttribute("data-hover");
@@ -138,8 +147,10 @@ function updateCard(index) {
     img.addEventListener("mouseout", () => img.src = def);
   });
 
-  updateCard(currentIndex); // Initialize view
+  setupDotTracker(flashcards.length);
+  updateCard(currentIndex);
 </script>
+
 
 
 

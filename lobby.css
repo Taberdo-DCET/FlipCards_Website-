@@ -1289,6 +1289,7 @@ span {
   margin: 0;
   padding: 0;
   transform: translateY(1px);
+  margin-top: -2.5px;
 }
 .member-list::-webkit-scrollbar {
   width: 10px;
@@ -1331,7 +1332,74 @@ span {
 .folder-icons .like-icon:hover {
   transform: scale(1.1);
 }
+.welcome-scroll-content {
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 0 10px;
+  scroll-behavior: smooth;
+}
+.role-badge[alt="test"] {
+  width: 49px !important;
+  height: 24px !important;
+}
 
+/* Neumorphic-style scrollbar */
+.welcome-scroll-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.welcome-scroll-content::-webkit-scrollbar-track {
+  background: #141414;
+  border-radius: 10px;
+  box-shadow: inset 4px 4px 6px #0f0f0f, inset -4px -4px 6px #1f1f1f;
+}
+
+.welcome-scroll-content::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 10px;
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.6),
+    inset -2px -2px 4px rgba(255,255,255,0.05),
+    2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.welcome-scroll-content::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+.online-dot {
+  display: inline-block;
+  width: 1px;
+  height: 8px;
+  margin: 0 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(255,255,255,0.2);
+}
+
+.online-dot.green {
+  background-color: #00ff73;
+  box-shadow: 0 0 6px #00ff73;
+}
+
+.online-dot.orange {
+  background-color: orange;
+  box-shadow: 0 0 6px orange;
+}
+
+.online-dot.red {
+  background-color: red;
+  box-shadow: 0 0 6px red;
+}
+.online-dot {
+  margin-right: -3px; /* change this to adjust spacing */
+  margin-left: 1px;
+  margin-top: 2px;
+}
+.playlist-btn {
+  min-width: 320px;
+  text-align: center;
+  font-family: 'Accasia';
+}
 
 
 
