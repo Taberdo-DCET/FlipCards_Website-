@@ -1,17 +1,17 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import {
-  getFirestore, collection, query, orderBy, onSnapshot, addDoc,
-  serverTimestamp, Timestamp, doc, getDocs, deleteDoc, where, updateDoc
-} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js';
+  getFirestore, collection, getDocs, addDoc, doc, updateDoc, deleteDoc,
+  query, orderBy, onSnapshot, serverTimestamp, Timestamp, where
+} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import {
   getAuth, onAuthStateChanged
-} from 'https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js';
+} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
   authDomain: "flipcards-7adab.firebaseapp.com",
   projectId: "flipcards-7adab",
-  storageBucket: "flipcards-7adab.firebasestorage.app",
+  storageBucket: "flipcards-7adab.appspot.com",
   messagingSenderId: "836765717736",
   appId: "1:836765717736:web:ff749a40245798307b655d"
 };
@@ -23,7 +23,7 @@ const auth = getAuth();
 let currentUser = null;
 let selectedUser = null;
 let activeUnsubscribe = null;
-let allUserEmails = [];
+let allUserDocs = [];
 
 const messagesContainer = document.querySelector(".messages");
 const input = document.getElementById("messageInput");
@@ -99,63 +99,46 @@ sendBtn.addEventListener("click", async () => {
       [currentUser]: Timestamp.now()
     },
     deleted: false,
-    expiredAt: null
+    expiredAt: null,
+    heartedBy: null
   });
 
   input.value = "";
+
+  requestAnimationFrame(() => {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  });
 });
-input.addEventListener("keydown", async (e) => {
-  if (e.key === "Enter") {
-    sendBtn.click();
-  }
+
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendBtn.click();
 });
 
-async function markMessagesAsRead(chatId, fromUser) {
-  const q = query(
-    collection(db, 'chats', chatId, 'messages'),
-    where("sender", "==", fromUser)
-  );
-  const snapshot = await getDocs(q);
-  for (const docSnap of snapshot.docs) {
-    const data = docSnap.data();
-    const readBy = new Set(data.readBy || []);
-    const readByMap = data.readByMap || {};
-
-    if (!readBy.has(currentUser)) {
-      readBy.add(currentUser);
-      readByMap[currentUser] = Timestamp.now();
-
-      await updateDoc(docSnap.ref, {
-        readBy: Array.from(readBy),
-        readByMap: readByMap
-      });
-    }
-  }
+function getChatId(userA, userB) {
+  return [userA, userB].sort().join("_to_");
 }
 
 async function loadMessages(user1, user2) {
   const chatId = getChatId(user1, user2);
-  await markMessagesAsRead(chatId, user2);
-
-  const messagesRef = collection(db, 'chats', chatId, 'messages');
-  const q = query(messagesRef, orderBy('timestamp'));
 
   if (typeof activeUnsubscribe === 'function') {
     activeUnsubscribe();
   }
 
+  const messagesRef = collection(db, 'chats', chatId, 'messages');
+  const q = query(messagesRef, orderBy('timestamp'));
+
   activeUnsubscribe = onSnapshot(q, snapshot => {
     if (selectedUser !== user2) return;
 
+    messagesContainer.innerHTML = "";
+
     snapshot.forEach(doc => {
       const msg = doc.data();
-
-      const existing = document.getElementById(doc.id);
-      if (existing) existing.remove();
+      const isSender = msg.sender === currentUser;
 
       const div = document.createElement("div");
-      div.className = `message ${msg.sender === currentUser ? 'sent' : 'received'} slide-in`;
-      if (msg.deleted) div.classList.add("deleted");
+      div.className = `message ${isSender ? 'sent' : 'received'} slide-in`;
       div.id = doc.id;
 
       const meta = document.createElement("div");
@@ -170,71 +153,141 @@ async function loadMessages(user1, user2) {
       const countdown = document.createElement("div");
       countdown.className = "countdown";
 
-      div.appendChild(meta);
-      div.appendChild(body);
-      div.appendChild(countdown);
-      messagesContainer.appendChild(div);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      const heartBtn = document.createElement("img");
+      heartBtn.className = "heart-button";
+      heartBtn.style.width = "20px";
+      heartBtn.style.height = "20px";
+      heartBtn.style.cursor = "pointer";
+      heartBtn.style.alignSelf = "flex-end";
+      heartBtn.style.marginTop = "6px";
 
-      let expireStart = msg.expiredAt?.toMillis?.();
-      if (!expireStart) {
-        const readByMap = msg.readByMap || {};
-        const othersRead = Object.entries(readByMap).filter(([user]) => user !== msg.sender);
-        if (othersRead.length > 0) {
-          expireStart = Math.max(...othersRead.map(([_, ts]) => ts.toMillis?.() || 0));
-        }
-      }
+      const isHearted = !!msg.heartedBy;
+      const youHearted = msg.heartedBy === currentUser;
 
-      if (expireStart) {
-        const interval = setInterval(() => {
-          const now = Date.now();
-          const remaining = 5 * 60 * 1000 - (now - expireStart);
-
-          if (remaining <= 0) {
-            clearInterval(interval);
-            if (!msg.deleted) {
-              updateDoc(doc.ref, {
-                text: "🗑️ Message expired after 10 minutes.",
-                deleted: true,
-                expiredAt: Timestamp.now()
-              });
-            } else {
-              deleteDoc(doc.ref).catch(err => console.error("Failed to delete", err));
-              div.remove();
-            }
-          } else {
-            countdown.textContent = `Deleting in ${Math.ceil(remaining / 1000)}s`;
-          }
-        }, 1000);
+      if (isHearted && isSender) {
+        heartBtn.src = "hearted.png";
+        heartBtn.title = "Someone loved this";
+      } else if (isHearted && youHearted) {
+        heartBtn.src = "liked.png";
+        heartBtn.title = "You liked this";
       } else {
-        countdown.textContent = "";
+        heartBtn.src = "notliked.png";
+        heartBtn.title = "React with heart";
       }
+
+      if (!isSender) {
+        heartBtn.addEventListener("click", async () => {
+          const newState = msg.heartedBy === currentUser ? null : currentUser;
+          await updateDoc(doc.ref, {
+            heartedBy: newState
+          });
+        });
+      }
+
+      div.appendChild(meta);
+div.appendChild(body);
+
+const bottomRow = document.createElement("div");
+bottomRow.style.display = "flex";
+bottomRow.style.justifyContent = "space-between";
+bottomRow.style.alignItems = "center";
+bottomRow.appendChild(countdown);
+bottomRow.appendChild(heartBtn);
+
+div.appendChild(bottomRow);
+
+
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "flex";
+      wrapper.style.width = "100%";
+      wrapper.appendChild(div);
+      messagesContainer.appendChild(wrapper);
+
+      if (msg.deleted) div.classList.add("deleted");
+
+      if (!isSender && !(msg.readBy || []).includes(currentUser)) {
+        const observer = new IntersectionObserver(async (entries) => {
+          if (entries[0].isIntersecting) {
+            observer.unobserve(div);
+            await updateDoc(doc.ref, {
+              readBy: [...(msg.readBy || []), currentUser],
+              readByMap: {
+                ...(msg.readByMap || {}),
+                [currentUser]: Timestamp.now()
+              }
+            });
+            startCountdown(div, countdown, doc.ref, msg);
+          }
+        }, { threshold: 1.0 });
+        observer.observe(div);
+      } else {
+        startCountdown(div, countdown, doc.ref, msg);
+      }
+    });
+
+    requestAnimationFrame(() => {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
     });
   });
 }
 
-function getChatId(userA, userB) {
-  return [userA, userB].sort().join("_to_");
+function startCountdown(div, countdownEl, docRef, msg) {
+  let expireStart = msg.expiredAt?.toMillis?.();
+  if (!expireStart) {
+    const readByMap = msg.readByMap || {};
+    const othersRead = Object.entries(readByMap).filter(([user]) => user !== msg.sender);
+    if (othersRead.length > 0) {
+      expireStart = Math.max(...othersRead.map(([_, ts]) => ts.toMillis?.() || 0));
+    }
+  }
+
+  if (expireStart) {
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const remaining = 5 * 60 * 1000 - (now - expireStart);
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        if (!msg.deleted) {
+          updateDoc(docRef, {
+            text: "🗑️ Message expired after 10 minutes.",
+            deleted: true,
+            expiredAt: Timestamp.now()
+          });
+        } else {
+          deleteDoc(docRef).catch(err => console.error("Failed to delete", err));
+          div.parentElement?.remove();
+        }
+      } else {
+        countdownEl.textContent = `Deleting in ${Math.ceil(remaining / 1000)}s`;
+      }
+    }, 1000);
+  } else {
+    countdownEl.textContent = "";
+  }
 }
 
 async function populateUserList() {
   const snapshot = await getDocs(collection(db, 'approved_emails'));
-  allUserEmails = [];
+  allUserDocs = [];
 
   snapshot.forEach(doc => {
-    const email = doc.id;
-    if (email !== currentUser) {
-      allUserEmails.push(email);
+    const data = doc.data();
+    if (doc.id !== currentUser) {
+      allUserDocs.push({ email: doc.id, role: data.role || "" });
     }
   });
 
-  renderUserList(allUserEmails);
+  renderUserList(allUserDocs);
 }
 
-function renderUserList(filteredEmails) {
+function renderUserList(userArray) {
   userListContainer.innerHTML = "";
 
-  filteredEmails.forEach(email => {
+  userArray.forEach(user => {
+    const email = user.email;
+    const role = user.role.toLowerCase();
+
     const userDiv = document.createElement("div");
     userDiv.className = "user";
     userDiv.dataset.email = email;
@@ -244,12 +297,44 @@ function renderUserList(filteredEmails) {
     alertDot.textContent = "●";
     alertDot.style.display = "none";
 
+    const emailRow = document.createElement("div");
+    emailRow.style.display = "flex";
+    emailRow.style.alignItems = "center";
+    emailRow.style.justifyContent = "space-between";
+    emailRow.style.gap = "8px";
+    emailRow.style.width = "100%";
+
     const emailText = document.createElement("span");
     emailText.className = "email";
     emailText.textContent = email;
 
+    const badgeContainer = document.createElement("span");
+    badgeContainer.style.display = "flex";
+    badgeContainer.style.gap = "4px";
+
+    if (role.includes("verified")) {
+      const badge = document.createElement("img");
+      badge.src = "verified.png";
+      badge.alt = "verified";
+      badge.title = "Verified";
+      badge.className = "role-badge";
+      badgeContainer.appendChild(badge);
+    }
+
+    if (role.includes("first")) {
+      const badge = document.createElement("img");
+      badge.src = "first.png";
+      badge.alt = "first";
+      badge.title = "First User";
+      badge.className = "role-badge";
+      badgeContainer.appendChild(badge);
+    }
+
+    emailRow.appendChild(emailText);
+    emailRow.appendChild(badgeContainer);
+
     userDiv.appendChild(alertDot);
-    userDiv.appendChild(emailText);
+    userDiv.appendChild(emailRow);
 
     const chatId = getChatId(currentUser, email);
     const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp'));
@@ -272,7 +357,6 @@ function renderUserList(filteredEmails) {
       userDiv.classList.add("active-user");
 
       alertDot.style.display = "none";
-      messagesContainer.innerHTML = "";
       loadMessages(currentUser, selectedUser);
     });
 
@@ -282,6 +366,6 @@ function renderUserList(filteredEmails) {
 
 document.getElementById("userSearch").addEventListener("input", (e) => {
   const term = e.target.value.toLowerCase();
-  const filtered = allUserEmails.filter(email => email.toLowerCase().includes(term));
+  const filtered = allUserDocs.filter(u => u.email.toLowerCase().includes(term));
   renderUserList(filtered);
 });

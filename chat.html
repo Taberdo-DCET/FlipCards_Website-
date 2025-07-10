@@ -300,6 +300,164 @@
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a #141414;
 }
+.role-badge {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+/* Parent message wrapper (applies to each message row) */
+.messages > div {
+  display: flex;
+  width: 100%;
+}
+
+/* Received messages align left */
+.message.received {
+  background-color: #333;
+  align-self: flex-start;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Sent messages align right */
+.message.sent {
+  background-color: #444;
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 0;
+}
+
+/* Optional: Add padding and rounded corners for better UI */
+.message {
+  padding: 10px 14px;
+  border-radius: 15px;
+  color: white;
+  max-width: 60%;
+  word-wrap: break-word;
+}
+
+/* Flex alignment for heart + message container */
+.heart-button {
+  margin-top: auto;
+}
+.messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+}
+
+/* Message container */
+.messages > div {
+  display: flex;
+  width: 100%;
+  margin: 4px 0;
+}
+
+/* Message bubble base */
+.message {
+  padding: 12px 16px;
+  border-radius: 15px;
+  max-width: 70%;
+  word-wrap: break-word;
+  box-shadow: 6px 6px 12px #101010, -6px -6px 12px #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: #202020;
+  transition: opacity 0.5s ease, transform 0.3s ease;
+}
+
+/* Sender */
+.message.sent {
+  align-self: flex-end;
+  background-color: #2c2c2c;
+}
+
+/* Receiver */
+.message.received {
+  align-self: flex-start;
+  background-color: #333;
+}
+
+/* Slide animation */
+.message.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Deleted message */
+.message.deleted {
+  font-style: italic;
+  opacity: 0.7;
+  background-color: #1a1a1a !important;
+  color: #888;
+}
+
+/* Heart Button Inside Message */
+.heart-button {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  align-self: flex-end;
+  margin-top: 6px;
+}
+
+/* Countdown Timer */
+.countdown {
+  font-size: 0.7em;
+  color: #ffcf00;
+  margin-top: 4px;
+  text-align: right;
+  font-style: italic;
+}
+html, body {
+  scroll-behavior: smooth;
+}
+.messages::-webkit-scrollbar {
+  width: 10px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: #141414;
+  border-radius: 10px;
+  box-shadow: inset 4px 4px 6px #0f0f0f, inset -4px -4px 6px #1f1f1f;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 10px;
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.6),
+    inset -2px -2px 4px rgba(255,255,255,0.05),
+    2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 0.1),
+    inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Firefox support */
+.messages {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a #141414;
+}
 
 @media (max-width: 426px) {
   body {
@@ -421,6 +579,6 @@
   });
 </script>
 <script type="module" src="presence.js"></script>
-
+<script src="protect.js"></script>
 </body>
 </html>

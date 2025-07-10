@@ -1,4 +1,4 @@
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { getApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
 import {
   getFirestore,
   collection,
@@ -8,25 +8,23 @@ import {
   where,
   doc as firestoreDoc
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
-  authDomain: "flipcards-7adab.firebaseapp.com",
-  projectId: "flipcards-7adab",
-  storageBucket: "flipcards-7adab.firebasestorage.app",
-  messagingSenderId: "836765717736",
-  appId: "1:836765717736:web:ff749a40245798307b655d"
-};
-
-const app = initializeApp(firebaseConfig);
+// ✅ Use existing initialized app
+const app = getApp();
 const db = getFirestore(app);
 const auth = getAuth(app);
 
 const usageSpan = document.getElementById("publicUsage");
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user || !usageSpan) return;
+  if (!user || !usageSpan) {
+    console.warn("🔕 No user or #publicUsage span found");
+    return;
+  }
 
   let max = 2;
   try {

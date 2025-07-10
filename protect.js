@@ -1,5 +1,14 @@
-// Disable right-click
+// Allow long-press on mobile only for input/textarea
 document.addEventListener("contextmenu", function (e) {
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const tag = e.target.tagName;
+
+  if (isTouchDevice && (tag === "INPUT" || tag === "TEXTAREA")) {
+    // Allow long-press context menu on mobile
+    return;
+  }
+
+  // Block everywhere else (desktop or non-input targets)
   e.preventDefault();
 });
 

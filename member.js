@@ -1,22 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
-
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
-  authDomain: "flipcards-7adab.firebaseapp.com",
-  projectId: "flipcards-7adab",
-  storageBucket: "flipcards-7adab.firebasestorage.app",
-  messagingSenderId: "836765717736",
-  appId: "1:836765717736:web:ff749a40245798307b655d"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const rtdb = getDatabase(app);
-const auth = getAuth();
+import { db, rtdb, auth } from "./firebaseinit.js";
+import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+import { ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById("memberSidebar");
@@ -68,6 +53,25 @@ document.addEventListener("DOMContentLoaded", () => {
         Test: "🤖 Test Accounts"
       };
 
+      const badgeIcons = {
+        admin: "admin.png",
+        pioneer: "pioneer.png",
+        moderator: "moderator.png",
+        "beta tester": "betatester.png",
+        betatester: "betatester.png",
+        prepper: "prepper.png",
+        test: "test.png",
+        verified: "verified.png",
+        first: "first.png",
+        hearted: "hearted.png",
+        trophy: "trophy.png",
+        friend: "friend.png",
+        bronze: "bronze.png",
+        silver: "silver.png",
+        gold: "gold.png",
+        sponsor: "sponsor.png"
+      };
+
       const statusRef = ref(rtdb, "/status");
       onValue(statusRef, (statusSnap) => {
         const onlineMap = statusSnap.val() || {};
@@ -104,38 +108,44 @@ document.addEventListener("DOMContentLoaded", () => {
             dotHTML = `<span class="online-dot red"></span>`;
           }
 
-          const badgeIcons = {
-            admin: "admin.png",
-            pioneer: "pioneer.png",
-            moderator: "moderator.png",
-            "beta tester": "betatester.png",
-            betatester: "betatester.png",
-            prepper: "prepper.png",
-            test: "test.png",
-            verified: "verified.png"
-          };
+          const firstHTML = roleArray.includes("first")
+            ? `<img src="${badgeIcons.first}" alt="first" class="role-badge" title="First User">`
+            : "";
 
           const verifiedHTML = roleArray.includes("verified")
             ? `<img src="${badgeIcons.verified}" alt="verified" class="role-badge" title="Verified">`
             : "";
 
-          const otherBadgesHTML = roleArray
-            .filter(r => r !== "verified")
+          const mainBadgesHTML = roleArray
+            .filter(r =>
+              ["admin", "pioneer", "moderator", "beta tester", "betatester", "prepper", "test"]
+              .includes(r))
             .map(r => {
               const badge = badgeIcons[r];
               if (!badge) return "";
-              const larger = r === "test" ? 'style="width:24px;height:24px;"' : "";
-              return `<img src="${badge}" alt="${r}" class="role-badge" title="${r}" ${larger}>`;
+              return `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">`;
+            }).join(" ");
+
+          const achievementBadgesHTML = roleArray
+            .filter(r =>
+              ["hearted", "trophy", "friend", "bronze", "silver", "gold", "sponsor"].includes(r))
+            .map(r => {
+              const badge = badgeIcons[r];
+              return badge ? `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">` : "";
             }).join(" ");
 
           const li = document.createElement("li");
           li.innerHTML = `
-            <div class="email-container">
-              ${verifiedHTML}
-              ${dotHTML}
-              <span class="email" title="${user.email}" data-uid="${user.uid}">${shortEmail}</span>
+            <div class="email-container" style="position: relative;">
+              ${dotHTML}${verifiedHTML}${firstHTML}
+              <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="email" title="${user.email}" data-uid="${user.uid}">${shortEmail}</span>
+                </div>
+                <span class="badge-container achievement-badges">${achievementBadgesHTML}</span>
+              </div>
+              <span class="badge-container main-badges">${mainBadgesHTML}</span>
             </div>
-            <span class="badge-container">${otherBadgesHTML}</span>
           `;
 
           roles[mainRole].push(li);

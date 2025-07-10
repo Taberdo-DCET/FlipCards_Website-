@@ -38,5 +38,21 @@
   <script type="module" src="auth.js"></script>
   <script type="module" src="presence.js"></script>
   <script src="protect.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginButton = document.getElementById("loginBtn"); // or your actual button ID
+    const loginInputs = document.querySelectorAll("input");
+
+    loginInputs.forEach(input => {
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          loginButton.click();
+        }
+      });
+    });
+  });
+</script>
+
 </body>
 </html>

@@ -122,30 +122,47 @@
             <div class="orb"><div class="orb-eye"></div><div class="orb-trail"></div> </div>
         </div>
     <div class="musicrow">
-        <button class="music-icon music" aria-label="Toggle Music">
-            <img src="musicnc.png" alt="Music" data-hover="musicc.png" data-default="musicnc.png">
-        </button>
-        <button class="music-icon profile" aria-label="Profile">
-            <img src="profilenc.png" alt="Profile" data-hover="profilec.png" data-default="profilenc.png">
-        </button>
-        <button class="music-icon notes" aria-label="Notes">
-            <img src="notenc.png" alt="Profile" data-hover="notec.png" data-default="notenc.png">
-        </button>
-        <button id="leaderboardsBtn" class="music-icon notes" aria-label="Leaderboards">
-    <img src="leadnc.png" alt="Leaderboards" data-hover="leadc.png" data-default="leadnc.png">
-</button>
-
-<!-- Chat button -->
-<a href="chat.html" class="chat-link">
-  <button class="music-icon chat" aria-label="Chat" id="chatIconButton">
-    <span id="chatDot" class="chat-dot" style="display: none;"></span>
-    <img src="chatnc.png" alt="Chat" data-hover="chatc.png" data-default="chatnc.png">
+      
+        <div class="tooltip-container" data-tooltip="Toggle Music">
+  <button class="music-icon music" aria-label="Toggle Music">
+    <img src="musicnc.png" alt="Music" data-hover="musicc.png" data-default="musicnc.png">
   </button>
-</a>
+</div>
+
+<div class="tooltip-container" data-tooltip="Profile">
+  <button class="music-icon profile" aria-label="Profile">
+    <img src="profilenc.png" alt="Profile" data-hover="profilec.png" data-default="profilenc.png">
+  </button>
+</div>
+
+<div class="tooltip-container" data-tooltip="Notes">
+  <button class="music-icon notes" aria-label="Notes">
+    <img src="notenc.png" alt="Notes" data-hover="notec.png" data-default="notenc.png">
+  </button>
+</div>
+
+<div class="tooltip-container" data-tooltip="Leaderboards">
+  <button id="leaderboardsBtn" class="music-icon notes" aria-label="Leaderboards">
+    <img src="leadnc.png" alt="Leaderboards" data-hover="leadc.png" data-default="leadnc.png">
+  </button>
+</div>
+<!-- Chat button -->
+<div class="tooltip-container" data-tooltip="Chat">
+  <a href="chat.html" class="chat-link">
+    <button class="music-icon chat" aria-label="Chat" id="chatIconButton">
+      <span id="chatDot" class="chat-dot" style="display: none;"></span>
+      <img src="chatnc.png" alt="Chat" data-hover="chatc.png" data-default="chatnc.png">
+    </button>
+  </a>
+</div>
+
 <!-- Members button -->
-<button class="music-icon" id="openMemberList" aria-label="Members">
-  <img src="memnc.png" alt="Members" data-hover="memc.png" data-default="memnc.png">
-</button>
+<div class="tooltip-container" data-tooltip="Members">
+  <button class="music-icon" id="openMemberList" aria-label="Members">
+    <img src="memnc.png" alt="Members" data-hover="memc.png" data-default="memnc.png">
+  </button>
+</div>
+
 
 
     </div>
@@ -289,41 +306,48 @@
   </div>
 </div>
 <div id="welcomeModal" class="custom-modal hidden">
-<div class="modal-content" style="background: #171717; border: 1px solid white; border-radius: 20px; padding: 0; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center; max-height: 90vh; overflow: hidden;">
-  <div class="welcome-scroll-content">
-    <div style="padding: 30px;">
-      <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
-      <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
-      <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-        <li>📅 New features in this Update: 07/09/25</li>
-        <li>💬 Chat is now available!
+  <div class="modal-content" style="background: #171717; border: 1px solid white; border-radius: 20px; padding: 0; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
+    
+    <div class="welcome-scroll-content">
+      <div style="padding: 30px;">
+        <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
+        <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
+        <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
+          <li>📅 New features in this Update: 07/09/25</li>
+          <li>💬 Improved Chat Feature!
+            <br>
+            <span class="sub-announcement">➥ You can now React to each other's messages.</span>
+            <span class="sub-announcement">➥ Badge is Visible.</span>
+          </li>
+          <li>💖 Like/Heart Button Added!</li>
+          <span class="sub-announcement">➥ You can now Heart other user's public card and add to your "Liked Flascard Sets!"</span>
+          <li>✏️ Addcard UI Improvements</li>
+          <span class="sub-announcement">➥ Public Usage Card Indicator Added!</span>
+          <li>✏️ You can now make locally saved cards go Public!</li>
+          <li>👥 Roles are Added!</li>
+          <span class="sub-announcement">➥ 🏅 New Feature: Badge Support Added!</span>
+          <span class="sub-announcement">➥ 🏆 New Feature: Achievements!</span>
+          <li>🆕 New Mode in Flashcard Game Mode!</li>
+          <span class="sub-announcement">➥ ❗ New Reverse Mode: Now you can Display Definition of your Cards First!!</span>
+          <li>🎵 Redesigned Music Modal UI</li>
+          <span class="sub-announcement">➥ ❗ Music can now be played even when you are reviewing card sets.</span>
+          <li>📱 Tablet and Mobile-Friendly Update: Full Responsiveness Now Live!</li>
+          <li>👁️👁️ Visual Bugs Fixes</li>
+          <li>🛠 Bug Fixes
+            <span class="sub-announcement">➥ Bonus Cards Now Match with Each Other — Any Two Can Pair! 🃏🃏</span>
+          </li>
           <br>
-          <span class="sub-announcement">➥ Messages will now be deleted after being read. (five minutes)</span>
-          <span class="sub-announcement">➥ Emoji is now easily Accessible.</span>
-        </li>
-        <li>💖 Like/Heart Button Added!</li>
-        <span class="sub-announcement">➥ You can now Heart other user's public card and add to your "Liked Flascard Sets!"</span>
-        <li>✏️ Addcard UI Improvements</li>
-        <span class="sub-announcement">➥ Public Usage Card Indicator Added!</span>
-        <li>✏️ You can now make locally saved cards go Public!</li>
-        <li>👥 Roles are Added!</li>
-        <span class="sub-announcement">➥ 🏅 New Feature: Badge Support Added!</span>
-        <li>🆕 New Mode in Flashcard Game Mode !</li>
-        <span class="sub-announcement">➥ ❗ New Reverse Mode: Now you can Display Definition of your Cards First!!</span>
-        <li>🎵 Redesigned Music Modal UI</li>
-        <span class="sub-announcement">➥ ❗ Music can now be played even when you are reviewing card sets.</span>
-        <li>📱 Tablet and Mobile-Friendly Update: Full Responsiveness Now Live!</li>
-        <li>👁️👁️ Visual Bugs Fixes</li>
-        <li>🛠 Bug Fixes
-          <span class="sub-announcement">➥ Bonus Cards Now Match with Each Other — Any Two Can Pair! 🃏🃏</span>
-        </li>
-      </ul>
-      <button id="dismissWelcome" class="neumorphic-button" style="margin-top: 20px;">Okay</button>
+          <li>🪲 Found any Bugs? Message Us!</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="welcome-button-footer">
+      <button id="dismissWelcome" class="neumorphic-button">Okay</button>
     </div>
   </div>
 </div>
 
-</div>
 <!-- Member List Sidebar -->
 <div id="memberSidebar" class="member-sidebar">
 
@@ -353,14 +377,15 @@
 
 
     <script src="menu.js"></script>
-    <script type="module" src="public.js"></script>
+   <script type="module" src="displaylocalsets.js"></script>
     <script src="search.js"></script>
     <script src="icon.js"></script>
     <script src="orb.js"></script>
     <script src="music.js"></script>
-    <script src="displaylocalsets.js"></script>
+    
+
     <script type="module" src="presence.js"></script>
-    <script src="protect.js"></script>
+    
     
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
@@ -537,8 +562,21 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="profile.js"></script>
-<script type="module" src="member.js"></script>
 
+<script type="module" src="member.js"></script>
+<script type="module" src="firebaseinit.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tooltips = document.querySelectorAll('.tooltip-container');
+
+    tooltips.forEach((el, i) => {
+      const tooltip = el;
+      tooltip.style.setProperty('--delay', `${i * 0.25}s`);
+      tooltip.querySelector('::before'); // ensure rendering
+      tooltip.style.animationDelay = `${i * 0.25}s`;
+    });
+  });
+</script>
 
 
 
