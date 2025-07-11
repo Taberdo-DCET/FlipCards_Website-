@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | FlipCards</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+</head>
+<body>
+  <form onsubmit="event.preventDefault(); login();">
+    <div class="loginlogo">
+      <img class="group-5" src="group-5.svg" />
+      <h2>FlipCards.</h2>
+    </div>
+
+    <input type="email" name="username" placeholder="Email" required />
+    <input type="password" name="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+  </form>
+
+  <div class="social-column">
+    <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon fb" aria-label="Visit Facebook">
+      <img src="facebooknc.png" alt="Facebook" data-hover="Facebookc.png" data-default="facebooknc.png">
+    </a>
+    <a href="https://instagram.com" target="_blank" class="social-icon">
+      <img src="instanc.png" data-hover="instac.png" data-default="instanc.png">
+    </a>
+    <a href="https://twitter.com" target="_blank" class="social-icon">
+      <img src="xnc.png" data-hover="xc.png" data-default="xnc.png">
+    </a>
+    <a href="https://discord.com" target="_blank" class="social-icon">
+      <img src="discordnc.png" data-hover="discordc.png" data-default="discordnc.png">
+    </a>
+  </div>
+
+  <script src="icon.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script type="module" src="presence.js"></script>
+  <script src="protect.js"></script>
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginButton = document.getElementById("loginBtn"); // or your actual button ID
+    const loginInputs = document.querySelectorAll("input");
+
+    loginInputs.forEach(input => {
+      input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          loginButton.click();
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Learn | FlipCards</title>
+  <link rel="stylesheet" href="learn.css" />
+  <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png" />
+</head>
+<body>
+  <div class="card-set-container">
+    <h2 class="card-set-title" id="learnSetTitle">Loading...</h2>
+
+    <div class="button-container">
+      <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
+      <button class="neumorphic-button" onclick="goToTest()">Test</button>
+      <button class="neumorphic-button active">Learn</button>
+      <button class="neumorphic-button" onclick="goToMatch()">Match</button>
+      
+    </div>
+
+    <div class="definition-row">
+  <a href="lobby.html#Folderr">
+    <img src="homeenc.png" alt="Home" class="home-icon hover-switch" data-default="homeenc.png" data-hover="homeec.png" />
+  </a>
+
+  <div class="definition-box">
+    <p id="learnDefinition">Loading definition...</p>
+  </div>
+</div>
+
+
+    <div class="choices-container" id="learnChoices">
+      <!-- Choices will be generated here -->
+    </div>
+    <div class="navigation-buttons">
+  <img src="retrync.png" alt="Previous" class="nav-btn" id="prevBtn" />
+  <div id="card-counter" class="card-counter">1 / 10</div>
+  <img src="nextnc.png" alt="Next" class="nav-btn" id="nextBtn" />
+</div>
+<div class="progress-wrapper" id="progressWrapper">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+  </div>
+
+<script>
+  const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+
+  if (!reviewingSet || !reviewingSet.flashcards || reviewingSet.flashcards.length === 0) {
+    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcards to learn from.</h2>";
+    throw new Error("No flashcard data.");
+  }
+
+  const titleElement = document.getElementById("learnSetTitle");
+  const defElement = document.getElementById("learnDefinition");
+  const choicesContainer = document.getElementById("learnChoices");
+  const counterElement = document.getElementById("card-counter");
+  const progressWrapper = document.getElementById("progressWrapper");
+  const progressBar = document.getElementById("progressBar");
+
+  const flashcards = reviewingSet.flashcards;
+
+  let currentIndex = 0;
+  let autoAdvanceTimeout = null;
+
+  titleElement.textContent = reviewingSet.title || "Untitled Flashcard Set";
+
+  function showProgressBar(duration = 3000) {
+    if (!progressWrapper || !progressBar) return;
+    progressWrapper.style.display = "block";
+    progressBar.style.transition = "none";
+    progressBar.style.width = "0%";
+
+    setTimeout(() => {
+      progressBar.style.transition = `width ${duration}ms linear`;
+      progressBar.style.width = "100%";
+    }, 50);
+  }
+
+  function resetProgressBar() {
+    if (!progressWrapper || !progressBar) return;
+    progressWrapper.style.display = "none";
+    progressBar.style.width = "0%";
+    progressBar.style.transition = "none";
+  }
+
+  function updateCard(index) {
+    clearTimeout(autoAdvanceTimeout);
+    resetProgressBar();
+
+    const currentCard = flashcards[index];
+    defElement.textContent = currentCard.definition;
+
+    const correct = currentCard.term;
+    const allTerms = flashcards.map(fc => fc.term);
+    let choices = allTerms.filter(term => term !== correct);
+    choices = choices.sort(() => 0.5 - Math.random()).slice(0, 3);
+    choices.push(correct);
+    choices = choices.sort(() => 0.5 - Math.random());
+
+    const labels = ['A', 'B', 'C', 'D'];
+    choicesContainer.innerHTML = choices.map((opt, i) =>
+      `<div class="choice" data-term="${opt}">${labels[i]}. ${opt}</div>`
+    ).join('');
+
+    counterElement.textContent = `${index + 1} / ${flashcards.length}`;
+
+    document.querySelectorAll('.choice').forEach(choice => {
+      choice.addEventListener('click', function handleChoice() {
+        const selectedTerm = this.getAttribute('data-term');
+        const isCorrect = selectedTerm === correct;
+
+        document.querySelectorAll('.choice').forEach(c => {
+          const cTerm = c.getAttribute('data-term');
+          c.classList.add('disabled');
+          if (cTerm === correct) {
+            c.style.backgroundColor = '#228B22';
+          }
+        });
+
+        if (!isCorrect) {
+          this.style.backgroundColor = '#B22222';
+        }
+
+        showProgressBar(3000);
+        autoAdvanceTimeout = setTimeout(() => {
+          goToCard(1);
+        }, 3000);
+      }, { once: true });
+    });
+  }
+
+  function goToCard(direction) {
+    clearTimeout(autoAdvanceTimeout);
+    resetProgressBar();
+    currentIndex = (currentIndex + direction + flashcards.length) % flashcards.length;
+    updateCard(currentIndex);
+  }
+
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    goToCard(1);
+  });
+
+  document.getElementById("prevBtn").addEventListener("click", () => {
+    clearTimeout(autoAdvanceTimeout);
+    resetProgressBar();
+    currentIndex = 0;
+    updateCard(currentIndex);
+  });
+
+  updateCard(currentIndex);
+</script>
+
+<script>
+  function goToFlashcard() {
+    window.location.href = "flashcard.html";
+  }
+</script>
+
+<script>
+  document.querySelectorAll(".hover-switch").forEach(img => {
+    const def = img.getAttribute("data-default");
+    const hov = img.getAttribute("data-hover");
+    img.addEventListener("mouseover", () => img.src = hov);
+    img.addEventListener("mouseout", () => img.src = def);
+  });
+</script>
+<script>
+  function goToTest() {
+    localStorage.setItem("currentIndex", currentIndex); // Save current index
+    window.location.href = "test.html";
+  }
+</script>
+<script>
+document.addEventListener("keydown", function (e) {
+  if (document.activeElement.tagName !== "INPUT") {
+    if (e.key === "ArrowRight") {
+      goToCard(1); // next
+    } else if (e.key === "ArrowLeft") {
+      goToCard(-1); // previous
+    }
+  }
+});
+
+</script>
+<script>
+  function goToMatch() {
+    localStorage.setItem("currentIndex", currentIndex); // optional if you want to track card index
+    window.location.href = "match.html";
+  }
+</script>
+<script type="module">
+  import { checkUserStatus } from './userstatuscheck.js';
+  checkUserStatus();
+</script>
+<script type="module" src="presence.js"></script>
+<script src="protect.js"></script>
+</body>
+</html>

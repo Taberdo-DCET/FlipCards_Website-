@@ -41,7 +41,65 @@
 <div class="dot-tracker-wrapper">
   <div class="dot-tracker" id="dotTracker"></div>
 </div>
+<div id="flipTimerModal" class="flip-timer-modal hidden">
+  <div class="flip-timer-header">
+    <span class="flip-timer-title">🕒 FlipTimer</span>
+    <span class="flip-timer-close" onclick="closeFlipTimer()">&times;</span>
+  </div>
+  <div class="flip-timer-body">
+    <label for="studyMinutes">Study Minutes:</label>
+    <input type="number" id="studyMinutes" min="1" max="180" placeholder="Enter minutes...">
+    <h2 id="flipTimerLabel">Ready to Focus?</h2>
+    <h1 id="flipTimerClock">00:00</h1>
 
+    <div class="flip-timer-buttons">
+      <button onclick="startFlipTimer()">Start</button>
+      <button onclick="resetFlipTimer()">Reset</button>
+      <button onclick="skipBreak()">Skip</button>
+      <button onclick="pauseFlipTimer()" id="pauseButton">⏸️ Pause</button>
+    </div>
+
+    <p>Breaks Taken: <span id="breakCounter">0</span></p>
+    <div style="text-align: center; margin-top: 10px;">
+      <button id="collapseBtn" onclick="collapseFlipTimer()" class="neumorphic-button" style="padding: 4px 12px; font-size: 12px;">▲ Collapse</button>
+    </div>
+  </div>
+</div>
+
+<!-- FlipTimer Minimized View -->
+<div id="flipTimerMinimized" class="hidden" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  font-family: 'QilkaBold';
+  font-size: 16px;
+  z-index: 3000;
+  gap: 10px;
+  align-items: center;
+  box-shadow: 6px 6px 12px rgba(0,0,0,0.3), -6px -6px 12px rgba(255,255,255,0.05);
+  cursor: pointer;
+  border: 1px solid white;
+  backdrop-filter: blur(8px);
+  display: flex;
+">
+<span id="minBreakCounter">0</span>
+  <span id="flipTimerMinClock">00:00</span>
+   <button onclick="expandFlipTimer()" class="neumorphic-button" style="font-size: 12px; padding: 4px 10px;">▲ Expand</button>
+</div>
+
+<!-- Confirm Dialog -->
+<div id="flipTimerConfirm" class="flip-timer-confirm hidden">
+  <div class="flip-timer-confirm-box">
+    <p>Want to continue?</p>
+    <div>
+      <button onclick="confirmFlipTimerContinue(true)">Yes</button>
+      <button onclick="confirmFlipTimerContinue(false)">No</button>
+    </div>
+  </div>
+</div>
+<script src="flipTimer.js"></script>
 <script>
   window.addEventListener("DOMContentLoaded", () => {
     // Hover image switching

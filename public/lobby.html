@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlipCards Lobby</title>
+     <link rel="stylesheet" href="lobby.css">
+     <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+
+</head>
+<body>
+    <header class="navhead">
+        <div class="container">
+            <div class="left-side">
+                <button id="menu-toggle" class="menu-toggle">&#9776;</button>
+                <div class="logo"><a href="#epbe"><img class="group-5" src="group-5.svg" /></a></div>
+                <div class="TTitle">FlipCards.</div>
+            </div>
+            <nav class="side-nav" id="sideNav">
+                <div class="side-content">
+                    <div class="nav-wrapper">
+                        <ul id="navmenu" class="navmenu">
+                            <li><a href="#About" class="About">About Us</a></li>
+                            <li><a href="#How" class="How">How it Works</a></li>
+                            <li><a href="#featuress" class="Features">Features</a></li>
+                            <li>
+                        <a href="#Folderr" class="Features">
+                        Folder
+                        </a>
+                    </li>
+                            <li>
+                                <a href="addcard.html"><button class="getstarted2">
+                                    <img class="group-82" src="group-8.png" />Get Started
+                                </button></a>
+                            </li>
+                            
+                        </ul>
+                    </div>
+                        <div class="rayt">
+                            <div class="rights">FlipCards.</div>
+                        </div>
+                </div>
+            </nav>
+
+
+                <ul id="navmenu" class="navmenu">
+                    <li>
+                        <a href="#About" class="About">
+                        About Us
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#How" class="How">
+                        How it Works
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#featuress" class="Features">
+                        Features
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#Folderr" class="Features">
+                        Folder
+                        </a>
+                    </li>            
+                    <li>
+                        <a href="addcard.html"><button class="getstarted">
+                        <img class="group-8" src="group-8.png" />Get Started
+                        </button></a>
+                    </li>    
+                    <!-- Gemini Button -->
+<!-- Gemini Button -->
+                    <li>
+                      <button id="geminiBtn" class="getstarted folder-getstarted">
+                          <img class="group-8 hover-switch" src="gemininc.png" data-default="gemininc.png" data-hover="geminic.png" />
+                      </button>
+                    </li>
+
+ 
+                </ul>
+        </div>
+    </header>
+   <!-- Gemini Upload Modal -->
+<div class="gemini-modal-backdrop" id="geminiModal">
+  <div class="gemini-modal-content">
+    <span class="gemini-modal-close" id="closeGeminiModal">&times;</span>
+    <h2 class="gemini-modal-title">Upload a PPTX to Generate Flashcards</h2>
+    <div class="gemini-dropzone" id="geminiDropZone">📂 Drag & drop or click to upload .pptx</div>
+    <input type="file" id="geminiFileInput" accept=".pptx" style="display: none;" />
+    <div class="gemini-flashcards" id="geminiFlashcards"></div>
+  </div>
+</div> 
+    <section class="catchphrase">
+        <div class="social-column">
+            <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon fb" aria-label="Visit Facebook">
+                <img src="facebooknc.png" id="epbe" alt="Facebook" data-hover="Facebookc.png" data-default="facebooknc.png">
+             </a>
+            <a href="https://instagram.com/rph.wy" target="_blank"  class="social-icon">
+                <img src="instanc.png" data-hover="instac.png" data-default="instanc.png">
+            </a>
+            <a href="https://twitter.com" target="_blank" class="social-icon">
+                <img src="xnc.png" data-hover="xc.png" data-default="xnc.png">
+            </a>
+            <a href="https://discord.com/users/raaaph28" target="_blank" class="social-icon">
+                <img src="discordnc.png" data-hover="discordc.png" data-default="discordnc.png">
+            </a>
+            <a href="https://www.threads.net/@rph.wy" target="_blank" class="social-icon">
+                <img src="threadnc.png" data-hover="threadc.png" data-default="threadnc.png">
+            </a>
+            <a href="https://www.tiktok.com/@raaaphbrrt" target="_blank" class="social-icon">
+                <img src="tiktok.nc.png" data-hover="tiktokc.png" data-default="tiktok.nc.png">
+            </a>
+        </div>
+        <div class="container2">
+            <div class="catch-text">
+                 <h1>
+                    Read. Review. 
+                    Remember. <span>Repeat.</span>
+                </h1>
+            </div>
+            <div class="orb"><div class="orb-eye"></div><div class="orb-trail"></div> </div>
+        </div>
+    <div class="musicrow">
+      
+        <div class="tooltip-container" data-tooltip="Toggle Music">
+  <button class="music-icon music" aria-label="Toggle Music">
+    <img src="musicnc.png" alt="Music" data-hover="musicc.png" data-default="musicnc.png">
+  </button>
+</div>
+
+<div class="tooltip-container" data-tooltip="Profile">
+  <button class="music-icon profile" aria-label="Profile">
+    <img src="profilenc.png" alt="Profile" data-hover="profilec.png" data-default="profilenc.png">
+  </button>
+</div>
+
+<div class="tooltip-container" data-tooltip="Notes">
+  <button class="music-icon notes" aria-label="Notes">
+    <img src="notenc.png" alt="Notes" data-hover="notec.png" data-default="notenc.png">
+  </button>
+</div>
+
+<div class="tooltip-container" data-tooltip="Leaderboards">
+  <button id="leaderboardsBtn" class="music-icon notes" aria-label="Leaderboards">
+    <img src="leadnc.png" alt="Leaderboards" data-hover="leadc.png" data-default="leadnc.png">
+  </button>
+</div>
+<!-- Chat button -->
+<div class="tooltip-container" data-tooltip="Chat">
+  <a href="chat.html" class="chat-link">
+    <button class="music-icon chat" aria-label="Chat" id="chatIconButton">
+      <span id="chatDot" class="chat-dot" style="display: none;"></span>
+      <img src="chatnc.png" alt="Chat" data-hover="chatc.png" data-default="chatnc.png">
+    </button>
+  </a>
+</div>
+
+<!-- Members button -->
+<div class="tooltip-container" data-tooltip="Members">
+  <button class="music-icon" id="openMemberList" aria-label="Members">
+    <img src="memnc.png" alt="Members" data-hover="memc.png" data-default="memnc.png">
+  </button>
+</div>
+
+
+
+    </div>
+   <div id="musicModal" class="music-modal" style="width: 320px; height: auto; padding: 20px;">
+  <div id="musicModalHeader" class="music-modal-header">🎧 Listen on Spotify</div>
+  <div class="music-modal-content" style="display: flex; flex-direction: column; gap: 14px; align-items: center;">
+    <div style="font-size: 15px; font-family: 'Accasia'; margin-bottom: 5px; color: white;">🎵 Spotify Playlists</div>
+    <button class="neumorphic-button playlist-btn" data-id="3QhTLSPC91N9jQOqhDIODO" style="width: 240px;">🎶 The Smiths</button>
+    <button class="neumorphic-button playlist-btn" data-id="7ml2ua0UD8YWS9HULceCx1" style="width: 240px;">🌙 raaaph's Playlist</button>
+    <button class="neumorphic-button playlist-btn" data-id="6avG1f9f9Xahh5ljq98G2s" style="width: 240px;">💥 HUNTRX</button>
+    <p style="font-size: 12px; color: #aaa; margin-top: 12px; text-align: center;">
+    </p>
+  </div>
+</div>
+
+
+<div id="notepad" class="notepad-modal hidden">
+  <div id="notepadHeader" class="notepad-header">📝 Notepad</div>
+  <textarea id="notepadText" placeholder="Type here..."></textarea>
+</div>
+
+    </section>
+    <section class="folder-section" id="Folderr">
+  <h2 class="features-title" style="color: white;">Flashcard Folders</h2>
+  <a href="addcard.html">
+  <button class="getstarted folder-getstarted">
+    <img class="group-8" src="group-8.png" />Add More Card Sets!
+  </button>
+</a>
+  <div style="margin: 20px auto; max-width: 300px; margin-bottom: 60px;">
+    <input id="folderSearch" type="text" placeholder="Search folders...Emails or Users..." style="width: 100%; padding: 10px; border-radius: 8px; border: none; font-family: 'Accasia'; font-size: 15px;">
+     <select id="folderFilter" style="padding: 10px 12px; border-radius: 8px; font-family: 'Accasia'; font-size: 15px; margin-top: 40px;">
+    <option value="your" selected>Your Flashcard Sets</option>
+    <option value="public">Public Flashcard Sets</option>
+    <option value="liked">❤️ Liked FlashCard Sets</option>
+  </select>
+  </div>
+  <div class="folder-grid">
+    
+  </div>
+  
+
+</section>
+
+<section class="featuress" id="featuress">
+  <h2 class="features-title">Our Features</h2>
+  <div class="features-grid">
+  <div class="feature-box">
+    <h3>Flashcard Creation</h3>
+    <p>Easily create flashcards with custom questions and answers.</p>
+  </div>
+  <div class="feature-box">
+    <h3>Custom Decks</h3>
+    <p>Group your flashcards into decks for organized study sessions.</p>
+  </div>
+  <div class="feature-box">
+    <h3>4 Modes to Review</h3>
+    <p>Master any topic using Flashcards, Learn, Match, and Test modes for flexible, effective studying.</p>
+  </div>
+  <div class="feature-box">
+    <h3>System Update Every Week</h3>
+    <p>Enjoy regular updates with bug fixes, UI improvements, and new feature rollouts every week.</p>
+  </div>
+  <div class="feature-box">
+    <h3>Dark Mode</h3>
+    <p>Reduce eye strain and study comfortably at night.</p>
+  </div>
+  <div class="feature-box">
+    <h3>Interact with Other Users</h3>
+    <p>Browse and study from public card sets shared by others to expand your learning and connect with the community.</p>
+  </div>
+</div>
+<div id="deleteModal" class="custom-modal hidden">
+  <div class="modal-content">
+    <div class="modal-message" id="deleteMessage">Are you sure you want to delete?</div>
+    <div class="modal-buttons">
+      <button id="confirmDelete" class="neumorphic-button">Okay</button>
+      <button id="cancelDelete" class="neumorphic-button">Cancel</button>
+      
+    </div>
+  </div>
+</div>
+<div id="comingSoonModal" class="custom-modal hidden">
+  <div class="modal-content">
+    <div class="modal-message">✨ Coming Soon!</div>
+    <div class="modal-buttons">
+      <button id="closeComingSoon" class="neumorphic-button">OK</button>
+    </div>
+  </div>
+</div>
+
+</section>
+<section id="About" class="about-section">
+  <div class="about-container">
+    <h2 class="about-title">About Us</h2>
+    <p class="about-description">
+      We believe that quality education should be accessible to everyone. That’s why we built this platform—to provide students with a premium learning experience without the high costs found on other websites. Our goal is to support learners who may be struggling financially by offering powerful study tools, regular updates, and a vibrant community—all for free or at a minimal cost. Learning should empower, not burden—and we’re here to make that a reality.
+    </p>
+  </div>
+</section>
+<footer class="custom-footer">
+  <p class="footer-text">
+    Found any Bugs or Do you have Recommendations? Message us!
+  </p>
+
+  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=taberdoraphael189@gmail.com" target="_blank" class="footer-gmail">
+    <img src="gmeylnc.png" alt="Gmail" class="hover-switch" data-hover="gmeylc.png" data-default="gmeylnc.png">
+  </a>
+
+  <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="footer-gmail" aria-label="Visit Facebook">
+    <img src="facebooknc.png" alt="Facebook" class="hover-switch" data-hover="Facebookc.png" data-default="facebooknc.png">
+  </a>
+
+  <a href="https://instagram.com/rph.wy" target="_blank" class="footer-gmail">
+    <img src="instanc.png" alt="Instagram" class="hover-switch" data-hover="instac.png" data-default="instanc.png">
+  </a>
+  <div class="footer-logo">
+  <img src="group-5.svg" alt="Site Logo"><h1>FlipCards.</h1>
+</div>
+</footer>
+<!-- Profile Modal -->
+<div id="profileModal" class="custom-modal hidden" style="top: 80px; left: 20px; right: auto; bottom: auto; justify-content: flex-start; align-items: flex-start;">
+
+  <div class="modal-content">
+    <div class="modal-message" style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
+      <!-- Avatar Upload -->
+      <label for="avatarInput" style="cursor: pointer;">
+        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
+        <img src="avatar.png" alt="Avatar" id="avatarPreview" style="width: 74px; height: 74px; border-radius: 50%; object-fit: cover;">
+      </label>
+
+      <!-- Email Display -->
+      <div id="userEmail" style="color: white; font-family: 'Accasia', sans-serif;">your@email.com</div>
+    </div>
+
+    <div class="modal-buttons" style="margin-top: 30px; flex-direction: column; gap: 12px;">
+      <button class="neumorphic-button" onclick="alert('Leaderboards feature coming soon!')">🏆 Leaderboards</button>
+      <button class="neumorphic-button" onclick="alert('Settings feature coming soon!')">⚙️ Settings</button>
+      <a href="index.html"><button class="neumorphic-button">🚪 Logout</button></a>
+    </div>
+  </div>
+</div>
+<div id="welcomeModal" class="custom-modal hidden">
+  <div class="modal-content" style="background: #171717; border: 1px solid white; border-radius: 20px; padding: 0; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
+    
+    <div class="welcome-scroll-content">
+      <div style="padding: 30px;">
+        <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
+        <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
+        <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
+          <li>📅 New features in this Update: 07/09/25</li>
+          <li>💬 Improved Chat Feature!
+            <br>
+            <span class="sub-announcement">➥ You can now React to each other's messages.</span>
+            <span class="sub-announcement">➥ Badge is Visible.</span>
+          </li>
+          <li>💖 Like/Heart Button Added!</li>
+          <span class="sub-announcement">➥ You can now Heart other user's public card and add to your "Liked Flascard Sets!"</span>
+          <li>✏️ Addcard UI Improvements</li>
+          <span class="sub-announcement">➥ Public Usage Card Indicator Added!</span>
+          <li>✏️ You can now make locally saved cards go Public!</li>
+          <li>👥 Roles are Added!</li>
+          <span class="sub-announcement">➥ 🏅 New Feature: Badge Support Added!</span>
+          <span class="sub-announcement">➥ 🏆 New Feature: Achievements!</span>
+          <li>🆕 New Mode in Flashcard Game Mode!</li>
+          <span class="sub-announcement">➥ ❗ New Reverse Mode: Now you can Display Definition of your Cards First!!</span>
+          <li>🎵 Redesigned Music Modal UI</li>
+          <span class="sub-announcement">➥ ❗ Music can now be played even when you are reviewing card sets.</span>
+          <li>📱 Tablet and Mobile-Friendly Update: Full Responsiveness Now Live!</li>
+          <li>👁️👁️ Visual Bugs Fixes</li>
+          <li>🛠 Bug Fixes
+            <span class="sub-announcement">➥ Bonus Cards Now Match with Each Other — Any Two Can Pair! 🃏🃏</span>
+          </li>
+          <br>
+          <li>🪲 Found any Bugs? Message Us!</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="welcome-button-footer">
+      <button id="dismissWelcome" class="neumorphic-button">Okay</button>
+    </div>
+  </div>
+</div>
+
+<!-- Member List Sidebar -->
+<div id="memberSidebar" class="member-sidebar">
+
+  <div class="member-header">👥 Member List</div>
+  <ul id="memberList" class="member-list">
+    <!-- Members will be populated here -->
+  </ul>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("welcomeModal");
+    const dismissBtn = document.getElementById("dismissWelcome");
+
+    if (sessionStorage.getItem("justLoggedIn") === "true") {
+      modal.classList.remove("hidden");
+      sessionStorage.removeItem("justLoggedIn"); // prevent repeat
+    }
+
+    dismissBtn?.addEventListener("click", () => {
+      modal.classList.add("hidden");
+    });
+  });
+</script>
+
+
+
+
+    <script src="menu.js"></script>
+   <script type="module" src="displaylocalsets.js"></script>
+    <script src="search.js"></script>
+    <script src="icon.js"></script>
+    <script src="orb.js"></script>
+    <script src="music.js"></script>
+    
+
+    <script type="module" src="presence.js"></script>
+    
+    
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+  import {
+    getFirestore, collection, query, orderBy, onSnapshot, getDocs
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import {
+    getAuth, onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
+    authDomain: "flipcards-7adab.firebaseapp.com",
+    projectId: "flipcards-7adab",
+    storageBucket: "flipcards-7adab.firebasestorage.app",
+    messagingSenderId: "836765717736",
+    appId: "1:836765717736:web:ff749a40245798307b655d"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+    const currentUser = user.email;
+    const chatDot = document.getElementById("chatDot");
+
+    const snapshot = await getDocs(collection(db, "approved_emails"));
+    const otherUsers = [];
+    snapshot.forEach(doc => {
+      if (doc.id !== currentUser) otherUsers.push(doc.id);
+    });
+
+    const chatListeners = [];
+
+    otherUsers.forEach(otherEmail => {
+      const chatId = [currentUser, otherEmail].sort().join("_to_");
+      const q = query(collection(db, 'chats', chatId, 'messages'), orderBy('timestamp'));
+
+      const unsub = onSnapshot(q, snap => {
+        let unread = false;
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          if (
+            data.sender === otherEmail &&
+            !(data.readBy || []).includes(currentUser)
+          ) {
+            unread = true;
+          }
+        });
+
+        if (unread) {
+          chatDot.style.display = "block";
+        } else {
+          // check if any other unread messages exist
+          let anyUnread = false;
+          for (const listener of chatListeners) {
+            if (listener.unread) {
+              anyUnread = true;
+              break;
+            }
+          }
+          if (!anyUnread) {
+            chatDot.style.display = "none";
+          }
+        }
+
+        // track this chat’s unread state
+        const listener = chatListeners.find(l => l.email === otherEmail);
+        if (listener) {
+          listener.unread = unread;
+        } else {
+          chatListeners.push({ email: otherEmail, unread });
+        }
+      });
+    });
+  });
+</script>
+
+
+    <script>
+  document.querySelectorAll('.hover-switch').forEach(img => {
+    const defaultSrc = img.getAttribute('data-default');
+    const hoverSrc = img.getAttribute('data-hover');
+
+    img.addEventListener('mouseover', () => {
+      img.src = hoverSrc;
+    });
+
+    img.addEventListener('mouseout', () => {
+      img.src = defaultSrc;
+    });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const geminiBtn = document.getElementById("geminiBtn");
+    const leaderboardsBtn = document.getElementById("leaderboardsBtn");
+    const chatBtn = document.getElementById("chatBtn");
+    const comingModal = document.getElementById("comingSoonModal");
+    const closeComing = document.getElementById("closeComingSoon");
+
+    function showComingSoon() {
+      comingModal.classList.remove("hidden");
+    }
+
+    if (geminiBtn) geminiBtn.addEventListener("click", showComingSoon);
+    if (leaderboardsBtn) leaderboardsBtn.addEventListener("click", showComingSoon);
+    if (chatBtn) chatBtn.addEventListener("click", showComingSoon);
+
+    if (closeComing) {
+      closeComing.addEventListener("click", () => {
+        comingModal.classList.add("hidden");
+      });
+    }
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const noteBtn = document.querySelector(".music-icon.notes");
+    const notepad = document.getElementById("notepad");
+    const notepadHeader = document.getElementById("notepadHeader");
+    const notepadText = document.getElementById("notepadText");
+
+    // Load saved note
+    notepadText.value = localStorage.getItem("userNote") || "";
+
+    // Real-time saving
+    notepadText.addEventListener("input", () => {
+      localStorage.setItem("userNote", notepadText.value);
+    });
+
+    // Toggle visibility & reset position on open
+    noteBtn.addEventListener("click", () => {
+      const isHidden = notepad.classList.contains("hidden");
+      notepad.classList.toggle("hidden");
+
+      if (isHidden) {
+        notepad.style.left = '';
+        notepad.style.top = '';
+      }
+    });
+
+    // Drag functionality
+    let offsetX = 0, offsetY = 0, isDragging = false;
+
+    notepadHeader.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      offsetX = e.clientX - notepad.offsetLeft;
+      offsetY = e.clientY - notepad.offsetTop;
+      document.body.style.userSelect = "none";
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+      document.body.style.userSelect = "";
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      notepad.style.left = `${e.clientX - offsetX}px`;
+      notepad.style.top = `${e.clientY - offsetY}px`;
+    });
+  });
+</script>
+
+<script type="module">
+  import { checkUserStatus } from './userstatuscheck.js';
+  checkUserStatus();
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="profile.js"></script>
+
+<script type="module" src="member.js"></script>
+<script type="module" src="firebaseinit.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tooltips = document.querySelectorAll('.tooltip-container');
+
+    tooltips.forEach((el, i) => {
+      const tooltip = el;
+      tooltip.style.setProperty('--delay', `${i * 0.25}s`);
+      tooltip.querySelector('::before'); // ensure rendering
+      tooltip.style.animationDelay = `${i * 0.25}s`;
+    });
+  });
+</script>
+
+
+
+
+
+
+
+
+</body>
+</html>
