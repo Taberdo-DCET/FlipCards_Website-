@@ -163,6 +163,14 @@
   </button>
 </div>
 
+<!-- FlipTimer button -->
+<div class="tooltip-container" data-tooltip="FlipTimer">
+  <button class="music-icon" id="pomodoroToggleBtn" aria-label="FlipTimer">
+    <img src="timernc.png" alt="FlipTimer" data-hover="timerc.png" data-default="timernc.png">
+  </button>
+</div>
+
+
 
 
     </div>
@@ -313,7 +321,9 @@
         <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
         <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
         <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update: 07/09/25</li>
+          <li>📅 New features in this Update: 07/11/25</li>
+          <li>⌛ Timer Added for tasks!</li>
+          <span class="sub-announcement">➥ You now have control over your schedule—choose when to review and when to take a break!</span>
           <li>💬 Improved Chat Feature!
             <br>
             <span class="sub-announcement">➥ You can now React to each other's messages.</span>
@@ -356,7 +366,67 @@
     <!-- Members will be populated here -->
   </ul>
 </div>
+<!--FlipTimer Modal-->
+<div id="flipTimerModal" class="flip-timer-modal hidden">
+  <div class="flip-timer-header">
+    <span class="flip-timer-title">🕒 FlipTimer</span>
+    <span class="flip-timer-close" onclick="closeFlipTimer()">&times;</span>
+  </div>
+  <div class="flip-timer-body">
+    <label for="studyMinutes">Study Minutes:</label>
+    <input type="number" id="studyMinutes" min="1" max="180" placeholder="Enter minutes...">
 
+    <h2 id="flipTimerLabel">Ready to Focus?</h2>
+    <h1 id="flipTimerClock">00:00</h1>
+
+    <div class="flip-timer-buttons">
+      <button onclick="startFlipTimer()">Start</button>
+      <button onclick="resetFlipTimer()">Reset</button>
+      <button onclick="skipBreak()">Skip</button>
+      <button onclick="pauseFlipTimer()" id="pauseButton">⏸️ Pause</button>
+
+    </div>
+
+    <p>Breaks Taken: <span id="breakCounter">0</span></p>
+    <div style="text-align: center; margin-top: 10px;">
+  <button id="collapseBtn" onclick="collapseFlipTimer()" class="neumorphic-button" style="padding: 4px 12px; font-size: 12px;">▲ Collapse</button>
+</div>
+
+<!-- Minimized view -->
+
+
+  </div>
+</div>
+<div id="flipTimerConfirm" class="flip-timer-confirm hidden">
+  <div class="flip-timer-confirm-box">
+    <p>Want to continue?</p>
+    <div>
+      <button onclick="confirmFlipTimerContinue(true)">Yes</button>
+      <button onclick="confirmFlipTimerContinue(false)">No</button>
+    </div>
+  </div>
+</div>
+<div id="flipTimerMinimized" class="hidden" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  font-family: 'QilkaBold';
+  font-size: 16px;
+  z-index: 3000;
+  gap: 10px;
+  align-items: center;
+  box-shadow: 6px 6px 12px rgba(0,0,0,0.3), -6px -6px 12px rgba(255,255,255,0.05);
+  cursor: pointer;
+  border: 1px solid white;
+  backdrop-filter: blur(8px);
+  display: flex;
+">
+<span id="minBreakCounter">0</span>
+  <span id="flipTimerMinClock">00:00</span>
+   <button onclick="expandFlipTimer()" class="neumorphic-button" style="font-size: 12px; padding: 4px 10px;">▲ Expand</button>
+</div>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("welcomeModal");
@@ -577,7 +647,7 @@
     });
   });
 </script>
-
+<script src="flipTimer.js"></script>
 
 
 

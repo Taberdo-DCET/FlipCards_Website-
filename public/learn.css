@@ -215,6 +215,233 @@ body {
 .home-icon:hover {
   transform: scale(1.1);
 }
+.flip-timer-modal {
+  position: fixed;
+  top: 120px;
+  left: 120px;
+  width: 300px;
+  background: rgba(23, 23, 23, 0.75);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: 'Qilkabold';
+  z-index: 3000;
+  box-shadow: 8px 8px 16px #0f0f0f, -8px -8px 16px #1f1f1f;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.flip-timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1d1d1d;
+  padding: 12px 20px;
+  border-bottom: 1px solid #333;
+  border-radius: 20px 20px 0 0;
+}
+
+.flip-timer-close {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.flip-timer-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.flip-timer-body input {
+  width: 80%;
+  padding: 8px 10px;
+  margin: 10px auto;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #1f1f1f;
+  color: white;
+  text-align: center;
+  font-family: 'Accasia', sans-serif;
+}
+
+.flip-timer-buttons button {
+  margin: 10px 5px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #252525;
+  color: white;
+  font-family: 'Accasia', sans-serif;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px #0f0f0f, -2px -2px 6px #1f1f1f;
+  transition: 0.2s;
+}
+
+.flip-timer-buttons button:hover {
+  background: #333;
+}
+.flip-timer-modal {
+  border: 1px solid white;
+}
+
+.flip-timer-title {
+  font-size: 20px;
+  font-weight: bold;
+  font-family: 'QilkaBold', sans-serif;
+  background: transparent !important;
+  color: white;
+}
+
+.flip-timer-close {
+  font-size: 26px;
+  font-weight: bold;
+  padding: 0 4px;
+  background: #333;
+  border-radius: 8px;
+  transition: background 0.3s, transform 0.2s;
+}
+.flip-timer-close:hover {
+  background: #ff5555;
+  transform: scale(1.1);
+}
+
+#flipTimerClock {
+  font-size: 40px;
+  font-weight: bold;
+  margin: 8px 0 12px;
+  font-family: 'QilkaBold', sans-serif;
+  background: transparent !important;
+}
+#breakCounter {
+  background: transparent !important;
+  color: white;
+}
+.flip-timer-body input[type="number"] {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(6px);
+  color: white;
+  font-size: 16px;
+  padding: 8px 12px;
+  transition: border 0.2s;
+}
+
+.flip-timer-body input[type="number"]:focus {
+  outline: none;
+  border-color: white;
+}
+#studyMinutes {
+  font-family: 'QilkaBold', sans-serif;
+}
+/* Custom spinner buttons for WebKit browsers */
+.flip-timer-body input[type="number"]::-webkit-inner-spin-button,
+.flip-timer-body input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  background: transparent;
+  width: 12px;
+  height: 30px;
+  margin: 0;
+}
+
+.flip-timer-body input[type="number"]::-webkit-inner-spin-button {
+  background-image: url('data:image/svg+xml;utf8,<svg fill=\"gray\" height=\"12\" viewBox=\"0 0 24 24\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 14l5-5 5 5H7z\"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: rotate(180deg);
+  cursor: pointer;
+}
+
+.flip-timer-body input[type="number"]::-webkit-outer-spin-button {
+  background-image: url('data:image/svg+xml;utf8,<svg fill=\"gray\" height=\"12\" viewBox=\"0 0 24 24\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5H7z\"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+.flip-timer-confirm {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 5000 !important;
+}
+
+.flip-timer-confirm-box {
+  background: #171717 !important;
+  border: 1px solid white !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  color: white !important;
+  text-align: center !important;
+}
+.flip-timer-confirm-box button {
+  margin: 8px !important;
+  padding: 6px 16px !important;
+  border: none !important;
+  background: #333 !important;
+  color: white !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+}
+.flip-timer-confirm-box button:hover {
+  background: #555;
+}
+#flipTimerMinClock, #minBreakCounter {
+  background: transparent !important;
+  color: white !important;
+  font-family: 'QilkaBold', sans-serif;
+}
+.neumorphic-button2 {
+  padding: 10px 20px;
+  background: #171717;
+  border: 1px solid black;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: 'Accasia', sans-serif;
+}
+
+.neumorphic-button2:hover {
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+  border: 1px solid rgb(255, 255, 255);
+}
+@keyframes flashBorder {
+  0% { border-color: white; }
+  50% { border-color: black; }
+  100% { border-color: white; }
+}
+
+.flashing-border {
+  animation: flashBorder 1s infinite;
+  border: 2px solid white;
+}
+#flipTimerMinimized {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  resize: none !important;
+  overflow: hidden !important;
+  user-select: none !important;
+  cursor: default !important;
+}
+.hidden {
+  display: none !important;
+}
+#breakCounter{
+  font-family: 'Qilkabold' !important;
+}
 @media (max-width: 426px) {
   .definition-box {
     font-size: 16px !important;

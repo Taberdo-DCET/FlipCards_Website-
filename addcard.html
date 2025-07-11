@@ -102,10 +102,21 @@
     });
 
     document.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
-      notepad.style.left = `${e.clientX - offsetX}px`;
-      notepad.style.top = `${e.clientY - offsetY}px`;
-    });
+  if (!isDragging) return;
+
+  const maxX = window.innerWidth - notepad.offsetWidth;
+  const maxY = window.innerHeight - notepad.offsetHeight;
+
+  let newX = e.clientX - offsetX;
+  let newY = e.clientY - offsetY;
+
+  newX = Math.min(Math.max(0, newX), maxX);
+  newY = Math.min(Math.max(0, newY), maxY);
+
+  notepad.style.left = `${newX}px`;
+  notepad.style.top = `${newY}px`;
+});
+
   });
 </script>
 <script>
