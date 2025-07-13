@@ -310,10 +310,11 @@
       <button class="neumorphic-button" onclick="alert('Leaderboards feature coming soon!')">🏆 Leaderboards</button>
       <button class="neumorphic-button" onclick="alert('Settings feature coming soon!')">⚙️ Settings</button>
       <a href="index.html"><button class="neumorphic-button">🚪 Logout</button></a>
+
     </div>
   </div>
 </div>
-<div id="welcomeModal" class="custom-modal hidden">
+<div id="welcomeModal" class="custom-modal idden">
   <div class="modal-content" style="background: #171717; border: 1px solid white; border-radius: 20px; padding: 0; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
     
     <div class="welcome-scroll-content">
@@ -321,27 +322,18 @@
         <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
         <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
         <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update: 07/11/25</li>
+          <li>📅 New features in this Update: 07/13/25</li>
+          <li>🕵️ Guest Login Added!</li>
+          <span class="sub-announcement">➥ Enjoy the Free 20Minutes of free usage before availing a Slot!</span>
           <li>⌛ Timer Added for tasks!</li>
           <span class="sub-announcement">➥ You now have control over your schedule—choose when to review and when to take a break!</span>
-          <li>💬 Improved Chat Feature!
-            <br>
-            <span class="sub-announcement">➥ You can now React to each other's messages.</span>
-            <span class="sub-announcement">➥ Badge is Visible.</span>
-          </li>
-          <li>💖 Like/Heart Button Added!</li>
-          <span class="sub-announcement">➥ You can now Heart other user's public card and add to your "Liked Flascard Sets!"</span>
-          <li>✏️ Addcard UI Improvements</li>
-          <span class="sub-announcement">➥ Public Usage Card Indicator Added!</span>
+          <li>💖 Improved Like/Heart Function</li>
           <li>✏️ You can now make locally saved cards go Public!</li>
           <li>👥 Roles are Added!</li>
           <span class="sub-announcement">➥ 🏅 New Feature: Badge Support Added!</span>
           <span class="sub-announcement">➥ 🏆 New Feature: Achievements!</span>
           <li>🆕 New Mode in Flashcard Game Mode!</li>
           <span class="sub-announcement">➥ ❗ New Reverse Mode: Now you can Display Definition of your Cards First!!</span>
-          <li>🎵 Redesigned Music Modal UI</li>
-          <span class="sub-announcement">➥ ❗ Music can now be played even when you are reviewing card sets.</span>
-          <li>📱 Tablet and Mobile-Friendly Update: Full Responsiveness Now Live!</li>
           <li>👁️👁️ Visual Bugs Fixes</li>
           <li>🛠 Bug Fixes
             <span class="sub-announcement">➥ Bonus Cards Now Match with Each Other — Any Two Can Pair! 🃏🃏</span>
@@ -361,7 +353,7 @@
 <!-- Member List Sidebar -->
 <div id="memberSidebar" class="member-sidebar">
 
-  <div class="member-header">👥 Member List</div>
+  <div class="member-header">🧑‍💻 Registered Users</div>
   <ul id="memberList" class="member-list">
     <!-- Members will be populated here -->
   </ul>
@@ -427,6 +419,58 @@
   <span id="flipTimerMinClock">00:00</span>
    <button onclick="expandFlipTimer()" class="neumorphic-button" style="font-size: 12px; padding: 4px 10px;">▲ Expand</button>
 </div>
+
+
+<!-- 🔔 Live Announcement Modal -->
+<div id="announcementStrip" class="announcement-strip hidden">
+  <div id="announcementText" class="announcement-text"></div>
+</div>
+<div id="guestModal" class="modal-overlay" style="display: none;">
+  <div class="modal-box">
+    <p id="guestModalMessage"></p>
+    <button onclick="closeGuestModal()">OK</button>
+  </div>
+</div>
+<script type="module">
+import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { db } from "./firebaseinit.js";
+
+const banner = document.getElementById("announcementStrip");
+const text = document.getElementById("announcementText");
+
+const docRef = doc(db, "announcements", "current");
+
+onSnapshot(docRef, (docSnap) => {
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    if (data.active && data.message) {
+      text.textContent = data.message;
+      banner.classList.remove("hidden");
+
+      // Trigger entrance animation
+      banner.style.animation = "none";
+      void banner.offsetWidth; // force reflow
+      banner.style.animation = "slideFadeIn 0.6s ease forwards";
+
+      // Restart scrolling animation
+      text.classList.remove("announcement-text");
+      void text.offsetWidth;
+      text.classList.add("announcement-text");
+
+      // Auto-hide after animation ends (~12s)
+      clearTimeout(window._announceTimeout);
+      window._announceTimeout = setTimeout(() => {
+        banner.classList.add("hidden");
+      }, 12500);
+    } else {
+      banner.classList.add("hidden");
+    }
+  }
+});
+</script>
+
+
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById("welcomeModal");
@@ -654,6 +698,24 @@
 
 
 
+<script type="module" src="guestTimer.js"></script>
+<script>
+  function showGuestModal(message, callback = null) {
+    const modal = document.getElementById('guestModal');
+    const text = document.getElementById('guestModalMessage');
+    text.textContent = message;
+    modal.style.display = 'flex';
+    modal.dataset.callback = callback ? "true" : "";
+  }
+
+  function closeGuestModal() {
+    const modal = document.getElementById('guestModal');
+    modal.style.display = 'none';
+    if (modal.dataset.callback === "true") {
+      location.href = "index.html";
+    }
+  }
+</script>
 
 </body>
 </html>

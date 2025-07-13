@@ -7,6 +7,7 @@ import {
   deleteDoc,
   doc,
   setDoc,
+  getDoc,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
@@ -15,15 +16,30 @@ const searchInput = document.getElementById("folderSearch");
 const filterSelect = document.getElementById("folderFilter");
 const container = document.querySelector(".folder-grid");
 
+let likedKeys = new Set();
+
+async function fetchUserLikes(user) {
+  const userLikesRef = collection(db, "liked_sets", user.email, "sets");
+  const snapshot = await getDocs(userLikesRef);
+  likedKeys = new Set(snapshot.docs.map(doc => doc.id));
+}
+
 function sanitize(str) {
-  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 function formatDate(isoString) {
   const parsed = new Date(isoString);
   return isNaN(parsed)
     ? "Unknown"
-    : parsed.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    : parsed.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
 }
 
 function setupLikeRealtimeListener(set, likeCountElem) {
@@ -51,8 +67,8 @@ function createCard(set, docId = null, isPublic = false) {
   const uniqueKey = `${set.title}___${set.createdOn}`;
   const userLine = isPublic ? `<div style="font-size: 13px; color: #bbb;">by ${set.user || "Anonymous"}</div>` : "";
 
-  const likedSets = JSON.parse(localStorage.getItem("likedFlashcardSets") || "[]");
-  const isLiked = likedSets.some(s => s.title === set.title && s.createdOn === set.createdOn);
+  const setId = `${set.title}_${set.createdOn}`;
+  const isLiked = likedKeys.has(setId);
   const likeCount = set.likeCount || 0;
 
   card.innerHTML = `
@@ -85,8 +101,8 @@ function createCard(set, docId = null, isPublic = false) {
       const user = auth.currentUser;
       if (!user) return alert("⚠️ You must be logged in to like sets.");
 
-      const liked = JSON.parse(localStorage.getItem("likedFlashcardSets") || "[]");
-      const exists = liked.find(s => s.title === set.title && s.createdOn === set.createdOn);
+      const setId = `${set.title}_${set.createdOn}`;
+      const likedRef = doc(db, "liked_sets", user.email, "sets", setId);
 
       const q = query(collection(db, "flashcard_sets"), where("title", "==", set.title), where("createdOn", "==", set.createdOn));
       const snapshot = await getDocs(q);
@@ -95,19 +111,34 @@ function createCard(set, docId = null, isPublic = false) {
       const currentData = snapshot.docs[0].data();
       let updatedCount = currentData.likeCount || 0;
 
-      if (exists) {
-        const updated = liked.filter(s => !(s.title === set.title && s.createdOn === set.createdOn));
-        localStorage.setItem("likedFlashcardSets", JSON.stringify(updated));
-        likeBtn.src = "notliked.png";
-        updatedCount = Math.max(0, updatedCount - 1);
-      } else {
-        liked.push(set);
-        localStorage.setItem("likedFlashcardSets", JSON.stringify(liked));
-        likeBtn.src = "liked.png";
-        updatedCount += 1;
-      }
+      const likedDoc = await getDoc(likedRef);
+      likeBtn.classList.add("liking");
 
-      await setDoc(docRef, { ...currentData, likeCount: updatedCount });
+if (likedDoc.exists()) {
+  await deleteDoc(likedRef);
+  updatedCount = Math.max(0, updatedCount - 1);
+  likedKeys.delete(setId);
+  likeBtn.src = "notliked.png";
+
+  if (filterSelect?.value === "liked") {
+    card.remove();
+  }
+}
+else {
+  await setDoc(likedRef, {
+    title: set.title,
+    createdOn: set.createdOn,
+    likedAt: new Date().toISOString()
+  });
+  updatedCount += 1;
+  likedKeys.add(setId);
+  likeBtn.src = "liked.png";
+}
+
+likeBtn.classList.remove("liking");
+
+
+      await setDoc(docRef, { ...currentData, likeCount: updatedCount }, { merge: true });
       window.dispatchEvent(new Event("flashcardSetsUpdated"));
     });
   }
@@ -153,14 +184,22 @@ async function renderFilteredFolders(user) {
       container.appendChild(createCard(set, null, true));
     });
   } else if (type === "liked") {
-    const sets = JSON.parse(localStorage.getItem("likedFlashcardSets") || "[]");
-    sets.forEach(set => {
-      const match = set.title?.toLowerCase().includes(keyword) || (set.description || "").toLowerCase().includes(keyword);
-      const uniqueKey = `${set.title}___${set.createdOn}`;
-      if (!match || existingKeys.has(uniqueKey)) return;
-      existingKeys.add(uniqueKey);
-      container.appendChild(createCard(set, null, true));
-    });
+    const likedRef = collection(db, "liked_sets", user.email, "sets");
+    const snapshot = await getDocs(likedRef);
+
+    for (const docSnap of snapshot.docs) {
+      const { title, createdOn } = docSnap.data();
+      const q = query(collection(db, "flashcard_sets"), where("title", "==", title), where("createdOn", "==", createdOn));
+      const matchSnap = await getDocs(q);
+      if (!matchSnap.empty) {
+        const set = matchSnap.docs[0].data();
+        const uniqueKey = `${title}___${createdOn}`;
+        const match = title.toLowerCase().includes(keyword) || (set.description || "").toLowerCase().includes(keyword);
+        if (!match || existingKeys.has(uniqueKey)) continue;
+        existingKeys.add(uniqueKey);
+        container.appendChild(createCard(set, null, true));
+      }
+    }
   }
 
   document.querySelectorAll(".hover-switch").forEach(img => {
@@ -201,25 +240,18 @@ document.addEventListener("click", async (e) => {
 
     const confirmHandler = async () => {
       modal.classList.add("hidden");
-
       const user = auth.currentUser;
       if (!user) return;
 
       try {
-        if (docId) {
-          await deleteDoc(doc(db, "local_sets", docId));
-        }
+        if (docId) await deleteDoc(doc(db, "local_sets", docId));
 
         const targetCard = deleteBtn.closest(".folder-card");
         const title = targetCard.querySelector(".folder-title")?.textContent.trim();
         const dateText = targetCard.querySelector(".folder-date")?.textContent.trim();
         const createdOn = new Date(dateText).toISOString().split("T")[0];
 
-        const publicQuery = query(
-          collection(db, "flashcard_sets"),
-          where("user", "==", user.email),
-          where("title", "==", title)
-        );
+        const publicQuery = query(collection(db, "flashcard_sets"), where("user", "==", user.email), where("title", "==", title));
         const publicSnapshot = await getDocs(publicQuery);
         for (const docSnap of publicSnapshot.docs) {
           const data = docSnap.data();
@@ -232,7 +264,6 @@ document.addEventListener("click", async (e) => {
       }
 
       await renderFilteredFolders(auth.currentUser);
-
       confirmBtn.removeEventListener("click", confirmHandler);
       cancelBtn.removeEventListener("click", cancelHandler);
     };
@@ -270,8 +301,9 @@ window.reviewSet = async function (key) {
   alert("Flashcard set not found.");
 };
 
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
+    await fetchUserLikes(user);
     renderFilteredFolders(user);
   }
 });
