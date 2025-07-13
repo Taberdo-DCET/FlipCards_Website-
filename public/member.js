@@ -36,41 +36,46 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const roles = {
-        Admin: [],
-        Pioneer: [],
-        Moderator: [],
-        "Beta Tester": [],
-        Prepper: [],
-        Test: []
-      };
+  Admin: [],
+  "Co Admin": [],
+  Pioneer: [],
+  Moderator: [],
+  "Beta Tester": [],
+  Prepper: [],
+  Test: []
+};
 
-      const icons = {
-        Admin: "👑 Admins",
-        Pioneer: "💎 Pioneers",
-        Moderator: "🛡️ Moderators",
-        "Beta Tester": "🔥 Beta Testers",
-        Prepper: "📦 Preppers",
-        Test: "🤖 Test Accounts"
-      };
+const icons = {
+  Admin: "👑 Admins",
+  "Co Admin": "🎖️ Co Admins",
+  Pioneer: "💎 Pioneers",
+  Moderator: "🛡️ Moderators",
+  "Beta Tester": "🔥 Beta Testers",
+  Prepper: "📦 Preppers",
+  Test: "🤖 Test Accounts"
+};
+
 
       const badgeIcons = {
-        admin: "admin.png",
-        pioneer: "pioneer.png",
-        moderator: "moderator.png",
-        "beta tester": "betatester.png",
-        betatester: "betatester.png",
-        prepper: "prepper.png",
-        test: "test.png",
-        verified: "verified.png",
-        first: "first.png",
-        hearted: "hearted.png",
-        trophy: "trophy.png",
-        friend: "friend.png",
-        bronze: "bronze.png",
-        silver: "silver.png",
-        gold: "gold.png",
-        sponsor: "sponsor.png"
-      };
+  admin: "admin.png",
+  coadmin: "coadmin.png",
+  pioneer: "pioneer.png",
+  moderator: "moderator.png",
+  "beta tester": "betatester.png",
+  betatester: "betatester.png",
+  prepper: "prepper.png",
+  test: "test.png",
+  verified: "verified.png",
+  first: "first.png",
+  hearted: "hearted.png",
+  trophy: "trophy.png",
+  friend: "friend.png",
+  bronze: "bronze.png",
+  silver: "silver.png",
+  gold: "gold.png",
+  sponsor: "sponsor.png"
+};
+
 
       const statusRef = ref(rtdb, "/status");
       onValue(statusRef, (statusSnap) => {
@@ -83,12 +88,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const roleArray = roleString.split(',').map(r => r.trim().toLowerCase());
 
           const mainRole =
-            roleArray.includes("admin") ? "Admin" :
-            roleArray.includes("pioneer") ? "Pioneer" :
-            roleArray.includes("moderator") ? "Moderator" :
-            roleArray.includes("beta tester") || roleArray.includes("betatester") ? "Beta Tester" :
-            roleArray.includes("test") ? "Test" :
-            "Prepper";
+  roleArray.includes("admin") ? "Admin" :
+  roleArray.includes("coadmin") ? "Co Admin" :
+  roleArray.includes("pioneer") ? "Pioneer" :
+  roleArray.includes("moderator") ? "Moderator" :
+  roleArray.includes("beta tester") || roleArray.includes("betatester") ? "Beta Tester" :
+  roleArray.includes("test") ? "Test" :
+  "Prepper";
+
 
           const shortEmail = user.email.length > 22
             ? user.email.substring(0, 18) + "..."
@@ -118,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           const mainBadgesHTML = roleArray
             .filter(r =>
-              ["admin", "pioneer", "moderator", "beta tester", "betatester", "prepper", "test"]
+              ["admin", "coadmin", "pioneer", "moderator", "beta tester", "betatester", "prepper", "test"]
               .includes(r))
             .map(r => {
               const badge = badgeIcons[r];

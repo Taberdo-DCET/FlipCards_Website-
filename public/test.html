@@ -99,136 +99,313 @@
     </div>
   </div>
 </div>
+
+<!--Mistakes-->
+<div class="mistake-review">
+  <div class="mistake-header">
+  <h2>Try Again?</h2>
+  <div>
+    <button class="neumorphic-button2" onclick="reviewMistakes()">Review/Reveal Mistakes</button>
+    <button class="neumorphic-button2" onclick="retryMistakes()">Retry Mode</button>
+    <button class="neumorphic-button2 hidden" id="goBackBtn" onclick="goBackToNormal()">Go Back</button>
+    <button class="neumorphic-button2" onclick="clearAllMistakes()">Clear Mistakes</button>
+  </div>
+</div>
+
+  <div class="mistake-list" id="mistakeList">
+    <!-- Mistake terms and definitions will be displayed here -->
+  </div>
+</div>
+
+
+
 <script src="flipTimer.js"></script>
-<script>
-  window.addEventListener("DOMContentLoaded", () => {
-    // Hover image switching
-    document.querySelectorAll('.hover-switch').forEach(img => {
-      const def = img.getAttribute('data-default');
-      const hov = img.getAttribute('data-hover');
-      img.addEventListener('mouseover', () => img.src = hov);
-      img.addEventListener('mouseout', () => img.src = def);
+<script type="module">
+import { db, auth } from './firebaseinit.js';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove
+} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+window.addEventListener("DOMContentLoaded", async () => {
+  const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+  if (!reviewingSet || !reviewingSet.flashcards || reviewingSet.flashcards.length === 0) {
+    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data to test.</h2>";
+    return;
+  }
+
+  const termInput = document.getElementById("termInput");
+  const defElement = document.getElementById("definition");
+
+  let retryMode = false;
+  let liveMistakeTracking = false;
+  let originalFlashcards = reviewingSet.flashcards;
+  let flashcards = [...originalFlashcards];
+  let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
+
+  setTitle();
+  setupDotTracker(flashcards.length);
+  updateDefinition(currentIndex);
+  toggleGoBackBtn(false);
+  await reviewMistakes(); // Load mistakes at startup
+
+  function setTitle() {
+    const titleText = retryMode ? "Retry Mode: Mistakes Only" : reviewingSet.title || "Flashcard Quiz";
+    document.querySelector('.title-bar h1').textContent = titleText;
+  }
+
+  function updateDefinition(index) {
+    defElement.textContent = flashcards[index]?.definition || "All done!";
+    updateDotTracker(index, flashcards.length);
+  }
+
+  async function saveMistakeToFirebase(card) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const title = reviewingSet.title || "Untitled Set";
+    const docRef = doc(db, "mistakes", user.uid);
+    await setDoc(docRef, {
+      email: user.email,
+      sets: {
+        [title]: arrayUnion(card)
+      }
+    }, { merge: true });
+  }
+
+  async function removeMistakeFromFirebase(card) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const title = reviewingSet.title || "Untitled Set";
+    const docRef = doc(db, "mistakes", user.uid);
+    await updateDoc(docRef, {
+      [`sets.${title}`]: arrayRemove(card)
+    });
+  }
+
+  async function clearAllMistakes() {
+    const user = auth.currentUser;
+    if (!user) return;
+    const title = reviewingSet.title || "Untitled Set";
+    const docRef = doc(db, "mistakes", user.uid);
+    await updateDoc(docRef, {
+      [`sets.${title}`]: []
     });
 
-    const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
-    if (!reviewingSet || !reviewingSet.flashcards || reviewingSet.flashcards.length === 0) {
-      document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data to test.</h2>";
+    const list = document.getElementById("mistakeList");
+    list.innerHTML = "<p style='color: gray;'>No mistakes so far!</p>";
+    showCustomAlert("🗑️ All mistakes cleared.");
+  }
+
+  function toggleGoBackBtn(show) {
+    const btn = document.getElementById("goBackBtn");
+    if (btn) btn.classList.toggle("hidden", !show);
+  }
+
+  async function submitAnswer() {
+    const input = termInput.value.trim();
+    if (!input || !flashcards[currentIndex]) return;
+
+    const currentCard = flashcards[currentIndex];
+    const isCorrect = input.toLowerCase() === currentCard.term.toLowerCase();
+
+    if (isCorrect) {
+      showCustomAlert("✅ Correct!");
+
+      if (retryMode) {
+        await removeMistakeFromFirebase(currentCard);
+        flashcards.splice(currentIndex, 1);
+        if (liveMistakeTracking) await reviewMistakes();
+
+        if (flashcards.length === 0) {
+          await clearAllMistakes();
+          showCustomAlert("🎉 All mistakes corrected!");
+          return;
+        }
+      } else {
+        currentIndex = (currentIndex + 1) % flashcards.length;
+      }
+
+    } else {
+      showCustomAlert(`❌ Incorrect.<br>Correct answer: <strong>${currentCard.term}</strong>`);
+      await saveMistakeToFirebase({
+        ...currentCard,
+        userAnswer: input // 🟨 store user mistake
+      });
+      if (liveMistakeTracking) await reviewMistakes();
+      currentIndex = (currentIndex + 1) % flashcards.length;
+    }
+
+    termInput.value = "";
+    localStorage.setItem("currentIndex", currentIndex);
+    updateDefinition(currentIndex);
+    setupDotTracker(flashcards.length);
+  }
+
+  function showCustomAlert(message) {
+    const alertBox = document.getElementById("customAlert");
+    const alertMsg = document.getElementById("customAlertMessage");
+    alertMsg.innerHTML = message;
+    alertBox.style.display = "flex";
+  }
+
+  function closeCustomAlert() {
+    document.getElementById("customAlert").style.display = "none";
+  }
+
+  async function reviewMistakes() {
+    liveMistakeTracking = true;
+
+    const list = document.getElementById("mistakeList");
+    list.innerHTML = "";
+
+    const user = auth.currentUser;
+    if (!user) {
+      list.innerHTML = "<p style='color: gray;'>Click Review/Reveal Mistakes to view Progress!.</p>";
       return;
     }
 
-    let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
-    const flashcards = reviewingSet.flashcards;
+    const title = reviewingSet.title || "Untitled Set";
+    const docRef = doc(db, "mistakes", user.uid);
+    const snap = await getDoc(docRef);
+    const mistakeSet = snap.exists() ? snap.data().sets?.[title] || [] : [];
 
-    document.querySelector('.title-bar h1').textContent = reviewingSet.title || "Flashcard Quiz";
-    const defElement = document.getElementById("definition");
-    const termInput = document.getElementById("termInput");
+    if (mistakeSet.length === 0) {
+      list.innerHTML = "<p style='color: gray;'>No mistakes so far!</p>";
+      return;
+    }
 
+    const counts = {};
+    mistakeSet.forEach(card => {
+      const key = card.term;
+      if (!counts[key]) counts[key] = { ...card, count: 1 };
+      else counts[key].count += 1;
+    });
+
+    Object.values(counts).forEach(card => {
+      const item = document.createElement("div");
+      item.classList.add("mistake-item");
+      item.innerHTML = `
+        <div class="term">${card.term} <span style="font-size:12px; color:goldenrod;">mistakes: ${card.count}</span></div>
+        <div class="definition"><strong>Correct:</strong> ${card.definition}</div>
+        <div class="definition"><strong>Your answer:</strong> ${card.userAnswer || 'N/A'}</div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  async function retryMistakes() {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const title = reviewingSet.title || "Untitled Set";
+    const docRef = doc(db, "mistakes", user.uid);
+    const snap = await getDoc(docRef);
+
+    if (!snap.exists() || !snap.data().sets || !snap.data().sets[title]) {
+      alert("No mistakes to retry.");
+      return;
+    }
+
+    const mistakeSet = snap.data().sets[title];
+    if (!mistakeSet.length) {
+      alert("All mistakes are cleared for this set!");
+      return;
+    }
+
+    retryMode = true;
+    toggleGoBackBtn(true);
+    flashcards = [...mistakeSet];
+    currentIndex = 0;
+    setTitle();
     setupDotTracker(flashcards.length);
     updateDefinition(currentIndex);
+    showCustomAlert("🔁 Retry Mode Loaded!");
+  }
 
-    function updateDefinition(index) {
-      defElement.textContent = flashcards[index].definition;
-      updateDotTracker(index, flashcards.length);
+  function goBackToNormal() {
+    retryMode = false;
+    toggleGoBackBtn(false);
+    flashcards = [...originalFlashcards];
+    currentIndex = 0;
+    setTitle();
+    setupDotTracker(flashcards.length);
+    updateDefinition(currentIndex);
+    showCustomAlert("↩️ Back to Normal Mode.");
+  }
+
+  function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement("div");
+      dot.classList.add("dot");
+      container.appendChild(dot);
     }
+  }
 
-    function submitAnswer() {
-      const input = termInput.value.trim();
-      if (!input) {
-        showCustomAlert("⚠️ Please enter your answer.");
-        return;
-      }
+  function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVisible = 6) {
+    const container = document.getElementById(containerId);
+    const dots = container.querySelectorAll(".dot");
+    dots.forEach((dot, i) => dot.classList.toggle("active", i === currentIndex));
+    const start = Math.max(0, Math.min(currentIndex - Math.floor(maxVisible / 2), total - maxVisible));
+    const offset = start * 22;
+    container.style.transform = `translateX(-${offset}px)`;
+  }
 
-      const correct = flashcards[currentIndex].term;
-      if (input.toLowerCase() === correct.toLowerCase()) {
-        showCustomAlert("✅ Correct!");
-      } else {
-        showCustomAlert(`❌ Incorrect.<br>The correct answer was: <strong>${correct}</strong>`);
-      }
-
-      currentIndex = (currentIndex + 1) % flashcards.length;
-      localStorage.setItem("currentIndex", currentIndex);
-      updateDefinition(currentIndex);
-      termInput.value = "";
+  termInput.addEventListener("keypress", e => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submitAnswer();
     }
-
-    function showCustomAlert(message) {
-      const alertBox = document.getElementById("customAlert");
-      const alertMsg = document.getElementById("customAlertMessage");
-      alertMsg.innerHTML = message;
-      alertBox.style.display = "flex";
-    }
-
-    function closeCustomAlert() {
-      document.getElementById("customAlert").style.display = "none";
-    }
-
-    // Dot tracker setup
-    function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = "";
-      for (let i = 0; i < total; i++) {
-        const dot = document.createElement("div");
-        dot.classList.add("dot");
-        container.appendChild(dot);
-      }
-    }
-
-    function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVisible = 6) {
-      const container = document.getElementById(containerId);
-      const dots = container.querySelectorAll(".dot");
-
-      dots.forEach((dot, i) => {
-        dot.classList.toggle("active", i === currentIndex);
-      });
-
-      let start = Math.max(0, currentIndex - Math.floor(maxVisible / 2));
-      start = Math.min(start, Math.max(0, total - maxVisible));
-      const offset = start * (12 + 10); // dot width + gap
-      container.style.transform = `translateX(-${offset}px)`;
-    }
-
-    // Keyboard Events
-    termInput.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        submitAnswer();
-      }
-    });
-
-    document.addEventListener("keydown", function (e) {
-      if (document.activeElement.tagName !== "INPUT") {
-        if (e.key === "ArrowRight") {
-          currentIndex = (currentIndex + 1) % flashcards.length;
-          localStorage.setItem("currentIndex", currentIndex);
-          updateDefinition(currentIndex);
-        } else if (e.key === "ArrowLeft") {
-          currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
-          localStorage.setItem("currentIndex", currentIndex);
-          updateDefinition(currentIndex);
-        }
-      }
-    });
-
-    // Navigation
-    window.goToFlashcard = function () {
-      localStorage.setItem("currentIndex", currentIndex);
-      window.location.href = "flashcard.html";
-    };
-
-    window.goToLearn = function () {
-      localStorage.setItem("currentIndex", currentIndex);
-      window.location.href = "learn.html";
-    };
-
-    window.goToMatch = function () {
-      localStorage.setItem("currentIndex", currentIndex);
-      window.location.href = "match.html";
-    };
-
-    window.closeCustomAlert = closeCustomAlert;
-    window.submitAnswer = submitAnswer;
   });
+
+  document.addEventListener("keydown", e => {
+    if (document.activeElement.tagName !== "INPUT") {
+      if (e.key === "ArrowRight") {
+        currentIndex = (currentIndex + 1) % flashcards.length;
+        updateDefinition(currentIndex);
+      } else if (e.key === "ArrowLeft") {
+        currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+        updateDefinition(currentIndex);
+      }
+    }
+  });
+
+  window.goToFlashcard = () => {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "flashcard.html";
+  };
+
+  window.goToLearn = () => {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "learn.html";
+  };
+
+  window.goToMatch = () => {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "match.html";
+  };
+
+  window.submitAnswer = submitAnswer;
+  window.closeCustomAlert = closeCustomAlert;
+  window.reviewMistakes = reviewMistakes;
+  window.retryMistakes = retryMistakes;
+  window.goBackToNormal = goBackToNormal;
+  window.clearAllMistakes = clearAllMistakes;
+});
 </script>
+
+
+
+
+
+
+
+
 <script type="module">
   import { checkUserStatus } from './userstatuscheck.js';
   checkUserStatus();

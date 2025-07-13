@@ -71,6 +71,8 @@ window.login = async function () {
   // Try sign in or create user
   try {
     await signInWithEmailAndPassword(auth, email, password);
+localStorage.removeItem('guestBlocked');
+localStorage.removeItem('guestStartTime');
 
     // ✅ Store UID in approved_emails
     await setDoc(approvedRef, { uid: auth.currentUser.uid }, { merge: true });
@@ -87,7 +89,7 @@ window.login = async function () {
     if (error.code === "auth/user-not-found") {
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-
+localStorage.removeItem('guestBlocked');
         // ✅ Store UID in approved_emails
         await setDoc(approvedRef, { uid: auth.currentUser.uid }, { merge: true });
 

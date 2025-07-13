@@ -472,6 +472,54 @@ body {
 #breakCounter{
   font-family: 'Qilkabold';
 }
+.mistake-review {
+  background: #171717;
+  border-radius: 20px;
+  box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f;
+  margin: 40px auto 60px;
+  padding: 20px 30px;
+  max-width: 700px;
+  width: 90%;
+  font-family: 'Qilkabold';
+  
+}
+
+.mistake-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.mistake-header h2 {
+  font-size: 20px;
+  color: white;
+  margin: 0;
+}
+
+.mistake-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mistake-item {
+  background: #1f1f1f;
+  padding: 14px 18px;
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px #0f0f0f, -4px -4px 10px #1f1f1f;
+  color: white;
+}
+
+.mistake-item .term {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.mistake-item .definition {
+  font-size: 14px;
+  color: #ccc;
+}
 
 @media (max-width: 426px) {
 .card-container {
