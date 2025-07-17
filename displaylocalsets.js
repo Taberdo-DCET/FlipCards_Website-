@@ -148,6 +148,7 @@ likeBtn.classList.remove("liking");
 
 async function renderFilteredFolders(user) {
   if (!container) return;
+  showLoader(1000);
   container.innerHTML = "";
 
   const keyword = searchInput?.value.toLowerCase() || "";
@@ -200,6 +201,7 @@ async function renderFilteredFolders(user) {
         container.appendChild(createCard(set, null, true));
       }
     }
+    
   }
 
   document.querySelectorAll(".hover-switch").forEach(img => {
@@ -208,6 +210,7 @@ async function renderFilteredFolders(user) {
     img.addEventListener("mouseover", () => img.src = hov);
     img.addEventListener("mouseout", () => img.src = def);
   });
+  hideLoader();
 }
 
 document.addEventListener("click", async (e) => {

@@ -9,7 +9,8 @@ import {
   where,
   setDoc,
   updateDoc,
-  deleteDoc
+  deleteDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import {
   getAuth,
@@ -237,21 +238,37 @@ async function saveFlashcardSet(isPracticeAfter = false) {
     localStorage.setItem("flashcardSets", JSON.stringify(sets));
 
     if (user) {
-      await setDoc(doc(db, "local_sets", `${user.email.replace(/\./g, "_")}_${Date.now()}`), {
-        ...data, user: user.email
-      });
+  const setId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
+  await setDoc(doc(db, "local_sets", setId), {
+    ...data,
+    user: user.email
+  });
 
-      if (data.public) {
-        const canPublish = await checkPublicLimit(user, data.title, data.createdOn);
-        if (!canPublish) return;
+  const totalToAdd = data.flashcards.length;
 
-        await setDoc(doc(db, "flashcard_sets", `${user.email.replace(/\./g, "_")}_${Date.now()}_public`), {
-          ...data, user: user.email
-        });
-      }
-    }
+if (data.public) {
+  const canPublish = await checkPublicLimit(user, data.title, data.createdOn);
+  if (!canPublish) return;
+
+  const publicId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
+  await setDoc(doc(db, "flashcard_sets", publicId), {
+    ...data,
+    user: user.email
+  });
+}
+
+
+  // ✅ Increment totalCards instead of replacing it
+  const userStatsRef = doc(db, "user_card_stats", user.email);
+  await setDoc(userStatsRef, {
+    totalCards: increment(totalToAdd)
+  }, { merge: true });
+}
+
 
     showCustomAlert(`✔️ Flashcard set saved.${data.public ? " Public version created too." : ""}`);
+    if (typeof addXP === "function") addXP(20); // Give 20 XP for creating a set
+
   }
 
   if (isPracticeAfter) {

@@ -21,6 +21,7 @@
       <button class="neumorphic-button" onclick="goToTest()">Test</button>
       <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
       <button class="neumorphic-button" onclick="goToMatch()">Match</button>
+      <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
     </div>
     <div class="card-row">
   <a href="lobby.html#Folderr">
@@ -135,27 +136,45 @@
   const back = document.querySelector(".flashcard .back");
   const card = document.querySelector(".flashcard");
   const counter = document.getElementById("card-counter");
+function isImageUrl(text) {
+  return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com");
+}
 
   function updateCard(index) {
-    card.style.transition = "none";
-    card.classList.remove("flipped");
+  card.style.transition = "none";
+  card.classList.remove("flipped");
 
-    const cardData = flashcards[index];
-    if (!reverseMode) {
-      front.textContent = cardData.term;
-      back.textContent = cardData.definition;
+  const cardData = flashcards[index];
+
+  if (!reverseMode) {
+    // Normal mode
+    front.textContent = cardData.term;
+
+    if (isImageUrl(cardData.definition)) {
+      back.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:200px; border-radius: 8px;" />`;
     } else {
-      front.textContent = cardData.definition;
-      back.textContent = cardData.term;
+      back.textContent = cardData.definition;
     }
 
-    counter.textContent = `${index + 1} / ${flashcards.length}`;
-    updateDotTracker(index, flashcards.length);
+  } else {
+    // Reverse mode
+    if (isImageUrl(cardData.definition)) {
+      front.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:200px; border-radius: 8px;" />`;
+    } else {
+      front.textContent = cardData.definition;
+    }
 
-    setTimeout(() => {
-      card.style.transition = "transform 0.8s";
-    }, 10);
+    back.textContent = cardData.term;
   }
+
+  counter.textContent = `${index + 1} / ${flashcards.length}`;
+  updateDotTracker(index, flashcards.length);
+
+  setTimeout(() => {
+    card.style.transition = "transform 0.8s";
+  }, 10);
+}
+
 
   function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
     const container = document.getElementById(containerId);
@@ -248,6 +267,13 @@ document.addEventListener("keydown", function (e) {
     window.location.href = "match.html";
   }
 </script>
+<script>
+  function goToDefidrop() {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "defidrop.html";
+  }
+</script>
+
 <script>
   function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
   const container = document.getElementById(containerId);

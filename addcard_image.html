@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Card (Image Definition)</title>
+  <link rel="stylesheet" href="card.css" />
+</head>
+<body>
+  <div class="flashcard-wrapper">
+    <div class="header-with-home">
+      <h1>Create a flashcard set (Image Definition)</h1>
+      <a href="lobby.html#Folderr">
+        <img src="homeenc.png" alt="Home" class="home-btn" />
+      </a>
+    </div>
+
+    <label class="public-toggle">
+      <input type="checkbox" id="publicToggle" /> Make this set public
+    </label>
+
+    <input type="text" class="input title" placeholder="Title" />
+    <textarea class="input description" placeholder="Add a description...(Optional)"></textarea>
+
+    <div id="cardsContainer">
+      <!-- Flashcards will be added here -->
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="createImageCardBtn">Create</button>
+    </div>
+  </div>
+
+  <script type="module" src="addcard_image.js"></script>
+</body>
+</html>

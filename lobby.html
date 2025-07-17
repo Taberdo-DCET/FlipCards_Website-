@@ -118,6 +118,10 @@
                     Read. Review. 
                     Remember. <span>Repeat.</span>
                 </h1>
+                <h6 class="typing-line">
+  <span id="typingText"></span>
+</h6>
+
             </div>
             <div class="orb"><div class="orb-eye"></div><div class="orb-trail"></div> </div>
         </div>
@@ -130,7 +134,7 @@
 </div>
 
 <div class="tooltip-container" data-tooltip="Profile">
-  <button class="music-icon profile" aria-label="Profile">
+  <button class="music-icon profile" aria-label="Profile" onclick="showLoader()">
     <img src="profilenc.png" alt="Profile" data-hover="profilec.png" data-default="profilenc.png">
   </button>
 </div>
@@ -200,18 +204,47 @@
     <img class="group-8" src="group-8.png" />Add More Card Sets!
   </button>
 </a>
+<a href="addcard_image.html">
+  <button class="getstarted folder-getstarted hover-switch" style="margin-top: -12px;">
+    <img src="imahenc.png" data-hover="imahec.png" data-default="imahenc.png" style="width: 40px; height: 40px;" />
+    Use Image as Definition
+  </button>
+</a>
+
   <div style="margin: 20px auto; max-width: 300px; margin-bottom: 60px;">
-    <input id="folderSearch" type="text" placeholder="Search folders...Emails or Users..." style="width: 100%; padding: 10px; border-radius: 8px; border: none; font-family: 'Accasia'; font-size: 15px;">
-     <select id="folderFilter" style="padding: 10px 12px; border-radius: 8px; font-family: 'Accasia'; font-size: 15px; margin-top: 40px;">
+    <input id="folderSearch" type="text" class="neumorphic-search" placeholder="Search folders...Emails or Users...">
+<div class="neumorphic-select-wrapper">
+  <select id="folderFilter" class="neumorphic-select">
     <option value="your" selected>Your Flashcard Sets</option>
     <option value="public">Public Flashcard Sets</option>
     <option value="liked">❤️ Liked FlashCard Sets</option>
   </select>
+  <span class="chevron">&#x25BE;</span>
+</div>
+
   </div>
   <div class="folder-grid">
     
   </div>
   
+
+</section>
+<section id="generalQuestions">
+  <div class="general-header">
+    <h2 class="general-title">General Questions</h2>
+
+    <button class="general-btn">
+      <img src="whiteplus.png" alt="Add Question">
+    </button>
+    
+
+  </div>
+  <div class="general-header" style="margin-top: -90px; margin-left: -100px;">Share a question, build collective answers!</div>
+<div style="display: flex; flex-direction: column; align-items: flex-start;">
+    <button id="refreshQuestions" class="neumorphic-button2" style="font-size: 13px; padding: 6px 14px; margin-bottom: 4px;">🔁 Refresh</button>
+    <span style="font-size: 11px; color: #666;">Not seeing your question/answer? Refresh it!</span>
+  </div>
+  <div class="questions-list"></div>
 
 </section>
 
@@ -227,8 +260,8 @@
     <p>Group your flashcards into decks for organized study sessions.</p>
   </div>
   <div class="feature-box">
-    <h3>4 Modes to Review</h3>
-    <p>Master any topic using Flashcards, Learn, Match, and Test modes for flexible, effective studying.</p>
+    <h3>Many Modes to Review</h3>
+    <p>Master any topic using Flashcards, Learn, Match, DefiDrop, and Test modes for flexible, effective studying.</p>
   </div>
   <div class="feature-box">
     <h3>System Update Every Week</h3>
@@ -292,29 +325,51 @@
 </div>
 </footer>
 <!-- Profile Modal -->
-<div id="profileModal" class="custom-modal hidden" style="top: 80px; left: 20px; right: auto; bottom: auto; justify-content: flex-start; align-items: flex-start;">
+<!-- Redesigned Profile Modal -->
+<div id="profileModal" class="custom-modal2 hidden" style="top: 80px; left: 20px; right: auto; bottom: auto; justify-content: flex-start; align-items: flex-start;">
+  <div class="profile-box">
+    <div id="profileDragHandle" class="drag-handle">
+    <span class="close-profile-modal">✖</span>
+  </div>
+    <div class="cover-photo-container">
+  <img src="defaultcover.jpg" id="coverPreview" alt="Cover" />
+  <label for="coverInput" class="edit-cover">📷</label>
+  <input type="file" id="coverInput" accept="image/*" hidden />
+</div>
 
-  <div class="modal-content">
-    <div class="modal-message" style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
-      <!-- Avatar Upload -->
-      <label for="avatarInput" style="cursor: pointer;">
-        <input type="file" id="avatarInput" accept="image/*" style="display: none;">
-        <img src="avatar.png" alt="Avatar" id="avatarPreview" style="width: 74px; height: 74px; border-radius: 50%; object-fit: cover;">
-      </label>
+<div class="avatar-container">
+  <img src="Group-10.png" id="avatarPreview" alt="Avatar" />
+  <label for="avatarInput" class="edit-avatar">📷</label>
+  <input type="file" id="avatarInput" accept="image/*" hidden />
+</div>
 
-      <!-- Email Display -->
-      <div id="userEmail" style="color: white; font-family: 'Accasia', sans-serif;">your@email.com</div>
-    </div>
+    <div class="profile-info">
+  <div class="username-row">
+    <div id="userName">Your Username</div>
+    <span id="userBadgeContainer"></span>
+  </div>
+  <div id="userEmail">you@email.com</div>
+  <button class="edit-username">✏️ Edit Username</button>
+  <div class="user-level-display">
+  <div id="userLevelText">Level 1</div>
+  <div class="xp-bar">
+    <div id="xpFill" class="xp-fill"></div>
+  </div>
+  <div id="xpText">0 / 1200 XP</div>
+</div>
 
-    <div class="modal-buttons" style="margin-top: 30px; flex-direction: column; gap: 12px;">
-      <button class="neumorphic-button" onclick="alert('Leaderboards feature coming soon!')">🏆 Leaderboards</button>
-      <button class="neumorphic-button" onclick="alert('Settings feature coming soon!')">⚙️ Settings</button>
-      <a href="index.html"><button class="neumorphic-button">🚪 Logout</button></a>
+</div>
 
-    </div>
+    <div class="modal-buttons profile-actions">
+  <button class="neumorphic-button profile-leaderboard-btn" id="openAchievementsFromProfile">🏆 Achievements</button>
+  <button class="neumorphic-button profile-settings-btn" onclick="alert('Settings coming soon')">⚙️ Settings</button>
+  <a href="index.html"><button class="neumorphic-button profile-logout-btn">🚪 Logout</button></a>
+</div>
+
   </div>
 </div>
-<div id="welcomeModal" class="custom-modal hidden">
+
+<div id="welcomeModal" class="custom-modal idden">
   <div class="modal-content" style="background: #171717; border: 1px solid white; border-radius: 20px; padding: 0; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
     
     <div class="welcome-scroll-content">
@@ -323,22 +378,39 @@
         <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
         <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
           <li>📅 New features in this Update: 07/13/25</li>
+          <li>📢 Introducing: DefiDrop Mode! ⚡</li>
+          <span class="sub-announcement">➥ Say hello to DefiDrop — your newest and fastest way to review! 🧠💥</span>
+          <span class="sub-announcement">➥ This exciting mode drops random definitions across columns and challenges you to match them with the correct terms under pressure. ⏱️</span>
+          <li>📢 New Feature Alert: Leveling System is Here!</li>
+          <li>>>>🏅 Earn Achievements Thru Leveling!</li>
+          <span class="sub-announcement">➥ ❗ How to Earn XP:</span>
+          <span class="sub-announcement">➥ 🕒 +45 XP for every 10 minutes you stay active in the lobby. Keep grinding!</span>
+          <span class="sub-announcement">➥ ✅ +100 XP for every correct answer in Test Mode. Accuracy pays off!</span>
+          <span class="sub-announcement">➥ 📘 +100 XP for every correct answer in Learn Mode. Study smart!</span>
+          <span class="sub-announcement">➥ ➕ +20 XP every time you add a flashcard. Share your knowledge!</span>
+          <span class="sub-announcement">➥ 💬 +5 XP per message sent in the chatroom. Be social, be rewarded!</span>
+          <span class="sub-announcement">➥ ❓ +100 XP per General Question you Added!</span>
+          <span class="sub-announcement">➥ 🔍 +300 XP for every like your Answer received!</span>
+          <span class="sub-announcement">➥ ⚡ +100 XP for every correct answer in New Mode: DefiDrop!</span>
+          <li>📢 Got a question in mind? GENERAL QUESTION SECTION ADDED!</li>
+          <span class="sub-announcement">➥ Create your own 📄, challenge others 🧠, and earn XP 🪙!</span>
+          <span class="sub-announcement">➥ Let the community help you out or test their wits! 🤔💬</span>
           <li>🕵️ Guest Login Added!</li>
           <span class="sub-announcement">➥ Enjoy the Free 20Minutes of free usage before availing a Slot!</span>
           <li>❌ Mistake Tracker Function Added!</li>
           <span class="sub-announcement">➥ Monitor your mistakes while using Test Mode; perfect for users reviewing more than 30 cards.</span>
-          <li>⌛ Timer Added for tasks!</li>
-          <span class="sub-announcement">➥ You now have control over your schedule—choose when to review and when to take a break!</span>
+          <li>📣 Leaderboard Update! 🚀 Track your progress and compete with others in two exciting categories:</li>
+          <span class="sub-announcement">➥ 🏆 Top XP Leaderboard</span>
+          <span class="sub-announcement">➥ ⚡ Top DefiDrop Leaderboard</span>
+          <span class="sub-announcement">➥ 👤 Click any user to view their profile, badges, and personalized achievements in a neumorphic-style museum of milestones.</span>
+          <span class="sub-announcement">➥ 💼 Test accounts are excluded to keep things fair!</span>
+          
           <li>💖 Improved Like/Heart Function</li>
-          <li>✏️ You can now make locally saved cards go Public!</li>
-          <li>👥 Roles are Added!</li>
-          <span class="sub-announcement">➥ 🏅 New Feature: Badge Support Added!</span>
-          <span class="sub-announcement">➥ 🏆 New Feature: Achievements!</span>
-          <li>🆕 New Mode in Flashcard Game Mode!</li>
-          <span class="sub-announcement">➥ ❗ New Reverse Mode: Now you can Display Definition of your Cards First!!</span>
+          <li>🧑 New Improved UI for Profile!</li>
+          <span class="sub-announcement">➥ ✒️ Customize your Display Username, Avatar, and Cover Photo!</span>
+          <span class="sub-announcement">➥ 👆 Can view other user's profile by clicking their emails in the member list!</span>
           <li>👁️👁️ Visual Bugs Fixes</li>
           <li>🛠 Bug Fixes
-            <span class="sub-announcement">➥ Bonus Cards Now Match with Each Other — Any Two Can Pair! 🃏🃏</span>
           </li>
           <br>
           <li>🪲 Found any Bugs? Message Us!</li>
@@ -351,6 +423,63 @@
     </div>
   </div>
 </div>
+<div id="leaderboardModal" class="custom-modal hidden">
+  <div class="leaderboard-box">
+    <div class="leaderboard-header">
+      <span class="leaderboard-title">🏆 Leaderboards</span>
+      <span class="leaderboard-dots">⋯</span>
+    </div>
+
+    <div class="leaderboard-section">
+      <div class="section-title">Top 10 Highest Levels 🎖️</div>
+      <ul id="levelLeaderboard" class="leaderboard-list">
+        
+        <!-- Dynamically populate via JS -->
+      </ul>
+    </div>
+
+    <div class="leaderboard-section">
+      <div class="section-title">Top 10 DefiDrop Records 🔥</div>
+      <ul id="defidropLeaderboard" class="leaderboard-list">
+        <!-- Dynamically populate via JS -->
+      </ul>
+    </div>
+  </div>
+</div>
+<div id="achievementsModal" class="custom-modal hidden">
+  <div class="achievements-box">
+    <div class="achievements-header">
+      <span class="achievements-title" id="achievementsTitle">🏅 Achievements</span>
+
+      <span class="achievements-close" onclick="document.getElementById('achievementsModal').classList.add('hidden')">✖</span>
+    </div>
+    
+    <!-- Fade-in grid added here -->
+     <div id="flashcardStat" style="color: #ccc; font-size: 14px; margin-bottom: 20px;"></div>
+    <div class="badge-grid fade-content">
+      <div class="badge-card" id="flashcardBadge">
+  <div class="badge-icon">📘</div>
+  <div class="badge-label" id="flashcardCountLabel">Loading...</div>
+</div>
+
+      <div class="badge-card">
+  <div class="badge-icon">⚡</div>
+  <div class="badge-label" id="defidropCountLabel">Loading...</div>
+</div>
+
+      <div class="badge-card locked">
+        <div class="badge-icon">🔒</div>
+        <div class="badge-label">Unlock at Level 10</div>
+      </div>
+      <div class="badge-card locked">
+        <div class="badge-icon">🔒</div>
+        <div class="badge-label">7-Day Login Streak</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <!-- Member List Sidebar -->
 <div id="memberSidebar" class="member-sidebar">
@@ -433,6 +562,35 @@
     <button onclick="closeGuestModal()">OK</button>
   </div>
 </div>
+
+<!-- Hidden form for adding question -->
+<div id="questionModal" class="custom-modal hidden">
+  <div class="modal-content" style="background: white; border-radius: 20px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 10px 10px 30px rgba(0,0,0,0.2); color: black; font-family: 'Accasia'; text-align: center;">
+    <h3 style="margin-bottom: 20px;">Ask a General Question</h3>
+    <input type="text" id="question-category" class="question-input" placeholder="Enter category" style="margin-bottom: 15px; width: 100%;">
+    <input type="text" id="question-input" class="question-input" placeholder="Type your question..." style="margin-bottom: 15px; width: 100%;">
+    <div style="display: flex; justify-content: center; gap: 12px;">
+      <button id="submit-question" class="question-submit">Submit</button>
+      <button id="cancel-question" class="question-submit" style="background: #aaa;">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="tutorialModal" class="custom-modal hidden">
+  <div class="tutorial-content">
+    <button class="tutorial-nav prev" onclick="changeTutorialSlide(-1)">❮</button>
+
+    <div class="tutorial-slide" id="tutorialSlideContainer">
+      <!-- JS will populate slides -->
+    </div>
+
+    <button class="tutorial-nav next" onclick="changeTutorialSlide(1)">❯</button>
+  </div>
+  <div class="tutorial-dots" id="tutorialDots"></div>
+  <button class="tutorial-close" onclick="closeTutorial()">✖</button>
+</div>
+
+
+
 <script type="module">
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { db } from "./firebaseinit.js";
@@ -611,7 +769,7 @@ onSnapshot(docRef, (docSnap) => {
     }
 
     if (geminiBtn) geminiBtn.addEventListener("click", showComingSoon);
-    if (leaderboardsBtn) leaderboardsBtn.addEventListener("click", showComingSoon);
+   
     if (chatBtn) chatBtn.addEventListener("click", showComingSoon);
 
     if (closeComing) {
@@ -675,9 +833,7 @@ onSnapshot(docRef, (docSnap) => {
   import { checkUserStatus } from './userstatuscheck.js';
   checkUserStatus();
 </script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-<script src="profile.js"></script>
+
 
 <script type="module" src="member.js"></script>
 <script type="module" src="firebaseinit.js"></script>
@@ -718,6 +874,64 @@ onSnapshot(docRef, (docSnap) => {
     }
   }
 </script>
-<script src="protect.js"></script>
+<script type="module" src="profile.js"></script>
+<script type="module">
+  import './xpTracker.js';
+
+  // Give +45 XP every 10 minutes
+  startTimedXP(5, 45);
+</script>
+<script type="module" src="generalquestion.js"></script>
+<script type="module" src="generalquestionsearch.js"></script>
+<script src="loadingOverlay.js"></script>
+<script src="tut.js"></script>
+<script type="module" src="leaderboard.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const howItWorksLinks = document.querySelectorAll('a.How');
+    howItWorksLinks.forEach(link => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault(); // Prevent jump to #How section
+        showTutorial();     // Show tutorial modal
+      });
+    });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const text = "Fuel Focus. Build Memory. Own the Knowledge. Repeat.";
+    const target = document.getElementById("typingText");
+
+    let i = 0;
+    let isDeleting = false;
+
+    function typeLoop() {
+      target.textContent = text.substring(0, i);
+
+      if (!isDeleting) {
+        if (i < text.length) {
+          i++;
+        } else {
+          isDeleting = true;
+          setTimeout(typeLoop, 1200); // wait before deleting
+          return;
+        }
+      } else {
+        if (i > 0) {
+          i--;
+        } else {
+          isDeleting = false;
+        }
+      }
+
+      setTimeout(typeLoop, isDeleting ? 25 : 75); // typing speed
+    }
+
+    typeLoop();
+  });
+</script>
+
+
 </body>
 </html>

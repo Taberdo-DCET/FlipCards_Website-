@@ -15,9 +15,10 @@
   
 <div class="button-container">
       <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
-      <button class="neumorphic-button active" onclick="goToMatch()">Test</button>
+      <button class="neumorphic-button active" onclick="goToTest()">Test</button>
       <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
       <button class="neumorphic-button" onclick="goToMatch()">Match</button>
+      <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
     </div>
     <a href="lobby.html#Folderr" class="home-wrapper">
   <img src="homeenc.png" alt="Home" class="home-btn hover-switch" data-hover="homeec.png" data-default="homeenc.png" />
@@ -130,6 +131,11 @@ import {
   arrayUnion,
   arrayRemove
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+function isImageUrl(text) {
+  return typeof text === "string" &&
+         text.startsWith("https://") &&
+         text.includes("firebasestorage.googleapis.com");
+}
 
 window.addEventListener("DOMContentLoaded", async () => {
   const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
@@ -159,9 +165,15 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   function updateDefinition(index) {
-    defElement.textContent = flashcards[index]?.definition || "All done!";
-    updateDotTracker(index, flashcards.length);
+  const def = flashcards[index]?.definition || "All done!";
+  if (isImageUrl(def)) {
+    defElement.innerHTML = `<img src="${def}" alt="Definition Image" style="max-width:100%; max-height:200px; border-radius: 8px;" />`;
+  } else {
+    defElement.textContent = def;
   }
+  updateDotTracker(index, flashcards.length);
+}
+
 
   async function saveMistakeToFirebase(card) {
     const user = auth.currentUser;
@@ -214,6 +226,8 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     if (isCorrect) {
       showCustomAlert("✅ Correct!");
+addXP(100); // Give 30 XP for correct answer
+
 
       if (retryMode) {
         await removeMistakeFromFirebase(currentCard);
@@ -389,6 +403,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     localStorage.setItem("currentIndex", currentIndex);
     window.location.href = "match.html";
   };
+  window.goToDefidrop = () => {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "defidrop.html";
+  };
 
   window.submitAnswer = submitAnswer;
   window.closeCustomAlert = closeCustomAlert;
@@ -398,6 +416,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   window.clearAllMistakes = clearAllMistakes;
 });
 </script>
+<script type="module" src="xpTracker.js"></script>
 
 
 

@@ -175,6 +175,51 @@ const icons = {
           wrapper.appendChild(title);
           wrapper.appendChild(ul);
           memberList.appendChild(wrapper);
+          // Make clicking on a member's email open the profile modal
+setTimeout(() => {
+  const profileBtn = document.querySelector(".music-icon.profile");
+
+  wrapper.querySelectorAll(".email").forEach(el => {
+    el.addEventListener("click", () => {
+  showLoader();
+
+  import('./profile.js').then(mod => {
+    mod.openUserProfile(el.getAttribute("title"));
+
+    // Wait for modal to appear, then hide loader
+    const checkInterval = setInterval(() => {
+      const modal = document.getElementById("profileModal");
+      const isVisible = modal && !modal.classList.contains("hidden");
+      if (isVisible) {
+        hideLoader();
+        clearInterval(checkInterval);
+        // When profile modal is loaded...
+const checkInterval = setInterval(() => {
+  const modal = document.getElementById("profileModal");
+  const isVisible = modal && !modal.classList.contains("hidden");
+  if (isVisible) {
+    hideLoader();
+    clearInterval(checkInterval);
+
+    // ✅ Bind Achievements button inside modal
+    const achBtn = modal.querySelector(".profile-leaderboard-btn");
+    if (achBtn) {
+      achBtn.onclick = () => {
+        mod.openAchievementsForUser(el.getAttribute("title"));
+      };
+    }
+  }
+}, 100);
+
+      }
+    }, 100); // check every 100ms
+  });
+});
+
+
+  });
+}, 0);
+
         });
       });
     });

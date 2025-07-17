@@ -17,6 +17,7 @@
     <button class="neumorphic-button" onclick="goToTest()">Test</button>
     <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
     <button class="neumorphic-button active">Match</button>
+    <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
   </div>
 <a href="lobby.html#Folderr" class="home-wrapper">
   <img src="homeenc.png" alt="Home" class="home-btn hover-switch" data-hover="homeec.png" data-default="homeenc.png" />
@@ -115,6 +116,12 @@
 </div>
 <script src="flipTimer.js"></script>
 <script>
+  function isImageUrl(text) {
+  return typeof text === "string" &&
+         text.startsWith("https://") &&
+         text.includes("firebasestorage.googleapis.com");
+}
+
   const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
   if (!reviewingSet || !Array.isArray(reviewingSet.flashcards)) {
     document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data available for Match Mode.</h2>";
@@ -209,7 +216,20 @@
       div.dataset.matchId = item.matchId;
       div.dataset.type = item.type;
       div.dataset.index = i;
-      div.textContent = item.matchId === "bonus" ? "🃏 Bonus Card" : item.value;
+      if (item.matchId === "bonus") {
+  div.textContent = "🃏 Bonus Card";
+} else if (isImageUrl(item.value)) {
+  const img = document.createElement("img");
+  img.src = item.value;
+  img.alt = "Definition Image";
+  img.style.maxWidth = "100%";
+  img.style.maxHeight = "100px";
+  img.style.borderRadius = "6px";
+  div.appendChild(img);
+} else {
+  div.textContent = item.value;
+}
+
       div.addEventListener("click", handleCardClick);
       grid.appendChild(div);
     });
@@ -317,6 +337,10 @@
   function goToMatch() {
     localStorage.setItem("currentIndex", 0);
     window.location.href = "match.html";
+  }
+  function goToDefidrop() {
+    localStorage.setItem("currentIndex", 0);
+    window.location.href = "defidrop.html";
   }
 
   document.querySelectorAll(".hover-switch").forEach(img => {

@@ -16,7 +16,7 @@
       <button class="neumorphic-button" onclick="goToTest()">Test</button>
       <button class="neumorphic-button active">Learn</button>
       <button class="neumorphic-button" onclick="goToMatch()">Match</button>
-      
+      <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
     </div>
 
     <div class="definition-row">
@@ -142,13 +142,22 @@
     progressBar.style.width = "0%";
     progressBar.style.transition = "none";
   }
-
+function isImageUrl(text) {
+  return typeof text === "string" &&
+         text.startsWith("https://") &&
+         text.includes("firebasestorage.googleapis.com");
+}
   function updateCard(index) {
     clearTimeout(autoAdvanceTimeout);
     resetProgressBar();
 
     const currentCard = flashcards[index];
-    defElement.textContent = currentCard.definition;
+    if (isImageUrl(currentCard.definition)) {
+  defElement.innerHTML = `<img src="${currentCard.definition}" alt="Definition Image" style="max-width:100%; max-height:200px; border-radius: 8px;" />`;
+} else {
+  defElement.textContent = currentCard.definition;
+}
+
 
     const correct = currentCard.term;
     const allTerms = flashcards.map(fc => fc.term);
@@ -177,9 +186,33 @@
           }
         });
 
-        if (!isCorrect) {
-          this.style.backgroundColor = '#B22222';
-        }
+       if (!isCorrect) {
+  this.style.backgroundColor = '#B22222';
+} else {
+  this.style.backgroundColor = '#228B22';
+
+  if (typeof addXP === "function") {
+    addXP(100);
+
+    // ✅ Optional: Show small XP popup
+    const xpMsg = document.createElement("div");
+    xpMsg.textContent = "+100 XP!";
+    xpMsg.style.cssText = `
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      font-family: 'QilkaBold';
+      color: #ffcf00;
+      animation: fadeUp 1s ease-out forwards;
+      z-index: 999;
+    `;
+    this.appendChild(xpMsg);
+    setTimeout(() => xpMsg.remove(), 1000);
+  }
+}
+
 
         showProgressBar(3000);
         autoAdvanceTimeout = setTimeout(() => {
@@ -247,6 +280,10 @@ document.addEventListener("keydown", function (e) {
     localStorage.setItem("currentIndex", currentIndex); // optional if you want to track card index
     window.location.href = "match.html";
   }
+  function goToDefidrop() {
+    localStorage.setItem("currentIndex", 0);
+    window.location.href = "defidrop.html";
+  }
 </script>
 <script type="module">
   import { checkUserStatus } from './userstatuscheck.js';
@@ -254,5 +291,6 @@ document.addEventListener("keydown", function (e) {
 </script>
 <script type="module" src="presence.js"></script>
 <script src="protect.js"></script>
+<script type="module" src="xpTracker.js"></script>
 </body>
 </html>

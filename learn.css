@@ -65,6 +65,10 @@ body {
     font-family: 'Accasia', sans-serif;
     border: 1px solid rgb(255, 255, 255);
 }
+.definition-box img {
+  display: block !important;
+  margin: -30px auto !important;
+}
 
 .definition-box {
     background: #171717 !important;
@@ -210,6 +214,7 @@ body {
   word-break: break-word;
   overflow-wrap: break-word;
   white-space: normal;
+  overflow-y: hidden;
 }
 
 .home-icon:hover {
