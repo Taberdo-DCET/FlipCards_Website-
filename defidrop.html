@@ -561,6 +561,106 @@
   from { transform: scale(0.9); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+/* Responsive for tablets and smaller screens */
+@media (max-width: 992px) {
+  body {
+    padding: 20px 10px;
+  }
+
+  .rectangle-container {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+    padding: 10px;
+  }
+
+  .column {
+    min-height: 150px;
+    border-right: none;
+    border-bottom: 1px solid #333;
+  }
+
+  .column:last-child {
+    border-bottom: none;
+  }
+
+  .button-container {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .input-section {
+    margin-left: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .input-section input {
+    width: 90%;
+  }
+
+  #timerBarContainer {
+    margin-left: 0;
+    width: 100px;
+  }
+}
+
+/* Responsive for mobile phones */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.4em;
+    text-align: center;
+  }
+
+  .neumorphic-button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .rectangle-container {
+    flex-direction: column;
+    gap: 8px;
+    height: auto;
+  }
+
+  .column {
+    min-height: 120px;
+    padding: 5px;
+  }
+
+  .definition-block {
+    font-size: 10px;
+    padding: 6px;
+  }
+
+  .input-section {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .input-section button {
+    width: 80%;
+  }
+
+  #timerBarContainer {
+    width: 100%;
+  }
+
+  #timer {
+    font-size: 12px;
+  }
+
+  #counters {
+    font-size: 12px;
+  }
+
+  .home-icon {
+    width: 36px;
+    height: 36px;
+  }
+}
 
   </style>
 </head>

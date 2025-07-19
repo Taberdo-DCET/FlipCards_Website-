@@ -2,9 +2,11 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import {
   getFirestore,
   setDoc,
+  deleteDoc,
   doc,
   increment
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
 
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
 import { storage } from "./firebaseStorageInit.js";
@@ -190,7 +192,8 @@ createBtn.addEventListener("click", async () => {
 
   // If public toggle is on, add/update in flashcard_sets
   if (isPublic) {
-    const publicQueryId = `${user.email.replace(/\./g, "_")}_${editingSet._id}`;
+    const publicQueryId = editingSet.publicId || `${user.email.replace(/\./g, "_")}_${editingSet._id}`;
+
     await setDoc(doc(db, "flashcard_sets", publicQueryId), flashcardSet, { merge: false });
   } else {
     // If unchecked, remove from flashcard_sets if exists
@@ -204,8 +207,10 @@ createBtn.addEventListener("click", async () => {
         const docId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
         await setDoc(doc(db, "local_sets", docId), flashcardSet);
         if (isPublic) {
-          const publicId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
-          await setDoc(doc(db, "flashcard_sets", publicId), flashcardSet);
+          const publicId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
+flashcardSet.publicId = publicId; // Save it for future edits
+await setDoc(doc(db, "flashcard_sets", publicId), flashcardSet);
+
         }
 
         const userStatsRef = doc(db, "user_card_stats", user.email);
