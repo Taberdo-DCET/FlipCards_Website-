@@ -3,10 +3,29 @@
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
-    "mongodb": "^6.17.0"
+    "mongodb": "^6.17.0",
+    "multer": "^2.0.1",
+    "node-fetch": "^3.3.2",
+    "pptx2json": "^0.0.10"
   },
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
-  }
+  },
+  "name": "public",
+  "version": "1.0.0",
+  "description": "",
+  "main": "public.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Taberdo-DCET/FlipCards_Website-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Taberdo-DCET/FlipCards_Website-/issues"
+  },
+  "homepage": "https://github.com/Taberdo-DCET/FlipCards_Website-#readme"
 }

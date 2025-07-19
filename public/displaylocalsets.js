@@ -8,7 +8,8 @@ import {
   doc,
   setDoc,
   getDoc,
-  onSnapshot
+  onSnapshot,
+  increment
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
@@ -148,6 +149,7 @@ likeBtn.classList.remove("liking");
 
 async function renderFilteredFolders(user) {
   if (!container) return;
+  showLoader(1000);
   container.innerHTML = "";
 
   const keyword = searchInput?.value.toLowerCase() || "";
@@ -200,6 +202,7 @@ async function renderFilteredFolders(user) {
         container.appendChild(createCard(set, null, true));
       }
     }
+    
   }
 
   document.querySelectorAll(".hover-switch").forEach(img => {
@@ -208,6 +211,7 @@ async function renderFilteredFolders(user) {
     img.addEventListener("mouseover", () => img.src = hov);
     img.addEventListener("mouseout", () => img.src = def);
   });
+  hideLoader();
 }
 
 document.addEventListener("click", async (e) => {
@@ -215,18 +219,28 @@ document.addEventListener("click", async (e) => {
   const deleteBtn = e.target.closest(".delete-btn");
 
   if (editBtn) {
-    const key = editBtn.dataset.key;
-    const [titleKey, createdOnKey] = key.split("___");
-    const q = query(collection(db, "local_sets"), where("title", "==", titleKey), where("createdOn", "==", createdOnKey));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      const data = snapshot.docs[0].data();
-      localStorage.setItem("editingFlashcardSet", JSON.stringify(data));
-      window.location.href = "addcard.html?edit=true";
+  const key = editBtn.dataset.key;
+  const [titleKey, createdOnKey] = key.split("___");
+  const q = query(collection(db, "local_sets"), where("title", "==", titleKey), where("createdOn", "==", createdOnKey));
+  const snapshot = await getDocs(q);
+if (!snapshot.empty) {
+  const docSnap = snapshot.docs[0];
+  const data = { ...docSnap.data(), _id: docSnap.id }; // include _id
+  localStorage.setItem("editingFlashcardSet", JSON.stringify(data));
+
+
+    // Check if any definition is an image (URL)
+    const hasImageDefinition = data.flashcards?.some(card => /^https?:\/\//.test(card.definition));
+    if (hasImageDefinition) {
+      window.location.href = "addcard_image.html?edit=true";
     } else {
-      alert("Set not found for editing.");
+      window.location.href = "addcard.html?edit=true";
     }
+  } else {
+    alert("Set not found for editing.");
   }
+}
+
 
   if (deleteBtn) {
     const docId = deleteBtn.dataset.id;
@@ -244,24 +258,37 @@ document.addEventListener("click", async (e) => {
       if (!user) return;
 
       try {
-        if (docId) await deleteDoc(doc(db, "local_sets", docId));
+  if (docId) {
+    // Deduct 100 XP
+    if (typeof addXP === "function") {
+  addXP(-20);
+}
 
-        const targetCard = deleteBtn.closest(".folder-card");
-        const title = targetCard.querySelector(".folder-title")?.textContent.trim();
-        const dateText = targetCard.querySelector(".folder-date")?.textContent.trim();
-        const createdOn = new Date(dateText).toISOString().split("T")[0];
+    // Delete the local set
+    await deleteDoc(doc(db, "local_sets", docId));
+  }
 
-        const publicQuery = query(collection(db, "flashcard_sets"), where("user", "==", user.email), where("title", "==", title));
-        const publicSnapshot = await getDocs(publicQuery);
-        for (const docSnap of publicSnapshot.docs) {
-          const data = docSnap.data();
-          if (data.createdOn?.startsWith(createdOn)) {
-            await deleteDoc(doc(db, "flashcard_sets", docSnap.id));
-          }
-        }
-      } catch (err) {
-        console.error("Error deleting documents:", err);
-      }
+  const targetCard = deleteBtn.closest(".folder-card");
+  const title = targetCard.querySelector(".folder-title")?.textContent.trim();
+  const dateText = targetCard.querySelector(".folder-date")?.textContent.trim();
+  const createdOn = new Date(dateText).toISOString().split("T")[0];
+
+  const publicQuery = query(
+    collection(db, "flashcard_sets"),
+    where("user", "==", user.email),
+    where("title", "==", title)
+  );
+  const publicSnapshot = await getDocs(publicQuery);
+  for (const docSnap of publicSnapshot.docs) {
+    const data = docSnap.data();
+    if (data.createdOn?.startsWith(createdOn)) {
+      await deleteDoc(doc(db, "flashcard_sets", docSnap.id));
+    }
+  }
+} catch (err) {
+  console.error("Error deleting documents:", err);
+}
+
 
       await renderFilteredFolders(auth.currentUser);
       confirmBtn.removeEventListener("click", confirmHandler);

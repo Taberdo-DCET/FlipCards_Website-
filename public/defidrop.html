@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DefiDrop | FlipCards</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+  <style>
+    @font-face {
+      font-family: 'QilkaBold';
+      src: url('Qilka-Bold.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+@font-face {
+  font-family: 'Accasia';
+  src: url('Accasia_Demo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+    body {
+      margin: 0;
+      font-family: 'QilkaBold', sans-serif !important;
+      background-color: #171717;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      background-image: url('backgroundlobby.png');
+  background-size:auto;
+  background-position: center;
+  background-repeat: no-repeat;
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+      font-family: 'QilkaBold', sans-serif !important;
+    }
+
+    .neumorphic-button {
+    padding: 12px 20px;
+    background: #171717;
+    border-radius: 12px;
+    box-shadow: 8px 8px 16px #0f0f0f,
+                -8px -8px 16px #1f1f1f;
+    color: #ffffff;
+    border: 1px solid black;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 16px;
+    font-family: 'Accasia', sans-serif;
+}
+
+.neumorphic-button.active,
+.neumorphic-button:hover {
+    background: #3d3d3d;
+    box-shadow: inset 4px 4px 8px #0f0f0f,
+                inset -4px -4px 8px #1f1f1f;
+
+    font-family: 'Accasia', sans-serif;
+    border: 1px solid rgb(255, 255, 255);
+}
+
+.rectangle-container {
+  background-color: #131313;
+  border-radius: 16px;
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  height: 550px;
+  box-shadow: 
+    inset 5px 5px 15px #0f0f0f,
+    inset -5px -5px 15px #1f1f1f;
+  display: flex;
+  flex-direction: row; /* ← key change */
+  justify-content: space-between;
+  margin-bottom: 25px;
+  gap: 12px;
+  border: 3px solid white;
+}
+
+.column {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid #333;
+  background-color: transparent;
+}
+
+
+
+.column:last-child {
+  border-right: none;
+}
+
+
+    .line {
+      height: 2px;
+      background-color: #444;
+      width: 100%;
+    }
+
+    .input-section {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      width: 100%;
+      max-width: 600px;
+      margin-left: 100px;
+    }
+
+    .input-section input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'QilkaBold', sans-serif;
+    }
+
+    .input-section button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #222;
+      color: white;
+      font-family: 'QilkaBold', sans-serif;
+      box-shadow: 
+        4px 4px 10px #0f0f0f,
+        -4px -4px 10px #1f1f1f;
+      cursor: pointer;
+    }
+
+    .input-section button:hover {
+      box-shadow: 
+        inset 4px 4px 10px #0f0f0f,
+        inset -4px -4px 10px #1f1f1f;
+    }
+.definition-block {
+  position: relative;
+  width: 90%;
+  margin: 0 auto 12px auto;
+  min-height: 100px;
+  padding: 10px;
+  background: #1e1e1e;
+  color: #fff;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 5px 5px 10px #0f0f0f, -5px -5px 10px #1f1f1f;
+  font-size: 11px;
+  font-family: 'QilkaBold', sans-serif;
+  border: 1px solid white;
+  cursor: pointer;
+  animation: dropIn 0.5s ease-out; /* Replaces popIn */
+  z-index: 10;
+}
+
+
+.definition-block:hover {
+
+  background: #ffffff;
+  color: #000000;
+    border: 1px solid black;
+}
+#timer {
+  background-color: #1e1e1e;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'QilkaBold', sans-serif;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    3px 3px 8px #0f0f0f,
+    -3px -3px 8px #1f1f1f;
+}
+
+#counters {
+  background-color: #1e1e1e;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'QilkaBold', sans-serif;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    3px 3px 8px #0f0f0f,
+    -3px -3px 8px #1f1f1f;
+}
+
+.definition-block.selected {
+  outline: 2px solid #ffcf00;
+}
+
+.definition-block.wrong {
+  background-color: #a94442 !important;
+  color: white;
+  border-color: #a94442;
+}
+
+@keyframes shrinkOut {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+}
+.definition-block {
+  animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes dropIn {
+  0% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+#timerBarContainer {
+  width: 180px;
+  height: 5px;
+  background-color: #333;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid white;
+  margin-left: -200px;
+}
+
+#timerBar {
+  height: 100%;
+  background-color: #ffcf00;
+  width: 100%;
+  transition: width 1s linear;
+}
+.home-icon {
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.home-icon:hover {
+  transform: scale(1.1);
+}
+.flip-timer-modal {
+  position: fixed;
+  top: 120px;
+  left: 120px;
+  width: 300px;
+  background: rgba(23, 23, 23, 0.75);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-family: 'Accasia', sans-serif;
+  z-index: 3000;
+  box-shadow: 8px 8px 16px #0f0f0f, -8px -8px 16px #1f1f1f;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.flip-timer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1d1d1d;
+  padding: 12px 20px;
+  border-bottom: 1px solid #333;
+  border-radius: 20px 20px 0 0;
+}
+
+.flip-timer-close {
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.flip-timer-body {
+  padding: 20px;
+  text-align: center;
+}
+
+.flip-timer-body input {
+  width: 80%;
+  padding: 8px 10px;
+  margin: 10px auto;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #1f1f1f;
+  color: white;
+  text-align: center;
+  font-family: 'Accasia', sans-serif;
+}
+
+.flip-timer-buttons button {
+  margin: 10px 5px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #252525;
+  color: white;
+  font-family: 'Accasia', sans-serif;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px #0f0f0f, -2px -2px 6px #1f1f1f;
+  transition: 0.2s;
+}
+
+.flip-timer-buttons button:hover {
+  background: #333;
+}
+.flip-timer-modal {
+  border: 1px solid white;
+}
+
+.flip-timer-title {
+  font-size: 20px;
+  font-weight: bold;
+  font-family: 'QilkaBold', sans-serif;
+  background: transparent !important;
+  color: white;
+}
+
+.flip-timer-close {
+  font-size: 26px;
+  font-weight: bold;
+  padding: 0 4px;
+  background: #333;
+  border-radius: 8px;
+  transition: background 0.3s, transform 0.2s;
+}
+.flip-timer-close:hover {
+  background: #ff5555;
+  transform: scale(1.1);
+}
+
+#flipTimerClock {
+  font-size: 40px;
+  font-weight: bold;
+  margin: 8px 0 12px;
+  font-family: 'QilkaBold', sans-serif;
+  background: transparent !important;
+}
+#breakCounter {
+  background: transparent !important;
+  color: white;
+}
+.flip-timer-body input[type="number"] {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(6px);
+  color: white;
+  font-size: 16px;
+  padding: 8px 12px;
+  transition: border 0.2s;
+}
+
+.flip-timer-body input[type="number"]:focus {
+  outline: none;
+  border-color: white;
+}
+#studyMinutes {
+  font-family: 'QilkaBold', sans-serif;
+}
+/* Custom spinner buttons for WebKit browsers */
+.flip-timer-body input[type="number"]::-webkit-inner-spin-button,
+.flip-timer-body input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  background: transparent;
+  width: 12px;
+  height: 30px;
+  margin: 0;
+}
+
+.flip-timer-body input[type="number"]::-webkit-inner-spin-button {
+  background-image: url('data:image/svg+xml;utf8,<svg fill=\"gray\" height=\"12\" viewBox=\"0 0 24 24\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 14l5-5 5 5H7z\"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: rotate(180deg);
+  cursor: pointer;
+}
+
+.flip-timer-body input[type="number"]::-webkit-outer-spin-button {
+  background-image: url('data:image/svg+xml;utf8,<svg fill=\"gray\" height=\"12\" viewBox=\"0 0 24 24\" width=\"12\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5H7z\"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+.flip-timer-confirm {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 5000 !important;
+}
+
+.flip-timer-confirm-box {
+  background: #171717 !important;
+  border: 1px solid white !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+  color: white !important;
+  text-align: center !important;
+}
+.flip-timer-confirm-box button {
+  margin: 8px !important;
+  padding: 6px 16px !important;
+  border: none !important;
+  background: #333 !important;
+  color: white !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+}
+.flip-timer-confirm-box button:hover {
+  background: #555;
+}
+#flipTimerMinClock, #minBreakCounter {
+  background: transparent !important;
+  color: white !important;
+  font-family: 'QilkaBold', sans-serif;
+}
+.neumorphic-button2 {
+  padding: 10px 20px;
+  background: #171717;
+  border: 1px solid black;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: 'Accasia', sans-serif;
+}
+
+.neumorphic-button2:hover {
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+  border: 1px solid rgb(255, 255, 255);
+}
+@keyframes flashBorder {
+  0% { border-color: white; }
+  50% { border-color: black; }
+  100% { border-color: white; }
+}
+
+.flashing-border {
+  animation: flashBorder 1s infinite;
+  border: 2px solid white;
+}
+#flipTimerMinimized {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  resize: none !important;
+  overflow: hidden !important;
+  user-select: none !important;
+  cursor: default !important;
+}
+.hidden {
+  display: none !important;
+}
+@keyframes pulseRed {
+  0% { background-color: #ff4d4d; transform: scaleX(1); }
+  50% { background-color: #ff1a1a; transform: scaleX(1.05); }
+  100% { background-color: #ff4d4d; transform: scaleX(1); }
+}
+
+#timerBar.pulse {
+  animation: pulseRed 0.6s infinite;
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(23, 23, 23, 0.6);
+  backdrop-filter: blur(10px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  background: rgba(23, 23, 23, 0.8);
+  border: 1px solid #ffffff22;
+  border-radius: 16px;
+  padding: 24px 32px;
+  color: white;
+  font-family: 'QilkaBold', sans-serif;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  max-width: 300px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.modal-box h2 {
+  margin-bottom: 16px;
+  font-size: 1.4rem;
+}
+
+.modal-box p {
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+  white-space: pre-line;
+}
+
+.modal-box button {
+  background: #ffcf00;
+  color: black;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-family: 'QilkaBold', sans-serif;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.modal-box button:hover {
+  background: #ffe866;
+}
+
+@keyframes fadeIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+/* Responsive for tablets and smaller screens */
+@media (max-width: 992px) {
+  body {
+    padding: 20px 10px;
+  }
+
+  .rectangle-container {
+    flex-direction: column;
+    height: auto;
+    max-height: none;
+    padding: 10px;
+  }
+
+  .column {
+    min-height: 150px;
+    border-right: none;
+    border-bottom: 1px solid #333;
+  }
+
+  .column:last-child {
+    border-bottom: none;
+  }
+
+  .button-container {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .input-section {
+    margin-left: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .input-section input {
+    width: 90%;
+  }
+
+  #timerBarContainer {
+    margin-left: 0;
+    width: 100px;
+  }
+}
+
+/* Responsive for mobile phones */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.4em;
+    text-align: center;
+  }
+
+  .neumorphic-button {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
+
+  .rectangle-container {
+    flex-direction: column;
+    gap: 8px;
+    height: auto;
+  }
+
+  .column {
+    min-height: 120px;
+    padding: 5px;
+  }
+
+  .definition-block {
+    font-size: 10px;
+    padding: 6px;
+  }
+
+  .input-section {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .input-section button {
+    width: 80%;
+  }
+
+  #timerBarContainer {
+    width: 100%;
+  }
+
+  #timer {
+    font-size: 12px;
+  }
+
+  #counters {
+    font-size: 12px;
+  }
+
+  .home-icon {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <h1 id="setTitle">Study Mode</h1>
+
+
+  <div class="button-container">
+    <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
+    <button class="neumorphic-button" onclick="goToTest()">Test</button>
+    <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
+    <button class="neumorphic-button" onclick="goToMatch()">Match</button>
+    <button class="neumorphic-button active" onclick="goToDefidrop()">DefiDrop</button>
+  </div>
+  <div style="margin-top: -20px; margin-bottom: 30px;">
+  <button class="neumorphic-button" onclick="scrollToInput()">▶ Start</button>
+    
+</div>
+<a href="lobby.html#Folderr">
+    <img src="homeenc.png" alt="Home" class="home-icon hover-switch" data-default="homeenc.png" data-hover="homeec.png" />
+  </a>
+
+<div class="rectangle-container">
+  <div class="column"></div>
+  <div class="column"></div>
+  <div class="column"></div>
+</div>
+
+
+
+
+
+<div class="input-section" id="inputArea">
+  <div id="timerContainer" style="display: flex; align-items: center; gap: 8px;">
+    <div id="timerBarContainer">
+      <div id="timerBar"></div>
+      </div>
+      <div id="timer">⏳ 60s</div>
+  </div>
+
+  <input type="text" placeholder="Enter your input..." />
+  <button onclick="submitInput()">Submit</button>
+  <div id="counters">
+    ✅ <span id="correctCount">0</span> &nbsp;&nbsp;
+    ❌ <span id="mistakeCount">0</span>
+  </div>
+</div>
+<div id="flipTimerModal" class="flip-timer-modal hidden">
+  <div class="flip-timer-header">
+    <span class="flip-timer-title">🕒 FlipTimer</span>
+    <span class="flip-timer-close" onclick="closeFlipTimer()">&times;</span>
+  </div>
+  <div class="flip-timer-body">
+    <label for="studyMinutes">Study Minutes:</label>
+    <input type="number" id="studyMinutes" min="1" max="180" placeholder="Enter minutes...">
+    <h2 id="flipTimerLabel">Ready to Focus?</h2>
+    <h1 id="flipTimerClock">00:00</h1>
+
+    <div class="flip-timer-buttons">
+      <button onclick="startFlipTimer()">Start</button>
+      <button onclick="resetFlipTimer()">Reset</button>
+      <button onclick="skipBreak()">Skip</button>
+      <button onclick="pauseFlipTimer()" id="pauseButton">⏸️ Pause</button>
+    </div>
+
+    <p>Breaks Taken: <span id="breakCounter">0</span></p>
+    <div style="text-align: center; margin-top: 10px;">
+      <button id="collapseBtn" onclick="collapseFlipTimer()" class="neumorphic-button" style="padding: 4px 12px; font-size: 12px;">▲ Collapse</button>
+    </div>
+  </div>
+</div>
+
+<!-- FlipTimer Minimized View -->
+<div id="flipTimerMinimized" class="hidden" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  font-family: 'QilkaBold';
+  font-size: 16px;
+  z-index: 3000;
+  gap: 10px;
+  align-items: center;
+  box-shadow: 6px 6px 12px rgba(0,0,0,0.3), -6px -6px 12px rgba(255,255,255,0.05);
+  cursor: pointer;
+  border: 1px solid white;
+  backdrop-filter: blur(8px);
+  display: flex;
+">
+<span id="minBreakCounter">0</span>
+  <span id="flipTimerMinClock">00:00</span>
+   <button onclick="expandFlipTimer()" class="neumorphic-button" style="font-size: 12px; padding: 4px 10px;">▲ Expand</button>
+</div>
+
+<!-- Confirm Dialog -->
+<div id="flipTimerConfirm" class="flip-timer-confirm hidden">
+  <div class="flip-timer-confirm-box">
+    <p>Want to continue?</p>
+    <div>
+      <button onclick="confirmFlipTimerContinue(true)">Yes</button>
+      <button onclick="confirmFlipTimerContinue(false)">No</button>
+    </div>
+  </div>
+</div>
+<div id="summaryModal" class="modal-backdrop">
+  <div class="modal-box">
+    <h2>🧠 Round Summary</h2>
+    <p id="summaryText"></p>
+    <button onclick="closeSummaryModal()">Claim XP!</button>
+  </div>
+</div>
+
+<script src="flipTimer.js"></script>
+
+
+<script type="module" src="xpTracker.js"></script>
+<script>
+  const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+  const currentIndex = parseInt(localStorage.getItem("currentIndex") || "0");
+
+  if (!reviewingSet || !reviewingSet.flashcards) {
+    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data available.</h2>";
+    throw new Error("No flashcards found.");
+  }
+
+  const flashcards = reviewingSet.flashcards;
+  document.getElementById("setTitle").textContent = reviewingSet.title || "Study Mode";
+
+  const columns = document.querySelectorAll(".column");
+  let correct = 0;
+  let mistakes = 0;
+  let sessionActive = false;
+  const maxCardsPerColumn = 4;
+
+  function updateCounters() {
+    document.getElementById("correctCount").textContent = correct;
+    document.getElementById("mistakeCount").textContent = mistakes;
+  }
+
+  function getRandomFlashcard() {
+    return flashcards[Math.floor(Math.random() * flashcards.length)];
+  }
+
+  function createDefinitionBlock(card, column) {
+    const block = document.createElement("div");
+    block.className = "definition-block";
+    if (typeof card.definition === "string" && card.definition.includes("firebasestorage.googleapis.com")) {
+  const img = document.createElement("img");
+  img.src = card.definition;
+  img.alt = "Definition Image";
+  img.style.maxWidth = "100%";
+  img.style.maxHeight = "100px";
+  img.style.borderRadius = "8px";
+  block.appendChild(img);
+} else {
+  block.textContent = card.definition;
+}
+
+    block.dataset.term = card.term;
+    block.style.animation = "dropIn 0.5s ease-out";
+
+    block.onclick = () => {
+      if (!sessionActive) return;
+      document.querySelectorAll('.definition-block').forEach(b => b.classList.remove('selected'));
+      block.classList.add('selected');
+      document.querySelector('.input-section input').focus();
+    };
+
+    column.appendChild(block);
+  }
+
+  function populateAllColumns() {
+  columns.forEach(col => col.innerHTML = "");
+
+  const usedDefinitions = new Set();
+  let availableCards = [...flashcards];
+  let bonusInserted = false;
+  let totalSlots = columns.length * maxCardsPerColumn;
+  let slotIndex = 0;
+
+  while (slotIndex < totalSlots) {
+    let cardToInsert = null;
+
+    // Insert the bonus card if needed
+    if (flashcards.length < 16 && !bonusInserted && (Math.random() < 0.3 || availableCards.length === 0)) {
+      cardToInsert = {
+        definition: "🎁 Type Bonus For Answer",
+        term: "bonus"
+      };
+      bonusInserted = true;
+    } else {
+      // Pick unique flashcard
+      while (availableCards.length > 0) {
+        const idx = Math.floor(Math.random() * availableCards.length);
+        const candidate = availableCards[idx];
+        const defKey = typeof candidate.definition === 'string' ? candidate.definition : JSON.stringify(candidate.definition);
+        if (!usedDefinitions.has(defKey)) {
+          cardToInsert = candidate;
+          usedDefinitions.add(defKey);
+          availableCards.splice(idx, 1); // Remove to avoid reuse
+          break;
+        } else {
+          availableCards.splice(idx, 1);
+        }
+      }
+
+      // If no more unique cards, allow bonus card as fallback
+      if (!cardToInsert && flashcards.length < 16 && !bonusInserted) {
+        cardToInsert = {
+          definition: "🎁 Type Bonus For Answer",
+          term: "bonus"
+        };
+        bonusInserted = true;
+      }
+    }
+
+    if (cardToInsert) {
+      const colIndex = slotIndex % columns.length;
+      createDefinitionBlock(cardToInsert, columns[colIndex]);
+      slotIndex++;
+    } else {
+      break; // Stop if nothing more to show
+    }
+  }
+}
+
+
+  function submitInput() {
+    if (!sessionActive) return;
+
+    const input = document.querySelector('.input-section input');
+    const answer = input.value.trim().toLowerCase();
+    const selected = document.querySelector('.definition-block.selected');
+
+    if (!selected) {
+      input.value = '';
+      return;
+    }
+
+    const correctAnswer = selected.dataset.term?.toLowerCase();
+    const column = selected.parentElement;
+
+    if (answer === correctAnswer) {
+      correct++;
+      selected.style.animation = 'shrinkOut 0.4s forwards';
+      setTimeout(() => {
+        selected.remove();
+        const card = getRandomFlashcard();
+        createDefinitionBlock(card, column);
+      }, 400);
+    } else {
+      mistakes++;
+      selected.classList.add('wrong');
+      setTimeout(() => selected.classList.remove('wrong'), 600);
+    }
+
+    updateCounters();
+    input.value = '';
+    selected.classList.remove('selected');
+  }
+
+  let timeLeft = 60;
+  let timerStarted = false;
+  let timerInterval;
+  const timerDisplay = document.getElementById("timer");
+
+  function startTimer() {
+  if (timerStarted) return;
+  timerStarted = true;
+
+  const timerBar = document.getElementById("timerBar");
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    timerDisplay.textContent = `⏳ ${timeLeft}s`;
+
+    const percentage = (timeLeft / 60) * 100;
+    timerBar.style.width = `${Math.max(0, percentage)}%`;
+
+if (timeLeft <= 10) {
+  timerBar.classList.add("pulse");
+} else {
+  timerBar.classList.remove("pulse");
+}
+
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      timerDisplay.textContent = "⏳ Time's up!";
+      timerBar.style.width = `0%`;
+      timerBar.classList.remove("pulse");
+
+
+      const xpGained = correct * 100;
+      setTimeout(() => {
+        showResultsPopup(correct, mistakes, xpGained);
+      }, 400);
+    }
+  }, 1000);
+}
+
+
+  function scrollToInput() {
+    const inputArea = document.getElementById("inputArea");
+    inputArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.activeElement.blur();
+    populateAllColumns();
+    sessionActive = true;
+    correct = 0;
+    mistakes = 0;
+    updateCounters();
+    timeLeft = 60;
+    timerStarted = false;
+    startTimer();
+  }
+
+  function showResultsPopup(correctVal, mistakeVal, xp) {
+  const modal = document.getElementById("summaryModal");
+  const text = document.getElementById("summaryText");
+
+  text.innerText =
+    `✅ Correct: ${correctVal}\n❌ Mistakes: ${mistakeVal}\n⭐ Total XP Earned: ${xp}`;
+
+  modal.style.display = "flex";
+
+  // Defer XP reward to after user closes modal
+  modal.dataset.xp = xp;
+}
+
+
+
+
+
+  document.querySelector('.input-section input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const selected = document.querySelector('.definition-block.selected');
+      if (selected) {
+        submitInput();
+      }
+    }
+  });
+
+  function goToFlashcard() {
+    window.location.href = "flashcard.html";
+  }
+
+  function goToMatch() {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "match.html";
+  }
+
+  function goToLearn() {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "learn.html";
+  }
+  function goToTest() {
+    localStorage.setItem("currentIndex", currentIndex);
+    window.location.href = "Test.html";
+  }
+
+  function goToDefidrop() {
+    // Already here
+  }
+</script>
+<script>
+  // Existing logic here...
+
+  // Hover-switch for home icon
+  document.querySelectorAll(".hover-switch").forEach(img => {
+    const def = img.getAttribute("data-default");
+    const hov = img.getAttribute("data-hover");
+    img.addEventListener("mouseover", () => img.src = hov);
+    img.addEventListener("mouseout", () => img.src = def);
+  });
+</script>
+<script type="module" src="xpTracker.js"></script>
+<script type="module">
+  import { checkUserStatus } from './userstatuscheck.js';
+  checkUserStatus();
+</script>
+<script type="module" src="presence.js"></script>
+<script type="module">
+  import { auth, db } from './firebaseinit.js';
+  import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+  window.closeSummaryModal = async function () {
+  const modal = document.getElementById("summaryModal");
+  const xp = parseInt(modal.dataset.xp || "0");
+
+  // Add visual feedback: disable button & show loading text
+  const claimBtn = modal.querySelector("button");
+  claimBtn.disabled = true;
+  claimBtn.innerText = "Saving...";
+
+  if (typeof addXP === "function" && xp > 0) {
+    addXP(xp);
+  }
+
+  try {
+    const user = auth.currentUser;
+    if (user) {
+      const userEmail = user.email;
+      const defidropRef = doc(db, "defidrop_scores", userEmail);
+      const snap = await getDoc(defidropRef);
+
+      let previous = 0;
+      if (snap.exists() && snap.data().totalCorrect) {
+        previous = parseInt(snap.data().totalCorrect);
+      }
+
+      await setDoc(defidropRef, { totalCorrect: previous + correct }, { merge: true });
+
+      // Optional success animation or message
+      claimBtn.innerText = "✅ Saved!";
+      setTimeout(() => {
+        modal.style.display = "none";
+        resetGame();
+      }, 800); // delay to let user see feedback
+    } else {
+      console.warn("⚠️ User not signed in.");
+      claimBtn.innerText = "❌ Not Signed In";
+    }
+  } catch (err) {
+    console.error("❌ Save failed:", err);
+    claimBtn.innerText = "❌ Error";
+  } finally {
+    setTimeout(() => {
+      claimBtn.disabled = false;
+      claimBtn.innerText = "Claim XP!";
+    }, 2000);
+  }
+};
+
+function resetGame() {
+  correct = 0;
+  mistakes = 0;
+  sessionActive = false;
+  updateCounters();
+}
+
+</script>
+
+
+
+
+
+
+
+</body>
+</html>

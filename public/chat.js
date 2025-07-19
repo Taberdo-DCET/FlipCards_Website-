@@ -102,7 +102,7 @@ sendBtn.addEventListener("click", async () => {
     expiredAt: null,
     heartedBy: null
   });
-
+addChatXP(); 
   input.value = "";
 
   requestAnimationFrame(() => {

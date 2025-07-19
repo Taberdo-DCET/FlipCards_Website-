@@ -62,7 +62,11 @@ body {
   margin-bottom: 10px;
   display: block;
 }
-
+.image-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .flashcard-body {
   display: flex;
   gap: 16px;
@@ -352,6 +356,33 @@ button {
   width: 68px;
   height: 68px;
   transition: 0.2s ease;
+}
+#preview-container {
+  width: 100%;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.image-preview-box {
+  background-color: #212121;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 160px;
+  min-width: 220px;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Accasia', sans-serif;
+  border: 1px solid black;
+  box-shadow: 6px 6px 12px #0d0d0d, -6px -6px 12px #1f1f1f;
+}
+
+.image-preview-box img {
+  max-width: 100%;
+  max-height: 160px;
+  border-radius: 8px;
 }
 
 @media (max-width: 768px) {
