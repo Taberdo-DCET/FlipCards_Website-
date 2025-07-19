@@ -218,18 +218,28 @@ document.addEventListener("click", async (e) => {
   const deleteBtn = e.target.closest(".delete-btn");
 
   if (editBtn) {
-    const key = editBtn.dataset.key;
-    const [titleKey, createdOnKey] = key.split("___");
-    const q = query(collection(db, "local_sets"), where("title", "==", titleKey), where("createdOn", "==", createdOnKey));
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      const data = snapshot.docs[0].data();
-      localStorage.setItem("editingFlashcardSet", JSON.stringify(data));
-      window.location.href = "addcard.html?edit=true";
+  const key = editBtn.dataset.key;
+  const [titleKey, createdOnKey] = key.split("___");
+  const q = query(collection(db, "local_sets"), where("title", "==", titleKey), where("createdOn", "==", createdOnKey));
+  const snapshot = await getDocs(q);
+if (!snapshot.empty) {
+  const docSnap = snapshot.docs[0];
+  const data = { ...docSnap.data(), _id: docSnap.id }; // include _id
+  localStorage.setItem("editingFlashcardSet", JSON.stringify(data));
+
+
+    // Check if any definition is an image (URL)
+    const hasImageDefinition = data.flashcards?.some(card => /^https?:\/\//.test(card.definition));
+    if (hasImageDefinition) {
+      window.location.href = "addcard_image.html?edit=true";
     } else {
-      alert("Set not found for editing.");
+      window.location.href = "addcard.html?edit=true";
     }
+  } else {
+    alert("Set not found for editing.");
   }
+}
+
 
   if (deleteBtn) {
     const docId = deleteBtn.dataset.id;
