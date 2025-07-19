@@ -8,7 +8,8 @@ import {
   doc,
   setDoc,
   getDoc,
-  onSnapshot
+  onSnapshot,
+  increment
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 
@@ -257,24 +258,37 @@ if (!snapshot.empty) {
       if (!user) return;
 
       try {
-        if (docId) await deleteDoc(doc(db, "local_sets", docId));
+  if (docId) {
+    // Deduct 100 XP
+    if (typeof addXP === "function") {
+  addXP(-20);
+}
 
-        const targetCard = deleteBtn.closest(".folder-card");
-        const title = targetCard.querySelector(".folder-title")?.textContent.trim();
-        const dateText = targetCard.querySelector(".folder-date")?.textContent.trim();
-        const createdOn = new Date(dateText).toISOString().split("T")[0];
+    // Delete the local set
+    await deleteDoc(doc(db, "local_sets", docId));
+  }
 
-        const publicQuery = query(collection(db, "flashcard_sets"), where("user", "==", user.email), where("title", "==", title));
-        const publicSnapshot = await getDocs(publicQuery);
-        for (const docSnap of publicSnapshot.docs) {
-          const data = docSnap.data();
-          if (data.createdOn?.startsWith(createdOn)) {
-            await deleteDoc(doc(db, "flashcard_sets", docSnap.id));
-          }
-        }
-      } catch (err) {
-        console.error("Error deleting documents:", err);
-      }
+  const targetCard = deleteBtn.closest(".folder-card");
+  const title = targetCard.querySelector(".folder-title")?.textContent.trim();
+  const dateText = targetCard.querySelector(".folder-date")?.textContent.trim();
+  const createdOn = new Date(dateText).toISOString().split("T")[0];
+
+  const publicQuery = query(
+    collection(db, "flashcard_sets"),
+    where("user", "==", user.email),
+    where("title", "==", title)
+  );
+  const publicSnapshot = await getDocs(publicQuery);
+  for (const docSnap of publicSnapshot.docs) {
+    const data = docSnap.data();
+    if (data.createdOn?.startsWith(createdOn)) {
+      await deleteDoc(doc(db, "flashcard_sets", docSnap.id));
+    }
+  }
+} catch (err) {
+  console.error("Error deleting documents:", err);
+}
+
 
       await renderFilteredFolders(auth.currentUser);
       confirmBtn.removeEventListener("click", confirmHandler);
