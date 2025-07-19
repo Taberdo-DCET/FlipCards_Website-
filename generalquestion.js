@@ -42,11 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Auth and load questions
   onAuthStateChanged(auth, user => {
-    if (user) {
-      currentUser = user;
-      loadQuestions();
-    }
-  });
+  currentUser = user;
+  loadQuestions();
+});
+
 });
 
 
@@ -90,6 +89,8 @@ await setDoc(userXPRef, { xp: currentXP + 100 }, { merge: true });
 async function loadQuestions() {
   const container = document.querySelector(".questions-list");
   if (!container) return;
+  const isGuest = currentUser?.isAnonymous === true;
+
 
   container.innerHTML = "";
   Object.assign(container.style, {
@@ -250,41 +251,59 @@ const snapshot = await getDocs(collectionGroup(db, "questions"));
     });
 
     const answerBtn = document.createElement("button");
-    answerBtn.textContent = "Submit";
-    Object.assign(answerBtn.style, {
-      background: "#111",
-      color: "#fff",
-      border: "none",
-      padding: "6px 12px",
-      borderRadius: "10px",
-      cursor: "pointer",
-      fontFamily: "QilkaBold, sans-serif",
-      fontSize: "13px"
-    });
+answerBtn.textContent = "Submit";
+Object.assign(answerBtn.style, {
+  background: "#111",
+  color: "#fff",
+  border: "none",
+  padding: "6px 12px",
+  borderRadius: "10px",
+  cursor: "pointer",
+  fontFamily: "QilkaBold, sans-serif",
+  fontSize: "13px"
+});
 
-    answerBtn.addEventListener("click", async () => {
-      const answer = answerInput.value.trim();
-      if (!answer || !currentUser) return;
+if (isGuest) {
+  answerBtn.disabled = true;
+  answerBtn.style.opacity = "0.5";
+  answerBtn.style.cursor = "not-allowed";
+  answerBtn.title = "Guests cannot submit answers. Please log in.";
+}
 
-      try {
-        await addDoc(collection(db, "general_answers"), {
-          answer,
-          question: data.question,
-          questionBy: data.email,
-          answeredBy: currentUser.email,
-          username: currentUser.displayName || "Anonymous",
-          timestamp: serverTimestamp()
-          
-        });
-        
 
-        answerInput.value = "";
-        alert("✅ Answer submitted!");
-      } catch (err) {
-        console.error("Failed to submit answer:", err);
-        alert("❌ Could not save your answer.");
-      }
-    });
+
+if (!isGuest) {
+  answerBtn.addEventListener("click", async () => {
+    const answer = answerInput.value.trim();
+    if (!answer || !currentUser) return;
+
+    try {
+      await addDoc(collection(db, "general_answers"), {
+        answer,
+        question: data.question,
+        questionBy: data.email,
+        answeredBy: currentUser.email,
+        username: currentUser.displayName || "Anonymous",
+        timestamp: serverTimestamp()
+      });
+
+      answerInput.value = "";
+      alert("✅ Answer submitted!");
+    } catch (err) {
+      console.error("Failed to submit answer:", err);
+      alert("❌ Could not save your answer.");
+    }
+  });
+}
+ else {
+  // Disable button for guests
+  answerBtn.disabled = true;
+  answerBtn.style.opacity = "0.5";
+  answerBtn.style.cursor = "not-allowed";
+  answerBtn.title = "Guests cannot submit answers. Please log in.";
+}
+
+
 
     const seeAnswersBtn = document.createElement("button");
     seeAnswersBtn.textContent = "See All Answers";
@@ -502,7 +521,7 @@ if (currentUser.email === answerData.answeredBy || adminEmails.includes(currentU
       const xpSnap = await getDoc(xpRef);
       if (xpSnap.exists()) {
         const xpData = xpSnap.data();
-        const xp = Math.max(0, (xpData.xp || 0) - 100);
+        const xp = Math.max(0, (xpData.xp || 0) - 0);
         await setDoc(xpRef, { xp }, { merge: true });
       }
 
