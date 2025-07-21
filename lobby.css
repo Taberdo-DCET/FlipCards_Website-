@@ -2886,6 +2886,21 @@ font-family: 'Accasia', sans-serif;
    margin-top: -65px;
    animation: dropDown 0.5s ease forwards;
 }
+#achievementsModal {
+  z-index: 10000 !important; /* Ensure it is above leaderboard modal */
+}
+
+#achievementsModal .achievements-box {
+  position: relative;
+  z-index: 10001;
+}
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+#achievementsModal .fade-content {
+  animation: fadeIn 0.4s ease 0.4s forwards;
+}
 
 
 
