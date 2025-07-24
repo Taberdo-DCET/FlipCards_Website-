@@ -1131,7 +1131,7 @@ span {
   top: 0;
   left: 0;
   transform: translateX(-100%);
-  width: 280px;
+  width: 350px;
   height: 100vh;
   background: #171717;
   box-shadow: 8px 0 16px #0f0f0f, -8px 0 16px #1f1f1f;
@@ -1467,7 +1467,7 @@ span {
 }
 .online-dot {
   margin-right: -3px; /* change this to adjust spacing */
-  margin-left: 1px;
+  margin-left: 15px;
   margin-top: 2px;
 }
 .playlist-btn {
@@ -2900,6 +2900,16 @@ font-family: 'Accasia', sans-serif;
 }
 #achievementsModal .fade-content {
   animation: fadeIn 0.4s ease 0.4s forwards;
+}
+.user-name {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.user-email {
+  display: block;
+  font-size: 11px;
+  opacity: 0.6;
 }
 
 

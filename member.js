@@ -1,7 +1,10 @@
 import { db, rtdb, auth } from "./firebaseinit.js";
-import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { collection, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+const usernameCache = {};
+let lastProfileEmail = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById("memberSidebar");
@@ -10,15 +13,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!sidebar || !openBtn || !memberList) return;
 
-  openBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("show");
-  });
+openBtn.addEventListener("click", () => {
+  const wasOpen = sidebar.classList.contains("show");
+  sidebar.classList.toggle("show");
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      sidebar.classList.remove("show");
-    }
-  });
+  if (wasOpen) {
+    setTimeout(() => location.reload(), 500); // 500ms delay
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && sidebar.classList.contains("show")) {
+    sidebar.classList.remove("show");
+    setTimeout(() => location.reload(), 300); // 500ms delay
+  }
+});
+
+
 
   onAuthStateChanged(auth, (user) => {
     if (!user) return;
@@ -36,46 +47,44 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const roles = {
-  Admin: [],
-  "Co Admin": [],
-  Pioneer: [],
-  Moderator: [],
-  "Beta Tester": [],
-  Prepper: [],
-  Test: []
-};
+        Admin: [],
+        "Co Admin": [],
+        Pioneer: [],
+        Moderator: [],
+        "Beta Tester": [],
+        Prepper: [],
+        Test: []
+      };
 
-const icons = {
-  Admin: "👑 Admins",
-  "Co Admin": "🎖️ Co Admins",
-  Pioneer: "💎 Pioneers",
-  Moderator: "🛡️ Moderators",
-  "Beta Tester": "🔥 Beta Testers",
-  Prepper: "📦 Preppers",
-  Test: "🤖 Test Accounts"
-};
-
+      const icons = {
+        Admin: "👑 Admins",
+        "Co Admin": "🎖️ Co Admins",
+        Pioneer: "💎 Pioneers",
+        Moderator: "🛡️ Moderators",
+        "Beta Tester": "🔥 Beta Testers",
+        Prepper: "📦 Preppers",
+        Test: "🤖 Test Accounts"
+      };
 
       const badgeIcons = {
-  admin: "admin.png",
-  coadmin: "coadmin.png",
-  pioneer: "pioneer.png",
-  moderator: "moderator.png",
-  "beta tester": "betatester.png",
-  betatester: "betatester.png",
-  prepper: "prepper.png",
-  test: "test.png",
-  verified: "verified.png",
-  first: "first.png",
-  hearted: "hearted.png",
-  trophy: "trophy.png",
-  friend: "friend.png",
-  bronze: "bronze.png",
-  silver: "silver.png",
-  gold: "gold.png",
-  sponsor: "sponsor.png"
-};
-
+        admin: "admin.png",
+        coadmin: "coadmin.png",
+        pioneer: "pioneer.png",
+        moderator: "moderator.png",
+        "beta tester": "betatester.png",
+        betatester: "betatester.png",
+        prepper: "prepper.png",
+        test: "test.png",
+        verified: "verified.png",
+        first: "first.png",
+        hearted: "hearted.png",
+        trophy: "trophy.png",
+        friend: "friend.png",
+        bronze: "bronze.png",
+        silver: "silver.png",
+        gold: "gold.png",
+        sponsor: "sponsor.png"
+      };
 
       const statusRef = ref(rtdb, "/status");
       onValue(statusRef, (statusSnap) => {
@@ -88,14 +97,13 @@ const icons = {
           const roleArray = roleString.split(',').map(r => r.trim().toLowerCase());
 
           const mainRole =
-  roleArray.includes("admin") ? "Admin" :
-  roleArray.includes("coadmin") ? "Co Admin" :
-  roleArray.includes("pioneer") ? "Pioneer" :
-  roleArray.includes("moderator") ? "Moderator" :
-  roleArray.includes("beta tester") || roleArray.includes("betatester") ? "Beta Tester" :
-  roleArray.includes("test") ? "Test" :
-  "Prepper";
-
+            roleArray.includes("admin") ? "Admin" :
+              roleArray.includes("coadmin") ? "Co Admin" :
+                roleArray.includes("pioneer") ? "Pioneer" :
+                  roleArray.includes("moderator") ? "Moderator" :
+                    roleArray.includes("beta tester") || roleArray.includes("betatester") ? "Beta Tester" :
+                      roleArray.includes("test") ? "Test" :
+                        "Prepper";
 
           const shortEmail = user.email.length > 22
             ? user.email.substring(0, 18) + "..."
@@ -126,7 +134,7 @@ const icons = {
           const mainBadgesHTML = roleArray
             .filter(r =>
               ["admin", "coadmin", "pioneer", "moderator", "beta tester", "betatester", "prepper", "test"]
-              .includes(r))
+                .includes(r))
             .map(r => {
               const badge = badgeIcons[r];
               if (!badge) return "";
@@ -144,16 +152,43 @@ const icons = {
           const li = document.createElement("li");
           li.innerHTML = `
             <div class="email-container" style="position: relative;">
-              ${dotHTML}${verifiedHTML}${firstHTML}
+              ${dotHTML}
               <div style="display: flex; flex-direction: column;">
                 <div style="display: flex; align-items: center; gap: 6px;">
-                  <span class="email" title="${user.email}" data-uid="${user.uid}">${shortEmail}</span>
+                  <span class="username email" title="${user.email}" data-uid="${user.uid}" style="font-weight:bold; background: transparent; color: white;">Loading...</span>
+                  ${verifiedHTML}${firstHTML}
                 </div>
+                <span class="email user-email" title="${user.email}" data-uid="${user.uid}" style="font-size:11px; opacity:0.6; background: transparent; color: white;">${shortEmail}</span>
                 <span class="badge-container achievement-badges">${achievementBadgesHTML}</span>
               </div>
               <span class="badge-container main-badges">${mainBadgesHTML}</span>
             </div>
           `;
+
+          // Fetch username from Firestore
+          const usernameSpan = li.querySelector(".username");
+          const emailForUser = user.email;
+
+          if (usernameCache[emailForUser]) {
+            usernameSpan.textContent = usernameCache[emailForUser];
+          } else {
+            (async () => {
+              try {
+                const usernameDoc = await getDoc(doc(db, "usernames", emailForUser));
+                if (usernameDoc.exists() && usernameDoc.data().username) {
+                  usernameCache[emailForUser] = usernameDoc.data().username;
+                  usernameSpan.textContent = usernameCache[emailForUser];
+                } else {
+                  usernameCache[emailForUser] = shortEmail;
+                  usernameSpan.textContent = shortEmail;
+                  usernameSpan.nextElementSibling?.remove();
+                }
+              } catch (err) {
+                console.error("Failed to load username:", err);
+                usernameSpan.textContent = shortEmail;
+              }
+            })();
+          }
 
           roles[mainRole].push(li);
         });
@@ -175,51 +210,48 @@ const icons = {
           wrapper.appendChild(title);
           wrapper.appendChild(ul);
           memberList.appendChild(wrapper);
-          // Make clicking on a member's email open the profile modal
-setTimeout(() => {
-  const profileBtn = document.querySelector(".music-icon.profile");
 
-  wrapper.querySelectorAll(".email").forEach(el => {
-    el.addEventListener("click", () => {
-  showLoader();
+          // Hover logic
+          setTimeout(() => {
+            wrapper.querySelectorAll(".email").forEach(el => {
+              el.addEventListener("mouseenter", () => {
+                const email = el.getAttribute("title");
 
-  import('./profile.js').then(mod => {
-    mod.openUserProfile(el.getAttribute("title"));
+                if (lastProfileEmail === email) return;
+                lastProfileEmail = email;
 
-    // Wait for modal to appear, then hide loader
-    const checkInterval = setInterval(() => {
-      const modal = document.getElementById("profileModal");
-      const isVisible = modal && !modal.classList.contains("hidden");
-      if (isVisible) {
-        hideLoader();
-        clearInterval(checkInterval);
-        // When profile modal is loaded...
-const checkInterval = setInterval(() => {
-  const modal = document.getElementById("profileModal");
-  const isVisible = modal && !modal.classList.contains("hidden");
-  if (isVisible) {
-    hideLoader();
-    clearInterval(checkInterval);
+                showLoader();
 
-    // ✅ Bind Achievements button inside modal
-    const achBtn = modal.querySelector(".profile-leaderboard-btn");
-    if (achBtn) {
-      achBtn.onclick = () => {
-        mod.openAchievementsForUser(el.getAttribute("title"));
-      };
-    }
-  }
-}, 100);
+                import('./profile.js').then(mod => {
+                  mod.openUserProfile(email);
 
-      }
-    }, 100); // check every 100ms
-  });
-});
+                  const sidebar = document.getElementById("memberSidebar");
+                  const modal = document.getElementById("profileModal");
 
+                  if (sidebar && modal) {
+                    const rect = sidebar.getBoundingClientRect();
+                    modal.style.position = "fixed";
+                    modal.style.top = `${rect.top + 20}px`;
+                    modal.style.left = `${rect.right + 10}px`;
+                  }
 
-  });
-}, 0);
+                  const checkInterval = setInterval(() => {
+                    if (modal && !modal.classList.contains("hidden")) {
+                      hideLoader();
+                      clearInterval(checkInterval);
 
+                      const achBtn = modal.querySelector(".profile-leaderboard-btn");
+                      if (achBtn) {
+                        achBtn.onclick = () => mod.openAchievementsForUser(email);
+                      }
+                    }
+                  }, 100);
+                });
+              });
+
+              
+            });
+          }, 0);
         });
       });
     });
