@@ -561,6 +561,305 @@
   from { transform: scale(0.9); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+.oo {
+  text-decoration: none !important;
+}
+.user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 44px;
+  margin-bottom: 10px;
+  background: #171717;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
+  border: 1px solid #222;
+  color: white;
+  font-family: 'QilkaBold', sans-serif;
+}
+
+.user-row .user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.modal-box {
+  max-width: 700px;
+}
+
+.user-row button {
+  background: #ffcf00;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'QilkaBold';
+  transition: 0.2s;
+
+}
+
+.user-row button:hover {
+  background: #ffe866;
+}
+.badge-icon {
+  width: 16px;
+  height: 16px;
+  margin-left: 0px !important;
+  margin-bottom: 5px;
+  vertical-align: middle;
+}
+
+.badge-icon:hover {
+  transform: scale(1.1);
+  transition: 0.2s ease-in-out;
+}
+#userList {
+  max-height: 300px;
+  overflow-y: auto;
+  text-align: left;
+
+  /* For Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #ffcf00 #1e1e1e;
+}
+
+/* For Chrome, Edge, and Safari */
+#userList::-webkit-scrollbar {
+  width: 8px;
+}
+
+#userList::-webkit-scrollbar-track {
+  background: #1e1e1e;
+  border-radius: 10px;
+}
+
+#userList::-webkit-scrollbar-thumb {
+  background-color: #ffcf00;
+  border-radius: 10px;
+  border: 2px solid #1e1e1e; /* Creates spacing effect */
+}
+
+#userList::-webkit-scrollbar-thumb:hover {
+  background-color: #ffe866;
+}
+.player-lobby-box {
+  max-width: 500px;
+  width: 90%;
+}
+
+.player-slots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.player-slots img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #ffcf00;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.player-slots img:hover {
+  transform: scale(1.1);
+}
+.kick-overlay {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: red;
+  color: white;
+  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  font-family: 'QilkaBold';
+  line-height: 1;
+  text-align: center !important;
+}
+
+.kick-overlay:hover {
+  background: darkred !important;
+}
+#userSearch {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 12px;
+  outline: none;
+  font-size: 14px;
+  font-family: 'QilkaBold', sans-serif;
+  background: #171717;
+  color: #bfbfbf;
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+  transition: all 0.3s ease;
+  margin-left: -10px;
+}
+
+#userSearch::placeholder {
+  color: #b0b0b0;
+  opacity: 0.7;
+}
+
+#userSearch:focus {
+  box-shadow: inset 2px 2px 5px #0e0e0e, inset -2px -2px 5px #222;
+  color: #fff;
+}
+#recentInvitesList {
+  max-height: 150px;
+  overflow-y: auto;
+  text-align: left;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #ffcf00 #1e1e1e; /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+#recentInvitesList::-webkit-scrollbar {
+  width: 8px;
+}
+
+#recentInvitesList::-webkit-scrollbar-track {
+  background: #1e1e1e;
+  border-radius: 10px;
+}
+
+#recentInvitesList::-webkit-scrollbar-thumb {
+  background-color: #ffcf00;
+  border-radius: 10px;
+  border: 2px solid #1e1e1e;
+}
+
+#recentInvitesList::-webkit-scrollbar-thumb:hover {
+  background-color: #ffe866;
+}
+#multiplayerModal .modal-box {
+  max-height: 450px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ffcf00 #1e1e1e;
+}
+
+/* Chrome, Edge, Safari */
+#multiplayerModal .modal-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+#multiplayerModal .modal-box::-webkit-scrollbar-track {
+  background: #1e1e1e;
+  border-radius: 10px;
+}
+
+#multiplayerModal .modal-box::-webkit-scrollbar-thumb {
+  background-color: #ffcf00;
+  border-radius: 10px;
+  border: 2px solid #1e1e1e;
+}
+
+#multiplayerModal .modal-box::-webkit-scrollbar-thumb:hover {
+  background-color: #ffe866;
+}
+.modal-header, .modal-footer {
+  background: #171717;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background: #ffcf00;
+  border-radius: 10px;
+}
+#userList,
+#recentInvitesList {
+  flex: 1;
+  overflow-y: auto;
+  text-align: left;
+}
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.multiplayer-tooltip {
+  position: absolute;
+  bottom: 24%;
+  left: 300%;
+  transform: translateX(-50%) scale(0.9);
+  background: #171717;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  animation: tooltipPop 1.5s infinite;
+  transition: opacity 0.3s, transform 0.3s;
+  font-family: 'QilkaBold', sans-serif;
+  border: 1px solid #222;
+}
+
+.tooltip-container:hover .multiplayer-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  animation-play-state: paused;
+}
+
+@keyframes tooltipPop {
+  0%, 100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+@keyframes moveToTop {
+  0% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-70px); opacity: 0.8; }
+  100% { transform: translateY(-60px); opacity: 1; }
+}
+
+.move-to-top {
+  animation: moveToTop 0.5s ease forwards;
+  background: #ffcf00;
+  color: black;
+  border-radius: 8px;
+}
+@keyframes moveDown {
+  0% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(80px); opacity: 0.9; }
+  100% { transform: translateY(70px); opacity: 1; }
+}
+
+.move-down {
+  animation: moveDown 0.5s ease forwards;
+  background: #444; /* slight highlight */
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+
+
+
+
 /* Responsive for tablets and smaller screens */
 @media (max-width: 992px) {
   body {
@@ -668,6 +967,7 @@
   <h1 id="setTitle">Study Mode</h1>
 
 
+
   <div class="button-container">
     <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
     <button class="neumorphic-button" onclick="goToTest()">Test</button>
@@ -679,9 +979,20 @@
   <button class="neumorphic-button" onclick="scrollToInput()">▶ Start</button>
     
 </div>
-<a href="lobby.html#Folderr">
+<div class="oo">
+  <a href="lobby.html#Folderr">
     <img src="homeenc.png" alt="Home" class="home-icon hover-switch" data-default="homeenc.png" data-hover="homeec.png" />
   </a>
+  <div class="tooltip-container">
+  <a id="multiplayerBtn">
+    <img src="multinc.png" alt="Multiplayer" class="home-icon hover-switch" data-default="multinc.png" data-hover="multic.png" />
+  </a>
+  <div class="multiplayer-tooltip">Join Multiplayer Mode!</div>
+</div>
+
+</div>
+
+
 
 <div class="rectangle-container">
   <div class="column"></div>
@@ -695,18 +1006,26 @@
 
 <div class="input-section" id="inputArea">
   <div id="timerContainer" style="display: flex; align-items: center; gap: 8px;">
+   
     <div id="timerBarContainer">
       <div id="timerBar"></div>
       </div>
       <div id="timer">⏳ 60s</div>
-  </div>
 
+</div>
+<button id="leaveMultiplayerBtn" class="neumorphic-button2" style="background:#ff4d4d; padding:6px 10px; font-size:12px; display:none;">
+    Leave
+  </button>
+<div id="multiplayerTimer" style="display:none; background:#1e1e1e; padding:12px 16px; border-radius:8px; color:white; font-family:'QilkaBold'; box-shadow: 3px 3px 8px #0f0f0f, -3px -3px 8px #1f1f1f;">
+   ⏳ 60s
+</div>
   <input type="text" placeholder="Enter your input..." />
   <button onclick="submitInput()">Submit</button>
-  <div id="counters">
-    ✅ <span id="correctCount">0</span> &nbsp;&nbsp;
-    ❌ <span id="mistakeCount">0</span>
-  </div>
+ <div id="counters">
+  ✅ <span id="correctCount">0</span> &nbsp;&nbsp;
+  ❌ <span id="mistakeCount">0</span>
+</div>
+
 </div>
 <div id="flipTimerModal" class="flip-timer-modal hidden">
   <div class="flip-timer-header">
@@ -773,6 +1092,72 @@
     <button onclick="closeSummaryModal()">Claim XP!</button>
   </div>
 </div>
+<div id="multiplayerModal" class="modal-backdrop">
+  <div class="modal-box" style="max-width: 700px; background:#171717; border-radius:20px; padding:0; max-height: 600px; display:flex; flex-direction:column;">
+    
+    <!-- Fixed Header -->
+    <div class="modal-header" style="position: sticky; top:0; background:#171717; z-index:10; padding:10px; border-bottom:1px solid #333;">
+      <h2 style="margin-bottom: 10px;">⚔️ Multiplayer Lobby</h2>
+      <div id="playerSlots" class="player-slots" style="margin-bottom: 10px;"></div>
+    </div>
+
+    <!-- Scrollable Body -->
+    <div class="modal-body" style="flex:1; display:flex; flex-direction:column; padding:10px; gap:10px;">
+      
+      <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+    <h3 style="margin-bottom: 6px; font-size: 1.1rem;">Recently Invited</h3>
+    <div id="recentInvitesList" style="flex:1; overflow-y:auto; text-align:left;"></div>
+  </div>
+  <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+    <h3 style="margin-bottom: 6px; font-size: 1.1rem;">Invite Players</h3>
+    <input type="text" id="userSearch" placeholder="Search by username or email..." 
+         style="width:80%; padding:8px; border-radius:8px; margin-bottom:8px; margin-left:28px; border:none; font-family:'QilkaBold';"/>
+    <div id="userList" style="flex:1; overflow-y:auto; text-align:left;"></div>
+  </div>
+
+  
+</div>
+
+
+    <!-- Fixed Footer -->
+    <div class="modal-footer" style="position: sticky; bottom:0; background:#171717; padding:10px; border-top:10px solid #333; padding-bottom: 5px; text-align:center;">
+      <button onclick="closeMultiplayerModal()" style="padding:8px 16px;">Close</button>
+    </div>
+  </div>
+</div>
+<div id="rankingModal" class="modal-backdrop" style="display:none;">
+  <div class="modal-box" style="max-width:700px; text-align:left; background:#171717;">
+    <h2 style="text-align:center; margin-bottom:20px;">🏆 Round Results</h2>
+    <div id="rankingList"></div>
+    <div style="margin-top:20px; text-align:center;">
+      <button id="oneMoreRoundBtn" class="neumorphic-button2" style="margin-right:10px;">One More Round</button>
+      <button id="leaveBtn" class="neumorphic-button2" style="background:#ff4d4d;">Leave</button>
+    </div>
+  </div>
+</div>
+<div id="leaveNotification" style="
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  display: none;
+  font-family: 'QilkaBold';
+  font-size: 14px;
+  color: white;
+  background: rgba(23, 23, 23, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  z-index: 9999;
+  animation: slideIn 0.4s ease forwards;
+">
+</div>
+
+
+
+
 
 <script src="flipTimer.js"></script>
 
@@ -782,12 +1167,9 @@
   const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
   const currentIndex = parseInt(localStorage.getItem("currentIndex") || "0");
 
-  if (!reviewingSet || !reviewingSet.flashcards) {
-    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data available.</h2>";
-    throw new Error("No flashcards found.");
-  }
+  
 
-  const flashcards = reviewingSet.flashcards;
+  let flashcards = reviewingSet ? reviewingSet.flashcards : [];
   document.getElementById("setTitle").textContent = reviewingSet.title || "Study Mode";
 
   const columns = document.querySelectorAll(".column");
@@ -797,9 +1179,13 @@
   const maxCardsPerColumn = 4;
 
   function updateCounters() {
-    document.getElementById("correctCount").textContent = correct;
-    document.getElementById("mistakeCount").textContent = mistakes;
-  }
+  const correctEl = document.getElementById("correctCount");
+  const mistakeEl = document.getElementById("mistakeCount");
+
+  if (correctEl) correctEl.textContent = correct;
+  if (mistakeEl) mistakeEl.textContent = mistakes;
+}
+
 
   function getRandomFlashcard() {
     return flashcards[Math.floor(Math.random() * flashcards.length)];
@@ -1104,7 +1490,576 @@ function resetGame() {
 }
 
 </script>
-<script src="protect.js"></script>
+
+<script type="module" src="multiplayer.js"></script>
+<script type="module" src="multiplayer.js"></script>
+
+<script type="module">
+import { auth, db } from './firebaseinit.js';
+import { doc, getDoc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+// Multiplayer Timer Variables
+let multiplayerTimeLeft = 60;
+let multiplayerTimerInterval = null;
+let multiplayerTimerDisplay = null;
+
+function showCountdown(seconds, callback) {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,1);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2em;
+    z-index: 9999;
+    font-family: 'QilkaBold';
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.innerText = `Game starting in ${seconds}...`;
+  let countdown = seconds;
+  const interval = setInterval(() => {
+    countdown--;
+    if (countdown > 0) {
+      overlay.innerText = `Game starting in ${countdown}...`;
+    } else {
+      clearInterval(interval);
+      document.body.removeChild(overlay);
+      if (callback) callback();
+    }
+  }, 1000);
+}
+
+// Multiplayer Timer Logic
+async function startMultiplayerTimer() {
+  if (!multiplayerTimerDisplay) {
+    multiplayerTimerDisplay = document.getElementById("multiplayerTimer");
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const host = params.get("host");
+  if (!host) return;
+
+
+  const gameDocRef = doc(db, "gamestartlobby", host);
+  const snapshot = await getDoc(gameDocRef);
+  if (!snapshot.exists()) return;
+
+  const data = snapshot.data();
+  const endTime = data.endTime;
+  if (!endTime) return;
+
+  function updateTimer() {
+    const remaining = Math.max(0, endTime - Date.now());
+    const seconds = Math.floor(remaining / 1000);
+    multiplayerTimerDisplay.textContent = `⏳ ${seconds}s`;
+
+    if (remaining <= 0) {
+      clearInterval(multiplayerTimerInterval);
+      multiplayerTimerDisplay.textContent = "⏳ Time's up!";
+      showRankingModal();
+    }
+  }
+
+  clearInterval(multiplayerTimerInterval);
+  multiplayerTimerDisplay.style.display = "flex";
+  updateTimer(); // Initial call
+  multiplayerTimerInterval = setInterval(updateTimer, 1000);
+}
+
+
+
+
+// Multiplayer score rendering
+function renderMultiplayerScores(players, host) {
+  const container = document.getElementById("counters");
+  if (!container) return;
+
+  // Replace contents of #counters with multiplayer scores
+  container.innerHTML = players.map((p, index) => {
+    const playerLabel = `P${index + 1}${p.email === host ? " (host)" : ""}`;
+    const correct = Number(p.correctScore) || 0;
+    const incorrect = Number(p.incorrectScore) || 0;
+    return `
+      <div style="display:flex; flex-direction:column; align-items:center; margin: 0 10px;">
+        <span>${playerLabel}</span>
+        <div style="white-space: nowrap; display: inline-flex; gap: 2px; align-items: center;">
+  <span style="color:lime; font-weight:bold;">${correct}</span> /
+  <span style="color:red; font-weight:bold;">${incorrect}</span>
+</div>
+
+      </div>`;
+  }).join("");
+}
+
+
+
+
+
+// Listen to updates from gamestartlobby
+function listenToGameScores(host) {
+  const gameDocRef = doc(db, "gamestartlobby", host);
+  onSnapshot(gameDocRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      if (data.players) {
+        renderMultiplayerScores(data.players, host);
+        if (data.lastLeaveNotification) {
+  showLeaveNotification(data.lastLeaveNotification);
+}
+
+      }
+    }
+  });
+}
+function listenForGameRestart(host) {
+  const gameDocRef = doc(db, "gamestartlobby", host);
+  let lastEndTime = null;
+
+  onSnapshot(gameDocRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      if (data.endTime && data.endTime !== lastEndTime) {
+        lastEndTime = data.endTime;
+
+        // Hide ranking modal for all players
+        const rankingModal = document.getElementById("rankingModal");
+        if (rankingModal) rankingModal.style.display = "none";
+
+        console.log("Game restart detected, starting countdown...");
+        showCountdown(5, startMultiplayerGame);
+      }
+    }
+  });
+}
+
+
+// Show ranking modal
+async function showRankingModal() {
+  const params = new URLSearchParams(window.location.search);
+  const host = params.get("host");
+  if (!host) return;
+
+  const modal = document.getElementById("rankingModal"); // <--- ADD THIS
+  const gameDocRef = doc(db, "gamestartlobby", host);
+
+  // Reset all players' ready to false
+  let players = [];
+  const currentSnap = await getDoc(gameDocRef);
+  if (currentSnap.exists()) {
+    players = (currentSnap.data().players || []).map(p => ({ ...p, ready: false }));
+    await setDoc(gameDocRef, { players }, { merge: true });
+  }
+
+  // Real-time listener
+  onSnapshot(gameDocRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      if (data.players) {
+        updateRankingUI(data.players, host);
+        updateStartButton(data.players, host);
+      }
+    }
+  });
+
+  modal.style.display = "flex";
+
+  const oneMoreBtn = modal.querySelector("#oneMoreRoundBtn");
+  const leaveBtn = modal.querySelector("#leaveBtn");
+
+  // "One More Round" toggle
+  oneMoreBtn.onclick = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const latestSnap = await getDoc(gameDocRef);
+    if (!latestSnap.exists()) return;
+
+    const currentPlayers = (latestSnap.data().players || []).map(pl => {
+      if (pl.email === user.email) return { ...pl, ready: !pl.ready };
+      return pl;
+    });
+
+    await setDoc(gameDocRef, { players: currentPlayers }, { merge: true });
+  };
+
+
+
+  // Leave button
+  leaveBtn.onclick = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      // Remove from gamestartlobby
+      const updatedPlayers = players.filter(pl => pl.email !== user.email);
+      await setDoc(gameDocRef, { players: updatedPlayers }, { merge: true });
+
+      // Remove from lobbies
+      const lobbyDocRef = doc(db, "lobbies", host);
+      const lobbySnap = await getDoc(lobbyDocRef);
+      if (lobbySnap.exists()) {
+        const lobbyData = lobbySnap.data();
+        const newLobbyPlayers = (lobbyData.players || []).filter(p => p.email !== user.email);
+        await setDoc(lobbyDocRef, { players: newLobbyPlayers }, { merge: true });
+      }
+
+      // If host leaves, delete documents
+      if (user.email === host) {
+        const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+        await deleteDoc(gameDocRef);
+        await deleteDoc(lobbyDocRef);
+      }
+
+      window.location.href = "lobby.html";
+    } catch (err) {
+      console.error("Error while leaving:", err);
+    }
+  };
+}
+document.getElementById("leaveMultiplayerBtn")?.addEventListener("click", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const host = params.get("host");
+  if (!host) return;
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    const gameDocRef = doc(db, "gamestartlobby", host);
+    const currentSnap = await getDoc(gameDocRef);
+    let players = [];
+    if (currentSnap.exists()) {
+      players = currentSnap.data().players || [];
+    }
+    const updatedPlayers = players.filter(pl => pl.email !== user.email);
+    await setDoc(gameDocRef, { players: updatedPlayers }, { merge: true });
+
+    // Remove from lobbies
+    const lobbyDocRef = doc(db, "lobbies", host);
+    const lobbySnap = await getDoc(lobbyDocRef);
+    if (lobbySnap.exists()) {
+      const lobbyData = lobbySnap.data();
+      const newLobbyPlayers = (lobbyData.players || []).filter(p => p.email !== user.email);
+      await setDoc(lobbyDocRef, { players: newLobbyPlayers }, { merge: true });
+    }
+
+    if (user.email === host) {
+      const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js");
+      await deleteDoc(gameDocRef);
+      await deleteDoc(lobbyDocRef);
+    }
+await setDoc(gameDocRef, { lastLeaveNotification: `${user.email} left the game` }, { merge: true });
+
+    window.location.href = "lobby.html";
+  } catch (err) {
+    console.error("Error while leaving:", err);
+  }
+});
+
+async function getUsernameByEmail(email) {
+  const userDocRef = doc(db, "usernames", email);
+  const userDoc = await getDoc(userDocRef);
+  return userDoc.exists() ? userDoc.data().username : email;
+}
+async function getUserBadge(email) {
+  try {
+    const approvedDoc = await getDoc(doc(db, "approved_emails", email));
+    if (approvedDoc.exists()) {
+      const data = approvedDoc.data();
+      const roleString = data.role || "";
+      const roleArray = roleString.split(',').map(r => r.trim().toLowerCase());
+
+      let badges = "";
+      if (roleArray.includes("verified")) {
+        badges += `<img src="verified.png" alt="verified" title="Verified" class="badge-icon">`;
+      }
+      if (roleArray.includes("first")) {
+        badges += `<img src="first.png" alt="first" title="First User" class="badge-icon">`;
+      }
+      return badges;
+    }
+  } catch (error) {
+    console.error("Error fetching badge:", error);
+  }
+  return "";
+}
+async function updateRankingUI(players, host) {
+  const rankingList = document.getElementById("rankingList");
+  if (!rankingList) return;
+
+  const playersWithDetails = await Promise.all(
+    players.map(async (p) => {
+      const username = await getUsernameByEmail(p.email);
+      const badgesHTML = await getUserBadge(p.email);
+      return { ...p, username, badgesHTML };
+    })
+  );
+
+  // Sort players by correctScore (descending)
+  playersWithDetails.sort((a, b) => (b.correctScore || 0) - (a.correctScore || 0));
+
+  let winnerHTML = "";
+  let othersHTML = "";
+
+  playersWithDetails.forEach((p, index) => {
+    const playerHTML = `
+      <div class="player-row" data-email="${p.email}"
+        style="display:flex; justify-content:space-between; align-items:center; background:#333; margin:5px 0; padding:8px; border-radius:6px; border:2px solid ${p.ready ? 'green' : '#ffcf00'};">
+        <div style="display:flex; flex-direction:column; align-items:flex-start; gap:5px;">
+          ${index === 0 ? '<span style="color:#ffcf00; font-weight:bold; font-size:14px; margin-left: 80px;">🏆 Winner!</span>' : ''}
+          <div style="display:flex; align-items:center; gap:10px;">
+            <img src="${p.avatar}" style="width:40px; height:40px; border-radius:50%; border:2px solid ${p.ready ? 'green' : '#ffcf00'};" />
+            <div>
+              <div>${p.username} ${p.badgesHTML}</div>
+              <div style="font-size:12px; opacity:0.7;">${p.email}</div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:18px; font-weight:bold;">${p.correctScore || 0}</div>
+      </div>
+    `;
+
+    if (index === 0) {
+      winnerHTML += playerHTML;
+    } else {
+      othersHTML += playerHTML;
+    }
+  });
+
+  rankingList.innerHTML = winnerHTML + othersHTML;
+}
+
+
+
+function updateStartButton(players, host) {
+  const oneMoreBtn = document.getElementById("oneMoreRoundBtn");
+  if (!oneMoreBtn) return;
+
+  const user = auth.currentUser;
+  const allReady = players.every(p => p.ready);
+
+  if (user && user.email === host && allReady) {
+    oneMoreBtn.textContent = "Start Game";
+    oneMoreBtn.onclick = async () => {
+      await resetMultiplayerGame(host, doc(db, "gamestartlobby", host), players);
+    };
+  } else {
+    oneMoreBtn.textContent = "One More Round";
+  }
+}
+
+// Reset scores and start new round
+async function resetMultiplayerGame(host, gameDocRef, players) {
+  const resetPlayers = players.map(p => ({
+    ...p,
+    correctScore: 0,
+    incorrectScore: 0,
+    ready: false
+  }));
+
+  await setDoc(gameDocRef, {
+    players: resetPlayers,
+    endTime: Date.now() + 60000 // 60 sec timer
+  }, { merge: true });
+
+  // Hide ranking modal before starting countdown
+  const rankingModal = document.getElementById("rankingModal");
+  if (rankingModal) {
+    rankingModal.style.display = "none";
+  }
+
+  showCountdown(5, startMultiplayerGame);
+}
+
+
+
+// Update score in Firestore
+async function updatePlayerScore(isCorrect) {
+  const params = new URLSearchParams(window.location.search);
+  const host = params.get("host");
+  if (!host) return;
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  // 1. Update multiplayer scores
+  const gameDocRef = doc(db, "gamestartlobby", host);
+  const snapshot = await getDoc(gameDocRef);
+  if (snapshot.exists()) {
+    const data = snapshot.data();
+    const players = data.players.map(p => {
+      if (p.email === user.email) {
+        return {
+          ...p,
+          correctScore: isCorrect ? p.correctScore + 1 : p.correctScore,
+          incorrectScore: !isCorrect ? p.incorrectScore + 1 : p.incorrectScore
+        };
+      }
+      return p;
+    });
+    await setDoc(gameDocRef, { players }, { merge: true });
+  }
+
+  // 2. Save correct answers to defidrop_scores
+  if (isCorrect) {
+    const scoreRef = doc(db, "defidrop_scores", user.email);
+    const scoreSnap = await getDoc(scoreRef);
+    let previous = 0;
+    if (scoreSnap.exists() && scoreSnap.data().totalCorrect) {
+      previous = parseInt(scoreSnap.data().totalCorrect);
+    }
+    await setDoc(scoreRef, { totalCorrect: previous + 1 }, { merge: true });
+  }
+}
+
+
+async function loadGameSet() {
+  multiplayerTimerDisplay = document.getElementById("multiplayerTimer");
+  if (multiplayerTimerDisplay) multiplayerTimerDisplay.style.display = "none";
+
+  let reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+  const params = new URLSearchParams(window.location.search);
+  let host = params.get("host");
+
+  if (host) {
+    document.getElementById("timerContainer").style.display = "none"; // hide solo timer
+    if (multiplayerTimerDisplay) multiplayerTimerDisplay.style.display = "flex";
+      const leaveBtn = document.getElementById("leaveMultiplayerBtn");
+  if (leaveBtn) leaveBtn.style.display = "inline-block"; // Show the leave button
+
+      const countersDiv = document.getElementById("counters");
+if (countersDiv) {
+  countersDiv.innerHTML = "";          // Clear solo counter
+  countersDiv.style.display = "flex";  // Ensure it's visible
+  countersDiv.style.gap = "15px";      // Add spacing for multiplayer score blocks
+}
+
+
+
+
+    const gameDoc = await getDoc(doc(db, "gamestartlobby", host));
+    if (gameDoc.exists()) {
+    const firebaseCardSet = gameDoc.data().cardSet;
+    if (firebaseCardSet) {
+        localStorage.setItem("reviewingSet", JSON.stringify(firebaseCardSet));
+        reviewingSet = firebaseCardSet;
+        document.getElementById("setTitle").textContent = reviewingSet.title;
+flashcards = reviewingSet.flashcards;  // refresh the flashcards array
+startMultiplayerGame();                // this will populate columns once with updated cards
+  listenToGameScores(host); // <--- Added               // re-render the columns
+  listenForGameRestart(host);
+
+
+    } else {
+        console.error("No cardSet in Firestore document.");
+    }
+}
+  }
+
+  if (host) {
+    showCountdown(5, () => {
+  if (reviewingSet && reviewingSet.title) {
+    document.getElementById("setTitle").textContent = reviewingSet.title;
+    startMultiplayerGame();  // <-- This already calls startMultiplayerTimer()
+  }
+});
+
+  } else if (reviewingSet && reviewingSet.title) {
+    document.getElementById("setTitle").textContent = reviewingSet.title;
+  }
+}
+
+function startMultiplayerGame() {
+  populateAllColumns();
+  sessionActive = true;
+  correct = 0;
+  mistakes = 0;
+  updateCounters();
+  startMultiplayerTimer();  // keep only one call here
+
+  // Scroll to input after 5 seconds (like solo mode)
+  setTimeout(() => {
+    const inputArea = document.getElementById("inputArea");
+    if (inputArea) {
+      inputArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 5000);
+}
+
+
+
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    loadGameSet();
+    const interval = setInterval(() => {
+      if (typeof window.submitInput === "function") {
+        clearInterval(interval);
+        const originalSubmit = window.submitInput;
+        window.submitInput = function() {
+          const inputField = document.querySelector('.input-section input');
+          const answer = inputField?.value.trim().toLowerCase() || "";
+          const selected = document.querySelector('.definition-block.selected');
+          if (selected) {
+            const correctAnswer = selected.dataset.term?.toLowerCase();
+            const isCorrect = answer === correctAnswer;
+            updatePlayerScore(isCorrect);
+          }
+          return originalSubmit.apply(this, arguments);
+        };
+      }
+    }, 100);
+  }
+});
+function showLeaveNotification(message) {
+  const notif = document.getElementById("leaveNotification");
+  if (!notif) return;
+  
+  notif.innerText = message;
+  notif.style.display = "block";
+  notif.style.animation = "none";
+  notif.offsetHeight; // trigger reflow
+  notif.style.animation = "slideIn 0.4s ease forwards";
+  
+  setTimeout(() => {
+    notif.style.display = "none";
+  }, 3000);
+}
+
+
+function attachMultiplayerInputHandler() {
+  const inputField = document.querySelector('.input-section input');
+  const submitBtn = document.querySelector('.input-section button');
+  if (!inputField) return;
+  inputField.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') setTimeout(() => { inputField.value = ""; }, 10);
+  });
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      setTimeout(() => { inputField.value = ""; }, 10);
+    });
+  }
+}
+document.addEventListener('DOMContentLoaded', attachMultiplayerInputHandler);
+</script>
+
+
+
+
+
+
+
+
+
+
+
 
 
 
