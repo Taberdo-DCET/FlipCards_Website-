@@ -5,6 +5,7 @@ import { ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase
 
 const usernameCache = {};
 let lastProfileEmail = null;
+let loaderShownThisSession = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById("memberSidebar");
@@ -16,7 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
 openBtn.addEventListener("click", () => {
   const wasOpen = sidebar.classList.contains("show");
   sidebar.classList.toggle("show");
-
+if (!wasOpen) {
+    loaderShownThisSession = false; // Reset loader for new session
+  }
   if (wasOpen) {
     setTimeout(() => location.reload(), 500); // 500ms delay
   }
@@ -151,19 +154,26 @@ document.addEventListener("keydown", (e) => {
 
           const li = document.createElement("li");
           li.innerHTML = `
-            <div class="email-container" style="position: relative;">
-              ${dotHTML}
-              <div style="display: flex; flex-direction: column;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <span class="username email" title="${user.email}" data-uid="${user.uid}" style="font-weight:bold; background: transparent; color: white;">Loading...</span>
-                  ${verifiedHTML}${firstHTML}
-                </div>
-                <span class="email user-email" title="${user.email}" data-uid="${user.uid}" style="font-size:11px; opacity:0.6; background: transparent; color: white;">${shortEmail}</span>
-                <span class="badge-container achievement-badges">${achievementBadgesHTML}</span>
-              </div>
-              <span class="badge-container main-badges">${mainBadgesHTML}</span>
-            </div>
-          `;
+  <div class="email-container" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div class="left-info" style="display: flex; flex-direction: column; gap: 2px;">
+      <div style="display: flex; align-items: center; gap: 6px;">
+        ${dotHTML}
+        <span class="username email" title="${user.email}" data-uid="${user.uid}" 
+          style="font-weight:bold; background: transparent; color: white;">Loading...</span>
+        ${verifiedHTML}${firstHTML}
+      </div>
+      <span class="email user-email" title="${user.email}" data-uid="${user.uid}" 
+        style="font-size:11px; opacity:0.6; background: transparent; color: white;">
+        ${shortEmail}
+      </span>
+      <span class="badge-container achievement-badges">${achievementBadgesHTML}</span>
+    </div>
+    <div class="main-badges-wrapper" style="display: flex; gap: 4px; align-items: center; justify-content: flex-end;">
+      ${mainBadgesHTML}
+    </div>
+  </div>
+`;
+
 
           // Fetch username from Firestore
           const usernameSpan = li.querySelector(".username");
@@ -220,7 +230,11 @@ document.addEventListener("keydown", (e) => {
                 if (lastProfileEmail === email) return;
                 lastProfileEmail = email;
 
-                showLoader();
+                if (!loaderShownThisSession) {
+  showLoader();
+  loaderShownThisSession = true;
+}
+
 
                 import('./profile.js').then(mod => {
                   mod.openUserProfile(email);
@@ -228,12 +242,18 @@ document.addEventListener("keydown", (e) => {
                   const sidebar = document.getElementById("memberSidebar");
                   const modal = document.getElementById("profileModal");
 
-                  if (sidebar && modal) {
-                    const rect = sidebar.getBoundingClientRect();
-                    modal.style.position = "fixed";
-                    modal.style.top = `${rect.top + 20}px`;
-                    modal.style.left = `${rect.right + 10}px`;
-                  }
+if (sidebar && modal) {
+  const rect = sidebar.getBoundingClientRect();
+  modal.style.position = "fixed";
+  modal.style.top = `${rect.top + 20}px`;
+  modal.style.left = `${rect.right + 10}px`;
+
+  // Add animation class
+  modal.classList.remove("animate-show");
+  void modal.offsetWidth; // Force reflow to restart animation
+  modal.classList.add("animate-show");
+}
+
 
                   const checkInterval = setInterval(() => {
                     if (modal && !modal.classList.contains("hidden")) {

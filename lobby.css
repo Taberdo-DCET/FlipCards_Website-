@@ -1131,7 +1131,7 @@ span {
   top: 0;
   left: 0;
   transform: translateX(-100%);
-  width: 350px;
+  width: 300px;
   height: 100vh;
   background: #171717;
   box-shadow: 8px 0 16px #0f0f0f, -8px 0 16px #1f1f1f;
@@ -1200,10 +1200,10 @@ span {
 }
 
 .member-list .email {
-  max-width: 140px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
   color: #0e0e0e;
   font-family: 'QilkaBold', sans-serif;
 
@@ -1956,7 +1956,7 @@ span {
 
 .profile-info #userEmail {
   font-size: 15px;
-  font-family: 'Accasia';
+  font-family: 'Qilkabold';
   margin-bottom: 5px;
 }
 
@@ -1968,7 +1968,7 @@ span {
   border-radius: 8px;
   padding: 2px 8px;
   cursor: pointer;
-  font-family: 'Accasia';
+  font-family: 'Qilkabold';
 }
 .avatar-container img {
   box-shadow: 0 0 10px rgba(255,255,255,0.3);
@@ -2037,6 +2037,7 @@ span {
   justify-content: center;
   gap: 0px;
   margin-top: 10px;
+  font-family: 'Qilkabold' !important;
 }
 
 #userBadgeContainer img {
@@ -2910,6 +2911,198 @@ font-family: 'Accasia', sans-serif;
   display: block;
   font-size: 11px;
   opacity: 0.6;
+}
+.email-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.main-badges-wrapper img {
+  margin-left: 4px;
+  width: 18px;
+  height: 18px;
+}
+@keyframes modalFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+#profileModal.animate-show {
+  animation: modalFadeIn 0.3s ease forwards;
+}
+#miniProfile {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  background: #171717;
+  color: white;
+  font-family: 'Accasia', sans-serif;
+  border-radius: 12px;
+  box-shadow: 
+    inset 4px 4px 8px #0f0f0f, 
+    inset -4px -4px 8px #1f1f1f,
+    4px 4px 8px rgba(0, 0, 0, 0.5),
+    -4px -4px 8px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 5000;
+  animation: modalFadeIn 0.3s ease forwards;
+}
+
+#miniProfile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  object-fit: cover;
+  box-shadow: 0 0 8px rgba(255,255,255,0.2);
+}
+
+.mini-profile-info {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.mini-profile-info #miniProfileUsername {
+  font-weight: bold;
+  font-size: 14px;
+  background: transparent !important;
+  color: white;
+  font-family: 'QilkaBold', sans-serif;
+}
+
+.mini-profile-info #miniProfileEmail {
+  font-size: 12px;
+  opacity: 0.7;
+   background: transparent !important;
+   color: white;
+   font-family: 'QilkaBold', sans-serif;
+}
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+#miniProfile {
+  animation: slideInFromLeft 5.5s ease-out forwards;
+}
+.username-level-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.level-badge {
+  background: #ffffff;
+  color: #171717;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 12px;
+  box-shadow:
+    inset 2px 2px 4px #d1d1d1,
+    inset -2px -2px 4px #ffffff,
+    2px 2px 5px rgba(0, 0, 0, 0.1);
+  font-family: 'QilkaBold', sans-serif;
+}
+.username-level-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* space between username, badges, and level */
+}
+
+#verifiedBadge,
+#firstBadge {
+background: transparent;
+border: none !important;
+box-shadow: none !important;
+}
+/* Shop Modal (171717 Glassmorphism) */
+.shop-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.shop-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.shop-modal-content {
+  background: rgba(23, 23, 23, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 30px;
+  width: 320px;
+  text-align: center;
+  color: white;
+  font-family: 'Accasia', sans-serif;
+  box-shadow:
+    0 0 20px rgba(255, 255, 255, 0.05),
+    inset 4px 4px 10px rgba(0, 0, 0, 0.6),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.05);
+  animation: splitOpen 0.6s ease forwards;
+  transform-origin: center;
+}
+
+.shop-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ffffff;
+  background: transparent;
+}
+.shop-modal-close:hover {
+  color: red;
+}
+.shop-modal-title {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #ffcf00;
+}
+
+@keyframes splitOpen {
+  0% {
+    transform: scaleX(0) scaleY(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scaleX(1.05) scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1) scaleY(1);
+    opacity: 1;
+  }
 }
 
 

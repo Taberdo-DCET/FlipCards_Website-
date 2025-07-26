@@ -145,22 +145,17 @@ async function loadUserProfile(email, isSelf = false) {
   const xpText = document.getElementById("xpText");
 
   try {
-    const avatarURL = await getDownloadURL(ref(storage, `avatars/${email}`));
+    // Fetch all data in parallel
+    const [avatarURL, coverURL, usernameSnap, approvedSnap] = await Promise.all([
+      getDownloadURL(ref(storage, `avatars/${email}`)).catch(() => "Group-10.png"),
+      getDownloadURL(ref(storage, `covers/${email}`)).catch(() => "backgroundlobby.png"),
+      getDoc(doc(db, "usernames", email)),
+      getDoc(doc(db, "approved_emails", email))
+    ]);
+
     avatarImg.src = avatarURL;
-  } catch {
-    avatarImg.src = "Group-10.png";
-  }
-
-  try {
-    const coverURL = await getDownloadURL(ref(storage, `covers/${email}`));
     coverImg.src = coverURL;
-  } catch {
-    coverImg.src = "backgroundlobby.png";
-  }
 
-  try {
-    const usernameSnap = await getDoc(doc(db, "usernames", email));
-    const approvedSnap = await getDoc(doc(db, "approved_emails", email));
     const usernameData = usernameSnap.exists() ? usernameSnap.data() : {};
     const approvedData = approvedSnap.exists() ? approvedSnap.data() : {};
 
@@ -188,7 +183,7 @@ async function loadUserProfile(email, isSelf = false) {
       xpBar.style.width = `${Math.min(100, (xp / maxXP) * 100)}%`;
     }
 
-    // 👁️ Toggle editing controls
+    // Toggle editing controls
     const editUsernameBtn = document.querySelector(".edit-username");
     const avatarLabel = document.querySelector("label[for='avatarInput']");
     const coverLabel = document.querySelector("label[for='coverInput']");
@@ -212,6 +207,7 @@ async function loadUserProfile(email, isSelf = false) {
     console.error("Error loading profile:", err);
   }
 }
+
 
 // 🔍 Stats for achievements
 async function getFlashcardCount(email) {

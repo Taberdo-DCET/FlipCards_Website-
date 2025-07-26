@@ -183,6 +183,12 @@
     <img src="timernc.png" alt="FlipTimer" data-hover="timerc.png" data-default="timernc.png">
   </button>
 </div>
+<!-- Shop button -->
+<div class="tooltip-container" data-tooltip="Shop">
+  <button class="music-icon" id="shopBtn" aria-label="Shop">
+    <img src="shopnc.png" alt="Shop" data-hover="shopc.png" data-default="shopnc.png">
+  </button>
+</div>
 
 
 
@@ -337,6 +343,7 @@
 <!-- Profile Modal -->
 <!-- Redesigned Profile Modal -->
 <div id="profileModal" class="custom-modal2 hidden" style="top: 80px; left: 20px; right: auto; bottom: auto; justify-content: flex-start; align-items: flex-start;">
+ 
   <div class="profile-box">
     <div id="profileDragHandle" class="drag-handle">
     <span class="close-profile-modal">✖</span>
@@ -574,7 +581,13 @@
   <div class="tutorial-dots" id="tutorialDots"></div>
   <button class="tutorial-close" onclick="closeTutorial()">✖</button>
 </div>
-
+<div id="shopModal" class="shop-modal hidden">
+  <div class="shop-modal-content">
+    <span id="closeShopModal" class="shop-modal-close">&times;</span>
+    <h2 class="shop-modal-title">Shop</h2>
+    <p>Welcome to the FlipCards Shop! (Content coming soon)</p>
+  </div>
+</div>
 
 
 <script type="module">
@@ -934,7 +947,9 @@ onSnapshot(docRef, (docSnap) => {
 
 <script type="module" src="invitationListener.js"></script>
 <script type="module" src="multiplayer.js"></script>
-
+<script type="module" src="miniprofile.js"></script>
+<script src="shop.js"></script>
+<script src="protect.js"></script>
 
 
 </body>
