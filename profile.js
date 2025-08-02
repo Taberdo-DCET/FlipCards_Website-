@@ -129,8 +129,32 @@ function makeModalDraggable(modalBox, dragHandle) {
 
 // 👤 Reusable entry point from member.js
 export async function openUserProfile(email) {
+  const modal = document.getElementById("profileModal");
+  const avatarImg = document.getElementById("avatarPreview");
+  const coverImg = document.getElementById("coverPreview");
+  const usernameText = document.getElementById("userName");
+  const badgeSpan = document.getElementById("userBadgeContainer");
+  const emailText = document.getElementById("userEmail");
+  const xpBar = document.getElementById("xpFill");
+  const levelText = document.getElementById("userLevelText");
+  const xpText = document.getElementById("xpText");
+
+  // Show "Loading..." state
+  if (avatarImg) avatarImg.src = "Group-10.png";
+  if (coverImg) coverImg.src = "backgroundlobby.png";
+  if (usernameText) usernameText.textContent = "Loading...";
+  if (emailText) emailText.textContent = "";
+  if (badgeSpan) badgeSpan.innerHTML = "";
+  if (levelText) levelText.textContent = "Lvl ...";
+  if (xpText) xpText.textContent = "... / ... XP";
+  if (xpBar) xpBar.style.width = "0%";
+
+  modal.classList.remove("hidden");
+
+  // Continue with loading the actual data
   loadUserProfile(email, email === currentUser?.email);
 }
+
 
 // 🔁 Main function for loading profiles
 async function loadUserProfile(email, isSelf = false) {
@@ -156,12 +180,49 @@ async function loadUserProfile(email, isSelf = false) {
     avatarImg.src = avatarURL;
     coverImg.src = coverURL;
 
+// Create a separate border container on top of the avatar container
+const avatarContainer = document.querySelector(".avatar-container");
+let borderContainer = document.getElementById("profileBorderContainer");
+if (!borderContainer) {
+  borderContainer = document.createElement("div");
+  borderContainer.id = "profileBorderContainer";
+  borderContainer.style.position = "absolute";
+  borderContainer.style.top = "0px";
+  borderContainer.style.left = "0";
+  borderContainer.style.width = "100%";
+  borderContainer.style.height = "100%";
+  borderContainer.style.display = "flex";
+  borderContainer.style.alignItems = "center";
+  borderContainer.style.justifyContent = "center";
+  avatarContainer.parentElement.appendChild(borderContainer);
+}
+
+// Clear previous borders
+borderContainer.innerHTML = `
+  <img id="goldBorderProfile" src="goldborder.png" class="profile-border" style="display:none;">
+  <img id="adminBorderProfile" src="adminborder.png" class="profile-border" style="display:none;">
+  <img id="agaBorderProfile" src="agacustomborder.png" class="profile-border" style="display:none;">
+  <img id="coadminBorderProfile" src="coadminborder.png" class="profile-border" style="display:none;">
+  <img id="persBorderProfile" src="firstplacedefi.png" class="profile-border" style="display:none;">
+  <img id="secondBorderProfile" src="seconddefiborder.png" class="profile-border" style="display:none;">
+`;
+
+    
     const usernameData = usernameSnap.exists() ? usernameSnap.data() : {};
     const approvedData = approvedSnap.exists() ? approvedSnap.data() : {};
 
     const username = usernameData.username || "User";
     const roleString = approvedData.role || "";
     const roleArray = roleString.split(',').map(r => r.trim().toLowerCase());
+    document.getElementById("goldBorderProfile").style.display = roleArray.includes("goldborder") ? "block" : "none";
+document.getElementById("adminBorderProfile").style.display = roleArray.includes("admn") ? "block" : "none";
+document.getElementById("agaBorderProfile").style.display = roleArray.includes("aga") ? "block" : "none";
+document.getElementById("coadminBorderProfile").style.display = roleArray.includes("co") ? "block" : "none";
+document.getElementById("persBorderProfile").style.display = roleArray.includes("pers") ? "block" : "none";
+document.getElementById("secondBorderProfile").style.display = roleArray.includes("sec") ? "block" : "none";
+
+
+
     const level = approvedData.level || 1;
     const xp = approvedData.xp || 0;
     const maxXP = 1200 + (level - 1) * 500;
@@ -171,7 +232,7 @@ async function loadUserProfile(email, isSelf = false) {
     badgeSpan.innerHTML = "";
 
     if (roleArray.includes("verified")) {
-      badgeSpan.innerHTML += `<img src="verified.png" alt="verified" title="Verified" />`;
+      badgeSpan.innerHTML += `<img src="verified.svg" alt="verified" title="Verified" />`;
     }
     if (roleArray.includes("first")) {
       badgeSpan.innerHTML += `<img src="first.png" alt="first" title="First User" />`;
@@ -181,6 +242,28 @@ async function loadUserProfile(email, isSelf = false) {
       levelText.textContent = `Lvl ${level}`;
       xpText.textContent = `${xp} / ${maxXP} XP`;
       xpBar.style.width = `${Math.min(100, (xp / maxXP) * 100)}%`;
+
+    const badgeIcons = {
+  hearted: "hearted.png",
+  trophy: "trophy.png",
+  friend: "friend.png",
+  bronze: "bronze.png",
+  silver: "silver.png",
+  gold: "gold.png",
+  platinum: "platinum.png",
+  diamond: "diamond.png",
+  sponsor: "sponsor.png"
+};
+
+const achievementBadgesHTML = roleArray
+  .filter(r => ["hearted", "trophy", "friend", "bronze", "silver", "gold", "platinum", "diamond", "sponsor"].includes(r))
+  .map(r => {
+    const badge = badgeIcons[r];
+    return badge ? `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">` : "";
+  }).join(" ");
+
+document.getElementById("profileBadges").innerHTML = achievementBadgesHTML;
+
     }
 
     // Toggle editing controls

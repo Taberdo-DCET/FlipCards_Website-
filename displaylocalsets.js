@@ -31,6 +31,42 @@ function sanitize(str) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 }
+async function getUsernameOrEmail(email) {
+  if (!email) return { name: "Anonymous", verified: false, first: false };
+
+  // Cache check
+  if (window._usernameCache && window._usernameCache[email]) {
+    return window._usernameCache[email];
+  }
+
+  let displayName = email;
+  let verified = false;
+  let first = false;
+
+  try {
+    // Get username
+    const usernameDoc = await getDoc(doc(db, "usernames", email));
+    if (usernameDoc.exists() && usernameDoc.data().username) {
+      displayName = usernameDoc.data().username;
+    }
+
+    // Get role
+    const roleDoc = await getDoc(doc(db, "approved_emails", email));
+    if (roleDoc.exists()) {
+      const roleData = (roleDoc.data().role || "").toLowerCase();
+      verified = roleData.includes("verified");
+      first = roleData.includes("first");
+    }
+  } catch (error) {
+    console.warn("Failed to fetch username/role for:", email, error);
+  }
+
+  const result = { name: displayName, verified, first };
+  window._usernameCache = window._usernameCache || {};
+  window._usernameCache[email] = result;
+  return result;
+}
+
 
 function formatDate(isoString) {
   const parsed = new Date(isoString);
@@ -61,16 +97,20 @@ function setupLikeRealtimeListener(set, likeCountElem) {
   });
 }
 
-function createCard(set, docId = null, isPublic = false) {
+async function createCard(set, docId = null, isPublic = false) {
+
   const card = document.createElement("div");
   card.className = "folder-card";
   const date = formatDate(set.createdOn || set.createdAt);
   const uniqueKey = `${set.title}___${set.createdOn}`;
-  const userLine = isPublic ? `<div style="font-size: 13px; color: #bbb;">by ${set.user || "Anonymous"}</div>` : "";
+  const userInfo = isPublic ? await getUsernameOrEmail(set.user) : null;
+
+
 
   const setId = `${set.title}_${set.createdOn}`;
   const isLiked = likedKeys.has(setId);
   const likeCount = set.likeCount || 0;
+
 
   card.innerHTML = `
     <div class="folder-header">
@@ -89,7 +129,14 @@ function createCard(set, docId = null, isPublic = false) {
     <div class="folder-title">${sanitize(set.title)}</div>
     <div class="folder-subtitle">${sanitize(set.description || "Flashcards Set")}</div>
     <button class="review-btn" onclick="reviewSet('${uniqueKey}')">REVIEW</button>
-    ${userLine}
+    ${isPublic ? `
+  <div style="font-size: 13px; color: #bbb; display: flex; justify-content: center; align-items: center; gap: 4px; text-align: center; width: 100%;">
+    by ${sanitize(userInfo.name)}
+    ${userInfo.verified ? `<img src="verified.svg" alt="Verified" style="width:16px; height:16px;">` : ""}
+    ${userInfo.first ? `<img src="first.png" alt="First" style="width:16px; height:16px;">` : ""}
+  </div>` : ""}
+
+
   `;
 
   if (isPublic) {
@@ -163,18 +210,19 @@ async function renderFilteredFolders(user) {
 
     sets.sort((a, b) => Date.parse(b.createdOn) - Date.parse(a.createdOn));
 
-    sets.forEach(set => {
-      const match = set.title.toLowerCase().includes(keyword) || (set.description || "").toLowerCase().includes(keyword);
-      const uniqueKey = `${set.title}___${set.createdOn}`;
-      if (!match || existingKeys.has(uniqueKey)) return;
-      existingKeys.add(uniqueKey);
-      container.appendChild(createCard(set, set._id, false));
-    });
+    for (const set of sets) {
+  const match = set.title.toLowerCase().includes(keyword) || (set.description || "").toLowerCase().includes(keyword);
+  const uniqueKey = `${set.title}___${set.createdOn}`;
+  if (!match || existingKeys.has(uniqueKey)) continue;
+  existingKeys.add(uniqueKey);
+  container.appendChild(await createCard(set, set._id, false));
+}
+
   } else if (type === "public") {
     const q = query(collection(db, "flashcard_sets"), where("public", "==", true));
     const snapshot = await getDocs(q);
-    snapshot.forEach(doc => {
-      const set = doc.data();
+    for (const docSnap of snapshot.docs) {
+      const set = docSnap.data();
       const title = set.title?.toLowerCase() || "";
       const desc = set.description?.toLowerCase() || "";
       const email = set.user?.toLowerCase() || "";
@@ -183,8 +231,8 @@ async function renderFilteredFolders(user) {
       const uniqueKey = `${set.title}___${set.createdOn}`;
       if (!match || existingKeys.has(uniqueKey)) return;
       existingKeys.add(uniqueKey);
-      container.appendChild(createCard(set, null, true));
-    });
+      container.appendChild(await createCard(set, null, true));
+    };
   } else if (type === "liked") {
     const likedRef = collection(db, "liked_sets", user.email, "sets");
     const snapshot = await getDocs(likedRef);
@@ -199,7 +247,8 @@ async function renderFilteredFolders(user) {
         const match = title.toLowerCase().includes(keyword) || (set.description || "").toLowerCase().includes(keyword);
         if (!match || existingKeys.has(uniqueKey)) continue;
         existingKeys.add(uniqueKey);
-        container.appendChild(createCard(set, null, true));
+        container.appendChild(await createCard(set, null, true));
+
       }
     }
     

@@ -1,0 +1,220 @@
+@font-face {
+  font-family: 'QilkaBold';
+  src: url('Qilka-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+body {
+    background: #171717;
+    color: #fff;
+    font-family: 'QilkaBold', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+.quibbl-title {
+    font-size: 2rem;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.bottom-containers {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    flex: 1;
+    margin: 20px 0;
+}
+
+.left-container, .right-container {
+    background: #171717;
+    box-shadow: inset 4px 4px 8px #0f0f0f,
+                inset -4px -4px 8px #1f1f1f;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.left-container {
+    flex: 1;
+}
+
+.right-container {
+    flex: 2;
+}
+
+.input-section {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.input-section input {
+    width: 400px;
+    height: 50px;
+    margin-top: 15px;
+    padding: 8px;
+    border: none;
+    border-radius: 10px;
+    background: #171717;
+    color: #fff;
+    text-align: center;
+    box-shadow: inset 4px 4px 8px #0f0f0f,
+                inset -4px -4px 8px #1f1f1f;
+}
+
+
+.submit-btn, .skip-btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 10px;
+    background: #171717;
+    color: #fff;
+    box-shadow: 4px 4px 8px #0f0f0f,
+                -4px -4px 8px #1f1f1f;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.submit-btn:hover, .skip-btn:hover {
+    box-shadow: inset 4px 4px 8px #0f0f0f,
+                inset -4px -4px 8px #1f1f1f;
+}
+
+
+.submit-btn, .skip-btn {
+    padding: 6px 12px; /* Reduced vertical padding */
+    border: none;
+    border-radius: 10px;
+    background: #171717;
+    color: #fff;
+    box-shadow: 4px 4px 8px #0f0f0f,
+                -4px -4px 8px #1f1f1f;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    height: 50px;
+    margin-top: 20px;
+}
+.skip-btn:hover{
+    background-color: #ff4d4d;
+    box-shadow: none;
+}
+
+.scoreboard-container {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 15px 0;
+    background: #171717;
+    border-radius: 10px;
+    box-shadow: inset 4px 4px 8px #0f0f0f,
+                inset -4px -4px 8px #1f1f1f;
+    margin-top: 9px;
+    display: grid;
+    grid-template-rows: auto auto;
+    grid-template-columns: repeat(5, 1fr);
+    row-gap: 5px;
+}
+
+.score-names, .score-values {
+    display: contents; /* Let grid manage the layout */
+}
+
+.score-names span,
+.score-values span {
+    text-align: center;
+    font-weight: bold;
+}
+
+.score-values .correct {
+    color: #00ff00;
+}
+
+.score-values .wrong {
+    color: #ff4d4d;
+}
+.top-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.avatar-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background: #171717;
+    border-radius: 10px;
+    box-shadow: inset 4px 4px 8px #0f0f0f,
+                inset -4px -4px 8px #1f1f1f;
+    gap: 10px;
+}
+
+.avatar-container img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Circular avatars */
+    object-fit: cover;
+    border: 1px solid rgb(255, 255, 113);
+}
+
+
+.start-btn,
+.create-lobby-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    background: #171717;
+    color: #fff;
+    box-shadow: 4px 4px 8px #0f0f0f,
+                -4px -4px 8px #1f1f1f;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-family: 'QilkaBold', sans-serif;
+}
+
+.start-btn:hover,
+.create-lobby-btn:hover {
+    box-shadow: inset 4px 4px 8px #0f0f0f,
+                inset -4px -4px 8px #1f1f1f;
+}
+.home-btn {
+    width: 56px;
+    height: 56px;
+    margin-top: 9px;
+}
+.settings-containers {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+    width: auto;
+}
+
+.rounds-container,
+.time-container {
+    padding: 8px 12px;
+    min-width: 120px;
+    text-align: center;
+    background: #171717;
+    border-radius: 8px;
+    box-shadow: inset 3px 3px 6px #0f0f0f,
+                inset -3px -3px 6px #1f1f1f;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+

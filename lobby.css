@@ -22,6 +22,18 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: 'KG';
+  src: url('KGPerfectPenmanship.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'RC';
+  src: url('R&C-Demo.otf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 html, body {
   width: 100%;
   max-width: 100%;
@@ -1163,6 +1175,7 @@ span {
   margin-bottom: 20px;
   border-bottom: 1px solid #444;
   padding-bottom: 10px;
+  font-family: 'Accasia', sans-serif;
 }
 
 .member-list {
@@ -1891,7 +1904,7 @@ span {
 }
 .profile-box {
   position: relative; /* Needed to make absolute children work */
-  background: rgba(23, 23, 23, 0.7);
+  background: rgba(23, 23, 23, .9) !important;
   backdrop-filter: blur(12px);
   border-radius: 20px;
   padding-bottom: 30px;
@@ -1900,7 +1913,7 @@ span {
   width: 300px;
   border: 1px solid white;
   overflow: hidden;
-  box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f;
+  box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f !important;
 }
 
 .cover-photo-container {
@@ -1968,7 +1981,12 @@ span {
   border-radius: 8px;
   padding: 2px 8px;
   cursor: pointer;
-  font-family: 'Qilkabold';
+  font-family: 'Accasia';
+  z-index: 999999999 !important;
+  position: relative;
+}
+.edit-username button {
+  z-index: 9999;
 }
 .avatar-container img {
   box-shadow: 0 0 10px rgba(255,255,255,0.3);
@@ -1998,6 +2016,7 @@ span {
   box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
   cursor: pointer;
   transition: 0.2s ease-in-out;
+  z-index: 999;
 }
 
 .profile-leaderboard-btn:hover,
@@ -2087,6 +2106,7 @@ span {
   margin-left: -20px;
   font-size: 10px;
   cursor: pointer;
+  z-index: 999 !important;
 }
 #generalQuestions {
   background-color: white;
@@ -2657,7 +2677,7 @@ font-family: 'Accasia', sans-serif;
 .leaderboard-list li {
   background: #171717;
   border-radius: 10px;
-  padding: 10px 16px;
+  padding: 20px 16px !important;
   margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
@@ -2680,8 +2700,8 @@ font-family: 'Accasia', sans-serif;
 
 
 .leaderboard-list img {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid #888;
@@ -2702,7 +2722,7 @@ font-family: 'Accasia', sans-serif;
     12px 12px 24px rgba(0, 0, 0, 0.7),
     -12px -12px 24px rgba(255, 255, 255, 0.015);
   color: white;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'QilkaBold', sans-serif;
   position: relative;
 }
 
@@ -2957,7 +2977,7 @@ font-family: 'Accasia', sans-serif;
     -4px -4px 8px rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 5000;
-  animation: modalFadeIn 0.3s ease forwards;
+  animation: modalFadeIn 1.3s ease forwards ;
 }
 
 #miniProfile img {
@@ -3002,7 +3022,7 @@ font-family: 'Accasia', sans-serif;
 }
 
 #miniProfile {
-  animation: slideInFromLeft 5.5s ease-out forwards;
+  animation: slideInFromLeft .5s ease-out forwards;
 }
 .username-level-wrapper {
   display: flex;
@@ -3060,7 +3080,7 @@ box-shadow: none !important;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 20px;
   padding: 30px;
-  width: 320px;
+  width: 620px;
   text-align: center;
   color: white;
   font-family: 'Accasia', sans-serif;
@@ -3071,6 +3091,66 @@ box-shadow: none !important;
   animation: splitOpen 0.6s ease forwards;
   transform-origin: center;
 }
+.verified-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.verified-badge {
+  width: 20px;
+  height: 20px;
+}
+.shop-modal-header {
+  position: sticky;
+  top: -20px;
+  background: #171717;
+  padding: 12px 0;
+  z-index: 10;
+  border-bottom: 1px solid #333;
+  font-size: 22px;
+  font-family: 'Accasia', sans-serif;
+  color: #ffcf00;
+}
+
+.shop-modal-content {
+  padding-top: 60px; /* space for sticky title */
+}
+.shop-contact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #333;
+  font-size: 14px;
+  color: #ffcf00;
+  background: transparent !important;
+}
+.shop-contact span {
+  background: transparent !important;
+  color: white;
+  font-family: 'Accasia', sans-serif;
+}
+.shop-socials {
+  display: flex;
+  gap: 8px;
+}
+
+.shop-socials img {
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.shop-socials img:hover {
+  transform: scale(1.1);
+}
+
 
 .shop-modal-close {
   position: absolute;
@@ -3104,13 +3184,382 @@ box-shadow: none !important;
     opacity: 1;
   }
 }
+#miniProfile.sidebar-open {
+  left: 350px; /* 300px sidebar width + 20px padding */
+  transition: left 0.4s ease;
+}
+.shop-container {
+  font-family: 'QilkaBold', sans-serif;
+}
 
+/* Shop Modal Design */
+.shop-modal-content {
+  background: #171717;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f;
+  color: white;
+  font-family: 'Accasia';
+  max-height: 70vh;
+  overflow-y: auto;
+}
 
+/* Scrollbar styling */
+.shop-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+.shop-modal-content::-webkit-scrollbar-track {
+  background: #171717;
+  border-radius: 8px;
+}
+.shop-modal-content::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 8px;
+  border: 2px solid #171717;
+}
+.shop-modal-content::-webkit-scrollbar-thumb:hover {
+  background-color: #666;
+}
 
+/* Shop Title */
+.shop-modal-title {
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 22px;
+}
 
+/* Shop Containers */
+.shop-container {
+  background: #171717;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
+}
 
+.shop-container h3 {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
 
+.shop-note {
+  font-size: 12px;
+  color: #bbb;
+  margin-top: 8px;
+}
 
+.shop-subtitle {
+  margin-bottom: 8px;
+}
+
+.shop-benefits {
+  padding-left: 15px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  list-style-type: '✔ ';
+  color: #ddd;
+}
+.quibbl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 150px;
+  padding: 12px 16px;
+  margin: 20px auto;
+  font-family: 'Accasia', sans-serif;
+  font-size: 16px;
+  color: white;
+  background: #171717;
+  border: none;
+  border-radius: 12px;
+  box-shadow:
+    inset 4px 4px 8px #0f0f0f,
+    inset -4px -4px 8px #1f1f1f,
+    4px 4px 8px rgba(0, 0, 0, 0.6),
+    -4px -4px 8px rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.quibbl-btn:hover {
+  box-shadow:
+    inset 2px 2px 4px #0a0a0a,
+    inset -2px -2px 4px #222,
+    0 0 0 1px #fff2 inset;
+  color: #ffcf00;
+}
+
+.quibbl-new-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  margin-top: 3px;
+}
+.quibbl-btn {
+  text-decoration: none !important;
+}
+.role-badge[alt^="Level"] {
+  width: 22px !important;
+  height: 22px !important;
+  margin-right: -3px;
+}
+#miniProfileLevelBadge img {
+  margin-left: -10px;
+  margin-top: -6px;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+#miniProfileLevelBadge {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.role-badge[alt="diamond"] {
+  width: 14px !important;
+  height: 14px !important;
+  margin-right: -3px;
+}
+.role-badge[alt="platinum"] {
+  width: 14px !important;
+  height: 14px !important;
+  margin-right: -3px;
+}
+#profileBadges img {
+  width: 23px !important;
+  height: 23px !important;
+  margin: 2px;
+}
+#profileBadges {
+  display: flex;
+  justify-content: center;  /* center horizontally */
+  align-items: center;      /* center vertically */
+  gap: 4px;                 /* space between badges */
+  margin-top: 4px;          /* spacing below XP */
+  background: transparent !important;
+}
+.glow-rank img {
+  width: 34px !important;                  /* Larger size */
+  height: 34px !important;                 /* Keep aspect ratio */
+  object-fit: contain;          /* Ensure the whole image fits */
+  border-radius: 0;             /* Prevent circular cropping */
+  display: inline-block;
+  margin-left: -8px;
+}
+.leaderboard-title img {
+  vertical-align: middle !important;
+  width: 24px !important;
+  height: 20px !important;
+  margin-top: -6px !important;
+}
+.role-badge[title^="Top"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 2px;
+}
+/* Container styling for the mini profile */
+#miniProfile {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: #171717;
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 9999;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* Avatar wrapper */
+#miniProfile .avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+}
+
+/* Avatar image */
+#miniProfileAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Gold border overlay */
+#goldBorderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 61px !important;
+  height: 75px !important;
+  display: none;
+  pointer-events: none;
+  border: none !important;
+  z-index: 999 !important;
+  box-shadow: none !important;
+}
+#adminBorderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 69px !important;
+  height: 75px !important;
+  display: none;
+  pointer-events: none;
+  border: none !important;
+  z-index: 999 !important;
+  box-shadow: none !important;
+   border-radius: 10% !important;
+}
+#adminBorderOverlay {
+  position: absolute !important;
+  pointer-events: none;
+  transform: translate(-.2px, .5px) !important; /* Adjust if needed */
+}
+#agaBorderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 73px !important;
+  height: 69px !important;
+  display: none;
+  pointer-events: none;
+  border: none !important;
+  z-index: 999 !important;
+  box-shadow: none !important;
+  border-radius: 10% !important;
+}
+#agaBorderOverlay {
+  position: absolute !important;
+  pointer-events: none;
+  transform: translate(-.1px, -2.6px) !important; /* Adjust if needed */
+}
+#coadminBorderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 73px !important;
+  height: 69px !important;
+  display: none;
+  pointer-events: none;
+  border: none !important;
+  z-index: 999 !important;
+  box-shadow: none !important;
+  border-radius: 10% !important;
+}
+#coadminBorderOverlay {
+  position: absolute !important;
+  pointer-events: none;
+  transform: translate(-.1px, -.6px) !important; /* Adjust if needed */
+}
+#persBorderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 73px !important;
+  height: 69px !important;
+  display: none;
+  pointer-events: none;
+  border: none !important;
+  z-index: 999 !important;
+  box-shadow: none !important;
+  border-radius: 10% !important;
+}
+#persBorderOverlay {
+  position: absolute !important;
+  pointer-events: none;
+  transform: translate(-2px, 1px) !important; /* Adjust if needed */
+}
+#secondBorderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70px !important;
+  height: 66px !important;
+  display: none;
+  pointer-events: none;
+  border: none !important;
+  z-index: 999 !important;
+  box-shadow: none !important;
+  border-radius: 10% !important;
+}
+#secondBorderOverlay {
+  position: absolute !important;
+  pointer-events: none;
+  transform: translate(-5.6px, 3px) !important; /* Adjust if needed */
+}
+#miniProfile {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #171717;
+  padding: 10px;
+  border-radius: 12px;
+  z-index: 9999;
+}
+
+#goldBorderOverlay {
+  position: absolute !important;
+  pointer-events: none;
+  transform: translate(4.5px, -1.6px) !important; /* Adjust if needed */
+}
+
+#profileBorderContainer img.profile-border {
+  position: absolute;
+  width: 117px;
+  height: 117px;
+  pointer-events: none;
+  z-index: 20;
+  top: 90px;
+
+}
+#agaBorderProfile.profile-border{
+    position: absolute;
+  width: 107px !important;
+  height: 107px !important;
+  pointer-events: none;
+  z-index: 20;
+  top: 90px !important;
+  left: 100px !important;
+}
+#persBorderProfile.profile-border{
+    position: absolute;
+  width: 117px !important;
+  height: 117px !important;
+  pointer-events: none;
+  z-index: 20;
+  top: 91px !important;
+  left: 92px !important;
+}
+#adminBorderProfile.profile-border{
+    position: absolute;
+  width: 117px !important;
+  height: 117px !important;
+  pointer-events: none;
+  z-index: 20;
+  top: 96px !important;
+  left: 92px !important;
+}
+#secondBorderProfile.profile-border{
+    position: absolute;
+  width: 107px !important;
+  height: 107px !important;
+  pointer-events: none;
+  z-index: 20;
+  top: 96px !important;
+  left: 89px !important;
+}
 
 
 
