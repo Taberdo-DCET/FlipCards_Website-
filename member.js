@@ -162,11 +162,11 @@ let rankBadgeHTML = "";
 
 // Check XP Top 3
 if (topLevel[0] === user.email) {
-  rankBadgeHTML = `<img src="rank1Xp.png" class="role-badge" title="Top 1 in XP Level">`;
+  rankBadgeHTML = `<img src="rank1Xp.png" class="role-badge" title="Top 1 in XP Level Leaderboards">`;
 } else if (topLevel[1] === user.email) {
-  rankBadgeHTML = `<img src="rank2Xp.png" class="role-badge" title="Top 2 in XP Level">`;
+  rankBadgeHTML = `<img src="rank2Xp.png" class="role-badge" title="Top 2 in XP Level Leaderboards">`;
 } else if (topLevel[2] === user.email) {
-  rankBadgeHTML = `<img src="rank3Xp.png" class="role-badge" title="Top 3 in XP Level">`;
+  rankBadgeHTML = `<img src="rank3Xp.png" class="role-badge" title="Top 3 in XP Level Leaderboards">`;
 }
 
 // Check DefiDrop Top 3 (append, not replace)
