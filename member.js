@@ -157,16 +157,17 @@ document.addEventListener("keydown", (e) => {
           // Get top rank data from localStorage
 const topLevel = JSON.parse(localStorage.getItem('topLevelEmails') || "[]");
 const topDefi = JSON.parse(localStorage.getItem('topDefidropEmails') || "[]");
+const topQuibbl = JSON.parse(localStorage.getItem('topQuibblEmails') || "[]");
 
 let rankBadgeHTML = "";
 
 // Check XP Top 3
 if (topLevel[0] === user.email) {
-  rankBadgeHTML = `<img src="rank1Xp.png" class="role-badge" title="Top 1 in XP Level Leaderboards">`;
+  rankBadgeHTML = `<img src="rank1XP.png" class="role-badge" title="Top 1 in XP Level Leaderboards">`;
 } else if (topLevel[1] === user.email) {
-  rankBadgeHTML = `<img src="rank2Xp.png" class="role-badge" title="Top 2 in XP Level Leaderboards">`;
+  rankBadgeHTML = `<img src="rank2XP.png" class="role-badge" title="Top 2 in XP Level Leaderboards">`;
 } else if (topLevel[2] === user.email) {
-  rankBadgeHTML = `<img src="rank3Xp.png" class="role-badge" title="Top 3 in XP Level Leaderboards">`;
+  rankBadgeHTML = `<img src="rank3XP.png" class="role-badge" title="Top 3 in XP Level Leaderboards">`;
 }
 
 // Check DefiDrop Top 3 (append, not replace)
@@ -177,9 +178,16 @@ if (topDefi[0] === user.email) {
 } else if (topDefi[2] === user.email) {
   rankBadgeHTML += ` <img src="rank3.png" class="role-badge" title="Top 3 in DefiDrop">`;
 }
+// ✅ Add this — Check Quibbl Top 3
+if (topQuibbl[0] === user.email) {
+  rankBadgeHTML += ` <img src="rank1quibbl.png" class="role-badge" title="Top 1 in Quibbl Stars">`;
+} else if (topQuibbl[1] === user.email) {
+  rankBadgeHTML += ` <img src="rank2quibbl.png" class="role-badge" title="Top 2 in Quibbl Stars">`;
+} else if (topQuibbl[2] === user.email) {
+  rankBadgeHTML += ` <img src="rank3quibbl.png" class="role-badge" title="Top 3 in Quibbl Stars">`;
+}
 
-
-const mainBadgesHTML = `${rankBadgeHTML} ` + roleArray
+const mainBadgesHTML = roleArray
   .filter(r =>
     ["admin", "coadmin", "pioneer", "moderator", "beta tester", "betatester", "prepper", "test"]
       .includes(r))
@@ -189,27 +197,42 @@ const mainBadgesHTML = `${rankBadgeHTML} ` + roleArray
   }).join(" ");
 
 
+
           const achievementBadgesHTML = roleArray
   .filter(r =>
     ["hearted", "trophy", "friend", "bronze", "silver", "gold", "platinum", "diamond", "sponsor"].includes(r))
   .map(r => {
     const badge = badgeIcons[r];
-    return badge ? `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">` : "";
+    let customTitle = r;
+
+    if (r === "diamond") customTitle = "Diamond Tier Spender";  // ← Customize this tooltip here
+    if (r === "platinum") customTitle = "Platinum Tier Spender";
+    if (r === "gold") customTitle = "Gold Tier Spender";
+    if (r === "silver") customTitle = "Silver Tier Spender";
+    if (r === "bronze") customTitle = "Bronze Tier Spender";
+
+    return badge ? `<img src="${badge}" alt="${r}" class="role-badge" title="${customTitle}">` : "";
   }).join(" ");
 
+
 let levelBadgeHTML = "";
-if (user.level >= 0 && user.level <= 14) {
+if (user.level >= 0 && user.level <= 4) {
   levelBadgeHTML = `<img src="level0.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
-} else if (user.level >= 15 && user.level <= 34) {
+} else if (user.level >= 5 && user.level <= 14) {
+  levelBadgeHTML = `<img src="level5.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+}
+else if (user.level >= 15 && user.level <= 24) {
   levelBadgeHTML = `<img src="level15.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+} else if (user.level >= 25 && user.level <= 34) {
+  levelBadgeHTML = `<img src="level25.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
 } else if (user.level >= 35 && user.level <= 49) {
   levelBadgeHTML = `<img src="level35.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
-} else if (user.level >= 50 && user.level <= 59) {
+} else if (user.level >= 50 && user.level <= 64) {
   levelBadgeHTML = `<img src="level50.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
-} else if (user.level >= 60 && user.level <= 99) {
-  levelBadgeHTML = `<img src="level60.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
 }
-
+ else if (user.level >= 65 && user.level <= 99) {
+  levelBadgeHTML = `<img src="level65.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+}
 
 
           const li = document.createElement("li");
@@ -226,10 +249,14 @@ if (user.level >= 0 && user.level <= 14) {
         style="font-size:11px; opacity:0.6; background: transparent; color: white;">
         ${shortEmail}
       </span>
-      <span class="badge-container achievement-badges">
+     <span class="badge-container achievement-badges">
   ${achievementBadgesHTML}
   ${levelBadgeHTML}
 </span>
+<span class="badge-container rank-badges">
+  ${rankBadgeHTML}
+</span>
+
 
     </div>
     <div class="main-badges-wrapper" style="display: flex; gap: 4px; align-items: center; justify-content: flex-end;">

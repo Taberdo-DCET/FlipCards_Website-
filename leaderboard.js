@@ -36,6 +36,22 @@ async function getFlashcardCount(email) {
     return 0;
   }
 }
+// Fetch total Quibbl Wins
+async function getQuibblWins(email) {
+  if (!email) return 0;
+  try {
+    const ref = doc(db, "quibblwinner", email);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data();
+      return typeof data.wins === "number" ? data.wins : 0;
+    }
+    return 0;
+  } catch (err) {
+    console.error("Error fetching Quibbl wins:", err);
+    return 0;
+  }
+}
 
 // Fetch total DefiDrop count
 async function getDefiDropCount(email) {
@@ -66,6 +82,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const titleEl = document.getElementById("achievementsTitle");
     const cardLabel = document.getElementById("flashcardCountLabel");
     const defidropLabel = document.getElementById("defidropCountLabel");
+    const quibblWinsLabel = document.getElementById("quibblWinsLabel");
+
+
 
     if (titleEl) titleEl.textContent = title;
     if (cardLabel) cardLabel.textContent = "Loading flashcards...";
@@ -78,10 +97,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const [cardCount, defidropCount] = await Promise.all([
-        getFlashcardCount(email),
-        getDefiDropCount(email)
-      ]);
+      const [cardCount, defidropCount, quibblWins] = await Promise.all([
+  getFlashcardCount(email),
+  getDefiDropCount(email),
+  getQuibblWins(email)
+]);
+
 
       if (cardLabel) {
         cardLabel.textContent =
@@ -92,6 +113,27 @@ document.addEventListener("DOMContentLoaded", () => {
         defidropLabel.textContent =
           defidropCount > 0 ? `${defidropCount} DefiDrop Correct` : "No DefiDrop records yet.";
       }
+     if (quibblWinsLabel) {
+  if (quibblWins > 0) {
+    quibblWinsLabel.innerHTML = '';
+    for (let i = 0; i < quibblWins; i++) {
+      const img = document.createElement("img");
+      img.src = "quibblstar.png";
+      img.alt = "Quibbl Star";
+      img.className = "star-icon";
+      img.style.width = "20px";
+      img.style.height = "20px";
+      img.style.marginRight = "4px";
+      quibblWinsLabel.appendChild(img);
+    }
+  } else {
+    quibblWinsLabel.textContent = "No Quibbl wins yet.";
+  }
+}
+
+console.log("Quibbl Wins for", email, "→", quibblWins);
+
+
     } catch (err) {
       console.error("Error fetching achievements:", err);
       if (cardLabel) cardLabel.textContent = "Error loading data.";
@@ -207,7 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadLeaderboards() {
   const levelEl = document.getElementById("levelLeaderboard");
   const defidropEl = document.getElementById("defidropLeaderboard");
-
+ const quibblEl = document.getElementById("quibblLeaderboard");
   if (!levelEl || !defidropEl) return;
 
   try {
@@ -215,11 +257,14 @@ async function loadLeaderboards() {
     const usernamesRef = collection(db, "usernames");
     const defidropRef = collection(db, "defidrop_scores");
 
-    const [usersSnap, usernamesSnap, defidropSnap] = await Promise.all([
-      getDocs(usersRef),
-      getDocs(usernamesRef),
-      getDocs(defidropRef)
-    ]);
+    const quibblRef = collection(db, "quibblwinner");
+const [usersSnap, usernamesSnap, defidropSnap, quibblSnap] = await Promise.all([
+  getDocs(usersRef),
+  getDocs(usernamesRef),
+  getDocs(defidropRef),
+  getDocs(quibblRef)
+]);
+
 
     const usernameMap = {};
     usernamesSnap.forEach(doc => {
@@ -266,12 +311,31 @@ async function loadLeaderboards() {
           role: roleMap[email] || ""
         };
       });
+const quibblUsers = quibblSnap.docs
+  .map(doc => {
+    const data = doc.data();
+    const email = doc.id;
+    const fallback = email.split("@")[0];
+    const username = usernameMap[email] || fallback;
+    return {
+      email,
+      display: username,
+      wins: data.wins || 0,
+      role: roleMap[email] || ""
+    };
+  });
+
+const quibblMedals = [
+  `<img src="rank1quibbl.png" alt="1st" class="role-badge2">`,
+  `<img src="rank2quibbl.png" alt="2nd" class="role-badge2">`,
+  `<img src="rank3quibbl.png" alt="3rd" class="role-badge2">`
+];
 
     // Medals for Top Levels (XP)
 const levelMedals = [
-  `<img src="rank1Xp.png" alt="1st" class="role-badge2">`,
-  `<img src="rank2Xp.png" alt="2nd" class="role-badge2">`,
-  `<img src="rank3Xp.png" alt="3rd" class="role-badge2">`
+  `<img src="rank1XP.png" alt="1st" class="role-badge2">`,
+  `<img src="rank2XP.png" alt="2nd" class="role-badge2">`,
+  `<img src="rank3XP.png" alt="3rd" class="role-badge2">`
 ];
 
 // Medals for Top DefiDrop
@@ -292,6 +356,7 @@ localStorage.setItem('topLevelEmails', JSON.stringify(topLevelEmails));
 localStorage.setItem('topDefidropEmails', JSON.stringify(topDefidropEmails));
 
 
+
     async function withAvatars(userList) {
       return await Promise.all(userList.map(async user => {
         let avatar = 'Group-10.png';
@@ -309,55 +374,146 @@ localStorage.setItem('topDefidropEmails', JSON.stringify(topDefidropEmails));
       withAvatars(topLevels),
       withAvatars(topDefidrop)
     ]);
+const topQuibbl = [...quibblUsers].sort((a, b) => b.wins - a.wins).slice(0, 10);
+const topQuibblWithAvatars = await withAvatars(topQuibbl);
+const topQuibblEmails = topQuibbl.slice(0, 3).map(u => u.email);
+localStorage.setItem('topQuibblEmails', JSON.stringify(topQuibblEmails));
 
-    levelEl.innerHTML = topLevelsWithAvatars.map((u, i) => {
-      const rank = i < levelMedals.length
-  ? `<span class="glow-rank" style="background: transparent;">${levelMedals[i]}</span>`
-  : `<span style="color: white; background: transparent;">#${i + 1}</span>`;
+function renderLeaderboard(el, users, medals, valueLabel, valueKey, containerId) {
+  const top3 = users.slice(0, 3);
+  const remaining = users.slice(3);
 
-      const color = i < colors.length ? colors[i] : 'white';
+  el.innerHTML = `
+    ${top3.map((u, i) => generateRow(u, i, medals, valueLabel, valueKey)).join('')}
+    <div id="${containerId}" class="hidden">
+      ${remaining.map((u, i) => generateRow(u, i + 3, medals, valueLabel, valueKey)).join('')}
+    </div>
+    <div style="text-align: center; margin-top: 10px;">
+  <button class="neumorphic-button2" onclick="toggleMore('${containerId}', this)">Show More</button>
+</div>
 
-      return `
-        <li style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
-          <span style="display: flex; align-items: center; gap: 8px; background: transparent;">
-            ${rank}
-            <img src="${u.avatar}" alt="avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #888;">
-            <span style="color: ${color}; background: transparent; cursor: pointer;">
-              ${u.display}
-              ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol" style="background: transparent;">` : ""}
-              ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol" style="background: transparent;">` : ""}
-            </span>
-          </span>
-          <span style="font-weight: bold; color: white; background: transparent;">Lvl ${u.level}</span>
-        </li>
-      `;
-    }).join("");
+  `;
+}
 
-    defidropEl.innerHTML = topDefidropWithAvatars.map((u, i) => {
-      const rank = i < defidropMedals.length
-  ? `<span class="glow-rank" style="background: transparent;">${defidropMedals[i]}</span>`
-  : `<span style="color: white; background: transparent;">#${i + 1}</span>`;
+function generateRow(u, i, medals, valueLabel, valueKey) {
+  const rank = i < medals.length
+    ? `<span class="glow-rank" style="background: transparent;">${medals[i]}</span>`
+    : `<span style="color: white; background: transparent;">#${i + 1}</span>`;
 
-      const color = i < colors.length ? colors[i] : 'white';
+  const color = i < 3 ? ['#FFD700', '#C0C0C0', '#CD7F32'][i] : 'white';
 
-      return `
-        <li style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
-          <span style="display: flex; align-items: center; gap: 8px; background: transparent;">
-            ${rank}
-            <img src="${u.avatar}" alt="avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #888;">
-            <span style="color: ${color}; background: transparent; cursor: pointer;">
-              ${u.display}
-              ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol" style="background: transparent;">` : ""}
-              ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol" style="background: transparent;">` : ""}
-            </span>
-          </span>
-          <span style="font-weight: bold; color: white; background: transparent;"> Score: ${u.defidrop}</span>
-        </li>
-      `;
-    }).join("");
+  const valueDisplay = valueKey === 'level'
+    ? `Lvl ${u.level}`
+    : valueKey === 'defidrop'
+      ? `Score: ${u.defidrop}`
+      : `
+  <span style="display: flex; align-items: center; font-weight: bold; color: white; background: transparent;">
+    ${u.wins}
+    <img src="quibblstar.png" alt="Star" style="width: 28px; height: 28px; margin-right: 4px; border: none;">
+  </span>
+`;
+
+
+  return `
+    <li style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
+      <span style="display: flex; align-items: center; gap: 8px; background: transparent;">
+        ${rank}
+        <img src="${u.avatar}" alt="avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #888;">
+        <span style="color: ${color}; background: transparent; cursor: pointer;">
+          ${u.display}
+          ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol">` : ""}
+          ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol">` : ""}
+        </span>
+      </span>
+      <span style="font-weight: bold; color: white;">${valueDisplay}</span>
+    </li>
+  `;
+}
+
+window.toggleMore = (id, btn) => {
+  const section = document.getElementById(id);
+  const isHidden = section.classList.contains("hidden");
+
+  if (isHidden) {
+    section.classList.remove("hidden", "leaderboard-collapse");
+    section.classList.add("leaderboard-expand");
+    btn.textContent = "Show Less";
+  } else {
+    section.classList.remove("leaderboard-expand");
+    section.classList.add("leaderboard-collapse");
+
+    // Delay hiding to let animation finish
+    setTimeout(() => {
+      section.classList.add("hidden");
+      section.classList.remove("leaderboard-collapse");
+    }, 400);
+
+    btn.textContent = "Show More";
+  }
+};
+
+
+
+renderLeaderboard(levelEl, topLevelsWithAvatars, levelMedals, "Lvl", "level", "moreLevel");
+renderLeaderboard(defidropEl, topDefidropWithAvatars, defidropMedals, "Score", "defidrop", "moreDefidrop");
+renderLeaderboard(quibblEl, topQuibblWithAvatars, quibblMedals, "Stars", "wins", "moreQuibbl");
+
+
   } catch (err) {
     console.error("Error loading leaderboards:", err);
     if (levelEl) levelEl.innerHTML = "<li>Error loading leaderboard</li>";
     if (defidropEl) defidropEl.innerHTML = "<li>Error loading leaderboard</li>";
   }
 }
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    const wins = await getQuibblWins(user.email);
+    const label = document.getElementById("quibblWinsLabel");
+
+    if (label) {
+      if (wins > 0) {
+        label.innerHTML = `
+          <span style="font-weight:bold; font-size:14px; margin-right:4px; background: transparent; color: white;">${wins}</span>
+          <img src="quibblstar.png" alt="Quibbl Star" class="star-icon" style="width: 38px; height: 38px; vertical-align: middle;">
+        `;
+      } else {
+        label.textContent = "No Quibbl wins yet.";
+      }
+    }
+  }
+});
+
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+// Real-time countdown sync
+const countdownRef = doc(db, "leaderboard_config", "countdown");
+const countdownEl = document.getElementById("leaderboardCountdown");
+
+onSnapshot(countdownRef, (docSnap) => {
+  if (docSnap.exists()) {
+    const endTime = docSnap.data().endTime?.toDate();
+    if (!endTime) return;
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = endTime - now;
+
+      if (diff <= 0) {
+        countdownEl.textContent = "00:00:00:00";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      countdownEl.textContent = `${String(days).padStart(2, "0")}:${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    }
+
+    updateCountdown(); // initial
+    clearInterval(window._countdownTimer);
+    window._countdownTimer = setInterval(updateCountdown, 1000);
+  }
+});
+

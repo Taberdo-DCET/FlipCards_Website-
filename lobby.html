@@ -137,7 +137,7 @@
         </div>
 <div class="musicrow">
       
-        <div class="tooltip-container" data-tooltip="Toggle Music">
+        <div class="tooltip-container" data-tooltip="Music">
   <button class="music-icon music" aria-label="Toggle Music">
     <img src="musicnc.png" alt="Music" data-hover="musicc.png" data-default="musicnc.png">
   </button>
@@ -432,10 +432,12 @@
 <div id="leaderboardModal" class="custom-modal hidden">
   <div class="leaderboard-box">
     <div class="leaderboard-header">
-      <span class="leaderboard-title">
+     <span class="leaderboard-title" style="display: flex; align-items: center; gap: 10px;">
   <img src="gemm.png" alt="Leaderboards" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 6px;">
   Leaderboards
+  <span id="leaderboardCountdown" style="font-size: 14px; color: #ffcf00; font-family: 'QilkaBold'; margin-left: 12px; background: transparent;">Loading...</span>
 </span>
+
 
       <span class="leaderboard-dots">⋯</span>
     </div>
@@ -454,6 +456,13 @@
         <!-- Dynamically populate via JS -->
       </ul>
     </div>
+    <div class="leaderboard-section">
+  <div class="section-title">Top 10 Highest Stars Earned in Quibbl <img src="quibblstar.png" alt="Star" style="width: 18px; height: 18px; margin-right: 4px; margin-top: 5px;  border: none;"></div>
+  <ul id="quibblLeaderboard" class="leaderboard-list">
+    <!-- Dynamically populated via JS -->
+  </ul> 
+</div>
+
   </div>
 </div>
 <div id="achievementsModal" class="custom-modal hidden">
@@ -477,13 +486,19 @@
   <div class="badge-label" id="defidropCountLabel">Loading...</div>
 </div>
 
+<div class="badge-card" id="quibblWinsBadge">
+  <div class="badge-icon2">Quibbl Stars Earned:</div>
+  <div class="badge-label" id="quibblWinsLabel">
+    <img src="quibblstar.png" alt="star" class="star-icon" style="display:none;">
+  </div>
+</div>
+
+
+
+
       <div class="badge-card locked">
         <div class="badge-icon">🔒</div>
-        <div class="badge-label">Unlock at Level 10</div>
-      </div>
-      <div class="badge-card locked">
-        <div class="badge-icon">🔒</div>
-        <div class="badge-label">7-Day Login Streak</div>
+        <div class="badge-label">Coming Soon!</div>
       </div>
     </div>
   </div>

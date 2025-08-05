@@ -458,6 +458,28 @@ html, body {
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a #141414;
 }
+.selected-users {
+  border-bottom: 1px solid #333;
+  margin-bottom: 10px;
+}
+.selected-users div:hover {
+  background: #2c2c2c;
+}
+.selected-users-section h3 {
+  font-weight: bold;
+  color: #ffcf00;
+  margin-bottom: 5px;
+}
+
+.selected-users div:hover {
+  background: #2c2c2c;
+}
+.selected-users .active-friend {
+  background-color: #2c2c2c !important;
+  box-shadow: inset 4px 4px 8px #101010, inset -4px -4px 8px #1f1f1f;
+  border: 0.5px solid white;
+  border: 1px solid white !important;
+}
 
 @media (max-width: 426px) {
   body {
@@ -534,9 +556,19 @@ html, body {
 </head>
 <body>
   <div class="sidebar">
-    <div class="sidebar-header">Your Name</div>
+    <div class="sidebar-header" id="sidebarHeader" style="display: flex; align-items: center; gap: 10px; padding: 20px;">
+  <!-- Avatar and user info will be injected via JS -->
+</div>
+
     <div class="search-bar">
   <input type="text" id="userSearch" placeholder="Search users...">
+</div>
+<div class="selected-users-section" style="padding:10px 20px;">
+  <h3 style="margin:0 0 8px; font-size:14px; color:#ffffff;">Friends</h3>
+  <div class="selected-users" id="selectedUsersContainer" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+</div>
+<div class="user-list-section" style="padding:10px 20px;">
+  <h3 style="margin:0 0 8px; font-size:14px; color:#ffffff;">Registered Users</h3>
 </div>
     <div class="user-list">
   <!-- Users will be populated by JavaScript -->

@@ -17,7 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
 openBtn.addEventListener("click", () => {
   const wasOpen = sidebar.classList.contains("show");
   sidebar.classList.toggle("show");
-if (!wasOpen) {
+
+  // Move mini profile when sidebar is open
+  const miniProfile = document.getElementById("miniProfile");
+  if (miniProfile) {
+    miniProfile.classList.toggle("sidebar-open", sidebar.classList.contains("show"));
+  }
+
+  if (!wasOpen) {
     loaderShownThisSession = false; // Reset loader for new session
   }
   if (wasOpen) {
@@ -25,12 +32,21 @@ if (!wasOpen) {
   }
 });
 
+
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && sidebar.classList.contains("show")) {
     sidebar.classList.remove("show");
-    setTimeout(() => location.reload(), 300); // 500ms delay
+
+    // Reset mini profile position
+    const miniProfile = document.getElementById("miniProfile");
+    if (miniProfile) {
+      miniProfile.classList.remove("sidebar-open");
+    }
+
+    setTimeout(() => location.reload(), 300); // 300ms delay
   }
 });
+
 
 
 
@@ -43,10 +59,12 @@ document.addEventListener("keydown", (e) => {
       snapshot.forEach(doc => {
         const data = doc.data();
         users.push({
-          email: doc.id,
-          uid: data.uid || "",
-          role: (data.role || "prepper").toLowerCase()
-        });
+  email: doc.id,
+  uid: data.uid || "",
+  role: (data.role || "prepper").toLowerCase(),
+  level: data.level || 1 // Add level tracking
+});
+
       });
 
       const roles = {
@@ -78,7 +96,7 @@ document.addEventListener("keydown", (e) => {
         betatester: "betatester.png",
         prepper: "prepper.png",
         test: "test.png",
-        verified: "verified.png",
+        verified: "verified.svg",
         first: "first.png",
         hearted: "hearted.png",
         trophy: "trophy.png",
@@ -86,6 +104,8 @@ document.addEventListener("keydown", (e) => {
         bronze: "bronze.png",
         silver: "silver.png",
         gold: "gold.png",
+        platinum: "platinum.png",
+        diamond: "diamond.png",
         sponsor: "sponsor.png"
       };
 
@@ -134,23 +154,63 @@ document.addEventListener("keydown", (e) => {
             ? `<img src="${badgeIcons.verified}" alt="verified" class="role-badge" title="Verified">`
             : "";
 
-          const mainBadgesHTML = roleArray
-            .filter(r =>
-              ["admin", "coadmin", "pioneer", "moderator", "beta tester", "betatester", "prepper", "test"]
-                .includes(r))
-            .map(r => {
-              const badge = badgeIcons[r];
-              if (!badge) return "";
-              return `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">`;
-            }).join(" ");
+          // Get top rank data from localStorage
+const topLevel = JSON.parse(localStorage.getItem('topLevelEmails') || "[]");
+const topDefi = JSON.parse(localStorage.getItem('topDefidropEmails') || "[]");
+
+let rankBadgeHTML = "";
+
+// Check XP Top 3
+if (topLevel[0] === user.email) {
+  rankBadgeHTML = `<img src="rank1XP.png" class="role-badge" title="Top 1 in XP Level Leaderboards">`;
+} else if (topLevel[1] === user.email) {
+  rankBadgeHTML = `<img src="rank2XP.png" class="role-badge" title="Top 2 in XP Level Leaderboards">`;
+} else if (topLevel[2] === user.email) {
+  rankBadgeHTML = `<img src="rank3XP.png" class="role-badge" title="Top 3 in XP Level Leaderboards">`;
+}
+
+// Check DefiDrop Top 3 (append, not replace)
+if (topDefi[0] === user.email) {
+  rankBadgeHTML += ` <img src="rank1.png" class="role-badge" title="Top 1 in DefiDrop">`;
+} else if (topDefi[1] === user.email) {
+  rankBadgeHTML += ` <img src="rank2.png" class="role-badge" title="Top 2 in DefiDrop">`;
+} else if (topDefi[2] === user.email) {
+  rankBadgeHTML += ` <img src="rank3.png" class="role-badge" title="Top 3 in DefiDrop">`;
+}
+
+
+const mainBadgesHTML = `${rankBadgeHTML} ` + roleArray
+  .filter(r =>
+    ["admin", "coadmin", "pioneer", "moderator", "beta tester", "betatester", "prepper", "test"]
+      .includes(r))
+  .map(r => {
+    const badge = badgeIcons[r];
+    return badge ? `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">` : "";
+  }).join(" ");
+
 
           const achievementBadgesHTML = roleArray
-            .filter(r =>
-              ["hearted", "trophy", "friend", "bronze", "silver", "gold", "sponsor"].includes(r))
-            .map(r => {
-              const badge = badgeIcons[r];
-              return badge ? `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">` : "";
-            }).join(" ");
+  .filter(r =>
+    ["hearted", "trophy", "friend", "bronze", "silver", "gold", "platinum", "diamond", "sponsor"].includes(r))
+  .map(r => {
+    const badge = badgeIcons[r];
+    return badge ? `<img src="${badge}" alt="${r}" class="role-badge" title="${r}">` : "";
+  }).join(" ");
+
+let levelBadgeHTML = "";
+if (user.level >= 0 && user.level <= 14) {
+  levelBadgeHTML = `<img src="level0.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+} else if (user.level >= 15 && user.level <= 34) {
+  levelBadgeHTML = `<img src="level15.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+} else if (user.level >= 35 && user.level <= 49) {
+  levelBadgeHTML = `<img src="level35.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+} else if (user.level >= 50 && user.level <= 59) {
+  levelBadgeHTML = `<img src="level50.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+} else if (user.level >= 60 && user.level <= 99) {
+  levelBadgeHTML = `<img src="level60.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+}
+
+
 
           const li = document.createElement("li");
           li.innerHTML = `
@@ -166,7 +226,11 @@ document.addEventListener("keydown", (e) => {
         style="font-size:11px; opacity:0.6; background: transparent; color: white;">
         ${shortEmail}
       </span>
-      <span class="badge-container achievement-badges">${achievementBadgesHTML}</span>
+      <span class="badge-container achievement-badges">
+  ${achievementBadgesHTML}
+  ${levelBadgeHTML}
+</span>
+
     </div>
     <div class="main-badges-wrapper" style="display: flex; gap: 4px; align-items: center; justify-content: flex-end;">
       ${mainBadgesHTML}

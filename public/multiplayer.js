@@ -63,7 +63,7 @@ async function getUserBadge(email) {
 
       let badges = "";
       if (roleArray.includes("verified")) {
-        badges += `<img src="verified.png" alt="verified" title="Verified" class="badge-icon">`;
+        badges += `<img src="verified.svg" alt="verified" title="Verified" class="badge-icon">`;
       }
       if (roleArray.includes("first")) {
         badges += `<img src="first.png" alt="first" title="First User" class="badge-icon">`;

@@ -205,6 +205,7 @@ borderContainer.innerHTML = `
   <img id="coadminBorderProfile" src="coadminborder.png" class="profile-border" style="display:none;">
   <img id="persBorderProfile" src="firstplacedefi.png" class="profile-border" style="display:none;">
   <img id="secondBorderProfile" src="seconddefiborder.png" class="profile-border" style="display:none;">
+  <img id="firstUserProfile" src="firstuser.png" class="profile-border" style="display:none;">
 `;
 
     
@@ -220,6 +221,7 @@ document.getElementById("agaBorderProfile").style.display = roleArray.includes("
 document.getElementById("coadminBorderProfile").style.display = roleArray.includes("co") ? "block" : "none";
 document.getElementById("persBorderProfile").style.display = roleArray.includes("pers") ? "block" : "none";
 document.getElementById("secondBorderProfile").style.display = roleArray.includes("sec") ? "block" : "none";
+document.getElementById("firstUserProfile").style.display = roleArray.includes("1st") ? "block" : "none";
 
 
 

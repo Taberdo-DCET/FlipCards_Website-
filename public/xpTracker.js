@@ -26,7 +26,24 @@ async function addXP(amount = 10) {
     level = data.level || 1;
   }
 
-  let newXP = currentXP + amount;
+  // Apply 50% bonus XP if user is verified
+// Check if user has role doc with verified flag
+const roleRef = doc(db, "approved_emails", user.email, "role", "data");
+const roleSnap = await getDoc(roleRef);
+
+if (docSnap.exists()) {
+  const roles = (docSnap.data().role || "").toLowerCase();
+  if (roles.includes("verified")) {
+    amount = Math.floor(amount * 1.5);
+    console.log("✅ Verified user detected. XP boosted to:", amount);
+  } else {
+    console.log("ℹ️ Normal user. XP:", amount);
+  }
+}
+
+
+let newXP = currentXP + amount;
+
   let leveledUp = false;
 
   while (newXP >= xpNeededForLevel(level)) {

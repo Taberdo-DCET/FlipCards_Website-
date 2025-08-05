@@ -2778,7 +2778,10 @@ font-family: 'Accasia', sans-serif;
   font-size: 32px;
   margin-bottom: 10px;
 }
-
+.badge-icon2 {
+  font-size: 15px;
+  margin-bottom: 10px;
+}
 .badge-label {
   font-size: 14px;
   color: #ccc;
@@ -3392,20 +3395,29 @@ box-shadow: none !important;
   border: none !important;
   box-shadow: none !important;
 }
-
+/*profile*/
 /* Gold border overlay */
 #goldBorderOverlay {
   position: absolute;
   top: 0;
   left: 0;
-  width: 61px !important;
-  height: 75px !important;
+  width: 73px !important;
+  height: 70px !important;
   display: none;
   pointer-events: none;
   border: none !important;
   z-index: 999 !important;
   box-shadow: none !important;
+   border-radius: 10% !important;
 }
+#goldBorderOverlay {
+  position: absolute !important;
+  pointer-events: none;
+  transform: translate(6px, 5px) !important; /* Adjust if needed */
+  top: 6px !important;
+  left: -7.5px !important;
+}
+
 #adminBorderOverlay {
   position: absolute;
   top: 0;
@@ -3496,6 +3508,25 @@ box-shadow: none !important;
   pointer-events: none;
   transform: translate(-5.6px, 3px) !important; /* Adjust if needed */
 }
+#firstUserOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 76px !important;
+  height: 66px !important;
+  display: none;
+  pointer-events: none;
+  border: none !important;
+  z-index: 999 !important;
+  box-shadow: none !important;
+  border-radius: 10% !important;
+}
+#firstUserOverlay {
+  position: absolute !important;
+  pointer-events: none;
+  transform: translate(-5px, 3px) !important; /* Adjust if needed */
+}
+/*profile*/
 #miniProfile {
   position: fixed;
   bottom: 20px;
@@ -3523,6 +3554,15 @@ box-shadow: none !important;
   z-index: 20;
   top: 90px;
 
+}
+#goldBorderProfile.profile-border{
+    position: absolute;
+  width: 117px !important;
+  height: 114px !important;
+  pointer-events: none;
+  z-index: 20;
+  top: 98px !important;
+  left: 89.6px !important;
 }
 #agaBorderProfile.profile-border{
     position: absolute;
@@ -3560,6 +3600,123 @@ box-shadow: none !important;
   top: 96px !important;
   left: 89px !important;
 }
+#firstUserProfile.profile-border{
+    position: absolute;
+  width: 120px !important;
+  height: 117px !important;
+  pointer-events: none;
+  z-index: 20;
+  top: 90px !important;
+  left: 91.3px !important;
+}
+
+/*design*/
+#quibblWins {
+  background: transparent;
+  color: white;
+}
+.star-icon {
+  vertical-align: middle;
+}
+.section-title img {
+  margin-bottom: -3px !important;
+}
+.rank-badges img {
+  width: 25px !important;
+  height: 25px !important;
+  object-fit: contain;
+}
+/* Slide-down animation */
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    max-height: 600px; /* Adjust based on how many items you show */
+    transform: translateY(0);
+  }
+}
+
+.leaderboard-expand {
+  animation: slideDown 0.4s ease-out forwards;
+  overflow: hidden;
+}
+@keyframes slideDown {
+  0% {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    max-height: 1000px;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  0% {
+    opacity: 1;
+    max-height: 1000px;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.leaderboard-expand {
+  animation: slideDown 0.4s ease-out forwards;
+  overflow: hidden;
+}
+
+.leaderboard-collapse {
+  animation: slideUp 0.4s ease-in forwards;
+  overflow: hidden;
+}
+.tutorial-img-box {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.tutorial-img {
+  max-width: 90%;
+  max-height: 200px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  object-fit: cover;
+}
+
+.tutorial-text-content {
+  color: white;
+  text-align: center;
+  font-family: 'Accasia';
+}
+
+.tutorial-text-content h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.tutorial-text-content p {
+  font-size: 14px;
+  color: #ccc;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+
+
+
+
+
+
 
 
 

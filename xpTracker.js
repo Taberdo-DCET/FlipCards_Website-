@@ -102,3 +102,4 @@ function startTimedXP(intervalMinutes = 10, rewardXP = 45) {
 window.addXP = addXP;
 window.addChatXP = () => addXP(5);
 window.startTimedXP = startTimedXP;
+export { addXP }; 

@@ -198,6 +198,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+    // Refresh leaderboard data right when page finishes loading
+  loadLeaderboards();
+
 });
 
 // Load Leaderboards
@@ -264,11 +267,30 @@ async function loadLeaderboards() {
         };
       });
 
-    const medals = ['🥇', '🥈', '🥉'];
+    // Medals for Top Levels (XP)
+const levelMedals = [
+  `<img src="rank1XP.png" alt="1st" class="role-badge2">`,
+  `<img src="rank2XP.png" alt="2nd" class="role-badge2">`,
+  `<img src="rank3XP.png" alt="3rd" class="role-badge2">`
+];
+
+// Medals for Top DefiDrop
+const defidropMedals = [
+  `<img src="rank1.png" alt="1st" class="role-badge2">`,
+  `<img src="rank2.png" alt="2nd" class="role-badge2">`,
+  `<img src="rank3.png" alt="3rd" class="role-badge2">`
+];
+
+
     const colors = ['#FFD700', '#C0C0C0', '#CD7F32'];
 
     const topLevels = [...levelUsers].sort((a, b) => b.level - a.level).slice(0, 10);
     const topDefidrop = [...defidropUsers].sort((a, b) => b.defidrop - a.defidrop).slice(0, 10);
+    const topLevelEmails = topLevels.slice(0, 3).map(u => u.email);
+const topDefidropEmails = topDefidrop.slice(0, 3).map(u => u.email);
+localStorage.setItem('topLevelEmails', JSON.stringify(topLevelEmails));
+localStorage.setItem('topDefidropEmails', JSON.stringify(topDefidropEmails));
+
 
     async function withAvatars(userList) {
       return await Promise.all(userList.map(async user => {
@@ -289,9 +311,10 @@ async function loadLeaderboards() {
     ]);
 
     levelEl.innerHTML = topLevelsWithAvatars.map((u, i) => {
-      const rank = i < medals.length
-        ? `<span class="glow-rank" style="background: transparent;">${medals[i]}</span>`
-        : `<span style="color: white; background: transparent;">#${i + 1}</span>`;
+      const rank = i < levelMedals.length
+  ? `<span class="glow-rank" style="background: transparent;">${levelMedals[i]}</span>`
+  : `<span style="color: white; background: transparent;">#${i + 1}</span>`;
+
       const color = i < colors.length ? colors[i] : 'white';
 
       return `
@@ -301,7 +324,7 @@ async function loadLeaderboards() {
             <img src="${u.avatar}" alt="avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #888;">
             <span style="color: ${color}; background: transparent; cursor: pointer;">
               ${u.display}
-              ${u.role?.includes("verified") ? `<img src="verified.png" title="Verified" class="role-badge2 rol" style="background: transparent;">` : ""}
+              ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol" style="background: transparent;">` : ""}
               ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol" style="background: transparent;">` : ""}
             </span>
           </span>
@@ -311,9 +334,10 @@ async function loadLeaderboards() {
     }).join("");
 
     defidropEl.innerHTML = topDefidropWithAvatars.map((u, i) => {
-      const rank = i < medals.length
-        ? `<span class="glow-rank" style="background: transparent;">${medals[i]}</span>`
-        : `<span style="color: white; background: transparent;">#${i + 1}</span>`;
+      const rank = i < defidropMedals.length
+  ? `<span class="glow-rank" style="background: transparent;">${defidropMedals[i]}</span>`
+  : `<span style="color: white; background: transparent;">#${i + 1}</span>`;
+
       const color = i < colors.length ? colors[i] : 'white';
 
       return `
@@ -323,11 +347,11 @@ async function loadLeaderboards() {
             <img src="${u.avatar}" alt="avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #888;">
             <span style="color: ${color}; background: transparent; cursor: pointer;">
               ${u.display}
-              ${u.role?.includes("verified") ? `<img src="verified.png" title="Verified" class="role-badge2 rol" style="background: transparent;">` : ""}
+              ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol" style="background: transparent;">` : ""}
               ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol" style="background: transparent;">` : ""}
             </span>
           </span>
-          <span style="font-weight: bold; color: white; background: transparent;">${u.defidrop} correct</span>
+          <span style="font-weight: bold; color: white; background: transparent;"> Score: ${u.defidrop}</span>
         </li>
       `;
     }).join("");

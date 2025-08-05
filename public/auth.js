@@ -59,28 +59,53 @@ window.login = async function () {
   const userDocRef = doc(db, "users", email);
   const userSnap = await getDoc(userDocRef);
 
-  // BLOCK if user exists and device doesn't match
+  // Get slots (default 1 if not set)
+  const slots = approvedSnap.exists() ? (approvedSnap.data().slots || 1) : 1;
+
+  // Check device IDs for existing user
   if (userSnap.exists()) {
     const data = userSnap.data();
-    if (data.deviceId && data.deviceId !== deviceId) {
-      alert("This account is already active on another device.");
-      return;
+    let deviceIds = data.deviceIds || [];
+
+    // Device not registered yet
+    if (!deviceIds.includes(deviceId)) {
+      if (deviceIds.length >= slots) {
+        alert(`This account is already active on the maximum of ${slots} devices.`);
+        return;
+      } else {
+        // Add current device
+        deviceIds.push(deviceId);
+        await updateDoc(userDocRef, { deviceIds: deviceIds, lastLogin: serverTimestamp() });
+      }
+    } else {
+      // Update last login if device already exists
+      await updateDoc(userDocRef, { lastLogin: serverTimestamp() });
     }
   }
 
   // Try sign in or create user
   try {
     await signInWithEmailAndPassword(auth, email, password);
-localStorage.removeItem('guestBlocked');
-localStorage.removeItem('guestStartTime');
+    localStorage.removeItem('guestBlocked');
+    localStorage.removeItem('guestStartTime');
 
-    // ✅ Store UID in approved_emails
+    // Store UID in approved_emails
     await setDoc(approvedRef, { uid: auth.currentUser.uid }, { merge: true });
 
-    await setDoc(userDocRef, {
-      deviceId: deviceId,
-      lastLogin: serverTimestamp()
-    }, { merge: true });
+    // Create or update user doc with deviceId
+    if (!userSnap.exists()) {
+      await setDoc(userDocRef, {
+        deviceIds: [deviceId],
+        lastLogin: serverTimestamp()
+      });
+    } else {
+      const data = userSnap.data();
+      let deviceIds = data.deviceIds || [];
+      if (!deviceIds.includes(deviceId)) {
+        deviceIds.push(deviceId);
+        await updateDoc(userDocRef, { deviceIds: deviceIds, lastLogin: serverTimestamp() });
+      }
+    }
 
     sessionStorage.setItem("justLoggedIn", "true");
     window.location.href = "lobby.html";
@@ -89,12 +114,13 @@ localStorage.removeItem('guestStartTime');
     if (error.code === "auth/user-not-found") {
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-localStorage.removeItem('guestBlocked');
-        // ✅ Store UID in approved_emails
+        localStorage.removeItem('guestBlocked');
+
+        // Store UID in approved_emails
         await setDoc(approvedRef, { uid: auth.currentUser.uid }, { merge: true });
 
         await setDoc(userDocRef, {
-          deviceId: deviceId,
+          deviceIds: [deviceId],
           lastLogin: serverTimestamp()
         });
 
