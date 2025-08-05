@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <img id="coadminBorderOverlay" src="coadminborder.png" alt="Coadmin Border" style="display: none; position: absolute; top: 0; left: 0; width: 50px; height: 50px; pointer-events: none;">
 <img id="persBorderOverlay" src="firstplacedefi.png" alt="Pers Border" style="display: none; position: absolute; top: 0; left: 0; width: 50px; height: 50px; pointer-events: none;">
 <img id="secondBorderOverlay" src="seconddefiborder.png" alt="Second Border" style="display: none; position: absolute; top: 0; left: 0; width: 50px; height: 50px; pointer-events: none;">
+<img id="firstUserOverlay" src="firstuser.png" alt="First User Border" style="display: none; position: absolute; top: 0; left: 0; width: 50px; height: 50px; pointer-events: none;">
 
     <div class="mini-profile-info">
 
@@ -79,6 +80,7 @@ document.getElementById("agaBorderOverlay").style.display = data.agaborder ? "bl
 document.getElementById("coadminBorderOverlay").style.display = data.coadminborder ? "block" : "none";
 document.getElementById("persBorderOverlay").style.display = data.persborder ? "block" : "none";
 document.getElementById("secondBorderOverlay").style.display = data.secondborder ? "block" : "none";
+document.getElementById("firstUserOverlay").style.display = data.firstuser ? "block" : "none";
 
 
 
@@ -88,17 +90,23 @@ document.getElementById("secondBorderOverlay").style.display = data.secondborder
   // Determine level badge
   let levelBadgeHTML = "";
   const level = data.level || 0;
-  if (level >= 0 && level <= 14) {
-    levelBadgeHTML = `<img src="level0.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
-  } else if (level >= 15 && level <= 34) {
-    levelBadgeHTML = `<img src="level15.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
-  } else if (level >= 35 && level <= 49) {
-    levelBadgeHTML = `<img src="level35.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
-  } else if (level >= 50 && level <= 59) {
-    levelBadgeHTML = `<img src="level50.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
-  } else if (level >= 60 && level <= 99) {
-    levelBadgeHTML = `<img src="level60.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
-  }
+if (level >= 0 && level <= 4) {
+  levelBadgeHTML = `<img src="level0.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
+} else if (level >= 5 && level <= 14) {
+  levelBadgeHTML = `<img src="level5.png" alt="Level ${level}" class="role-badge" title="Level ${level}>`;
+}
+else if (level >= 15 && level <= 24) {
+  levelBadgeHTML = `<img src="level15.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
+} else if (level >= 25 && level <= 34) {
+  levelBadgeHTML = `<img src="level25.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
+} else if (level >= 35 &&level <= 49) {
+  levelBadgeHTML = `<img src="level35.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
+} else if (level >= 50 && level<= 64) {
+  levelBadgeHTML = `<img src="level50.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
+}
+ else if (level >= 65 && level <= 99) {
+  levelBadgeHTML = `<img src="level65.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
+}
   document.getElementById("miniProfileLevelBadge").innerHTML = levelBadgeHTML;
 }
 
@@ -132,6 +140,7 @@ const agaborder = roles.includes("aga");
 const coadminborder = roles.includes("co");
 const persborder = roles.includes("pers");
 const secondborder = roles.includes("sec");
+const firstuser = roles.includes("1st");
 
 
     // Fetch avatar
@@ -145,7 +154,7 @@ const secondborder = roles.includes("sec");
       console.warn("No avatar found, using default.");
     }
 
-    const profileData = { email, username, level, verified, first, goldborder, adminborder, agaborder, coadminborder, persborder, secondborder, avatar: avatarUrl };
+    const profileData = { email, username, level, verified, first, goldborder, adminborder, agaborder, coadminborder, persborder, secondborder, firstuser,avatar: avatarUrl };
     localStorage.setItem("miniProfileData", JSON.stringify(profileData));
     populateMiniProfile(profileData);
   } catch (error) {

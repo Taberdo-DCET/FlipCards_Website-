@@ -2,7 +2,10 @@
 import { auth, db } from './firebaseinit.js';
 import { onSnapshot, doc, setDoc, getDoc, getDocs, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
+import { addXP } from './xpTracker.js'; // <-- Make sure this is at the top of your file
 import { storage } from './firebaseStorageInit.js';
+import { increment } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
 let countdownFinished = localStorage.getItem("countdownFinished") === "true";
 
 
@@ -175,11 +178,33 @@ const topScorers = players.filter(p => (p.correctScore || 0) === topScore);
 
 // Determine if it's a draw
 const isDraw = topScorers.length > 1;
+// ✅ Record winners in Firestore (host only)
+if (auth.currentUser?.email === currentLobbyHost) {
+  for (const winner of topScorers) {
+    const winnerRef = doc(db, "quibblwinner", winner.email);
+    await setDoc(winnerRef, { wins: increment(1) }, { merge: true });
+  }
+}
+
+
+// 🏁 XP reward logic
+
 
 const playerRows = await Promise.all(players.map(async (player) => {
   const score = player.correctScore || 0;
   const isTop = score === topScore;
   const label = isTop ? (isDraw ? "🤝 Draw" : "🏆 Winner") : "";
+
+  // 🎁 XP Reward
+  if (player.email === auth.currentUser?.email) {
+    if (isTop && isDraw) {
+      addXP(400);
+    } else if (isTop) {
+      addXP(500);
+    } else {
+      addXP(200);
+    }
+  }
 
   // Get username
   let username = player.email;
@@ -209,16 +234,63 @@ const playerRows = await Promise.all(players.map(async (player) => {
     console.warn("Failed to fetch badges:", err);
   }
 
-  return `
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#1f1f1f; border-radius:8px; margin-bottom:6px;">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <img src="${player.avatar || "Group-10.png"}" alt="avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #ffcf00;">
-        <span style="display:flex; align-items:center; gap:5px;">${username} ${badges}</span>
-      </div>
-      <div style="font-weight:bold; color:#ffcf00;">${score} pts ${label}</div>
+  let earnedXP = score === 0 ? 10 : (isTop ? (isDraw ? 400 : 500) : 200);
+
+// Check if this player is verified
+let isVerified = false;
+try {
+  const badgeDoc = await getDoc(doc(db, "approved_emails", player.email));
+  if (badgeDoc.exists()) {
+    const roles = (badgeDoc.data().role || "").toLowerCase();
+    isVerified = roles.includes("verified");
+  }
+} catch (err) {
+  console.warn("Failed to check verification status:", err);
+}
+
+let bonusXP = 0;
+if (isVerified) {
+  bonusXP = Math.floor(earnedXP * 0.5);
+}
+
+
+return `
+  <div style="position:relative; display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#1f1f1f; border-radius:8px; margin-bottom:6px;">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <img src="${player.avatar || "Group-10.png"}" alt="avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #ffcf00;">
+      <span style="display:flex; align-items:center; gap:5px;">${username} ${badges}</span>
     </div>
-  `;
+    <div style="font-weight:bold; color:#ffcf00;">${score} pts ${label}</div>
+
+   <div class="xp-float" style="
+  position:absolute;
+  right:12px;
+  top:-16px;
+  font-size:13px;
+  color:#ffcf00;
+  animation: floatXP 3.6s ease-out forwards;
+">
+  +${earnedXP}${bonusXP > 0 ? ` (+${bonusXP} verified bonus)` : ''} XP
+</div>
+${(isTop && isHost) ? `
+  <div class="star-float" style="
+    position: absolute;
+    left: 12px;
+    top: -16px;
+    font-size: 13px;
+    color: #ffc700;
+    animation: floatStar 3.6s ease-out forwards;
+    font-weight: bold;
+  ">
+    +1 ⭐ Star!
+  </div>
+` : ""}
+
+  </div>
+`;
+
 }));
+
 
 
 

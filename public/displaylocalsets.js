@@ -194,66 +194,63 @@ likeBtn.classList.remove("liking");
   return card;
 }
 
+let currentPage = 1;
+const setsPerPage = 8;
+
 async function renderFilteredFolders(user) {
   if (!container) return;
-  showLoader(1000);
+  showLoader(500);
   container.innerHTML = "";
 
   const keyword = searchInput?.value.toLowerCase() || "";
   const type = filterSelect?.value || "your";
   const existingKeys = new Set();
+  let allSets = [];
 
   if (type === "your") {
     const q = query(collection(db, "local_sets"), where("user", "==", user.email));
     const snapshot = await getDocs(q);
-    const sets = snapshot.docs.map(doc => ({ ...doc.data(), _id: doc.id }));
-
-    sets.sort((a, b) => Date.parse(b.createdOn) - Date.parse(a.createdOn));
-
-    for (const set of sets) {
-  const match = set.title.toLowerCase().includes(keyword) || (set.description || "").toLowerCase().includes(keyword);
-  const uniqueKey = `${set.title}___${set.createdOn}`;
-  if (!match || existingKeys.has(uniqueKey)) continue;
-  existingKeys.add(uniqueKey);
-  container.appendChild(await createCard(set, set._id, false));
-}
-
+    allSets = snapshot.docs.map(doc => ({ ...doc.data(), _id: doc.id }));
+    allSets.sort((a, b) => Date.parse(b.createdOn) - Date.parse(a.createdOn));
   } else if (type === "public") {
     const q = query(collection(db, "flashcard_sets"), where("public", "==", true));
     const snapshot = await getDocs(q);
-    for (const docSnap of snapshot.docs) {
-      const set = docSnap.data();
-      const title = set.title?.toLowerCase() || "";
-      const desc = set.description?.toLowerCase() || "";
-      const email = set.user?.toLowerCase() || "";
-
-      const match = title.includes(keyword) || desc.includes(keyword) || email.includes(keyword);
-      const uniqueKey = `${set.title}___${set.createdOn}`;
-      if (!match || existingKeys.has(uniqueKey)) return;
-      existingKeys.add(uniqueKey);
-      container.appendChild(await createCard(set, null, true));
-    };
+    allSets = snapshot.docs.map(doc => doc.data());
   } else if (type === "liked") {
     const likedRef = collection(db, "liked_sets", user.email, "sets");
     const snapshot = await getDocs(likedRef);
-
     for (const docSnap of snapshot.docs) {
       const { title, createdOn } = docSnap.data();
       const q = query(collection(db, "flashcard_sets"), where("title", "==", title), where("createdOn", "==", createdOn));
       const matchSnap = await getDocs(q);
       if (!matchSnap.empty) {
-        const set = matchSnap.docs[0].data();
-        const uniqueKey = `${title}___${createdOn}`;
-        const match = title.toLowerCase().includes(keyword) || (set.description || "").toLowerCase().includes(keyword);
-        if (!match || existingKeys.has(uniqueKey)) continue;
-        existingKeys.add(uniqueKey);
-        container.appendChild(await createCard(set, null, true));
-
+        allSets.push(matchSnap.docs[0].data());
       }
     }
-    
   }
 
+  // Filter by search keyword
+  allSets = allSets.filter(set => {
+    const title = set.title?.toLowerCase() || "";
+    const desc = set.description?.toLowerCase() || "";
+    const email = set.user?.toLowerCase() || "";
+    return title.includes(keyword) || desc.includes(keyword) || email.includes(keyword);
+  });
+
+  const startIdx = (currentPage - 1) * setsPerPage;
+  const endIdx = startIdx + setsPerPage;
+  const paginated = allSets.slice(startIdx, endIdx);
+
+  for (const set of paginated) {
+    const uniqueKey = `${set.title}___${set.createdOn}`;
+    if (existingKeys.has(uniqueKey)) continue;
+    existingKeys.add(uniqueKey);
+    const docId = set._id || null;
+    const isPublic = type !== "your";
+    container.appendChild(await createCard(set, docId, isPublic));
+  }
+
+  renderPaginationControls(allSets.length);
   document.querySelectorAll(".hover-switch").forEach(img => {
     const def = img.getAttribute("data-default");
     const hov = img.getAttribute("data-hover");
@@ -262,6 +259,50 @@ async function renderFilteredFolders(user) {
   });
   hideLoader();
 }
+function renderPaginationControls(totalSets) {
+  const totalPages = Math.ceil(totalSets / setsPerPage);
+  let pagination = document.getElementById("paginationControls");
+
+  if (!pagination) {
+    pagination = document.createElement("div");
+    pagination.id = "paginationControls";
+    pagination.style.textAlign = "center";
+    pagination.style.marginTop = "30px";
+    pagination.style.display = "flex";
+    pagination.style.justifyContent = "center";
+    pagination.style.gap = "12px";
+
+    container.parentNode.appendChild(pagination);
+  }
+
+  pagination.innerHTML = "";
+
+  const prevBtn = document.createElement("button");
+  prevBtn.className = "neumorphic-button2";
+  prevBtn.textContent = "⟵ Prev";
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderFilteredFolders(auth.currentUser);
+    }
+  };
+
+  const nextBtn = document.createElement("button");
+  nextBtn.className = "neumorphic-button2";
+  nextBtn.textContent = "Next ⟶";
+  nextBtn.disabled = currentPage >= totalPages;
+  nextBtn.onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderFilteredFolders(auth.currentUser);
+    }
+  };
+
+  pagination.appendChild(prevBtn);
+  pagination.appendChild(nextBtn);
+}
+
 
 document.addEventListener("click", async (e) => {
   const editBtn = e.target.closest(".edit-btn");

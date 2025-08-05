@@ -11,6 +11,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
 import { storage } from './firebaseStorageInit.js';
+import { increment } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
 const createLobbyBtn = document.querySelector(".create-lobby-btn");
 const multiplayerModal = document.getElementById("multiplayerModal");
@@ -1231,73 +1232,58 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 function listenForScores(hostEmail) {
   const gameRef = doc(db, "gamestartquibbl", hostEmail);
-  onSnapshot(gameRef, (snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.data();
-      const scoreDivs = document.querySelectorAll(".score-values span");
-      const players = data.players || [];
+  onSnapshot(gameRef, async (snapshot) => {
+  if (snapshot.exists()) {
+    const data = snapshot.data();
+    const players = data.players || [];
 
+   
 
-const scoreNames = document.querySelectorAll(".score-names span");
-const scorePairs = document.querySelectorAll(".score-values > span");
-const combinedPlayers = data.players || [];
+    const scoreDivs = document.querySelectorAll(".score-values span");
+    const scoreNames = document.querySelectorAll(".score-names span");
+    const scorePairs = document.querySelectorAll(".score-values > span");
+    const combinedPlayers = data.players || [];
 
-scorePairs.forEach((pair, index) => {
-  const player = combinedPlayers[index];
-  if (!player) return;
+    scorePairs.forEach((pair, index) => {
+      const player = combinedPlayers[index];
+      if (!player) return;
 
-  const correctSpan = pair.querySelector(".correct");
-  const wrongSpan = pair.querySelector(".wrong");
+      const correctSpan = pair.querySelector(".correct");
+      const wrongSpan = pair.querySelector(".wrong");
 
- const isLeft = player.left === true;
+      const isLeft = player.left === true;
 
+      if (correctSpan && wrongSpan) {
+        correctSpan.textContent = player.correctScore || 0;
+        wrongSpan.textContent = player.incorrectScore || 0;
 
-  if (correctSpan && wrongSpan) {
-    correctSpan.textContent = player.correctScore || 0;
-    wrongSpan.textContent = player.incorrectScore || 0;
+        if (scoreNames[index])
+          scoreNames[index].textContent =
+            player.email === currentLobbyHost ? "P1 (Host):" : `P${index + 1}:`;
 
-    if (scoreNames[index])
-      scoreNames[index].textContent =
-        player.email === currentLobbyHost ? "P1 (Host):" : `P${index + 1}:`;
+        if (isLeft) {
+          pair.classList.add("player-left");
+          if (scoreNames[index]) scoreNames[index].classList.add("player-left");
+        } else {
+          pair.classList.remove("player-left");
+          if (scoreNames[index]) scoreNames[index].classList.remove("player-left");
+        }
+      }
+    });
 
-    // Apply gray out if player is marked as left
-    if (isLeft) {
-      pair.classList.add("player-left");
-      if (scoreNames[index]) scoreNames[index].classList.add("player-left");
-    } else {
-      pair.classList.remove("player-left");
-      if (scoreNames[index]) scoreNames[index].classList.remove("player-left");
+    // Fill empty slots
+    for (let i = combinedPlayers.length; i < 5; i++) {
+      if (scoreNames[i]) scoreNames[i].textContent = "No Player";
+      if (scorePairs[i]) {
+        const correctSpan = scorePairs[i].querySelector(".correct");
+        const wrongSpan = scorePairs[i].querySelector(".wrong");
+        if (correctSpan) correctSpan.textContent = "0";
+        if (wrongSpan) wrongSpan.textContent = "0";
+      }
     }
   }
 });
 
-
-// Fill remaining slots
-for (let i = combinedPlayers.length; i < 5; i++) {
-  if (scoreNames[i]) scoreNames[i].textContent = "No Player";
-  if (scorePairs[i]) {
-    const correctSpan = scorePairs[i].querySelector(".correct");
-    const wrongSpan = scorePairs[i].querySelector(".wrong");
-    if (correctSpan) correctSpan.textContent = "0";
-    if (wrongSpan) wrongSpan.textContent = "0";
-  }
-}
-
-
-// Fill remaining slots with "No Player"
-for (let i = combinedPlayers.length; i < 5; i++) {
-  if (scoreNames[i]) scoreNames[i].textContent = "No Player";
-  if (scoreSpans[i]) {
-    const correctSpan = scoreSpans[i].querySelector(".correct");
-    const wrongSpan = scoreSpans[i].querySelector(".wrong");
-    if (correctSpan) correctSpan.textContent = "0";
-    if (wrongSpan) wrongSpan.textContent = "0";
-  }
-}
-
-
-    }
-  });
 }
 // --- KICK PLAYER ---
 window.kickPlayer = async function (emailToKick) {
@@ -1339,3 +1325,14 @@ window.kickPlayer = async function (emailToKick) {
     alert("Failed to kick player. Check console.");
   }
 };
+async function recordQuibblWinners(players) {
+  if (!players || players.length === 0) return;
+
+  const highest = Math.max(...players.map(p => p.correctScore || 0));
+  const winners = players.filter(p => (p.correctScore || 0) === highest);
+
+  for (const winner of winners) {
+    const winnerRef = doc(db, "quibblwinner", winner.email);
+    await setDoc(winnerRef, { wins: increment(1) }, { merge: true });
+  }
+}
