@@ -48,7 +48,10 @@
     <button onclick="closeGuestModal()" style="margin-top: 20px;">OK</button>
   </div>
 </div>
-
+<div id="cookieBanner" style="position:fixed; bottom:0; left:0; width:100%; background:#222; color:white; padding:15px; display:none; z-index:10000; text-align:center; font-family:Arial, sans-serif;">
+  This website uses cookies to improve your experience and display personalized ads.
+  <button onclick="acceptCookies()" style="margin-left:10px; padding:6px 12px; background:#ffb988; color:black; border:none; border-radius:4px; cursor:pointer;">Accept</button>
+</div>
   <script src="icon.js"></script>
   <script type="module" src="auth.js"></script>
   <script type="module" src="presence.js"></script>
@@ -88,5 +91,6 @@
 </script>
 <script type="module" src="guestTimer.js"></script>
 <script src="protect.js"></script>
+<script src="cookie.js"></script>
 </body>
 </html>

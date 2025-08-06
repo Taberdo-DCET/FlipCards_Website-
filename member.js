@@ -301,8 +301,10 @@ else if (user.level >= 15 && user.level <= 24) {
           wrapper.classList.add("role-section");
 
           const title = document.createElement("div");
-          title.classList.add("role-title");
-          title.textContent = icons[role];
+title.classList.add("role-title");
+const roleName = icons[role] || role;
+title.textContent = `${roleName} - ${elements.length}`;
+
 
           const ul = document.createElement("ul");
           ul.classList.add("role-list");
