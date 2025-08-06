@@ -316,6 +316,7 @@ async function getDefiDropCount(email) {
 }
 
 // 🏆 Open Achievements Modal for any user
+// 🏆 Open Achievements Modal for any user
 export function openAchievementsForUser(email) {
   const modal = document.getElementById("achievementsModal");
   const box = modal?.querySelector('.achievements-box');
@@ -336,8 +337,9 @@ export function openAchievementsForUser(email) {
 
   Promise.all([
     getFlashcardCount(email),
-    getDefiDropCount(email)
-  ]).then(([cardCount, defidropCount]) => {
+    getDefiDropCount(email),
+    getQuibblWins(email)
+  ]).then(([cardCount, defidropCount, quibblWins]) => {
     const cardLabel = document.getElementById("flashcardCountLabel");
     if (cardLabel) {
       cardLabel.textContent = `Total Created Flashcard${cardCount !== 1 ? 's' : ''}: ${cardCount}`;
@@ -347,6 +349,20 @@ export function openAchievementsForUser(email) {
     if (defidropLabel) {
       defidropLabel.textContent = `${defidropCount} DefiDrop Correct`;
     }
+
+    const quibblWinsLabel = document.getElementById("quibblWinsLabel");
+    if (quibblWinsLabel) {
+      if (quibblWins > 0) {
+        quibblWinsLabel.innerHTML = `
+  <span style="font-weight:bold; font-size:14px; margin-right:4px; background: transparent; color: white;">${quibblWins}</span>
+  <img src="quibblstar.png" alt="Quibbl Star" class="star-icon" style="width: 20px; height: 20px; vertical-align: middle;">
+`;
+
+      } else {
+        quibblWinsLabel.textContent = "No Quibbl wins yet.";
+      }
+    }
   });
 }
+
 

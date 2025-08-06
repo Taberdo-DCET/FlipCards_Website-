@@ -115,17 +115,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
      if (quibblWinsLabel) {
   if (quibblWins > 0) {
-    quibblWinsLabel.innerHTML = '';
-    for (let i = 0; i < quibblWins; i++) {
-      const img = document.createElement("img");
-      img.src = "quibblstar.png";
-      img.alt = "Quibbl Star";
-      img.className = "star-icon";
-      img.style.width = "20px";
-      img.style.height = "20px";
-      img.style.marginRight = "4px";
-      quibblWinsLabel.appendChild(img);
-    }
+    quibblWinsLabel.innerHTML = `
+  <span style="font-weight:bold; font-size:14px; margin-right:4px; background: transparent; color: white;">${quibblWins}</span>
+  <img src="quibblstar.png" alt="Quibbl Star" class="star-icon" style="width: 20px; height: 20px; vertical-align: middle;">
+`;
+
   } else {
     quibblWinsLabel.textContent = "No Quibbl wins yet.";
   }
