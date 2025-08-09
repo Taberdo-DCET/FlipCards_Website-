@@ -129,7 +129,8 @@ const snapshot = await getDocs(collectionGroup(db, "questions"));
       flexDirection: "column",
       justifyContent: "space-between",
       gap: "10px",
-      fontFamily: "QilkaBold, sans-serif"
+      fontFamily: "Satoshi, sans-serif"
+      
     });
 
     const categoryRow = document.createElement("div");
@@ -145,7 +146,8 @@ const snapshot = await getDocs(collectionGroup(db, "questions"));
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
-      maxWidth: "180px"
+      maxWidth: "180px",
+      fontFamily: "Satoshi, sans-serif"
     });
 
     const expandBtn = document.createElement("button");
@@ -156,7 +158,8 @@ const snapshot = await getDocs(collectionGroup(db, "questions"));
       borderRadius: "8px",
       border: "none",
       background: "#eee",
-      cursor: "pointer"
+      cursor: "pointer",
+      fontFamily: "Satoshi, sans-serif"
     });
     expandBtn.addEventListener("click", () => showExpandedCard(data));
 
@@ -172,7 +175,8 @@ const snapshot = await getDocs(collectionGroup(db, "questions"));
     border: "none",
     background: "#f88",
     cursor: "pointer",
-    marginLeft: "5px"
+    marginLeft: "5px",
+    fontFamily: "Satoshi, sans-serif"
   });
 
   deleteBtn.onclick = async () => {
@@ -245,7 +249,7 @@ const snapshot = await getDocs(collectionGroup(db, "questions"));
       padding: "8px 10px",
       borderRadius: "12px",
       border: "none",
-      fontFamily: "QilkaBold, sans-serif",
+      fontFamily: "Satoshi, sans-serif",
       fontSize: "13px",
       boxShadow: "inset 3px 3px 6px #d9d9d9, inset -3px -3px 6px #ffffff"
     });
@@ -259,7 +263,7 @@ Object.assign(answerBtn.style, {
   padding: "6px 12px",
   borderRadius: "10px",
   cursor: "pointer",
-  fontFamily: "QilkaBold, sans-serif",
+  fontFamily: "Satoshi, sans-serif",
   fontSize: "13px"
 });
 
@@ -359,7 +363,7 @@ function showAnswersModal(questionText) {
     maxHeight: "80vh",
     overflowY: "auto",
     boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-    fontFamily: "QilkaBold, sans-serif"
+    fontFamily: "Satoshi, sans-serif"
   });
 
   const title = document.createElement("h3");
@@ -505,7 +509,8 @@ if (currentUser.email === answerData.answeredBy || adminEmails.includes(currentU
     fontSize: "12px",
     cursor: "pointer",
     marginTop: "6px",
-    alignSelf: "flex-start"
+    alignSelf: "flex-start",
+    fontFamily: "Satoshi, sans-serif"
   });
 
   deleteBtn.addEventListener("click", async () => {
@@ -548,7 +553,8 @@ if (currentUser.email === answerData.answeredBy || adminEmails.includes(currentU
     borderRadius: "10px",
     background: "#111",
     color: "white",
-    cursor: "pointer"
+    cursor: "pointer",
+    fontFamily: "Satoshi, sans-serif"
   });
   closeBtn.addEventListener("click", () => document.body.removeChild(overlay));
 
@@ -568,7 +574,8 @@ function showExpandedCard(data) {
     zIndex: "1000",
     display: "flex",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    fontFamily: "Satoshi, sans-serif"
   });
 
   const modalCard = document.createElement("div");
@@ -581,12 +588,13 @@ function showExpandedCard(data) {
     maxHeight: "90vh",
     overflowY: "auto",
     boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-    fontFamily: "QilkaBold, sans-serif",
+    fontFamily: "Satoshi, sans-serif",
     display: "flex",
     flexDirection: "column",
     gap: "16px",
     wordWrap: "break-word",
-    overflowWrap: "break-word"
+    overflowWrap: "break-word",
+    fontFamily: "Satoshi, sans-serif"
   });
 
   const category = document.createElement("h3");
@@ -594,7 +602,8 @@ function showExpandedCard(data) {
   Object.assign(category.style, {
     fontSize: "16px",
     color: "#666",
-    margin: "0"
+    margin: "0",
+    fontFamily: "Satoshi, sans-serif"
   });
 
   const question = document.createElement("p");
@@ -622,7 +631,8 @@ function showExpandedCard(data) {
     borderRadius: "10px",
     background: "#111",
     color: "white",
-    cursor: "pointer"
+    cursor: "pointer",
+    fontFamily: "Satoshi, sans-serif"
   });
   closeBtn.addEventListener("click", () => {
     document.body.removeChild(overlay);

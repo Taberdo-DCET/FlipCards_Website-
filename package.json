@@ -3,9 +3,11 @@
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "express": "^5.1.0",
+    "jszip": "^3.10.1",
     "mongodb": "^6.17.0",
     "multer": "^2.0.1",
     "node-fetch": "^3.3.2",
+    "pptx-parser": "^1.1.7-beta.9",
     "pptx2json": "^0.0.10"
   },
   "scripts": {

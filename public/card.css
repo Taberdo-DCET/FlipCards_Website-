@@ -5,7 +5,15 @@
   font-weight: normal;
   font-style: normal;
 }
-
+@font-face {
+  font-family: 'Satoshi';
+  src: 
+       
+       url('Satoshi-Black.ttf') format('truetype');
+  font-weight: 900 !important;
+  font-display: swap;
+  font-style: normal;
+}
 
 body {
   margin: 0;
@@ -13,7 +21,7 @@ body {
   font-family: Arial, sans-serif;
   background-color: #171717;
   color: #fff;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 .flashcard-wrapper {
@@ -45,7 +53,7 @@ body {
   background-color: #212121;
   color: #fff;
   box-shadow: inset 4px 4px 10px #101010, inset -4px -4px 10px #1e1e1e;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 .flashcard {
@@ -76,7 +84,7 @@ body {
   padding: 40px;
   border-radius: 12px;
   box-shadow: 8px 8px 16px #0d0d0d, -8px -8px 16px #1f1f1f;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 @font-face {
   font-family: 'QilkaBold';
@@ -122,7 +130,7 @@ input {
     font-family: 'Accasia', sans-serif;
 }
 textarea {
-    font-family: 'Accasia', sans-serif;
+    font-family: 'Satoshi', sans-serif;
     width: 95%;
 }
 button {
@@ -163,7 +171,7 @@ button {
   margin-bottom: 20px;
   padding: 10px 16px;
   color: #ffffff;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 .public-toggle input[type="checkbox"] {
@@ -324,7 +332,7 @@ button {
   border-radius: 0 0 16px 16px;
   background: #1e1e1e;
   color: white;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   resize: none;
   font-size: 14px;
   box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;

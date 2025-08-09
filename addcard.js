@@ -283,6 +283,27 @@ createBtn.addEventListener("click", () => saveFlashcardSet(false));
 practiceBtn.addEventListener("click", () => saveFlashcardSet(true));
 
 window.addEventListener("DOMContentLoaded", () => {
+  // Only run if we're NOT editing an existing set
+if (!isEditMode) {
+  const parsedFlashcards = JSON.parse(localStorage.getItem("flashcardsData") || "[]");
+
+  if (parsedFlashcards.length > 0) {
+    // Clear any default existing flashcard
+    wrapper.querySelectorAll(".flashcard").forEach(card => card.remove());
+
+    parsedFlashcards.forEach((fc, index) => {
+      const card = createFlashcard();
+      card.querySelector(".term").value = fc.term || "";
+      card.querySelector(".definition").value = fc.definition || "";
+      card.querySelector(".flashcard-header span").textContent = index + 1;
+      wrapper.insertBefore(card, document.querySelector(".btn-row"));
+    });
+
+    // Clear flashcardsData from localStorage to prevent duplicate insertion next time
+    localStorage.removeItem("flashcardsData");
+  }
+}
+
   const data = JSON.parse(localStorage.getItem("editingFlashcardSet"));
   if (!data) return;
 

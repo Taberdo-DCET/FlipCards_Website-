@@ -10,6 +10,15 @@
   font-weight: normal;
   font-style: normal;
 }
+@font-face {
+  font-family: 'Satoshi';
+  src: 
+       
+       url('Satoshi-Black.ttf') format('truetype');
+  font-weight: 900 !important;
+  font-display: swap;
+  font-style: normal;
+}
 body {
     background-image: url('backgroundlobby.png');
   background-size:auto;
@@ -30,7 +39,7 @@ body {
     font-size: 32px;
     margin-bottom: 30px;
     color: #ffffff;
-    font-family: 'QilkaBold', sans-serif;
+    font-family: 'Satoshi', sans-serif;
     
 }
 
@@ -94,7 +103,7 @@ body {
 .definition-box {
   flex: 1;
   max-width: 600px;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 @font-face {
   font-family: 'QilkaBold';
@@ -106,7 +115,7 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
-    font-family: 'QilkaBold', sans-serif;
+   font-family: 'Satoshi', sans-serif;
     border: px solid black;
 }
 .progress-wrapper {
@@ -207,7 +216,7 @@ body {
   color: #ffffff;
   margin-bottom: 30px !important;
   font-size: 20px;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   border: 1px solid black;
   max-height: 200px;            /* limit height */
   overflow-y: auto;             /* scroll for long definitions */

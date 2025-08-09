@@ -6,6 +6,11 @@
     <title>FlipCards Lobby</title>
      <link rel="stylesheet" href="lobby.css">
      <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
+     crossorigin="anonymous"></script>
+     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+
 
 </head>
 <body>
@@ -72,10 +77,10 @@
                     <!-- Gemini Button -->
 <!-- Gemini Button -->
                     <li>
-                      <button id="geminiBtn" class="getstarted folder-getstarted">
-                          <img class="group-8 hover-switch" src="gemininc.png" data-default="gemininc.png" data-hover="geminic.png" />
-                      </button>
-                    </li>
+                        <a href="#Folderr" class="getstarted folder-getstarted2">
+                        ParseCards<img src="beta.png" alt="Beta" style="height: 19px;" />
+                        </a>
+                    </li>  
 
  
                 </ul>
@@ -85,10 +90,28 @@
 <div class="gemini-modal-backdrop" id="geminiModal">
   <div class="gemini-modal-content">
     <span class="gemini-modal-close" id="closeGeminiModal">&times;</span>
-    <h2 class="gemini-modal-title">Upload a PPTX to Generate Flashcards</h2>
-    <div class="gemini-dropzone" id="geminiDropZone">📂 Drag & drop or click to upload .pptx</div>
-    <input type="file" id="geminiFileInput" accept=".pptx" style="display: none;" />
+    <h2 class="gemini-modal-title" style="display: flex; align-items: center; gap: 10px;">
+  Upload a JPG files to Generate Flashcards
+  <img src="beta.png" alt="Beta" style="height: 19px;" />
+</h2>
+
+
+<!-- New Neumorphic Button -->
+<button class="neumorphic-button" style="display: block; margin: 0 auto 20px;" onclick="openParsecardsModal()">
+  How to properly use ParseCards
+</button>
+
+    <div class="gemini-dropzone" id="geminiDropZone">📂 Click to upload .jpg files</div>
+    <input type="file" id="geminiFileInput" accept=".jpg,.jpeg" style="display: none;" />
+    <span class="gemini-modal-title2">Note: FlipCard's JPG Auto Parser can make mistakes.<span class="gemini-modal-title2">More Accurate on JPG files with Less Complex Design. Please Follow the Rules on How to Use it.</span></span>
     <div class="gemini-flashcards" id="geminiFlashcards"></div>
+    <a href="addcard.html" id="gotoAddcardBtn" style="display: none;">
+  <button class="neumorphic-button2" style="margin-top: 20px; width: 100%; font-size: 14px;">
+    ➕ Go to Addcard Set!
+  </button>
+</a>
+
+
   </div>
 </div> 
     <section class="catchphrase">
@@ -231,6 +254,10 @@
   <img src="new.png" alt="New" class="quibbl-new-icon">
 </button>
 
+                      <button id="geminiBtn" class="getstarted folder-getstarted">
+                          <img class="group-8 hover-switch" src="gemininc.png" data-default="gemininc.png" data-hover="geminic.png" />
+                      </button>
+                   
 
   <div style="margin: 20px auto; max-width: 300px; margin-bottom: 60px;">
     <input id="folderSearch" type="text" class="neumorphic-search" placeholder="Search folders...Emails or Users...">
@@ -404,20 +431,21 @@
         <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
         <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
         <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update:   08/02/25</li>
-          <li>🚀 New Multiplayer Mode is Here! 🎉</li>
-          <span class="sub-announcement">➥ 📣 New Game Mode Unlocked: Quibbl!</span>
-          <span class="sub-announcement">➥ 👥 Invite up to 4 friends</span>
-          <span class="sub-announcement">➥ 🗂 Pick a flashcard set</span>
-          <span class="sub-announcement">➥ 🏁 Answer definitions live</span>
-          <span class="sub-announcement">➥ 👑 Win the round — or draw with glory!</span>
-          <span class="sub-announcement">➥ Join a lobby, flex your brain, and may the smartest one win! 💡🔥</span>
+          <li>📅 New features in this Update:   08/09/25</li>
+          <li>🚨 NEW FEATURE DROP: ParseCards (Beta) is HERE! 🧠✨</li>
+          <span class="sub-announcement">➥ Say goodbye to manual typing 🥲</span>
+          <span class="sub-announcement">➥ With ParseCards, you can now upload JPG files of your notes or slides — and we’ll instantly turn them into clean, structured flashcard sets! 🎴📚</span>
+          <span class="sub-announcement">➥ 🔥 Bonus: It’s UNLIMITED use for the first week of release!</span>
+          <li>🚨 QUIBBL MODE LEADERBOARDS ARE LIVE! 🚨</li>
+          <span class="sub-announcement">➥ Win in Quibbl Mode to earn XP 📈 and Stars 🌟 — and secure your spot on the leaderboard! 🏆</span>
+          <span class="sub-announcement">➥ 💥 The more you play, the more you earn.</span>
           <li>📢 New Avatar Borders Are Here! ✨</li>
           <span class="sub-announcement">➥ You can now showcase your achievements and roles with exclusive avatar borders that appear on your mini profile and main profile!</span>
-          <li>🏅 Achievement Badges Are Live! 🎉</li>
+          <li>🏅 Achievement Badges Are Live! </li>
           <span class="sub-announcement">➥ More badges are coming soon, so keep engaging, leveling up, and climbing the leaderboard! 🚀</span>
-          <li>🛍️ FlipCards Shop is Now Open!</li>
-          <span class="sub-announcement">➥ Tap the 🛒 Shop icon in the menu to explore!</span>
+          <li>🎉 NEW BADGES UI UPDATE IS HERE! </li>
+          <span class="sub-announcement">➥ Track your progress and flex your wins in style 💼👀</span>
+          <li>🚀 LEVEL BADGES GOT AN UPGRADE TOO!</li>
           <li>👁️👁️ Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes
           </li>
@@ -438,7 +466,7 @@
      <span class="leaderboard-title" style="display: flex; align-items: center; gap: 10px;">
   <img src="gemm.png" alt="Leaderboards" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 6px;">
   Leaderboards
-  <span id="leaderboardCountdown" style="font-size: 14px; color: #ffcf00; font-family: 'QilkaBold'; margin-left: 12px; background: transparent;">Loading...</span>
+  <span id="leaderboardCountdown" style="font-size: 14px; color: #ffcf00; font-family: 'Satoshi'; margin-left: 12px; background: transparent;">Loading...</span>
 </span>
 
 
@@ -715,6 +743,30 @@
 </div>
 
 </div>
+<div id="parsecardsModal" class="glass-modal hidden">
+  <div class="modal-content">
+    <span class="close-modal" onclick="document.getElementById('parsecardsModal').classList.add('hidden')">✖</span>
+    <div class="modal-flex">
+      <div class="modal-block">
+        <img src="wrong.png" alt="Wrong Example" />
+        <p contenteditable="true">When uploading a JPG image, ensure that the term and its definition aren't aligned side by side, and leave out the lesson title (you’ll be able to edit it after the system processes your file).
+
+For the best results, avoid using low-quality images.</p>
+
+      </div>
+      <div class="modal-block">
+        <img src="right.png" alt="Right Example" />
+        <p contenteditable="true">Make sure the term is placed above the definition, with some spacing in between for better accuracy. If your notes are handwritten, we recommend using AI tools to convert them into a format that works well with the parser.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="cookieBanner" style="position:fixed; bottom:0; left:0; width:100%; background:#222; color:white; padding:15px; display:none; z-index:10000; text-align:center; font-family:Arial, sans-serif;">
+  This website uses cookies to improve your experience and display personalized ads.
+  <button onclick="acceptCookies()" style="margin-left:10px; padding:6px 12px; background:#ffb988; color:black; border:none; border-radius:4px; cursor:pointer;">Accept</button>
+</div>
+
 
 
 <script type="module">
@@ -882,29 +934,8 @@ onSnapshot(docRef, (docSnap) => {
     });
   });
 </script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const geminiBtn = document.getElementById("geminiBtn");
-    const leaderboardsBtn = document.getElementById("leaderboardsBtn");
-    const chatBtn = document.getElementById("chatBtn");
-    const comingModal = document.getElementById("comingSoonModal");
-    const closeComing = document.getElementById("closeComingSoon");
+<script type="module" src="./AIgeminibtn.js"></script>
 
-    function showComingSoon() {
-      comingModal.classList.remove("hidden");
-    }
-
-    if (geminiBtn) geminiBtn.addEventListener("click", showComingSoon);
-   
-    if (chatBtn) chatBtn.addEventListener("click", showComingSoon);
-
-    if (closeComing) {
-      closeComing.addEventListener("click", () => {
-        comingModal.classList.add("hidden");
-      });
-    }
-  });
-</script>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -1077,8 +1108,9 @@ onSnapshot(docRef, (docSnap) => {
 <script type="module" src="multiplayer.js"></script>
 <script type="module" src="miniprofile.js"></script>
 <script src="shop.js"></script>
-  <script src="protect.js"></script>
-
+<script src="protect.js"></script>
+<script src="cookie.js"></script>
+<script type="module" src="./AIppt.js"></script>
 
 </body>
 </html>

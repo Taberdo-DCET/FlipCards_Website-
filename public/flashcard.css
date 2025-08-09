@@ -9,7 +9,18 @@
   src: url('Qilka-Bold.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-}body {
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: 
+       
+       url('Satoshi-Black.ttf') format('truetype');
+  font-weight: 900 !important;
+  font-display: swap;
+  font-style: normal;
+}
+
+body {
   background-color: #171717;
   font-family: 'Accasia', sans-serif;
   color: white;
@@ -41,7 +52,7 @@
   border-radius: 15px;
 
   padding: 11px 200px;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   
 }
 
@@ -117,7 +128,7 @@
   color: #ffffff;
   box-shadow: inset 6px 6px 12px #0e0e0e, inset -6px -6px 12px #202020;
   border: 1px solid rgb(0, 0, 0);
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 @font-face {
   font-family: 'QilkaBold';

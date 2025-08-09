@@ -1,3 +1,13 @@
+
+@font-face {
+  font-family: 'Satoshi';
+  src: 
+       
+       url('Satoshi-Black.ttf') format('truetype');
+  font-weight: 900 !important;
+  font-display: swap;
+  font-style: normal;
+}
 @font-face {
   font-family: 'QilkaBold';
   src: url('Qilka-Bold.ttf') format('truetype');
@@ -332,7 +342,16 @@ span {
   display: flex;
   justify-content: center;
 }
-
+.folder-getstarted2 {
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  margin-left: -60px;
+}
+.folder-getstarted2:hover {
+  color: #FFCF00;
+}
 .container2 {
   display: flex;
   align-items: center;       /* vertical align */
@@ -350,6 +369,11 @@ span {
   height: 70px !important;
   cursor: pointer;
   transition: transform 0.2s ease;
+}
+#geminiBtn img{
+  width: 130px !important;
+  height: 130px !important;
+  margin-top: -30px;
 }
 
 .gemini-btn:hover {
@@ -566,7 +590,7 @@ span {
   font-size: 1.3rem;
   margin-bottom: 10px;
   color: #111;
-   font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .feature-box p {
   font-size: 0.95rem;
@@ -696,7 +720,7 @@ span {
 .folder-grid {
   display: flex;
   flex-wrap: wrap;
-  justify-content: start;
+  justify-content: center;
   gap: 30px;
   margin-top: 30px;
   margin-left: 40px;
@@ -758,7 +782,7 @@ span {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 
@@ -835,11 +859,25 @@ span {
   right: 18px;
   font-size: 24px;
   cursor: pointer;
+  background: transparent;
+  color: white;
+}
+.gemini-modal-close:hover{
+  color: red;
 }
 .gemini-modal-title {
   margin-bottom: 20px;
   font-size: 20px;
   text-align: center;
+  font-family: 'Accasia', sans-serif;
+}
+.gemini-modal-title2 {
+  margin-bottom: 20px;
+  font-size: 13px;
+  text-align: center !important;
+  font-family: 'Satoshi', sans-serif;
+  color: white;
+  background: transparent;
 }
 .gemini-dropzone {
   border: 2px dashed #888;
@@ -850,6 +888,7 @@ span {
   margin-bottom: 20px;
   background-color: #1a1a1a;
   transition: border-color 0.2s;
+  font-family: 'Satoshi', sans-serif;
 }
 .gemini-dropzone:hover {
   border-color: #00bfff;
@@ -939,6 +978,22 @@ span {
   border: 1px solid rgb(255, 255, 255);
   color: #ffffff;
 }
+.neumorphic-button22 {
+  padding: 10px 20px;
+  background: #ffffff;
+  border: 1px solid black;
+  border-radius: 12px;
+  
+  color: #000000;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: 'Satoshi', sans-serif;
+}
+.neumorphic-button22:hover {
+  background: #171717;
+  border: 1px solid rgb(255, 255, 255);
+  color: #ffffff;
+}
 .general-search-bar {
   width: 100%;
   max-width: 320px;
@@ -996,7 +1051,7 @@ span {
   border-radius: 0 0 16px 16px;
   background: #1e1e1e;
   color: white;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   resize: none;
   font-size: 14px;
   box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
@@ -1149,7 +1204,7 @@ span {
   box-shadow: 8px 0 16px #0f0f0f, -8px 0 16px #1f1f1f;
   padding: 20px;
   color: white;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   transition: transform 0.4s ease-in-out, opacity 0.3s ease-in-out;
   z-index: 3000;
   border-right: 1px solid black;
@@ -1192,6 +1247,7 @@ span {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  
 }
 
 .member-list .role {
@@ -1200,6 +1256,7 @@ span {
   background: #1e1e1e;
   padding: 2px 8px;
   border-radius: 8px;
+
 }
 .member-list li {
   margin-bottom: 20px;
@@ -1218,7 +1275,7 @@ span {
   overflow: visible;
   text-overflow: unset;
   color: #0e0e0e;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif !important;
 
 }
 
@@ -1227,12 +1284,12 @@ span {
   padding: 2px 8px;
   border-radius: 8px;
   font-weight: bold;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif !important;
   background-color: #1e1e1e;
   border: 1px solid transparent;
 }
 .modal-content li {
-  font-family: 'QilkaBold', sans-serif !important;
+  font-family: 'Satoshi', sans-serif !important;
 }
 /* Role text colors */
 .role.admin {
@@ -1258,7 +1315,7 @@ span {
   font-size: 15px;
   color: #ccc;
   margin: 10px 0 8px;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   padding-left: 5px;
   border-bottom: 1px solid #2a2a2a;
 }
@@ -1969,7 +2026,8 @@ span {
 
 .profile-info #userEmail {
   font-size: 15px;
-  font-family: 'Qilkabold';
+  font-family: 'Satoshi', sans-serif;
+  color: #828282;
   margin-bottom: 5px;
 }
 
@@ -2690,7 +2748,7 @@ font-family: 'Accasia', sans-serif;
   transition: all 0.25s ease;
   color: white;
   border: none;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 .leaderboard-list li:hover {
@@ -3003,7 +3061,7 @@ font-family: 'Accasia', sans-serif;
   font-size: 14px;
   background: transparent !important;
   color: white;
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 .mini-profile-info #miniProfileEmail {
@@ -3011,7 +3069,7 @@ font-family: 'Accasia', sans-serif;
   opacity: 0.7;
    background: transparent !important;
    color: white;
-   font-family: 'QilkaBold', sans-serif;
+   font-family: 'Satoshi', sans-serif;
 }
 @keyframes slideInFromLeft {
   0% {
@@ -3192,7 +3250,7 @@ box-shadow: none !important;
   transition: left 0.4s ease;
 }
 .shop-container {
-  font-family: 'QilkaBold', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 /* Shop Modal Design */
@@ -3710,6 +3768,212 @@ box-shadow: none !important;
   max-width: 90%;
   margin: 0 auto;
 }
+#cookieBanner {
+  position: fixed;
+  bottom: 20px; /* adds spacing from bottom */
+  left: 50%;
+  transform: translateX(70%);
+  width: 40% !important;
+  background: #171717;
+  color: white;
+  padding: 15px;
+  z-index: 10000;
+  text-align: center;
+  font-family: 'Satoshi', sans-serif;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+}
+
+#cookieBanner button {
+  margin-left: 0px !important;
+  padding: 8px 8px !important;
+  background: #ffc400 !important;
+  color: #171717;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Satoshi', sans-serif;
+  cursor: pointer;
+}
+
+#cookieBanner button:hover {
+  background: #ffffff !important;
+}
+#typingText {
+    
+    font-family: 'Satoshi', sans-serif !important;
+  }
+.neumorphic-button {
+  background: #171717;
+  color: white;
+  border: 1px solid #000000;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow:
+    5px 5px 10px #0f0f0f,
+    -5px -5px 10px #1f1f1f;
+  transition: all 0.2s ease-in-out;
+  font-family: 'Satoshi', sans-serif !important;
+}
+
+.neumorphic-button:hover {
+  box-shadow:
+    3px 3px 6px #0f0f0f,
+    -3px -3px 6px #1f1f1f;
+  
+}
+/* Make sure this matches your modal class */
+.glass-modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(23, 23, 23, );
+
+  z-index: 9999;
+  border: none !important;
+}
+
+.glass-modal .modal-content {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  padding: 40px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  max-width: 90%;
+  width: 900px;
+  color: white;
+  position: relative;
+  border: none !important;
+}
+.modal-content{
+  background-color: #171717 !important;
+  
+}
+.modal-flex {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  justify-content: center;
+  width: 100%;
+}
+
+
+.modal-block p {
+  flex: 1;
+  width: 100%;
+  min-width: 200px; /* Optional: set a minimum width */
+  max-width: 320px;  /* Optional: cap it if needed */
+  font-size: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  outline: none;
+  flex-direction: row;
+}
+
+
+
+.modal-block img {
+  height: 320px;
+  width: auto;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: none !important;
+}
+
+.modal-block p {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  outline: none;
+  min-height: 100px;
+  width: 100%;
+  flex: 1;
+}
+
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 020px;
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+  z-index: 10;
+  background: transparent;
+}
+
+.close-modal:hover {
+  color: red;
+}
+/* Hidden by default */
+.glass-modal.hidden {
+  display: none;
+  opacity: 0;
+}
+
+/* Show modal with fade/scale animation */
+.glass-modal.show {
+  display: flex;
+  animation: fadeZoomIn 0.3s ease-out forwards;
+}
+
+/* Keyframes for the modal animation */
+@keyframes fadeZoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.gemini-flashcards::-webkit-scrollbar {
+  width: 10px;
+}
+
+.gemini-flashcards::-webkit-scrollbar-track {
+  background: #141414;
+  border-radius: 10px;
+  box-shadow: inset 4px 4px 6px #0f0f0f, inset -4px -4px 6px #1f1f1f;
+}
+
+.gemini-flashcards::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 10px;
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.6),
+    inset -2px -2px 4px rgba(255,255,255,0.05),
+    2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+.gemini-flashcards::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -3800,6 +4064,9 @@ box-shadow: none !important;
   display: flex !important;
   justify-content: center !important;
 }
+#geminiBtn img {
+  margin-left: 530px;
+}
 }
 
 
@@ -3820,6 +4087,7 @@ box-shadow: none !important;
     display: inline-block;
     word-break: break-word;
     margin-left: 70px;
+    font-family: 'Satoshi', sans-serif !important;
   }
 }
 
@@ -3853,6 +4121,7 @@ box-shadow: none !important;
     display: inline-block;
     word-break: break-word;
     margin-left: 70px;
+    font-family: 'Satoshi', sans-serif !important;
   }
 }
 
@@ -3923,6 +4192,7 @@ box-shadow: none !important;
     display: inline-block;
     word-break: break-word;
     margin-left: 70px;
+    font-family: 'Satoshi', sans-serif !important;
   }
   .tooltip-container::before {
     content: none !important;  /* Remove tooltip content */
@@ -3938,6 +4208,9 @@ box-shadow: none !important;
   margin-left: 75px !important;
   display: flex !important;
   justify-content: center !important;
+}
+#geminiBtn img {
+  margin-left: -60px !important;
 }
 }
 
