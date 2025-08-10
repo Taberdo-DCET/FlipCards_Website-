@@ -42,25 +42,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Firebase auth listener
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      localStorage.removeItem("miniProfileData");
-      populateMiniProfile({
-        email: "Not Logged In",
-        username: "Guest",
-        level: 0,
-        verified: false,
-        first: false,
-        avatar: "Group-10.png"
-      });
-      return;
-    }
+ onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    localStorage.removeItem("miniProfileData");
+    populateMiniProfile({
+      email: "Not Logged In",
+      username: "Guest",
+      level: 0,
+      verified: false,
+      first: false,
+      avatar: "Group-10.png"
+    });
+    return;
+  }
 
-    // Check if cache matches current user
-    // Always refresh user data on reload
-await fetchAndCacheUserData(user.email);
+  // If this is a guest (anonymous) account, show "Guest" immediately
+  if (user.isAnonymous) {
+    populateMiniProfile({
+      email: "Guest",
+      username: "Guest",
+      level: 0,
+      verified: false,
+      first: false,
+      avatar: "guestpic.png"
+    });
+    return;
+  }
 
-  });
+  // Otherwise, fetch their real profile data
+  await fetchAndCacheUserData(user.email);
+});
+
 });
 
 /**

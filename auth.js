@@ -40,6 +40,12 @@ function getDeviceId() {
 }
 
 window.login = async function () {
+ 
+  const loginBtn = document.getElementById('loginBtn');
+  if (loginBtn) {
+    loginBtn.textContent = "Logging In...";
+    loginBtn.disabled = true; // prevent double clicks
+  }
   const email = document.querySelector('input[name="username"]').value;
   const password = document.querySelector('input[name="password"]').value;
 

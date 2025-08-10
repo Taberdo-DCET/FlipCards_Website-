@@ -197,3 +197,101 @@ label {
     border-radius: 8px;
     cursor: pointer;
   }
+  /* Survey Modal specific styles */
+#surveyModal .modal-box h3 {
+  font-family: 'Accasia', sans-serif;
+  font-size: 20px;
+  color: white;
+  margin-bottom: 12px;
+  border: none !important;
+}
+
+#surveyModal form label {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;   /* aligns the circle vertically with text */
+  gap: 8px;              /* space between circle and text */
+}
+
+#surveyModal form input[type="radio"] {
+  margin-right: 8px;
+  accent-color: #ffc400; /* yellow highlight like your buttons */
+}
+
+#surveyModal form button {
+  flex: 1;
+  padding: 2px;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+#surveyModal form button[type="submit"] {
+  background: #ffffff;
+  color: #171717;
+}
+
+#surveyModal form button[type="submit"]:hover {
+  background: #ffc400;
+}
+
+#surveyModal form button#surveyCancel {
+  background: #2d2d2d;
+  color: white;
+}
+
+#surveyModal form button#surveyCancel:hover {
+  background: #ffffff !important;
+  color: black !important;
+}
+/* Make radio + text sit on one line and align left */
+#surveyModal .modal-box { 
+  text-align: left;
+}
+
+#surveyModal form label {
+  display: flex !important;     /* beat the inline display:block */
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+/* Undo the global input rules for radios */
+#surveyModal input[type="radio"] {
+  display: inline-block;        /* not block */
+  width: auto;                  /* not 100% */
+  margin: 0;                    /* remove big margins */
+  accent-color: #ffc400;
+}
+.modal-box span{
+  font-family: 'Satoshi', sans-serif;
+}
+/* Survey modal checkbox alignment */
+#surveyModal form label {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* space between checkbox and text */
+  margin: 8px 0;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+}
+
+#surveyModal form input[type="checkbox"] {
+  width: auto;              /* undo global 100% width */
+  height: auto;
+  margin: 0;
+  accent-color: #ffc400;    /* yellow theme */
+  transform: scale(1.1);    /* slightly larger for visibility */
+}
+
+#surveyModal form input[type="checkbox"]:hover {
+  filter: brightness(1.2);
+}
