@@ -31,11 +31,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logoutBtn");
 
   profileBtn?.addEventListener("click", () => {
-    if (currentUser) loadUserProfile(currentUser.email, true);
-  });
+  // Slide miniProfile out (if present), then open profile
+  const mp = document.getElementById("miniProfile");
+  if (mp) {
+    mp.classList.remove("mp-slide-in");
+    mp.classList.add("mp-slide-out");
+    mp.addEventListener("animationend", function onEnd() {
+      mp.style.display = "none";                 // fully hide after slide
+      mp.removeEventListener("animationend", onEnd);
+    }, { once: true });
+  }
+  if (currentUser) loadUserProfile(currentUser.email, true);
+});
+
 
   profileModal.addEventListener("click", (e) => e.stopPropagation());
-  closeBtn?.addEventListener("click", () => profileModal.classList.add("hidden"));
+  closeBtn?.addEventListener("click", () => {
+  profileModal.classList.add("hidden");
+  // Bring miniProfile back (slide in)
+  const mp = document.getElementById("miniProfile");
+  if (mp) {
+    mp.style.display = "";                     // unhide
+    mp.classList.remove("mp-slide-out");       // clear previous state
+    mp.classList.add("mp-slide-in");           // play slide-in
+  }
+});
+
 
   avatarInput.addEventListener("change", async (e) => {
     const file = e.target.files[0];
@@ -140,7 +161,7 @@ export async function openUserProfile(email) {
   const xpText = document.getElementById("xpText");
 
   // Show "Loading..." state
-  if (avatarImg) avatarImg.src = "Group-10.png";
+  if (avatarImg) avatarImg.src = "Group-100.png";
   if (coverImg) coverImg.src = "backgroundlobby.png";
   if (usernameText) usernameText.textContent = "Loading...";
   if (emailText) emailText.textContent = "";
@@ -171,7 +192,7 @@ async function loadUserProfile(email, isSelf = false) {
   try {
     // Fetch all data in parallel
     const [avatarURL, coverURL, usernameSnap, approvedSnap] = await Promise.all([
-      getDownloadURL(ref(storage, `avatars/${email}`)).catch(() => "Group-10.png"),
+      getDownloadURL(ref(storage, `avatars/${email}`)).catch(() => "Group-100.png"),
       getDownloadURL(ref(storage, `covers/${email}`)).catch(() => "backgroundlobby.png"),
       getDoc(doc(db, "usernames", email)),
       getDoc(doc(db, "approved_emails", email))

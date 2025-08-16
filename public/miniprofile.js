@@ -105,7 +105,7 @@ document.getElementById("firstUserOverlay").style.display = data.firstuser ? "bl
 if (level >= 0 && level <= 4) {
   levelBadgeHTML = `<img src="level0.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
 } else if (level >= 5 && level <= 14) {
-  levelBadgeHTML = `<img src="level5.png" alt="Level ${level}" class="role-badge" title="Level ${level}>`;
+  levelBadgeHTML = `<img src="level5.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
 }
 else if (level >= 15 && level <= 24) {
   levelBadgeHTML = `<img src="level15.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
@@ -116,8 +116,12 @@ else if (level >= 15 && level <= 24) {
 } else if (level >= 50 && level<= 64) {
   levelBadgeHTML = `<img src="level50.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
 }
- else if (level >= 65 && level <= 99) {
+ else if (level >= 65 && level <= 84) {
   levelBadgeHTML = `<img src="level65.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
+}else if (level >= 85 && level <= 99) {
+  levelBadgeHTML = `<img src="level85.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
+}else if (level >= 100 && level <= 120) {
+  levelBadgeHTML = `<img src="level100.png" alt="Level ${level}" class="role-badge" title="Level ${level}">`;
 }
   document.getElementById("miniProfileLevelBadge").innerHTML = levelBadgeHTML;
 }

@@ -855,8 +855,8 @@ span {
 }
 .gemini-modal-close {
   position: absolute;
-  top: 15px;
-  right: 18px;
+  top: 48px;
+  right: 28px;
   font-size: 24px;
   cursor: pointer;
   background: transparent;
@@ -1031,7 +1031,9 @@ span {
   flex-direction: column;
   border: 1px solid black;
 }
-
+#noteModal {
+  overflow-x: hidden !important;
+}
 .notepad-header {
   background: #222;
   padding: 12px;
@@ -2116,7 +2118,9 @@ span {
   margin-top: 10px;
   font-family: 'Qilkabold' !important;
 }
-
+#userName {
+  font-family: 'Satoshi' !important;
+}
 #userBadgeContainer img {
   width: 18px;
   height: 18px;
@@ -2158,6 +2162,7 @@ span {
 }
 #xpText {
   font-size: 10px;
+  font-family: 'Satoshi', sans-serif;
 }
 .edit-avatar {
   margin-right: 0px;
@@ -2171,7 +2176,9 @@ span {
   padding: 90px 20px;
 
 }
-
+#userLevelText {
+  font-family: 'Satoshi', sans-serif !important;
+}
 .general-header {
   display: flex;
   justify-content: center;
@@ -2547,7 +2554,7 @@ font-family: 'Accasia', sans-serif;
   width: 100%;
   padding: 12px 16px;
   font-size: 15px;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   color: white;
   background: #171717;
   border: none;
@@ -3966,12 +3973,991 @@ box-shadow: none !important;
 .gemini-flashcards::-webkit-scrollbar-thumb:hover {
   background: #3a3a3a;
 }
+.member-avatar{
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 6px 0 2px; /* sits to the right of the dot */
+  border: 1px solid #2a2a2a;
+}
+/* ===== Class Favorite Section ===== */
+.class-favorite {
+  background-color: #171717;
+  padding: 60px 0 80px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.class-favorite-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* title on the left */
+  margin-bottom: 16px;
+}
+
+.class-favorite-title {
+  margin: 0;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 2.2rem;
+  line-height: 1.2;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.class-favorite-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.class-favorite-list {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+  
+}
+.class-favorite-list {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* adjust spacing between cards */
+  text-align: center;
+}
+
+.class-favorite-card {
+  background: #1e1e1e;
+  border: 1px solid #0b0b0b;
+  border-radius: 16px;
+  padding: 16px;
+  color: #fff;
+  box-shadow:
+    8px 8px 20px #111,
+    -8px -8px 20px #222,
+    inset 1px 1px 2px rgba(255, 255, 255, 0.03),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.06);
+    justify-content: center;
+}
+
+.class-favorite-card .creator-name {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.class-favorite-card .creator-meta {
+  font-size: 13px;
+  color: #cfcfcf;
+  font-family: 'Satoshi', sans-serif;
+}
+.creator-meta {
+  margin-top: 17px;
+}
+/* ===== End Class Favorite ===== */
+.class-favorite-card .creator-name {
+  
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent !important;
+}
+.class-favorite-card {
+  width: 410px !important;          /* fixed width for all cards */
+  margin-top: 50px;
+  height: 100px;
+  box-sizing: border-box; /* ensures padding/border fit inside width */
+  text-align: start;    /* center text inside */
+}
+.class-favorite-card:hover {
+  border: 1px solid white;
+}
+.creator-name {
+  display: flex;
+  align-items: start;
+  justify-content: start !important;
+  gap: 6px;               /* space between name and badge */
+  white-space: nowrap;    /* keep name and badge on one line */
+}
+.class-favorite-header {
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  align-items: start;    /* Center horizontally */
+  text-align: start;     /* Center text inside */
+  margin-bottom: 10px;
+}
+
+.class-favorite-title {
+  margin: 0;
+}
+
+.class-favorite-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: #ccc;
+  font-weight: 400;
+  font-family: 'Satoshi', sans-serif;
+}
+/* Toggle + slide panel for public sets */
+.class-favorite-card { position: relative; }
+
+.cf-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cf-toggle {
+  appearance: none;
+  border: 1px solid #2a2a2a;
+  background: #202020;
+  color: #fff;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  border-radius: 8px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: transform .15s ease, background .2s ease, border-color .2s ease;
+}
+.cf-toggle:hover { background: #262626; border-color: #444; }
+.cf-toggle[aria-expanded="true"] { transform: rotate(180deg); }
+
+.cf-sets {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .28s ease;
+  margin-top: 10px;
+  border-top: 1px dashed #333;
+  padding-top: 10px;
+}
+.cf-sets.open { max-height: 280px; }
+
+.cf-sets-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 13px;
+  color: #eaeaea;
+}
+.cf-set-item {
+  padding: 6px 8px;
+  border: 1px solid #242424;
+  border-radius: 8px;
+  background: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-empty, .cf-error {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 12px;
+  color: #bbb;
+}
+.cf-set-likes span {
+  background: transparent !important;
+}
+
+.folder-date-wrap {
+  display: flex;
+  flex-direction: column;   /* ← makes category go under the date */
+  align-items: flex-start;  /* left-align both */
+  gap: 6px;
+}
+
+.folder-category {
+  
+  background: #fff; /* gray background */
+  color: #171717;
+  padding: 3px 10px;
+  border-radius: 999px; /* round pill */
+  font-size: 12px;
+  font-family: sans-serif;
+  letter-spacing: 0.3px;
+  box-shadow:
+    inset 1px 1px 2px rgba(0, 0, 0, 0.2),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.05);
+  white-space: nowrap;
+  font-family: 'Satoshi', sans-serif;
+  margin-bottom: -3px;
+}
+.folder-category:hover {
+  background: #171717; /* gray background */
+  color: #fff;
+  cursor: pointer;
+}
+.modal-content2 {
+   font-family: 'Satoshi', sans-serif !important;
+}
+#geminiUsage {
+  font-family: 'Satoshi', sans-serif !important;
+  background: transparent !important;
+  color: white !important;
+}
+#geminiUsageCount {
+  background: transparent;
+  color: white;
+}
+#geminiUsageMax{
+  background: transparent !important;
+  color: white !important;
+
+}
+/* Style for scroll wheel in the dropdown */
+.cf-sets {
+  overflow-y: auto;
+  scrollbar-width: thin;              /* Firefox */
+  scrollbar-color: #555 transparent;  /* Firefox thumb & track colors */
+}
+
+/* Chrome, Edge, and Safari */
+.cf-sets::-webkit-scrollbar {
+  width: 8px;              /* scrollbar thickness */
+}
+
+.cf-sets::-webkit-scrollbar-track {
+  background: transparent; /* scrollbar track background */
+}
+
+.cf-sets::-webkit-scrollbar-thumb {
+  background-color: #555;   /* scrollbar thumb color */
+  border-radius: 4px;       /* round edges */
+  border: 2px solid transparent; /* space around thumb */
+  background-clip: content-box;
+}
+
+.cf-sets::-webkit-scrollbar-thumb:hover {
+  background-color: #777;   /* lighter on hover */
+}
+.close-member-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  float: right;
+  line-height: 1;
+  padding: 0;
+}
+
+.close-member-btn:hover {
+  color: red;
+}
+/* ===================== */
+/*  Notes Modal (Neumo)  */
+/* ===================== */
+
+.note-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  z-index: 9998;
+}
+.note-backdrop.hidden { display: none; }
+
+.note-modal {
+  width: min(92vw, 1200px);
+  height: min(86vh, 820px);
+  background: #171717;
+  color: #fff;
+  border-radius: 22px;
+  border: 1px solid #000;
+  box-shadow:
+    18px 18px 36px #0f0f0f,
+    -18px -18px 36px #1f1f1f,
+    inset 1px 1px 0 rgba(255,255,255,0.04),
+    inset -1px -1px 0 rgba(0,0,0,0.55);
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden !important;
+  animation: notePop 160ms ease-out;
+}
+@keyframes notePop { from { transform: scale(.98); opacity: .8; } to { transform: scale(1); opacity: 1; } }
+
+.note-topbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, #1a1a1a 0%, #171717 100%);
+  box-shadow:
+    inset 6px 6px 12px #0f0f0f,
+    inset -6px -6px 12px #1f1f1f;
+}
+.note-title {
+   font-family: 'Satoshi', sans-serif;
+  font-size: 18px;
+  letter-spacing: .3px;
+}
+
+.note-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* search */
+.note-search-wrap {
+  position: relative;
+  width: clamp(220px, 32vw, 420px);
+  height: 40px;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    inset 6px 6px 10px #0f0f0f,
+    inset -6px -6px 10px #1f1f1f;
+  border: 1px solid rgba(0,0,0,0.7);
+}
+.note-search-wrap input {
+  width: 100%;
+  height: 100%;
+  padding: 0 14px 0 14px;
+  background: #1b1b1b;
+  color: #eee;
+  border: none;
+  outline: none;
+  font-family: 'Satoshi', system-ui, sans-serif;
+  font-size: 14px;
+}
+
+
+/* buttons */
+.note-icon-btn {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  border: 1px solid #000;
+  font-size: 22px; line-height: 1;
+  color: #fff;
+  background: #1b1b1b;
+  cursor: pointer;
+  box-shadow: none !important;
+  transition: transform .08s ease, box-shadow .15s ease, background .15s ease;
+}
+.note-icon-btn:hover { transform: translateY(-1px); }
+.note-icon-btn:active {
+  transform: translateY(0);
+
+}
+.note-icon-btn.close:hover { color: #ff6b6b; }
+
+/* list area */
+.note-list {
+  flex: 1;
+  overflow: auto;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+  overflow-x: hidden !important;
+}
+
+/* individual note card */
+.note-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #1a1a1a;
+  border: 1px solid #000;
+  box-shadow:
+    10px 10px 18px #0f0f0f,
+    -10px -10px 18px #1f1f1f,
+    inset 1px 1px 0 rgba(255,255,255,0.04),
+    inset -1px -1px 0 rgba(0,0,0,0.55);
+      position: relative; 
+}
+.note-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.note-card-title {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  color: #ffcf00;
+  background: transparent;
+}
+.note-card-tools { display: flex; gap: 8px; }
+.note-tool {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid #000; background: #202020; color: #eee;
+  display: grid; place-items: center; cursor: pointer;
+  font-size: 16px; line-height: 1;
+  box-shadow:none !important;
+}
+.note-tool:hover { transform: translateY(-1px); }
+.note-tool:active {
+  box-shadow:
+    inset 5px 5px 8px #0f0f0f,
+    inset -5px -5px 8px #1f1f1f;
+}
+.note-text {
+  min-height: 120px;
+  max-height: 40vh;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 12px;
+  background: #191919;
+  color: #eaeaea;
+  border: 1px solid #000;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow:
+    inset 8px 8px 12px #0f0f0f,
+    inset -8px -8px 12px #1f1f1f;
+}
+.note-text:focus { outline: none; }
+.note-text {
+  height: 320px;      /* pick your fixed height */
+  max-height: none;   /* remove the 40vh cap */
+  overflow-y: auto;   /* vertical scroll when content is long */
+}
+.note-empty {
+  opacity: .7;
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 8vh;
+  font-family: 'Satoshi', sans-serif;
+}
+/* Notes modal list scrollbar */
+.note-list {
+  overflow-y: auto;              /* already present, ok to keep */
+  scrollbar-width: thin;         /* Firefox */
+  scrollbar-color: #aaa transparent; /* Firefox */
+}
+
+.note-list::-webkit-scrollbar {
+  width: 8px;
+}
+.note-list::-webkit-scrollbar-thumb {
+  background-color: #aaa;
+  border-radius: 4px;
+}
+.note-list::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+.note-card-title {
+  width: 100%;
+  padding: 8px 12px;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #1e1e1e; /* dark neumorphic base */
+  color: white;
+  box-shadow:
+    inset 3px 3px 6px #0f0f0f,
+    inset -3px -3px 6px #1f1f1f;
+}
+
+.note-card-title::placeholder {
+  color: #aaa; /* placeholder text color */
+  opacity: 0.8;
+}
+
+.note-card-title:focus {
+  outline: none;
+  box-shadow:
+    inset 4px 4px 8px #0f0f0f,
+    inset -4px -4px 8px #1f1f1f,
+    0 0 4px rgba(255,255,255,0.3); /* slight glow */
+}
+/* Bottom-right expand/collapse button */
+.note-expand {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  background: #202020;
+  color: #eee;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  box-shadow:none !important;
+}
+.note-expand:hover { transform: translateY(-1px); }
+.note-expand:active {
+  box-shadow:
+    inset 5px 5px 8px #0f0f0f,
+    inset -5px -5px 8px #1f1f1f;
+}
+
+/* Expanded state — make the editor taller */
+.note-card.expanded .note-text {
+  height: 70vh;        /* pick your expanded height */
+  max-height: none;
+  overflow-y: auto;
+}
+/* =============== */
+/* Note Preview UI */
+/* =============== */
+.note-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  z-index: 10000; /* higher than .note-backdrop (9998) */
+}
+.note-preview-backdrop.hidden { display: none; }
+
+.note-preview-modal {
+  width: min(84vw, 960px);   /* slightly smaller than Notepad modal */
+  height: min(74vh, 680px);  /* slightly smaller than Notepad modal */
+  background: #171717;
+  color: #fff;
+  border-radius: 18px;
+  border: 1px solid #000;
+  box-shadow:
+    18px 18px 36px #0f0f0f,
+    -18px -18px 36px #1f1f1f,
+    inset 1px 1px 0 rgba(255,255,255,0.04),
+    inset -1px -1px 0 rgba(0,0,0,0.55);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: notePop 140ms ease-out;
+}
+
+.note-preview-topbar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: linear-gradient(180deg, #1a1a1a 0%, #171717 100%);
+  box-shadow:
+    inset 6px 6px 12px #0f0f0f,
+    inset -6px -6px 12px #1f1f1f;
+}
+.note-preview-title {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 16px !important;
+  letter-spacing: .3px;
+  margin: 0;
+  margin-left: 20px !important;
+}
+#notePreviewTitle {
+  margin-left: 20px !important;
+  margin-top: 10px !important;
+  font-size: 23px !important;
+}
+#notePreviewModal {
+  height: 90% !important; /* full height for preview */
+}
+.note-preview-body {
+  padding: 18px;
+  overflow: auto;            /* scroll if long text */
+  white-space: pre-wrap;     /* keep line breaks */
+  line-height: 1.5;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 19px !important;
+}
+#notePreviewText {
+height: 400px !important; /* fixed height for preview */
+align-self: center;
+margin-left: 0px !important;
+overflow-x: hidden !important;
+
+}
+#notePreviewTitleInput {
+  width: 97% !important;
+}
+/* Ensure expand button can sit bottom-right inside a card */
+.note-card { position: relative; }
+
+/* Bottom-right expand button on each card (if not added earlier) */
+.note-expand {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  background: #171717;
+  color: #fff;
+  cursor: pointer;
+  box-shadow:
+    6px 6px 12px #0f0f0f,
+    -6px -6px 12px #1f1f1f,
+    inset 1px 1px 0 rgba(255,255,255,0.04),
+    inset -1px -1px 0 rgba(0,0,0,0.55);
+}
+.note-expand:hover {
+  transform: translateY(-1px);
+}
+.note-pin {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  background: #171717;
+  color: #fff;
+  cursor: pointer;
+  box-shadow:none !important;
+}
+.note-pin:hover {
+  transform: translateY(-1px);
+  
+}
+/* Optional: subtle outline for pinned cards */
+.note-card.is-pinned {
+  outline: 1px solid rgba(255,255,255,0.16);
+  outline-offset: 0;
+}
+
+/* Make the pin button look active when pinned */
+.note-pin.active {
+  background: #2a2a2a;
+  border-color: #fff;
+  box-shadow:
+    inset 3px 3px 6px #0f0f0f,
+    inset -3px -3px 6px #1f1f1f;
+}
+  /* Hide the draw palette in Review Mode */
+  #notePreviewBackdrop.review-mode #drawPalette {
+    display: none !important;
+    opacity: 0 !important;
+    transform: translateX(10px) !important;
+  }
+#btnDraw:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+#notePreviewCloseBtn:hover {
+color: red !important;
+}
+.note-pin-badge {
+  position: absolute;
+  top: -14px;
+  left: -21px !important;
+  transform: scaleX(-1);
+  padding: 4px 8px;
+  font-size: 21px;
+  line-height: 1;
+  border-radius: 9999px;
+  color: #fff;
+  background: transparent !important;
+  border: none !important;
+  pointer-events: none; /* purely visual */
+  z-index: 2;
+}
+/* Circular checkboxes inside note editors */
+.note-text input[type="checkbox"].check-box {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;     /* white stroke */
+  border-radius: 50%;          /* circle */
+  background: transparent;     /* transparent inner */
+  display: inline-block;
+  vertical-align: -3px;        /* align with text nicely */
+  margin-right: 8px;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+/* Focus ring (subtle) */
+.note-text input[type="checkbox"].check-box:focus {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
+/* Checked state: small inner dot (still a circle) */
+.note-text input[type="checkbox"].check-box:checked {
+  /* draw a centered white dot without losing the transparent ring look */
+  background-image: radial-gradient(#fff 50%, transparent 52%);
+}
+
+/* Optional hover nudge */
+.note-text input[type="checkbox"].check-box:hover {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.10);
+}
+#previewRibbon {
+  margin-top: -20px !important;
+  margin-bottom: 10px !important;
+  font-family: 'Satoshi', sans-serif !important;
+}
+#drawPalette {
+  top: 29.3% !important;
+  left: 9.7% !important;
+}
+#btnReview {
+  margin-left: -17.7% !important;
+}
+#annotationStatus {
+  margin-right: 70% !important;
+  margin-left: -0.1% !important;
+  border-radius: 5px !important;
+  padding-right: 6px !important;
+}
+/* Active style for the checklist toggle button in the preview ribbon */
+#previewRibbon #btnChecklist.active {
+  background: white !important;
+  color: #171717 !important;
+  border: 2px solid black !important;
+  
+}
+#btnChecklist {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+}
+#reviewModeBtn.active {
+  background: white !important;
+  color: #171717 !important;
+  border: 2px solid black !important;
+  
+}
+#reviewModeBtn {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+}
+#previewRibbon #btnReview.active {
+  background: white !important;
+  color: #171717 !important;
+  border: 2px solid black !important;
+  
+}
+#notePreviewModal.review-mode {
+  width: min(98vw, 1400px) !important;
+  height: min(97vh, 1900px) !important;
+  transition: width .18s ease, height .18s ease;
+}
+#notePreviewText.review-mode {
+  height: min(90vh, 510px) !important;
+
+}
+#notePreviewText.review-mode .img-block img,
+#notePreviewText.review-mode img {
+  max-width: 100% !important;
+  height: auto !important;
+
+}
+
+/* Center the editor horizontally when Review Mode is active */
+#notePreviewModal.review-mode #notePreviewEditorWrap {
+  margin: 0 auto;
+  transform-origin: top center !important;
+}
+
+#btnReview {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+}
+#previewRibbon #btnImage.active {
+  background: white !important;
+  color: #171717 !important;
+  border: 2px solid black !important;
+  
+}
+#btnImage {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+ 
+}
+#previewRibbon #btnDraw.active {
+  background: white !important;
+  color: #171717 !important;
+  border: 2px solid black !important;
+  
+}
+#btnDraw {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+ 
+}
+#notePreviewText::-webkit-scrollbar {
+  width: 8px;
+}
+#notePreviewText::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.25);
+  border-radius: 6px;
+}
+#notePreviewText::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* Firefox */
+#notePreviewText {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.25) transparent;
+}
+#noteTitle {
+  margin-left: 20px !important;
+  font-size: 22px !important;
+}
+/* Force transparent backgrounds and white text inside the preview editor */
+/* Force transparent bg + white text, but don't kill checkbox background-image */
+#notePreviewText * {
+  background-color: transparent !important;
+  -webkit-text-fill-color: inherit !important;
+  color: #fff !important;
+  font-family: 'Satoshi', sans-serif !important;
+}
+
+/* Keep the circular checkbox style working */
+#notePreviewText input[type="checkbox"].check-box {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  display: inline-block;
+  vertical-align: -3px;
+  margin-right: 8px;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+/* Checked state — allow its background-image */
+#notePreviewText input[type="checkbox"].check-box:checked {
+  background-image: radial-gradient(#fff 50%, transparent 52%) !important;
+}
 
 
 
+/* Force transparent bg + white text, but don't kill checkbox background-image */
+.note-text * {
+  background-color: transparent !important;
+  -webkit-text-fill-color: inherit !important;
+  color: #fff !important;
+  font-family: 'Satoshi', sans-serif !important;
+}
 
+/* Keep the circular checkbox style working */
+.note-text input[type="checkbox"].check-box {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  display: inline-block;
+  vertical-align: -3px;
+  margin-right: 8px;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 120ms ease, background 120ms ease, border-color 120ms ease;
+}
 
+/* Checked state — allow its background-image */
+.note-text input[type="checkbox"].check-box:checked {
+  background-image: radial-gradient(#fff 50%, transparent 52%) !important;
+}
+/* Center any image blocks inside the preview editor */
+/* Center any image blocks inside the preview editor */
+#notePreviewText .img-block {
+  display: block;         /* normal block so text isn't treated as a flex child */
+  margin: 12px 0;
+}
 
+#notePreviewText .img-block > img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-left: auto !important;      /* centers the image */
+  margin-right: auto !important;
+}
+/* === How to Use button styles + attention pulse === */
+.howto-btn{
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #2b2b2b;
+  background: #1e1e1e;
+  color: #fff;
+  font: 600 13px "Satoshi", sans-serif;
+  letter-spacing: .2px;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.howto-btn:hover,
+.howto-btn:focus-visible{
+  background: #232323;
+  border-color: #60a5fa; /* hover highlight */
+  box-shadow: 0 0 0 2px rgba(96,165,250,.25);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* attention animation */
+.howto-btn.attract{
+  animation: howtoBorderPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes howtoBorderPulse{
+  0%{
+    border-color: #2b2b2b;
+    box-shadow: 0 0 0 0 rgba(244,67,54,.0);
+  }
+  50%{
+    border-color: #9D3129;           /* soft blue */
+    box-shadow: 0 0 0 2px rgba(244,67,54,.0);
+  }
+  100%{
+    border-color: #A90300;
+    box-shadow: 0 0 0 0 rgba(244,67,54,.0);
+  }
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce){
+  .howto-btn.attract{ animation: none; }
+}
+
+/* MiniProfile slide OUT to the left + fade */
+@keyframes miniProfileSlideOutLeft {
+  0%   { transform: translateX(0);    opacity: 1; }
+  100% { transform: translateX(-140%); opacity: 0; }
+}
+#miniProfile.mp-slide-out {
+  animation: miniProfileSlideOutLeft .35s ease forwards;
+}
+
+/* MiniProfile slide IN from the left + fade */
+@keyframes miniProfileSlideInLeft {
+  0%   { transform: translateX(-140%); opacity: 0; }
+  100% { transform: translateX(0);     opacity: 1; }
+}
+#miniProfile.mp-slide-in {
+  animation: miniProfileSlideInLeft .35s ease forwards;
+}
 
 
 
@@ -3990,6 +4976,13 @@ box-shadow: none !important;
     margin-right: 140px;
     margin-top: 20px;
   }
+  .class-favorite-card {
+  width: 410px !important;          /* fixed width for all cards */
+  margin-top: 50px;
+  height: 130px;
+  box-sizing: border-box; /* ensures padding/border fit inside width */
+  text-align: start;    /* center text inside */
+}
 }
 
 
@@ -4066,6 +5059,13 @@ box-shadow: none !important;
 }
 #geminiBtn img {
   margin-left: 530px;
+}
+.class-favorite-card {
+  width: 410px !important;          /* fixed width for all cards */
+  margin-top: 50px;
+  height: 130px;
+  box-sizing: border-box; /* ensures padding/border fit inside width */
+  text-align: start;    /* center text inside */
 }
 }
 
@@ -4212,5 +5212,110 @@ box-shadow: none !important;
 #geminiBtn img {
   margin-left: -60px !important;
 }
+.class-favorite-list {
+  flex-direction: column;
+  
+}
+  #parsecardsModal {
+    width: 95%;          /* Use most of the screen width */
+    max-width: 400px;    /* Keep a reasonable max size */
+    margin: 0 auto;      /* Center horizontally */
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  /* Adjust modal header/title sizes */
+  #parsecardsModal h1,
+  #parsecardsModal h2,
+  #parsecardsModal h3 {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+
+  /* Ensure paragraphs and text are readable on small screens */
+  #parsecardsModal p,
+  #parsecardsModal span,
+  #parsecardsModal li {
+    font-size: 0.7rem;
+    line-height: 1.3;
+    word-break: break-word;
+    width: 90% !important;
+  }
+
+  /* Make buttons full-width for easier tapping */
+  #parsecardsModal button {
+    width: 100% !important;
+    font-size: 0.95rem;
+    padding: 10px 14px;
+  }
+
+  /* Images inside modal scale down */
+  #parsecardsModal img {
+    max-width: 50%;
+    height: auto;
+  }
+
+  /* If modal has lists or columns, stack them */
+  #parsecardsModal .flex,
+  #parsecardsModal .row,
+  #parsecardsModal .columns {
+    flex-direction: column;
+    gap: -20px;
+  }
+  #parsecardsModal .modal-flex {
+    flex-direction: column;
+    gap: 14px;
+  }
+  #parsecardsModal .close-modal {
+    right: -36%;
+    top: 30px;
+  }
+
+   .gemini-modal-title {
+    display: flex !important;       /* override any defaults/inline quirks */
+    flex-direction: column;         /* put the image under the text */
+    align-items: center;
+    justify-content: center;
+    gap: 6px !important;
+    text-align: center;
+    line-height: 1.35;
+  }
+
+  /* Make sure the beta image sits under the text and looks tidy */
+  .gemini-modal-title img {
+    order: 2;
+    height: 19px !important;        /* slightly smaller on mobile */
+    margin-top: 2px;
+  }
+   #generalQuestions .general-header {
+    flex-direction: column;
+    align-items: center;
+    margin: 0; /* reset weird negative margins */
+    text-align: center;
+  }
+
+  /* Move the plus button below the "Share a question..." text */
+  #generalQuestions .general-btn {
+    order: 2; /* make sure it comes after the title in flow */
+    margin-top: -30px;
+  }
+
+  /* Center the "Share a question..." message and the plus button together */
+  #generalQuestions .general-header + .general-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px 0;
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  /* Place the plus button under the message */
+  #generalQuestions .general-header + .general-header::after {
+    content: '';
+  }
 }
 

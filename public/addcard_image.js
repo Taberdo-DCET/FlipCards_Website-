@@ -129,12 +129,19 @@ createBtn.addEventListener("click", async () => {
   const title = document.querySelector(".title").value.trim();
   const description = document.querySelector(".description").value.trim();
   const isPublic = document.getElementById("publicToggle").checked;
+  const category = document.getElementById("categorySelect")?.value || "";
 
   const terms = Array.from(cardsContainer.querySelectorAll(".term")).map(input => input.value.trim());
   const files = [...cardsContainer.querySelectorAll(".imageDefinition")].map(input => input.files[0]);
 
   if (!title || terms.some(term => !term)) {
     alert("Please fill in title and terms.");
+    return;
+  }
+
+  // ✅ Require category regardless of public/private
+  if (!category) {
+    alert("Please select a category before creating the set.");
     return;
   }
 
@@ -173,11 +180,13 @@ createBtn.addEventListener("click", async () => {
       const flashcardSet = {
         title,
         description,
+        category, // ✅ Added category to data
         public: isPublic,
         createdOn: editMode ? editingSet.createdOn : new Date().toISOString(),
         user: user.email,
         flashcards
       };
+
 
       if (editMode) {
   if (!editingSet._id) {

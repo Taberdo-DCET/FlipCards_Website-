@@ -318,6 +318,7 @@ if (!isGuest) {
       borderRadius: "10px",
       border: "none",
       background: "#eee",
+      fontFamily: "Satoshi, sans-serif",
       cursor: "pointer"
     });
     seeAnswersBtn.addEventListener("click", () => showAnswersModal(data.question));

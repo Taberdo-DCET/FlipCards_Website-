@@ -733,8 +733,9 @@ body {
   }
 
   .scoreboard-container {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(5, 3fr);
     padding: 10px;
+    gap: 10px;
   }
 
   .home-btn {
@@ -776,3 +777,4 @@ body {
     padding: 10px 20px;
   }
 }
+

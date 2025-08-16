@@ -121,6 +121,7 @@ async function getFlashcardData() {
   const title = document.querySelector(".title").value.trim();
   const description = document.querySelector(".description").value.trim();
   const isPublic = document.getElementById("publicToggle")?.checked;
+  const category = document.getElementById("categorySelect")?.value || "";
   const flashcards = [];
   let valid = true;
 
@@ -135,12 +136,18 @@ async function getFlashcardData() {
     return { error: "Please enter a title, and make sure all flashcards have both term and definition." };
   }
 
+  // ✅ Require category for all sets
+  if (!category) {
+    return { error: "Please select a category before creating the set." };
+  }
+
   const now = new Date();
   const createdTime = originalCreatedOn || now.toISOString();
 
   const data = {
     title,
     description,
+    category,
     flashcards,
     createdAt: createdTime,
     createdOn: createdTime,
@@ -149,6 +156,8 @@ async function getFlashcardData() {
 
   return { data };
 }
+
+
 
 async function checkPublicLimit(user, currentTitle, currentCreatedOn) {
   let maxPublicSets = 2;

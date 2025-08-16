@@ -31,7 +31,13 @@ openBtn.addEventListener("click", () => {
     setTimeout(() => location.reload(), 500); // 500ms delay
   }
 });
-
+// 👇 ADD THIS RIGHT AFTER THE OPEN BTN LISTENER
+const closeBtn = document.getElementById("closeMemberList");
+if (closeBtn) {
+  closeBtn.addEventListener("click", () => {
+    openBtn.click();
+  });
+}
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && sidebar.classList.contains("show")) {
@@ -230,8 +236,12 @@ else if (user.level >= 15 && user.level <= 24) {
 } else if (user.level >= 50 && user.level <= 64) {
   levelBadgeHTML = `<img src="level50.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
 }
- else if (user.level >= 65 && user.level <= 99) {
+ else if (user.level >= 65 && user.level <= 84) {
   levelBadgeHTML = `<img src="level65.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+}else if (user.level >= 85 && user.level <= 99) {
+  levelBadgeHTML = `<img src="level85.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
+}else if (user.level >= 100 && user.level <= 120) {
+  levelBadgeHTML = `<img src="level100.png" alt="Level ${user.level}" class="role-badge" title="Level ${user.level}">`;
 }
 
 

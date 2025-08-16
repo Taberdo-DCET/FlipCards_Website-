@@ -113,8 +113,11 @@ async function createCard(set, docId = null, isPublic = false) {
 
 
   card.innerHTML = `
-    <div class="folder-header">
+<div class="folder-header">
+    <div class="folder-date-wrap">
       <span class="folder-date">${date}</span>
+      <span class="folder-category">${sanitize(set.category || "General")}</span>
+    </div>
       <div class="folder-icons">
         ${isPublic
           ? `<div style="display: flex; align-items: center; gap: 4px;">
@@ -230,12 +233,19 @@ async function renderFilteredFolders(user) {
   }
 
   // Filter by search keyword
-  allSets = allSets.filter(set => {
-    const title = set.title?.toLowerCase() || "";
-    const desc = set.description?.toLowerCase() || "";
-    const email = set.user?.toLowerCase() || "";
-    return title.includes(keyword) || desc.includes(keyword) || email.includes(keyword);
-  });
+ // Filter by search keyword
+allSets = allSets.filter(set => {
+  const title = set.title?.toLowerCase() || "";
+  const desc = set.description?.toLowerCase() || "";
+  const email = set.user?.toLowerCase() || "";
+  const category = set.category?.toLowerCase() || "general"; // added category search
+
+  return title.includes(keyword) ||
+         desc.includes(keyword) ||
+         email.includes(keyword) ||
+         category.includes(keyword); // allow matching by category
+});
+
 
   const startIdx = (currentPage - 1) * setsPerPage;
   const endIdx = startIdx + setsPerPage;

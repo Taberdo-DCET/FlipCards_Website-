@@ -392,6 +392,32 @@ button {
   max-height: 160px;
   border-radius: 8px;
 }
+.category-select {
+  background-color: #212121;
+  color: #fff;
+  border: 1px solid rgb(0, 0, 0);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: 'Satoshi', sans-serif;
+  box-shadow: inset 3px 3px 6px #101010, inset -3px -3px 6px #1f1f1f;
+  cursor: pointer;
+}
+
+.category-select:focus {
+  outline: none;
+  border-color: #fff;
+}
+
+
+
+
+
+
+
+
+
+
 
 @media (max-width: 768px) {
   .home-btn {

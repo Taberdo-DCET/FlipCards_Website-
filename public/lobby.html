@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlipCards Lobby</title>
      <link rel="stylesheet" href="lobby.css">
-     <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+     <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
      crossorigin="anonymous"></script>
      <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -111,6 +111,10 @@
   </button>
 </a>
 
+<div id="geminiUsage" style="margin-top: 15px; text-align: center; font-size: 14px; color: #ffffff;background: transparent;">
+  Uses left: <span id="geminiUsageCount">3</span> <span>/3</span>
+
+</div>
 
   </div>
 </div> 
@@ -172,7 +176,7 @@
   </button>
 </div>
 
-<div class="tooltip-container" data-tooltip="Notes">
+<div class="tooltip-container" data-tooltip="FlipNotes">
   <button class="music-icon notes" aria-label="Notes">
     <img src="notenc.png" alt="Notes" data-hover="notec.png" data-default="notenc.png">
   </button>
@@ -230,10 +234,39 @@
 </div>
 
 
-<div id="notepad" class="notepad-modal hidden">
-  <div id="notepadHeader" class="notepad-header">📝 Notepad</div>
-  <textarea id="notepadText" placeholder="Type here..."></textarea>
+<!-- Notes Modal -->
+<div id="noteBackdrop" class="note-backdrop hidden" aria-hidden="true">
+  <div id="noteModal" class="note-modal" role="dialog" aria-modal="true" aria-labelledby="noteTitle">
+    <div class="note-topbar">
+      <h3 id="noteTitle" class="note-title">FlipNotes<img src="beta.png" alt="Beta" style="height: 19px; margin-left: 6px; margin-top: 5px;" /></h3>
+
+      <div class="note-controls">
+        <div class="note-search-wrap">
+          <input id="noteSearch" type="text" placeholder="Search notes…" aria-label="Search notes">
+          
+        </div>
+
+        <button id="noteAddBtn" class="note-icon-btn" title="New note" aria-label="New note">+</button>
+        <button id="noteCloseBtn" class="note-icon-btn close" title="Close" aria-label="Close">×</button>
+      </div>
+    </div>
+
+    <div id="noteList" class="note-list" aria-live="polite"></div>
+  </div>
 </div>
+<!-- Note Preview Modal (opens on top of Notepad modal) -->
+<div id="notePreviewBackdrop" class="note-preview-backdrop hidden" aria-hidden="true">
+  <div id="notePreviewModal" class="note-preview-modal" role="dialog" aria-modal="true" aria-labelledby="notePreviewTitle">
+    <div class="note-preview-topbar">
+      <h4 id="notePreviewTitle" class="note-preview-title">(Untitled)</h4>
+      <button id="notePreviewCloseBtn" class="note-icon-btn close" title="Close preview" aria-label="Close preview">×</button>
+    </div>
+    <div class="note-preview-body" id="notePreviewBody"></div>
+  </div>
+</div>
+
+
+
 
     </section>
     <section class="folder-section" id="Folderr">
@@ -260,7 +293,7 @@
                    
 
   <div style="margin: 20px auto; max-width: 300px; margin-bottom: 60px;">
-    <input id="folderSearch" type="text" class="neumorphic-search" placeholder="Search folders...Emails or Users...">
+    <input id="folderSearch" type="text" class="neumorphic-search" placeholder="Search folders, Category...Emails or Users...">
 <div class="neumorphic-select-wrapper">
   <select id="folderFilter" class="neumorphic-select">
     <option value="your" selected>Your Flashcard Sets</option>
@@ -294,6 +327,30 @@
   </div>
   <div class="questions-list"></div>
 
+</section>
+<section id="classFavorite" class="class-favorite">
+  <div class="class-favorite-header container">
+    <div class="class-favorite-header">
+  <h2 class="class-favorite-title">Class Favorite</h2>
+  <p class="class-favorite-subtitle">Flipcards Most Liked Flashcard Sets Creators</p>
+</div>
+
+
+  </div>
+  <div class="class-favorite-body container">
+    <!-- TODO: Populate this list dynamically with top creators -->
+    <div class="class-favorite-list" aria-live="polite">
+      <!-- Example creator card -->
+      <div class="class-favorite-card">
+        <div class="creator-name"></div>
+        <div class="creator-meta"></div>
+      </div>
+      <div class="class-favorite-card">
+        <div class="creator-name"></div>
+        <div class="creator-meta"></div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="featuress" id="featuress">
@@ -431,21 +488,17 @@
         <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
         <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
         <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update:   08/09/25</li>
-          <li>🚨 NEW FEATURE DROP: ParseCards (Beta) is HERE! 🧠✨</li>
-          <span class="sub-announcement">➥ Say goodbye to manual typing 🥲</span>
-          <span class="sub-announcement">➥ With ParseCards, you can now upload JPG files of your notes or slides — and we’ll instantly turn them into clean, structured flashcard sets! 🎴📚</span>
-          <span class="sub-announcement">➥ 🔥 Bonus: It’s UNLIMITED use for the first week of release!</span>
-          <li>🚨 QUIBBL MODE LEADERBOARDS ARE LIVE! 🚨</li>
-          <span class="sub-announcement">➥ Win in Quibbl Mode to earn XP 📈 and Stars 🌟 — and secure your spot on the leaderboard! 🏆</span>
-          <span class="sub-announcement">➥ 💥 The more you play, the more you earn.</span>
-          <li>📢 New Avatar Borders Are Here! ✨</li>
-          <span class="sub-announcement">➥ You can now showcase your achievements and roles with exclusive avatar borders that appear on your mini profile and main profile!</span>
-          <li>🏅 Achievement Badges Are Live! </li>
-          <span class="sub-announcement">➥ More badges are coming soon, so keep engaging, leveling up, and climbing the leaderboard! 🚀</span>
-          <li>🎉 NEW BADGES UI UPDATE IS HERE! </li>
-          <span class="sub-announcement">➥ Track your progress and flex your wins in style 💼👀</span>
-          <li>🚀 LEVEL BADGES GOT AN UPGRADE TOO!</li>
+          <li>📅 New features in this Update:   08/16/25</li>
+          <li>📢 FlipNotes Update!✨</li>
+          <li>✨ What’s New in FlipNotes:</li>
+          <span class="sub-announcement">➥🎨 Improved UI for a smoother experience</span>
+          <span class="sub-announcement">➥ 📝 Store unlimited notes and use the ✏️ Draw Tool for annotations</span>
+          <span class="sub-announcement">➥ 🎨 Customize note colors to easily sort and organize</span>
+          <span class="sub-announcement">➥ 📌 Pin your important notes to keep them on top</span>
+          <li>⭐ Class Favorite Section:</li>
+          <span class="sub-announcement">➥ 🏆 Shows the Top 3 Users with the most ❤️ Liked Flashcard Creations</span>
+          <li>📂 Folder Section Update:</li>
+          <span class="sub-announcement">➥🏷️ Added Category Tags in Card Sets for better sorting and navigation</span>
           <li>👁️👁️ Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes
           </li>
@@ -540,7 +593,7 @@
 <!-- Member List Sidebar -->
 <div id="memberSidebar" class="member-sidebar">
 
-  <div class="member-header">🧑‍💻 Registered Users</div>
+  <div class="member-header">🧑‍💻 Registered Users <button id="closeMemberList" class="close-member-btn">&times;</button></div>
   <ul id="memberList" class="member-list">
     <!-- Members will be populated here -->
   </ul>
@@ -621,7 +674,7 @@
 
 <!-- Hidden form for adding question -->
 <div id="questionModal" class="custom-modal hidden">
-  <div class="modal-content" style="background: white; border-radius: 20px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 10px 10px 30px rgba(0,0,0,0.2); color: black; font-family: 'Accasia'; text-align: center;">
+  <div class="modal-content2" style="background: white; border-radius: 20px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 10px 10px 30px rgba(0,0,0,0.2); color: black; font-family: 'Accasia'; text-align: center;">
     <h3 style="margin-bottom: 20px;">Ask a General Question</h3>
     <input type="text" id="question-category" class="question-input" placeholder="Enter category" style="margin-bottom: 15px; width: 100%;">
     <input type="text" id="question-input" class="question-input" placeholder="Type your question..." style="margin-bottom: 15px; width: 100%;">
@@ -666,6 +719,7 @@
       <li>Verified Badge</li>
       <li>+50% XP Boost</li>
       <li>Instant +10 Levels</li>
+      <li>Total of 15 Uses in ParseCards (base usage included)</li>
       <li>Immediate Upgrade to Bronze Spender</li>
     </ul>
     <p><strong>All of these for just 100 Pesos</strong></p>
@@ -759,7 +813,9 @@ For the best results, avoid using low-quality images.</p>
         <p contenteditable="true">Make sure the term is placed above the definition, with some spacing in between for better accuracy. If your notes are handwritten, we recommend using AI tools to convert them into a format that works well with the parser.</p>
       </div>
     </div>
+    
   </div>
+
 </div>
 
 <div id="cookieBanner" style="position:fixed; bottom:0; left:0; width:100%; background:#222; color:white; padding:15px; display:none; z-index:10000; text-align:center; font-family:Arial, sans-serif;">
@@ -1111,6 +1167,10 @@ onSnapshot(docRef, (docSnap) => {
 <script src="protect.js"></script>
 <script src="cookie.js"></script>
 <script type="module" src="./AIppt.js"></script>
+<script type="module" src="classfav.js"></script>
+<!-- include the separate JS file (after other scripts) -->
+<script type="module" src="note.js"></script>
+
 
 </body>
 </html>

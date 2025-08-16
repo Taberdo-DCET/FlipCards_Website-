@@ -6,12 +6,12 @@
     <title>FlipCards | Add Card</title>
     <link rel="stylesheet" href="card.css">
     <link rel="stylesheet" href="lobb.css">
-    <link rel="icon" type="image/png" sizes="32x32" href="Group-10.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
 </head>
 <body>
     <div class="flashcard-wrapper">
     <div class="header-with-home">
-  <h1>Create a flashcard set</h1>
+  <h1>Create a Flashcard Set</h1>
   <a href="lobby.html#Folderr">
     <img src="homeenc.png" alt="Home" class="home-btn" />
   </a>
@@ -24,7 +24,18 @@
     <label class="public-toggle">
   <input type="checkbox" id="publicToggle" /> Make this set public
   <span id="publicUsage" style="font-size: 14px; margin-left: 8px;"></span>
+
+  <select id="categorySelect" class="category-select">
+    <option value="">Select Category</option>
+    <option value="Medical field">Health & Medicine</option>
+    <option value="Education Studies">Education Studies</option>
+    <option value="Science">Science</option>
+    <option value="Mathematics">Mathematics</option>
+    <option value="Elementary">Elementary</option>
+    <option value="General">General</option>
+  </select>
 </label>
+
 
     <input type="text" class="input title" placeholder="Title" />
     <textarea class="input description" placeholder="Add a description...(Optional)"></textarea>
