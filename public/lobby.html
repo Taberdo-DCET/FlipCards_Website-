@@ -160,7 +160,43 @@
 </h6>
 
             </div>
-            <div class="orb"><div class="orb-eye"></div><div class="orb-trail"></div> </div>
+            <article class="article-wrapper">
+  <div class="rounded-lg container-project" id="user-card-image-container">
+  <img id="user-card-image" src="" alt="User card image" class="user-card-photo" style="display: none;">
+  <button id="user-card-add-photo-btn" class="add-photo-btn">Add Photo</button>
+  <input type="file" id="user-card-photo-input" accept="image/*" style="display: none;">
+</div>
+    <div class="project-info">
+      <div class="flex-pr">
+        <div class="project-text-wrapper">
+ <div class="project-title" id="user-card-username-container"></div>
+  <div class="project-subtitle" id="user-card-email">...</div>
+</div>
+          <div class="project-hover">
+            <svg style="color: rgb(0, 0, 0);" xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" color="black" stroke-linejoin="round" stroke-linecap="round" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor"><line y2="12" x2="19" y1="12" x1="5"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </div>
+          </div>
+          
+
+
+<div class="card-footer">
+ <div class="types" id="user-card-roles-container">
+  </div>
+  <div id="user-card-color-picker" class="color-picker">
+    <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #ddd;"></div>
+    <div class="color-swatch" data-color="#FFADAD" style="background-color: #FFADAD;"></div>
+    <div class="color-swatch" data-color="#FFD6A5" style="background-color: #FFD6A5;"></div>
+    <div class="color-swatch" data-color="#FDFFB6" style="background-color: #FDFFB6;"></div>
+    <div class="color-swatch" data-color="#CAFFBF" style="background-color: #CAFFBF;"></div>
+    <div class="color-swatch" data-color="#9BF6FF" style="background-color: #9BF6FF;"></div>
+    <div class="color-swatch" data-color="#A0C4FF" style="background-color: #A0C4FF;"></div>
+    <div class="color-swatch" data-color="#BDB2FF" style="background-color: #BDB2FF;"></div>
+    <div class="color-swatch" data-color="#FFC6FF" style="background-color: #FFC6FF;"></div>
+  </div>
+  <button id="user-card-palette-btn" class="palette-btn">🎨</button>
+</div>
+  </div>
+</article>
         </div>
 <div class="musicrow">
       
@@ -488,17 +524,16 @@
         <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
         <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
         <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update:   08/16/25</li>
-          <li>📢 FlipNotes Update!✨</li>
+          <li>📅 New features in this Update:   08/18/25</li>
+          <li>📢 FlipNotes Function Update!✨</li>
           <li>✨ What’s New in FlipNotes:</li>
-          <span class="sub-announcement">➥🎨 Improved UI for a smoother experience</span>
-          <span class="sub-announcement">➥ 📝 Store unlimited notes and use the ✏️ Draw Tool for annotations</span>
-          <span class="sub-announcement">➥ 🎨 Customize note colors to easily sort and organize</span>
-          <span class="sub-announcement">➥ 📌 Pin your important notes to keep them on top</span>
-          <li>⭐ Class Favorite Section:</li>
-          <span class="sub-announcement">➥ 🏆 Shows the Top 3 Users with the most ❤️ Liked Flashcard Creations</span>
-          <li>📂 Folder Section Update:</li>
-          <span class="sub-announcement">➥🏷️ Added Category Tags in Card Sets for better sorting and navigation</span>
+          <span class="sub-announcement">➥📝 You can now create flashcard sets by uploading PDF files.</span>
+          <span class="sub-announcement">➥ 💡 For PowerPoint (PPT) files, we highly recommend saving them as a PDF first for the best results.</span>
+           <span class="sub-announcement">➥📌 Please note: The advanced Review Mode remains available only for JPG/PNG files for now.</span>
+          <li>✨ New Dynamic Profile Card!</li>
+          <span class="sub-announcement">➥ 👤 Your profile is now a dynamic, interactive card right on the lobby!</span>
+          <span class="sub-announcement">➥ 🖼️ Upload a custom photo that you can change anytime.!</span>
+          <span class="sub-announcement">➥ 👤 🎨 Personalize your card's background with an expanded selection of new color palettes!</span>
           <li>👁️👁️ Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes
           </li>
@@ -888,7 +923,6 @@ onSnapshot(docRef, (docSnap) => {
    <script type="module" src="displaylocalsets.js"></script>
     <script src="search.js"></script>
     <script src="icon.js"></script>
-    <script src="orb.js"></script>
     <script src="music.js"></script>
     
 
@@ -1170,7 +1204,8 @@ onSnapshot(docRef, (docSnap) => {
 <script type="module" src="classfav.js"></script>
 <!-- include the separate JS file (after other scripts) -->
 <script type="module" src="note.js"></script>
-
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="module" src="userCard.js"></script>
 </body>
 </html>

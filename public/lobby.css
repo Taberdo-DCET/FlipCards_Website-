@@ -279,6 +279,7 @@ ul {
 }
 .catchphrase {
   margin-top: 30px; /* push down below the fixed header */
+  
   text-align: start;
   color: white;
   font-family: 'Accasia', sans-serif;
@@ -385,6 +386,7 @@ span {
   line-height: 1.4;
   margin: 70px;
   margin-top: 150px;
+  
 }
 
 .orb {
@@ -4577,8 +4579,14 @@ height: 400px !important; /* fixed height for preview */
 align-self: center;
 margin-left: 0px !important;
 overflow-x: hidden !important;
-
+overflow-wrap: break-word !important; /* break long words */
+word-break: break-all !important;
 }
+/* Fixes the expanding text editor issue in the note preview */
+#notePreviewEditorWrap {
+  min-width: 0;
+}
+
 #notePreviewTitleInput {
   width: 97% !important;
 }
@@ -4710,7 +4718,7 @@ color: red !important;
   margin-left: -17.7% !important;
 }
 #annotationStatus {
-  margin-right: 70% !important;
+  margin-right: 50% !important;
   margin-left: -0.1% !important;
   border-radius: 5px !important;
   padding-right: 6px !important;
@@ -4726,6 +4734,33 @@ color: red !important;
   font-family: 'Satoshi', sans-serif !important;
   border-radius: 100px !important;
   border: 2px solid #fff !important;
+}
+#previewRibbon #btnPptx.active {
+  background: white !important;
+  color: #171717 !important;
+  border: 2px solid black !important;
+  
+}
+#btnPptx {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+}
+#btnPdf img {
+  width: 30px !important;
+  height: 30px !important;
+}
+#previewRibbon #btnPdf.active {
+  background: white !important;
+  color: #171717 !important;
+  border: 2px solid black !important;
+  
+}
+#btnPdf {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+  margin-left: 13%  !important;
 }
 #reviewModeBtn.active {
   background: white !important;
@@ -4746,11 +4781,13 @@ color: red !important;
 }
 #notePreviewModal.review-mode {
   width: min(98vw, 1400px) !important;
-  height: min(97vh, 1900px) !important;
+  height: min(97vh, 1100px) !important;
   transition: width .18s ease, height .18s ease;
+  display: flex;
 }
 #notePreviewText.review-mode {
-  height: min(90vh, 510px) !important;
+  
+  height: min(97vh, 510px) !important;
 
 }
 #notePreviewText.review-mode .img-block img,
@@ -4822,7 +4859,12 @@ color: red !important;
   color: #fff !important;
   font-family: 'Satoshi', sans-serif !important;
 }
-
+.note-color-pop {
+  margin-left: 50px !important;
+  margin-top: -65px;
+  box-shadow: none !important;
+  border: 1px solid white !important;
+}
 /* Keep the circular checkbox style working */
 #notePreviewText input[type="checkbox"].check-box {
   -webkit-appearance: none;
@@ -4878,8 +4920,10 @@ color: red !important;
 }
 /* Center any image blocks inside the preview editor */
 /* Center any image blocks inside the preview editor */
+/* Center any image blocks inside the preview editor */
 #notePreviewText .img-block {
-  display: block;         /* normal block so text isn't treated as a flex child */
+  display: table !important;         /* <-- ADD THIS: Isolates the block's layout */
+  width: 100% !important;            /* <-- ADD THIS: Ensures it fits the editor width */
   margin: 12px 0;
 }
 
@@ -4958,12 +5002,317 @@ color: red !important;
 #miniProfile.mp-slide-in {
   animation: miniProfileSlideInLeft .35s ease forwards;
 }
+#notePreviewModal.review-mode #notePreviewEditorWrap {
+  width: 67% !important;
+  height: 100% !important;
+}
+/* Animation for the note preview modal */
+@keyframes notePop {
+  from {
+    transform: scale(.98);
+    opacity: .8;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* Closing animation keyframes */
+@keyframes notePopOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.98);
+    opacity: 0;
+  }
+}
 
+/* Class to trigger the closing animation on the backdrop */
+.note-backdrop.is-closing {
+  animation: notePopOut 160ms ease-in forwards;
+}
+.article-wrapper {
+  width: 250px;
+  -webkit-transition: 0.15s all ease-in-out;
+  transition: 0.15s all ease-in-out;
+  border-radius: 10px;
+  padding: 5px;
+  border: 4px solid gray;
+  cursor: pointer;
+  background-color: white;
+  margin-top: 200px;
+  font-family: 'Satoshi', sans-serif;
+  transform: rotate(10deg);
+  --card-text-color: #000000; /* Default text color is black */
+}
 
+.article-wrapper:hover {
+  -webkit-box-shadow: 10px 10px 0 #88304E, 20px 20px 0 #522546;
+  box-shadow: 10px 10px 0 #88304E, 20px 20px 0 #522546;
+  border-color: #522546;
+  -webkit-transform: translate(-20px, -20px);
+  -ms-transform: translate(-20px, -20px);
+  transform: translate(-20px, -20px);
+}
 
+.article-wrapper:active {
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
 
+.types {
+  gap: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  place-content: flex-start;
+}
 
+.rounded-lg {
+  /* class tailwind */
+  border-radius: 10px;
+}
 
+.article-wrapper:hover .project-hover {
+  -webkit-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  background-color: transparent;
+}
+/* Styling for specific role tags on the user card */
+.project-type.role-admin {
+  background-color: #FFD700; /* Gold */
+  color: #4d4100;
+  font-weight: bold;
+}
+
+.project-type.role-verified {
+  background-color: #87CEEB; /* Sky Blue */
+  color: #00334d;
+  font-weight: bold;
+}
+
+.project-type.role-sponsor {
+  background-color: #98FB98; /* Pale Green */
+  color: #003300;
+  font-weight: bold;
+}
+
+.project-type.role-diamond {
+  background-color: #B9F2FF; /* Diamond Blue */
+  color: #004d66;
+  font-weight: bold;
+}
+.project-info {
+  padding-top: 20px;
+  padding: 10px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.project-title {
+  font-size: 30px;
+  margin: 0;
+  font-weight: 600;
+  color: black;
+  /* Add flex properties to align the username text and badge */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent !important; /* Ensure no background color */
+  color: var(--card-text-color); /* Use the variable */
+}
+#user-card-username-text{
+  background: transparent !important; /* Ensure no background color */
+}
+.project-badge {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0; /* Prevents the badge from shrinking or getting squished */
+}
+#user-card-username-text {
+  white-space: nowrap;
+  overflow: hidden;
+}
+.project-subtitle {
+  font-size: 13px;
+  color: #1c1c1c;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  opacity: 0.6;
+  margin-top: 2px;
+  max-width: 170px; /* Ensures long emails don't break the layout */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--card-text-color); /* Use the variable */
+}
+.project-text-wrapper {
+  /* This is the key fix: It prevents the container from stretching with long text. */
+  max-width: 165px;
+  min-width: 0; /* A flexbox rule to allow shrinking */
+}
+.flex-pr {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.project-type {
+  background: #b2b2fd;
+  color: #1a41cd;
+  font-weight: bold;
+  padding: 0.3em 0.7em;
+  border-radius: 15px;
+  font-size: 12px;
+  letter-spacing: -0.6px
+}
+
+.project-hover {
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  padding: 9px;
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+  color: var(--card-text-color); /* Add this line */
+}
+
+.container-project {
+  width: 100%;
+  height: 170px;
+  background: #444; /* Darker gray for better contrast */
+  position: relative; /* Needed for positioning child elements */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* This will contain the image neatly */
+  border: 1.5px solid gray; 
+}
+/* Style for the "Add Photo" button */
+.add-photo-btn {
+  padding: 8px 16px;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  background-color: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* Add these properties for positioning */
+  position: absolute;
+  z-index: 10;
+}
+/* This rule styles the button when a photo is present */
+.container-project.has-photo .add-photo-btn {
+  bottom: 8px;
+  right: 8px;
+  font-size: 18px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+
+  /* --- Add/Change these properties --- */
+  width: 32px;         /* Set a fixed width */
+  height: 29px;        /* Set a fixed height */
+  padding: 0;          /* Remove padding */
+  display: flex;       /* Use flexbox for alignment */
+  align-items: center; /* This vertically centers the emoji */
+  justify-content: center; /* This horizontally centers it */
+}
+
+.container-project.has-photo .add-photo-btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+  border-color: white;
+}
+
+.add-photo-btn:hover {
+  background-color: white;
+}
+
+/* Style for the user's uploaded photo */
+.user-card-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* This makes the image fill the container without stretching */
+}
+/* Card Footer Container */
+.card-footer {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
+  position: relative;
+  display: flex;
+  justify-content: space-between; /* This is the key change */
+  align-items: center; /* This vertically aligns the roles and button */
+}
+
+/* Palette Button */
+.palette-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.palette-btn:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+/* Color Picker Palette */
+.color-picker {
+  position: absolute;
+  bottom: 40px; /* Position it above the button */
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  padding: 8px;
+  display: none; /* Hidden by default */
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 20;
+}
+
+/* Individual Color Swatches */
+.color-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+}
+.color-swatch:hover {
+  transform: scale(1.15);
+}
 
 
 
@@ -4982,6 +5331,9 @@ color: red !important;
   height: 130px;
   box-sizing: border-box; /* ensures padding/border fit inside width */
   text-align: start;    /* center text inside */
+}
+.article-wrapper{
+  margin-top: 10px;
 }
 }
 
@@ -5067,8 +5419,41 @@ color: red !important;
   box-sizing: border-box; /* ensures padding/border fit inside width */
   text-align: start;    /* center text inside */
 }
+#btnPdf {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+  margin-left: 1%  !important;
+}
+#notePreviewText.review-mode {
+  
+  height: min(94vh, 680px) !important;
+
 }
 
+#notePreviewText {
+  margin-bottom: 100px !important;
+}
+#drawPalette {
+  top: 27.3% !important;
+  left: 9.7% !important;
+}
+.note-color-pop {
+  margin-left: 50px !important;
+  margin-top: -65px;
+  box-shadow: none !important;
+  border: 1px solid white !important;
+}
+#notePreviewEditorWrap {
+  margin-top: 20px !important ;
+}
+#previewRibbon {
+  margin-top: 8px !important;
+}
+.article-wrapper{
+  margin-top: 20px;
+}
+}
 
 @media (max-width: 1000px) {
   .getstarted {
@@ -5317,5 +5702,11 @@ color: red !important;
   #generalQuestions .general-header + .general-header::after {
     content: '';
   }
+  #btnPdf {
+  font-family: 'Satoshi', sans-serif !important;
+  border-radius: 100px !important;
+  border: 2px solid #fff !important;
+  margin-left: -40%  !important;
+}
 }
 
