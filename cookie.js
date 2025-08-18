@@ -28,6 +28,6 @@ function loadAdSenseScript() {
   const script = document.createElement("script");
   script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
   script.async = true;
-  script.setAttribute("data-ad-client", "ca-pub-XXXXXXXXXXXXXXXX"); // replace with your AdSense ID
+  script.setAttribute("data-ad-client", "ca-pub-4779578721359852"); // replace with your AdSense ID
   document.head.appendChild(script);
 }

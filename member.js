@@ -28,7 +28,7 @@ openBtn.addEventListener("click", () => {
     loaderShownThisSession = false; // Reset loader for new session
   }
   if (wasOpen) {
-    setTimeout(() => location.reload(), 500); // 500ms delay
+    setTimeout(() => location.reload(true), 500); // Note the 'true' for a force reload
   }
 });
 // 👇 ADD THIS RIGHT AFTER THE OPEN BTN LISTENER
@@ -49,7 +49,7 @@ document.addEventListener("keydown", (e) => {
       miniProfile.classList.remove("sidebar-open");
     }
 
-    setTimeout(() => location.reload(), 300); // 300ms delay
+    setTimeout(() => location.reload(true), 300); // Note the 'true' for a force reload
   }
 });
 

@@ -37,6 +37,7 @@ previewModal.style.cssText = `
   background: #171717; color:#fff; border-radius:18px; border:1px solid #000;
   
   display:flex; flex-direction:column; overflow:hidden;
+  animation: notePop 140ms ease-out; /* <-- ADD THIS LINE */
 `;
 
 const previewTopbar = document.createElement('div');
@@ -84,14 +85,14 @@ previewTopbar.style.gridTemplateColumns = '1fr auto auto auto';
 previewTopbar.appendChild(reviewBtn);
 // ▼ ADD: Review Mode behavior
 function resizeOverlaysForReview() {
-  const ov = previewText.querySelector('#noteDrawOverlay');
+  const ov = previewEditorWrap.querySelector('#noteDrawOverlay');
+  console.log(`%c[Review] resizeOverlaysForReview: Running.`, 'color: #eab308', { overlayElementFound: !!ov });
   if (!ov) return;
 
-  // If we’re in Review Mode, the editor is scaled from a frozen baseline width/height.
-  // Keep the overlay at that baseline size so transform() scales it together with text.
   if (previewModal.classList.contains('review-mode') && previewEditorWrap?.dataset?.baseW) {
     const w = parseFloat(previewEditorWrap.dataset.baseW);
     const h = parseFloat(previewEditorWrap.dataset.baseH || Math.max(previewText.scrollHeight, previewText.clientHeight));
+    console.log('[Review] resizeOverlaysForReview: Sizing saved overlay for REVIEW MODE from dataset:', { width: w, height: h });
     ov.style.width  = w + 'px';
     ov.style.height = h + 'px';
     ov.style.left = '0px';
@@ -99,9 +100,9 @@ function resizeOverlaysForReview() {
     return;
   }
 
-  // Normal mode: follow the live editor box
   const w = previewText.clientWidth;
   const h = Math.max(previewText.scrollHeight, previewText.clientHeight);
+  console.log('[Review] resizeOverlaysForReview: Sizing saved overlay for NORMAL MODE from live content:', { width: w, height: h });
   ov.style.width  = w + 'px';
   ov.style.height = h + 'px';
   ov.style.left = '0px';
@@ -110,34 +111,37 @@ function resizeOverlaysForReview() {
 
 function applyReviewScale() {
   const inReview = previewModal.classList.contains('review-mode');
+  console.log(`%c[Review] applyReviewScale: Running. In Review Mode: ${inReview}`, 'color: #3b82f6');
 
-  // If NOT in review, clear transform, width, and any stale baseline flags
   if (!inReview) {
+    console.log('[Review] applyReviewScale: Exiting Review Mode. Clearing fixed styles.');
     previewEditorWrap.style.transform = '';
     previewEditorWrap.style.width = '';
-    // clear stale baseline so next enter recomputes cleanly
+    previewEditorWrap.style.height = '';
     delete previewEditorWrap.dataset.baseW;
     delete previewEditorWrap.dataset.baseH;
     return;
   }
 
-  // Always (re)compute baseline on each entry to Review Mode (prevents drift)
-  previewEditorWrap.dataset.baseW = String(previewEditorWrap.clientWidth);
-  previewEditorWrap.dataset.baseH = String(
-    Math.max(previewEditorWrap.scrollHeight, previewEditorWrap.clientHeight)
-  );
-  previewEditorWrap.style.width = previewEditorWrap.dataset.baseW + 'px';
+  const baseW = String(previewEditorWrap.clientWidth);
+  const baseH = String(Math.max(previewEditorWrap.scrollHeight, previewEditorWrap.clientHeight));
+  console.log('[Review] applyReviewScale: Recorded base dimensions:', { baseW: parseFloat(baseW), baseH: parseFloat(baseH) });
+  
+  previewEditorWrap.dataset.baseW = baseW;
+  previewEditorWrap.dataset.baseH = baseH;
 
-  const baseW = parseFloat(previewEditorWrap.dataset.baseW);
-  const baseH = parseFloat(previewEditorWrap.dataset.baseH);
+  console.log('[Review] applyReviewScale: Locking layout dimensions to base values.');
+  previewEditorWrap.style.width = baseW + 'px';
+  previewEditorWrap.style.height = baseH + 'px';
 
-  // Measure real body area (below the topbar)
   const bodyRect = previewBody.getBoundingClientRect();
-  const availW = bodyRect.width  - 16; // small padding allowance
+  const availW = bodyRect.width  - 16;
   const availH = bodyRect.height - 16;
+  
+  const s = Math.max(0.5, Math.min(availW / parseFloat(baseW), availH / parseFloat(baseH)));
+  console.log('[Review] applyReviewScale: Calculated scale:', { availW: availW, availH: availH, scale: s });
 
-  // Uniform scale that fits both width and height
-  const s = Math.max(0.5, Math.min(availW / baseW, availH / baseH));
+  console.log(`[Review] applyReviewScale: Applying transform: scale(${s})`);
   previewEditorWrap.style.transform = `scale(${s})`;
 }
 
@@ -146,114 +150,78 @@ function applyReviewScale() {
 reviewBtn.addEventListener('click', () => {
   const enabling = !previewModal.classList.contains('review-mode');
 
-  // Toggle classes on all three main nodes
   previewBackdrop.classList.toggle('review-mode', enabling);
   previewModal.classList.toggle('review-mode', enabling);
   previewText.classList.toggle('review-mode', enabling);
 
-  // Apply inline size so it overrides the original inline width/height
   if (enabling) {
-    // save originals once
+    // --- ADD THIS LINE TO HIDE THE RIBBON ---
+    previewRibbon.style.display = 'none';
+
     if (!previewModal.dataset.origW) {
       previewModal.dataset.origW = previewModal.style.width || '';
       previewModal.dataset.origH = previewModal.style.height || '';
     }
     previewModal.style.width  = 'min(98vw, 1400px)';
     previewModal.style.height = 'min(94vh, 900px)';
-  // Disallow drawing in Review Mode
-  if (drawModeOn) {
-    // turn it OFF cleanly (reuses your existing OFF logic)
-    btnDraw.click();
-  }
-  btnDraw.disabled = true;
-  btnDraw.title = 'Drawing is disabled in Review Mode';
-  // hide palette just in case
-  drawPalette.style.display = 'none';
-  drawPalette.style.opacity = '0';
-  drawPalette.style.transform = 'translateX(10px)';
-  // --- SHOW DRAWINGS in Review Mode ---
-  // 1) If an overlay exists, show it
-  let ov = document.getElementById('noteDrawOverlay');
+    if (drawModeOn) btnDraw.click();
+    btnDraw.disabled = true;
+    btnDraw.title = 'Drawing is disabled in Review Mode';
+    drawPalette.style.display = 'none';
+    drawPalette.style.opacity = '0';
+    drawPalette.style.transform = 'translateX(10px)';
 
-  // 2) If not, but the note has a saved drawLayer, create it
-  if (!ov && currentPreviewNote?.drawLayer?.src) {
-    ov = document.createElement('img');
-    ov.id = 'noteDrawOverlay';
-    ov.src = currentPreviewNote.drawLayer.src;
-    ov.style.position = 'absolute';
-    ov.style.pointerEvents = 'none';
-    ov.style.zIndex = '3';
-    ov.style.left = '0px';
-    ov.style.top  = '0px';
-    // width/height sized in resizeOverlaysForReview() after scaling
-    previewText.appendChild(ov);
-  }
-
-  // 3) Make it visible now
-  if (ov) ov.style.display = 'block';
-
-  // 4) Update status label
-  annotationStatus.textContent = 'Annotations Visible';
-
-    // optional: comfy reading size (inline beats defaults)
-    previewText.style.fontSize   = '';
-previewText.style.lineHeight = '';
-
+    let ov = document.getElementById('noteDrawOverlay');
+    if (!ov && currentPreviewNote?.drawLayer?.src) {
+      ov = document.createElement('img');
+      ov.id = 'noteDrawOverlay';
+      ov.src = currentPreviewNote.drawLayer.src;
+      ov.style.position = 'absolute';
+      ov.style.pointerEvents = 'none';
+      ov.style.zIndex = '3';
+      ov.style.left = '0px';
+      ov.style.top  = '0px';
+      previewEditorWrap.appendChild(ov); // Corrected parent
+    }
+    if (ov) ov.style.display = 'block';
+    annotationStatus.textContent = 'Annotations Visible';
   } else {
-    // restore originals
+    // --- ADD THIS LINE TO SHOW THE RIBBON AGAIN ---
+    previewRibbon.style.display = 'flex';
+
     previewModal.style.width  = previewModal.dataset.origW || '';
     previewModal.style.height = previewModal.dataset.origH || '';
-
-    previewText.style.fontSize   = '';
-    previewText.style.lineHeight = '';
-    // also clear any scroll and stale baseline so the next enable is fresh
-previewText.scrollLeft = 0;
-previewEditorWrap.scrollLeft = 0;
-previewEditorWrap.style.transform = '';
-previewEditorWrap.style.width = '';
-delete previewEditorWrap.dataset.baseW;
-delete previewEditorWrap.dataset.baseH;
-  // Re-enable drawing control now that Review Mode is OFF
-  btnDraw.disabled = false;
-  btnDraw.title = 'Freehand drawing';
-  // --- RESTORE overlay visibility rule outside Review Mode ---
-  // (show only if draw mode is ON)
-  const _ov = document.getElementById('noteDrawOverlay');
-  if (_ov) _ov.style.display = drawModeOn ? 'block' : 'none';
-  annotationStatus.textContent = drawModeOn ? 'Annotations Visible' : 'Annotations Hidden';
-
+    delete previewEditorWrap.dataset.baseW;
+    delete previewEditorWrap.dataset.baseH;
+    btnDraw.disabled = false;
+    btnDraw.title = 'Freehand drawing';
+    const _ov = document.getElementById('noteDrawOverlay');
+    if (_ov) _ov.style.display = drawModeOn ? 'block' : 'none';
+    annotationStatus.textContent = drawModeOn ? 'Annotations Visible' : 'Annotations Hidden';
   }
 
-  // Update button state/label
   reviewBtn.classList.toggle('active', enabling);
   reviewBtn.textContent = enabling ? 'Exit Review' : 'Review Mode';
-applyReviewScale();
+  
+  const onTransEnd = (ev) => {
+    if (ev.target !== previewModal || (ev.propertyName !== 'width' && ev.propertyName !== 'height')) return;
+    applyReviewScale(); 
+    resizeOverlaysForReview();
+    // CORRECTED: Sync canvas size after transition
+    if (drawModeOn) syncDrawCanvasSize(); 
+    if (!previewModal.classList.contains('review-mode')) {
+      previewModal.removeEventListener('transitionend', onTransEnd);
+    }
+  };
 
-  // After layout settles, sync overlay + draw canvas
   requestAnimationFrame(() => {
-  resizeOverlaysForReview();
-  if (drawModeOn && typeof syncDrawCanvasSize === 'function') {
-    syncDrawCanvasSize();
-  }
-});
-// Also resize again when the modal's width/height transition finishes
-const onTransEnd = (ev) => {
-  if (ev.target !== previewModal) return;
-  if (ev.propertyName !== 'width' && ev.propertyName !== 'height') return;
-applyReviewScale(); 
-  // One more pass after the modal reached its final size
-  resizeOverlaysForReview();
-  if (drawModeOn && typeof syncDrawCanvasSize === 'function') {
-    syncDrawCanvasSize();
-  }
+    applyReviewScale();
+    resizeOverlaysForReview();
+    // CORRECTED: Sync canvas size immediately
+    if (drawModeOn) syncDrawCanvasSize(); 
+  });
 
-  // if we exited Review Mode, no need to keep listening
-  if (!previewModal.classList.contains('review-mode')) {
-    previewModal.removeEventListener('transitionend', onTransEnd);
-  }
-};
-previewModal.addEventListener('transitionend', onTransEnd);
-
+  previewModal.addEventListener('transitionend', onTransEnd);
 });
 
 
@@ -305,6 +273,7 @@ previewText.style.height = '100%';
 previewText.style.maxHeight = '100%';
 previewText.style.overflowY = 'auto';
 
+
 // Keep the title:
 previewBody.appendChild(previewTitleInput);
 
@@ -348,6 +317,44 @@ imgPicker.style.display = 'none';
 // add to ribbon / body
 previewRibbon.appendChild(btnImage);
 previewBody.appendChild(imgPicker);
+
+// ==================================================================
+// START: UPDATED PDF and PPTX Logic with Firebase Storage
+// ==================================================================
+
+// Helper function to show a temporary message in the editor
+function showEditorMessage(message, isPersistent = false) {
+    const originalContent = previewText.innerHTML;
+    previewText.innerHTML = `<div style="text-align: center; opacity: 0.7; padding: 20px;"><i>${message}</i></div>`;
+    
+    if (isPersistent) {
+        return () => {}; // Return an empty function if the message should stay
+    }
+    
+    return () => { // Return a function to restore original content
+        if (previewText.innerHTML.includes(message)) {
+            previewText.innerHTML = originalContent;
+        }
+    };
+}
+
+// Helper to convert a canvas to a Blob
+function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.85) {
+    return new Promise(resolve => {
+        canvas.toBlob(blob => resolve(blob), type, quality);
+    });
+}
+
+
+
+
+
+
+
+// ==================================================================
+// END: UPDATED PDF and PPTX Logic
+// ==================================================================
+
 // ▶ Draw button → toggles drawing mode; palette slides in on the right
 const btnDraw = document.createElement('button');
 btnDraw.type = 'button';
@@ -385,7 +392,100 @@ annotationStatus.style.cssText = `
   user-select:none;
 `;
 previewRibbon.appendChild(annotationStatus);
+// ▶ PDF button + hidden file input
+const btnPdf = document.createElement('button');
+btnPdf.type = 'button';
+btnPdf.id = 'btnPdf';
+btnPdf.title = 'Import from PDF as Images';
+btnPdf.style.cssText = `
+  padding: 6px 10px; border-radius: 8px; border: 1px solid #333;
+  background: #1e1e1e; color: #eee; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+`;
+const pdfIcon = document.createElement('img');
+pdfIcon.src = 'PDF.png';
+pdfIcon.alt = 'PDF';
+pdfIcon.style.cssText = 'width: 16px; height: 16px;';
+btnPdf.appendChild(pdfIcon);
 
+const pdfPicker = document.createElement('input');
+pdfPicker.type = 'file';
+pdfPicker.accept = '.pdf';
+pdfPicker.style.display = 'none';
+
+previewRibbon.appendChild(btnPdf);
+previewBody.appendChild(pdfPicker);
+
+btnPdf.addEventListener('click', () => {
+    if (!auth?.currentUser || !currentPreviewNote) {
+        alert("Please open a note before uploading a file.");
+        return;
+    }
+    pdfPicker.click();
+});
+
+pdfPicker.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file || !auth?.currentUser || !currentPreviewNote) return;
+
+    btnPdf.disabled = true;
+    const originalIconHTML = btnPdf.innerHTML;
+    
+    let restoreEditor = () => {}; 
+
+    try {
+        restoreEditor = showEditorMessage(`Processing PDF... please wait.`);
+        
+        if (typeof pdfjsLib === 'undefined') throw new Error("PDF.js library is not loaded.");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
+
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        let allImagesHtml = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+            btnPdf.innerHTML = `${i}/${pdf.numPages}`;
+            
+            const page = await pdf.getPage(i);
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+            const blob = await canvasToBlob(canvas);
+            
+            const userEmail = auth.currentUser.email;
+            const noteId = currentPreviewNote.id;
+            const filePath = `notepad/${userEmail}/${noteId}/pdf_page_${Date.now()}_${i}.jpg`;
+            const storageRef = storage.ref(filePath);
+            const uploadTask = await storageRef.put(blob);
+            const downloadURL = await uploadTask.ref.getDownloadURL();
+            
+            allImagesHtml += `<div class="img-block"><img src="${downloadURL}" alt="PDF Page ${i}" style="max-width: 95%; height: auto; display: block; margin: 10px auto; border: 1px solid #333; border-radius: 4px;" /></div>`;
+        }
+
+        restoreEditor(); 
+        previewText.innerHTML += `<div>${allImagesHtml}</div>`;
+        previewText.dispatchEvent(new InputEvent('input', { bubbles: true }));
+
+        // CORRECTED: If in draw mode, resize the canvas to fit the new content
+        if (drawModeOn) {
+            syncDrawCanvasSize();
+        }
+
+    } catch (error) {
+        console.error('Error processing PDF and uploading to Storage:', error);
+        restoreEditor();
+        previewText.innerHTML += `<p><i>Failed to process PDF: ${error.message}</i></p>`;
+    } finally {
+        btnPdf.disabled = false;
+        btnPdf.innerHTML = originalIconHTML;
+        pdfPicker.value = '';
+    }
+});
 
 // ---- DRAWING COLORS (edit freely later) ----
 const DRAW_COLORS = [
@@ -396,7 +496,9 @@ const DRAW_COLORS = [
   '#ef4444', // red-500
   '#8b5cf6', // violet-500
   '#f97316', // orange-500
-  '#14b8a6'  // teal-500
+  '#14b8a6', // teal-500
+  '#000000ff',
+  '#00ff0dff'
 ];
 // -------------------------------------------
 
@@ -524,7 +626,7 @@ howToBody.style.cssText = `
 howToBody.innerHTML = `
   <p style="margin: 0 0 10px 0;">
     To use FlipNote’s Annotation feature (Beta), please upload all the necessary images from your PDF or PPTX file first.
-    <em>(Direct PDF or PPTX uploads are currently under maintenance.)</em>
+
   </p>
   <p style="margin: 0;">
     Also, add any required comments via typing before applying annotations. This helps prevent stretching or misalignment of your markings.
@@ -542,18 +644,18 @@ document.body.appendChild(howToBackdrop);
 // Open/close behavior
 function openHowTo() {
   howToBackdrop.style.display = 'grid';
+  document.body.style.overflow = 'hidden'; // <-- ADD THIS LINE
 }
 function closeHowTo() {
   howToBackdrop.style.display = 'none';
+  document.body.style.overflow = ''; // <-- ADD THIS LINE
 }
 
 howToBtn.addEventListener('click', openHowTo);
 howToClose.addEventListener('click', closeHowTo);
 
 // click outside to close
-howToBackdrop.addEventListener('click', (e) => {
-  if (e.target === howToBackdrop) closeHowTo();
-});
+
 
 // ESC to close
 document.addEventListener('keydown', (e) => {
@@ -850,15 +952,13 @@ DRAW_COLORS.forEach(c => drawPalette.appendChild(makeDrawSwatch(c)));
 
 // Utility: size the canvas to the editor (DPR-aware)
 function syncDrawCanvasSize() {
-  // Full scrollable height so you can draw across all content
-  const cssW = previewText.clientWidth;                           // viewport width
-  const cssH = Math.max(previewText.scrollHeight, previewText.clientHeight); // FULL height
+  const cssW = previewText.clientWidth;
+  const cssH = Math.max(previewText.scrollHeight, previewText.clientHeight);
   const dpr  = window.devicePixelRatio || 1;
+  console.log(`%c[Review] syncDrawCanvasSize: Sizing live canvas from live content.`, 'color: #22c55e', { cssW, cssH, dpr });
 
   drawCanvas.style.left = '0px';
   drawCanvas.style.top  = '0px';
-  drawCanvas.style.right  = 'auto';
-  drawCanvas.style.bottom = 'auto';
   drawCanvas.style.width  = cssW + 'px';
   drawCanvas.style.height = cssH + 'px';
 
@@ -866,7 +966,7 @@ function syncDrawCanvasSize() {
   drawCanvas.height = Math.max(1, Math.floor(cssH * dpr));
 
   drawCtx = drawCanvas.getContext('2d');
-  drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);  // draw in CSS pixels
+  drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   drawCtx.lineJoin = 'round';
   drawCtx.lineCap = 'round';
   drawCtx.strokeStyle = drawColor;
@@ -1178,8 +1278,14 @@ imgPicker.addEventListener('change', async (e) => {
   for (const f of files) {
     await insertImageAtCaretFromFile(f);
   }
-  // reset input so choosing the same file later still triggers 'change'
+  // CORRECTED: If in draw mode, resize the canvas to fit the new image
+  if (drawModeOn) {
+    syncDrawCanvasSize();
+  }
   imgPicker.value = '';
+
+  // ADD THIS LINE to update the button's visibility
+  updateReviewButtonVisibility();
 });
 
 
@@ -1213,6 +1319,7 @@ previewText.addEventListener('keydown', (e) => {
   // ----- State -----
   let db = null;
   let auth = null;
+  let storage = null; // Firebase Storage reference
   let notes = [];    // local cache for render/search
   let query = '';
   let unsubscribe = null;
@@ -1248,12 +1355,14 @@ let currentPreviewNote = null;   // ← which note is open in the small preview 
       await injectScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
       await injectScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js');
       await injectScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js');
+      await injectScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js'); // ADDED STORAGE SDK
 
       if (!window.firebase?.apps?.length) {
         window.firebase.initializeApp(firebaseConfig);
       }
       auth = window.firebase.auth();
       db = window.firebase.firestore();
+      storage = window.firebase.storage(); // Initialize Storage
       firebaseReady = true;
       // Re-attach the listener once a user is known
 auth.onAuthStateChanged((u) => {
@@ -1303,7 +1412,7 @@ openBtn?.addEventListener('click', async () => {
 
 
   closeBtn?.addEventListener('click', () => closeModal());
-  backdrop?.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
+
   document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   // Close the preview first if it's open
@@ -1318,14 +1427,32 @@ openBtn?.addEventListener('click', async () => {
 });
 
 
-  function openModal() {
-    backdrop.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => searchInput?.focus(), 60);
-  }
-  function closeModal() {
-  backdrop.classList.add('hidden');
-  document.body.style.overflow = '';
+function openModal() {
+  console.log("--- openModal() called ---");
+  console.log("Body overflow BEFORE change:", document.body.style.overflow);
+  
+  backdrop.classList.remove('hidden');
+  backdrop.setAttribute('aria-hidden', 'false'); // <-- ADD THIS LINE
+    document.documentElement.style.overflow = 'hidden'; // Lock the <html> tag
+  document.body.style.overflow = 'hidden';         // Lock the <body> tag
+  
+  console.log("Body overflow AFTER change:", document.body.style.overflow);
+  setTimeout(() => searchInput?.focus(), 60);
+}
+function closeModal() {
+  // Add the class that triggers the CSS animation
+  backdrop.classList.add('is-closing');
+
+  // Listen for the animation to complete, then hide the element
+  backdrop.addEventListener('animationend', () => {
+    backdrop.classList.add('hidden');
+    backdrop.classList.remove('is-closing'); // Reset for next time
+  }, { once: true }); // The listener removes itself after running once
+
+  // --- The rest of the cleanup can run immediately ---
+  backdrop.setAttribute('aria-hidden', 'true');
+  document.documentElement.style.overflow = ''; // Restore <html> scroll
+  document.body.style.overflow = '';         // Restore <body> scroll
 
   // Restore miniProfile (slide back in)
   const mp = document.getElementById('miniProfile');
@@ -1339,73 +1466,80 @@ openBtn?.addEventListener('click', async () => {
 // === Preview modal logic ===
 let previewSaveTitle = null;
 let previewSaveText  = null;
+function updateReviewButtonVisibility() {
+  // Read the live content directly from the editor
+  const content = previewText.innerHTML || '';
 
+  const isPdfNote = content.includes('alt="PDF Page');
+  const hasImages = content.includes('<img');
+
+  // Hide the button if the note is from a PDF OR if it has no images
+  if (isPdfNote || !hasImages) {
+    reviewBtn.style.display = 'none';
+  } else {
+    reviewBtn.style.display = ''; // Use '' to revert to its default style
+  }
+}
 function openPreview(note) {
   // Fill fields
   previewTitleHeading.textContent = 'Title: ' + (note.title?.trim() || '(Untitled)');
-
   previewTitleInput.value = note.title || '';
   previewText.innerHTML   = note.text  || '';
-    currentPreviewNote = note;
+  currentPreviewNote = note;
+// Check if the note is from a PDF and hide the Review Mode button
+  // Define note content for checks
+updateReviewButtonVisibility();
   console.log('[DRAW][state] currentPreviewNote =', currentPreviewNote?.id);
-  // Ensure the status matches current draw mode on open
-annotationStatus.textContent = drawModeOn ? 'Annotations Visible' : 'Annotations Hidden';
-// if not drawing, make sure the canvas is not attached
-if (!drawModeOn && drawCanvas.parentNode) {
-  drawCanvas.parentNode.removeChild(drawCanvas);
-}
+  annotationStatus.textContent = drawModeOn ? 'Annotations Visible' : 'Annotations Hidden';
 
+  if (!drawModeOn && drawCanvas.parentNode) {
+    drawCanvas.parentNode.removeChild(drawCanvas);
+  }
 
-// Recreate draw overlay if present
-// Recreate draw overlay if present
-const existing = document.getElementById('noteDrawOverlay');
-if (existing) existing.remove();
+  // --- Start of The Fix ---
 
-if (note.drawLayer && note.drawLayer.src) {
-  console.log('[DRAW][rehydrate] note.id=', note.id, {
-    left: note.drawLayer.left, top: note.drawLayer.top,
-    width: note.drawLayer.width, height: note.drawLayer.height,
-    srcLen: (note.drawLayer.src || '').length
-  });
-const w = previewText.clientWidth;
-const h = Math.max(previewText.scrollHeight, previewText.clientHeight);
+  // First, remove any old overlay
+  const existing = document.getElementById('noteDrawOverlay');
+  if (existing) existing.remove();
 
-const overlay = document.createElement('img');
-overlay.id = 'noteDrawOverlay';
-overlay.src = note.drawLayer.src;
-overlay.style.position = 'absolute';
-overlay.style.pointerEvents = 'none';
-overlay.style.zIndex = '3';
-overlay.style.left = '0px';
-overlay.style.top  = '0px';
-overlay.style.width  = w + 'px';
-overlay.style.height = h + 'px';
+  // If the note has a saved drawing, create the overlay image element
+  if (note.drawLayer && note.drawLayer.src) {
+    console.log('[DRAW][rehydrate] found drawLayer for note.id=', note.id);
+    const overlay = document.createElement('img');
+    overlay.id = 'noteDrawOverlay';
+    overlay.src = note.drawLayer.src;
+    overlay.style.position = 'absolute';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.zIndex = '3';
+    overlay.style.left = '0px';
+    overlay.style.top  = '0px';
+    
+    // Append it, but don't set the size yet
+    previewText.appendChild(overlay);
+    overlay.style.display = drawModeOn ? 'block' : 'none';
 
-previewText.appendChild(overlay);
-overlay.style.display = drawModeOn ? 'block' : 'none';
+    // CRITICAL FIX: Wait for the next browser frame to ensure all content (PDF images)
+    // has been laid out, THEN call the function that correctly sizes the overlay.
+    requestAnimationFrame(() => {
+      resizeOverlaysForReview();
+    });
 
-
-
-
-} else {
-  console.log('[DRAW][rehydrate] no drawLayer for note.id=', note.id);
-}
-
-
-  // Track the note in preview, then build its checklist UI
-
+  } else {
+    console.log('[DRAW][rehydrate] no drawLayer for note.id=', note.id);
+  }
+  
+  // --- End of The Fix ---
 
   // Debounced savers
   previewSaveTitle = debounce(async (val) => { await persist(note.id, { title: val }); }, 200);
   previewSaveText  = debounce(async (val) => { await persist(note.id, { text:  val }); }, 200);
 
-  // Live updates (cache + Firestore via persist)
+  // Live updates
   previewTitleInput.oninput = () => {
     const val = previewTitleInput.value;
     const idx = notes.findIndex(n => n.id === note.id);
     if (idx >= 0) notes[idx].title = val;
     previewTitleHeading.textContent = 'Title: ' + (val.trim() || '(Untitled)');
-
     previewSaveTitle(val);
   };
   previewText.oninput = () => {
@@ -1414,33 +1548,29 @@ overlay.style.display = drawModeOn ? 'block' : 'none';
     if (idx >= 0) notes[idx].text = val;
     previewSaveText(val);
   };
-// Reset checkbox mode each time the preview opens
-checkboxModeOn = false;
-btnChecklist.classList.remove('active');
-btnChecklist.textContent = '☑︎';
-btnChecklist.title = 'Checkbox mode: OFF — Enter inserts a normal line';
+
+  checkboxModeOn = false;
+  btnChecklist.classList.remove('active');
+  btnChecklist.textContent = '☑︎';
+  btnChecklist.title = 'Checkbox mode: OFF — Enter inserts a normal line';
 
   // Open
   previewBackdrop.style.display = 'grid';
-  // Observe previewText size only while the preview is open
-if (typeof ResizeObserver !== 'undefined') {
-  // safety: stop any previous observer from a prior open
-  try { _editorRO && _editorRO.disconnect(); } catch {}
-
-  _editorRO = new ResizeObserver(() => {
-    applyReviewScale();
-    // keep overlay and canvas in lockstep with the editor box
-    resizeOverlaysForReview();
-    if (drawModeOn && typeof syncDrawCanvasSize === 'function') {
-      syncDrawCanvasSize();
+  document.body.style.overflow = 'hidden';
+  
+  if (typeof ResizeObserver !== 'undefined') {
+    try { _editorRO && _editorRO.disconnect(); } catch {}
+    _editorRO = new ResizeObserver(() => {
+      applyReviewScale();
+      resizeOverlaysForReview();
+      if (drawModeOn && typeof syncDrawCanvasSize === 'function') {
+        syncDrawCanvasSize();
+      }
+    });
+    if (previewText && previewText.isConnected) {
+      _editorRO.observe(previewText);
     }
-  });
-
-  // Only observe if the editor is actually in the DOM
-  if (previewText && previewText.isConnected) {
-    _editorRO.observe(previewText);
   }
-}
 
   setTimeout(() => previewTitleInput?.focus(), 30);
 }
@@ -1483,6 +1613,7 @@ function closePreview() {
  // Always show hidden state when the preview closes
   annotationStatus.textContent = 'Annotations Hidden';
   previewBackdrop.style.display = 'none';
+  document.body.style.overflow = '';
   // ▼ RESET Review Mode on close so next open is clean
 previewModal.classList.remove('review-mode');
 previewBackdrop.classList.remove('review-mode');
@@ -1519,10 +1650,17 @@ previewEditorWrap.scrollLeft = 0;
 
 
 // Close interactions
-previewCloseBtn?.addEventListener('click', closePreview);
-previewBackdrop?.addEventListener('click', (e) => {
-  if (e.target === previewBackdrop) closePreview();
+previewCloseBtn?.addEventListener('click', () => {
+  // If in review mode, clicking "X" should exit review mode first.
+  if (previewModal.classList.contains('review-mode')) {
+    reviewBtn.click(); // Programmatically click the review button to exit the mode.
+    closePreview();
+  } else {
+    // Otherwise, close the preview modal as normal.
+    closePreview();
+  }
 });
+
 
   // =====================
   // Realtime attach
@@ -1910,6 +2048,13 @@ const COLORS = [
   '#f97316', // orange-500
   '#14b8a6', // teal-500
   '#64748b', // slate-500
+  '#ffffffff', // white
+  '#f2ff00ff',
+  '#ff0000ff',
+  '#640D5F', // purple-900
+  '#CFAB8D',
+  '#3E0703',
+  '#FFDCDC',
   '#111827'  // gray-900 (nearly black)
 ];
 // ----------------------------------------------
