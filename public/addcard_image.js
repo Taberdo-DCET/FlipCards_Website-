@@ -19,6 +19,33 @@ const cardsContainer = document.getElementById("cardsContainer");
 
 let imageFiles = [];
 
+// PASTE THE NEW FUNCTION HERE
+function showCustomAlert(message, type = 'default') { // type can be 'success' or 'error'
+  const alertModal = document.getElementById("createAlertModal");
+  const alertContent = alertModal.querySelector('.modal-content');
+  const alertMessage = document.getElementById("createAlertMessage");
+  const closeBtn = document.getElementById("closeCreateAlert");
+
+  // Always clear previous color classes
+  alertContent.classList.remove('success', 'error');
+
+  // Add the correct class based on the type
+  if (type === 'success') {
+    alertContent.classList.add('success');
+  } else if (type === 'error') {
+    alertContent.classList.add('error');
+  }
+
+  alertMessage.textContent = message;
+  alertModal.classList.remove("hidden");
+
+  // Close the modal when the OK button is clicked
+  closeBtn.onclick = () => {
+    alertModal.classList.add("hidden");
+  };
+}
+
+
 // Check for edit mode
 const editMode = window.location.search.includes("edit=true");
 const editingSet = editMode ? JSON.parse(localStorage.getItem("editingFlashcardSet")) : null;
@@ -81,7 +108,7 @@ function createCard(index) {
       imageFiles.splice(index, 1);
       updateCardNumbers();
     } else {
-      alert("At least one card is required.");
+      showCustomAlert("At least one card is required.", 'error');
     }
   });
 
@@ -135,13 +162,13 @@ createBtn.addEventListener("click", async () => {
   const files = [...cardsContainer.querySelectorAll(".imageDefinition")].map(input => input.files[0]);
 
   if (!title || terms.some(term => !term)) {
-    alert("Please fill in title and terms.");
+    showCustomAlert("Please fill in title and terms.", 'error');
     return;
   }
 
   // ✅ Require category regardless of public/private
   if (!category) {
-    alert("Please select a category before creating the set.");
+    showCustomAlert("Please select a category before creating the set.", 'error');
     return;
   }
 
@@ -150,7 +177,7 @@ createBtn.addEventListener("click", async () => {
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      alert("❌ You must be logged in.");
+      showCustomAlert("❌ You must be logged in.", 'error');
       createBtn.disabled = false;
       createBtn.textContent = editMode ? "Update Flashcard Set" : "Create Flashcard Set";
       return;
@@ -170,7 +197,7 @@ createBtn.addEventListener("click", async () => {
         } else if (editMode && editingSet.flashcards[i]) {
           flashcards.push({ term: terms[i], definition: editingSet.flashcards[i].definition });
         } else {
-          alert(`Please upload image for card ${i + 1}`);
+          showCustomAlert(`Please upload image for card ${i + 1}`, 'error');
           createBtn.disabled = false;
           createBtn.textContent = editMode ? "Update Flashcard Set" : "Create Flashcard Set";
           return;
@@ -190,7 +217,7 @@ createBtn.addEventListener("click", async () => {
 
       if (editMode) {
   if (!editingSet._id) {
-    alert("Error: Missing set ID for update.");
+    showCustomAlert("Error: Missing set ID for update.", 'error');
     createBtn.disabled = false;
     createBtn.textContent = "Update Flashcard Set";
     return;
@@ -210,7 +237,7 @@ createBtn.addEventListener("click", async () => {
     await deleteDoc(doc(db, "flashcard_sets", publicQueryId)).catch(() => {});
   }
 
-  alert("✅ Flashcard set updated!");
+  showCustomAlert("✅ Flashcard set updated!", 'success');
 }
  else {
         const docId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
@@ -227,13 +254,13 @@ await setDoc(doc(db, "flashcard_sets", publicId), flashcardSet);
           totalCards: increment(flashcardSet.flashcards.length)
         }, { merge: true });
 
-        alert("✅ Flashcard set with images saved!");
+        showCustomAlert("✅ Flashcard set with images saved!", 'success');
       }
 
       window.location.href = "lobby.html#Folderr";
     } catch (err) {
       console.error("Upload error:", err);
-      alert("❌ Failed to upload or save.");
+      showCustomAlert("❌ Failed to upload or save.", 'error');
       createBtn.disabled = false;
       createBtn.textContent = editMode ? "Update Flashcard Set" : "Create Flashcard Set";
     }

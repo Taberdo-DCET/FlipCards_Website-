@@ -16,8 +16,53 @@ let lobbyDocRef = null;
 let currentLobbyHost = null;
 let countdownStarted = false;
 let lastSetID = null;
+function showCustomAlert(message, type = 'default') {
+  const alertModal = document.getElementById("customAlertModal");
+  if (!alertModal) return; 
 
+  const alertContent = alertModal.querySelector('.modal-content');
+  const alertMessage = document.getElementById("customAlertMessage");
+  const closeBtn = document.getElementById("customAlertOkBtn");
 
+  alertContent.classList.remove('success', 'error');
+  if (type === 'success') {
+    alertContent.classList.add('success');
+  } else if (type === 'error') {
+    alertContent.classList.add('error');
+  }
+
+  alertMessage.textContent = message;
+  alertModal.classList.remove("hidden");
+
+  closeBtn.onclick = () => {
+    alertModal.classList.add("hidden");
+  };
+}
+// PASTE THIS NEW FUNCTION AFTER your showAlert function
+
+// Helper function to show a custom confirmation dialog
+function showConfirm(message) {
+  const confirmModal = document.getElementById("customConfirmModal");
+  if (!confirmModal) return Promise.resolve(false); // Failsafe
+
+  const confirmMessage = document.getElementById("confirmMessage");
+  const confirmBtn = document.getElementById("confirmBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+
+  confirmMessage.textContent = message;
+  confirmModal.classList.remove("hidden");
+
+  return new Promise(resolve => {
+    confirmBtn.onclick = () => {
+      confirmModal.classList.add("hidden");
+      resolve(true); // User clicked Confirm
+    };
+    cancelBtn.onclick = () => {
+      confirmModal.classList.add("hidden");
+      resolve(false); // User clicked Cancel
+    };
+  });
+}
 function startCountdownAndRedirect(timeRemaining) {
   let countdown = Math.ceil(timeRemaining / 1000);
   const modal = document.createElement("div");
@@ -346,30 +391,31 @@ window.leaveGameAfterMatch = async function () {
     localStorage.removeItem("reviewingSet");
     localStorage.removeItem("countdownFinished");
 
-    alert("You have left the game.");
+    showCustomAlert("You have left the game.", 'success');
     window.location.href = "quibbl.html";
 
   } catch (err) {
     console.error("Error leaving game after match:", err);
-    alert("Something went wrong while leaving.");
+    showCustomAlert("Something went wrong while leaving.", 'error');
   }
 };
 window.closeLobbyFromEndgame = async function () {
   const host = localStorage.getItem("quibblHost");
   if (!host || currentUserEmail !== host) return;
 
-  if (confirm("Are you sure you want to end the game and delete the lobby?")) {
+  const confirmed = await showConfirm("Are you sure you want to end the game and delete the lobby?");
+  if (confirmed) {
     try {
       await deleteDoc(doc(db, "quibbllobbies", currentUserEmail));
       await deleteDoc(doc(db, "gamestartquibbl", currentUserEmail));
       localStorage.removeItem("quibblHost");
       localStorage.removeItem("reviewingSet");
       localStorage.removeItem("countdownFinished");
-      alert("Lobby deleted.");
+      showCustomAlert("Lobby deleted.", 'success');
       window.location.href = "quibbl.html";
     } catch (err) {
       console.error("Error deleting lobby from endgame:", err);
-      alert("Failed to delete the lobby.");
+      showCustomAlert("Failed to delete the lobby.", 'error');
     }
   }
 };
@@ -435,7 +481,7 @@ onSnapshot(lobbyDocRef, (snapshot) => {
     acceptedPlayers = [];
     const modal = document.querySelector('.invite-popup');
     if (modal) modal.remove();
-    alert("The lobby was closed by the host.");
+    showCustomAlert("The lobby was closed by the host.", 'error');
     localStorage.removeItem("quibblHost");
     localStorage.removeItem("reviewingSet");
     localStorage.removeItem("countdownFinished");
@@ -462,7 +508,7 @@ onSnapshot(lobbyDocRef, (snapshot) => {
 
 
   if (updatedData.lobbyClosed) {
-    alert("The host has closed the lobby.");
+    showCustomAlert("The host has closed the lobby.", 'error');
     localStorage.removeItem("quibblHost");
     localStorage.removeItem("reviewingSet");
     localStorage.removeItem("countdownFinished");
@@ -475,7 +521,7 @@ onSnapshot(lobbyDocRef, (snapshot) => {
   // ✅ If this user is not in the list anymore (was kicked)
 const stillInLobby = acceptedPlayers.some(p => p.email === currentUserEmail);
 if (!stillInLobby) {
-  alert("You have been removed from the lobby by the host.");
+  showCustomAlert("You have been removed from the lobby by the host.", 'error');
   localStorage.removeItem("quibblHost");
   localStorage.removeItem("reviewingSet");
   localStorage.removeItem("countdownFinished");
@@ -621,7 +667,7 @@ async function createOrJoinLobby(lobbyId, hostEmail) {
       if (acceptedPlayers.length <= 1 && currentUserEmail !== currentLobbyHost) {
         const modal = document.querySelector('.invite-popup');
         if (modal) modal.remove();
-        alert("The lobby was closed by the host.");
+        showCustomAlert("The lobby was closed by the host.", 'error');
         localStorage.removeItem("countdownFinished");
 
         window.location.reload();
@@ -636,7 +682,7 @@ renderTopAvatars();
       if (currentUserEmail !== currentLobbyHost) {
         const modal = document.querySelector('.invite-popup');
         if (modal) modal.remove();
-        alert("The lobby was closed by the host.");
+        showCustomAlert("The lobby was closed by the host.", 'error');
         localStorage.removeItem("countdownFinished");
 
         window.location.reload();
@@ -739,18 +785,19 @@ window.leaveLobby = async function () {
   const isHost = currentUserEmail === host;
 
   if (isHost) {
-    if (confirm("Are you sure you want to close the lobby? All players will be removed.")) {
+    const confirmed = await showConfirm("Are you sure you want to close the lobby? All players will be removed.");
+    if (confirmed) {
       try {
         await deleteDoc(doc(db, "quibbllobbies", currentUserEmail));
         await deleteDoc(doc(db, "gamestartquibbl", currentUserEmail));
         localStorage.removeItem("quibblHost");
         localStorage.removeItem("reviewingSet");
         localStorage.removeItem("countdownFinished");
-        alert("Lobby closed.");
+        showCustomAlert("Lobby closed.", 'success');
         window.location.reload();
       } catch (err) {
         console.error("Error closing lobby:", err);
-        alert("Failed to close lobby.");
+        showCustomAlert("Failed to close lobby.", 'error');
       }
     }
   } else {
@@ -784,11 +831,11 @@ window.leaveLobby = async function () {
       localStorage.removeItem("reviewingSet");
       localStorage.removeItem("countdownFinished");
 
-      alert("You have left the lobby.");
+      showCustomAlert("You have left the lobby.", 'success');
       window.location.reload();
     } catch (err) {
       console.error("Failed to leave lobby:", err);
-      alert("Error leaving lobby.");
+      showCustomAlert("Error leaving lobby.", 'error');
     }
   }
 };
@@ -868,7 +915,7 @@ window.location.reload();
   document.getElementById("declineInvite").onclick = async () => {
     await setDoc(doc(db, "invitations_quibbl", currentUserEmail), { invitedBy: null }, { merge: true });
     modal.remove();
-    alert("You have declined the invitation.");
+    showCustomAlert("You have declined the invitation.", 'success');
     window.location.reload();
   };
 }

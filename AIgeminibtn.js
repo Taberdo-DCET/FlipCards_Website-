@@ -398,54 +398,79 @@ async function refillOneUse() {
   // Flashcard processing (existing functionality)
   // --------------------------------------------
   function processTextToFlashcards(slideText) {
-    console.log("🧠 [AIgeminibtn] Processing OCR text into flashcards...");
-    const lines = slideText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0);
+  console.log("🧠 [AIgeminibtn] Processing OCR text with new multi-line logic...");
 
-    const structuredData = [];
-    const flashcards = [];
+  // 1. Clean and filter lines from the OCR text
+  const lines = slideText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 3);
 
-    for (let i = 0; i < lines.length - 1; i += 2) {
-      let term = lines[i];
-      let definition = lines[i + 1];
+  const structuredData = [];
+  const flashcards = [];
 
-      if (/^[a-z]{3,30}$/.test(term)) {
-        console.log("🔧 [AIgeminibtn] Auto-capitalized possible term:", term);
-        term = term.charAt(0).toUpperCase() + term.slice(1);
+  // 💡 Heuristic: A line is likely a "term" if it has fewer than 10 words
+  // and doesn't end with sentence-ending punctuation.
+  const isPotentialTerm = (line) => line.split(" ").length < 10 && !/[.,;]$/.test(line);
+
+  let i = 0;
+  while (i < lines.length) {
+    const currentLine = lines[i];
+
+    // 2. Find the start of a new card (a potential term)
+    if (isPotentialTerm(currentLine)) {
+      const term = currentLine;
+      let definition = "";
+      let nextIndex = i + 1;
+
+      // 3. ✅ Group all subsequent lines into ONE definition until the next term is found
+      while (nextIndex < lines.length && !isPotentialTerm(lines[nextIndex])) {
+        definition += lines[nextIndex] + " "; // Append line with a space
+        nextIndex++;
+      }
+      
+      definition = definition.trim();
+
+      // 4. Validate and create the flashcard
+      if (definition) {
+        structuredData.push({ term, definition });
+        flashcards.push(`
+          <div class="card">
+            <strong>Term:</strong> ${term}<br>
+            <strong>Definition:</strong> ${definition}
+          </div>
+        `);
+        console.log("✅ [AIgeminibtn] Matched card:", { term, definition });
       }
 
-      if (!term || !definition || definition.split(" ").length < 3) {
-        console.log("❌ [AIgeminibtn] Rejected pair:", term, "|", definition);
-        continue;
-      }
-
-      flashcards.push(`
-        <div class="card">
-          <strong>Term:</strong> ${term}<br>
-          <strong>Definition:</strong> ${definition}
-        </div>
-      `);
-
-      structuredData.push({ term, definition });
-    }
-
-    if (flashcardsOutput) {
-      flashcardsOutput.innerHTML = flashcards.join("");
-    }
-
-    localStorage.setItem("flashcardsData", JSON.stringify(structuredData));
-    console.log(`📦 [AIgeminibtn] Stored ${structuredData.length} flashcards in localStorage.`);
-
-    if (gotoAddcardBtn) {
-      gotoAddcardBtn.style.display = flashcards.length > 0 ? "block" : "none";
-      gotoAddcardBtn.onclick = () => {
-        console.log("➡️ [AIgeminibtn] Navigating to addcard.html");
-        window.location.href = "addcard.html";
-      };
+      // 5. Jump the loop index to the start of the next card
+      i = nextIndex;
+    } else {
+      // This line wasn't a term, so skip it and check the next one
+      i++;
     }
   }
+
+  // 6. Update the UI and local storage with the results (no changes here)
+  if (flashcardsOutput) {
+    if (flashcards.length > 0) {
+      flashcardsOutput.innerHTML = flashcards.join("");
+    } else {
+      flashcardsOutput.innerHTML = "<p>Could not find any valid term/definition pairs. Please try a clearer image.</p>";
+    }
+  }
+
+  localStorage.setItem("flashcardsData", JSON.stringify(structuredData));
+  console.log(`📦 [AIgeminibtn] Stored ${structuredData.length} flashcards in localStorage.`);
+
+  if (gotoAddcardBtn) {
+    gotoAddcardBtn.style.display = flashcards.length > 0 ? "block" : "none";
+    gotoAddcardBtn.onclick = () => {
+      console.log("➡️ [AIgeminibtn] Navigating to addcard.html");
+      window.location.href = "addcard.html";
+    };
+  }
+}
 
   // ---------------------------------------------------
   // Modal open/close + bind/unbind realtime on open/close

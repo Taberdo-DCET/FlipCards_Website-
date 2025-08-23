@@ -1,0 +1,806 @@
+/* Basic Reset and Font */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: 
+       
+       url('Satoshi-Black.ttf') format('truetype');
+  font-weight: 900 !important;
+  font-display: swap;
+  font-style: normal;
+}
+/* Light Mode Variables (Default) */
+:root {
+    --bg-color: #e0e0e0;
+    --text-color: #333;
+    --shadow-light: #ffffff;
+    --shadow-dark: #bebebe;
+    --sidebar-width-collapsed: 80px;
+    --sidebar-width-expanded: 200px;
+    --user-sidebar-width: 250px;
+}
+
+/* Dark Mode Variables */
+body.dark-mode {
+    --bg-color: #171717;
+    --text-color: #d1d1d1;
+    --shadow-light: #212121;
+    --shadow-dark: #0d0d0d;
+}
+
+body {
+    font-family: 'Satoshi', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* --- Login Modal and Overlay --- */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 1002;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    padding: 40px 30px;
+    background-color: var(--bg-color);
+    border-radius: 20px;
+    box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+    z-index: 1003;
+    text-align: center;
+}
+
+.modal h2 {
+    margin-bottom: 25px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.form-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--bg-color);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    color: var(--text-color);
+    font-family: 'Satoshi', sans-serif;
+}
+
+.login-submit-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--bg-color);
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.login-submit-btn:active {
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+}
+
+.error-message {
+    color: #ff5252;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    height: 1.2em; /* Reserve space to prevent layout shift */
+}
+
+.hidden {
+    display: none;
+}
+
+
+/* --- Main Layout --- */
+.header {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width-collapsed);
+    width: calc(100% - var(--sidebar-width-collapsed));
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    background-color: var(--bg-color);
+    box-shadow: outset 6px 6px 12px var(--shadow-dark), outset -6px -6px 12px var(--shadow-light);
+    border-bottom: 1px solid var(--shadow-dark);
+    z-index: 1000;
+    transition: left 0.3s, width 0.3s, background-color 0.3s, box-shadow 0.3s;
+}
+
+.header-title { font-size: 1.5rem; font-weight: 700; color: var(--text-color); }
+
+.theme-toggle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    transition: all 0.3s ease;
+}
+.theme-toggle:active { box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light); }
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: var(--sidebar-width-collapsed);
+    background-color: var(--bg-color);
+    padding-top: 20px;
+    overflow: hidden;
+    transition: width 0.3s ease, background-color 0.3s;
+    z-index: 1001;
+    border-right: 1px solid var(--shadow-dark);
+}
+.sidebar:hover { width: var(--sidebar-width-expanded); }
+.sidebar-menu { list-style: none; }
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    height: 60px;
+    text-decoration: none;
+    color: var(--text-color);
+    position: relative;
+    padding-left: 25px;
+    border-radius: 12px;
+    margin: 8px 12px;
+    transition: box-shadow 0.3s;
+}
+.sidebar-link i { font-size: 1.5rem; min-width: 30px; text-align: center; margin-left: -14px;}
+.sidebar-link .tooltip {
+    position: absolute;
+    left: var(--sidebar-width-collapsed);
+    margin-left: 20px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    font-weight: 500;
+}
+.sidebar:hover .sidebar-link .tooltip { opacity: 1; visibility: visible; transition-delay: 0.1s; }
+.sidebar-link:hover { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); }
+
+.main-content {
+    display: flex;
+    margin-top: 70px;
+    margin-left: var(--sidebar-width-collapsed);
+    width: calc(100% - var(--sidebar-width-collapsed));
+    transition: margin-left 0.3s, width 0.3s;
+}
+
+/* --- MODIFIED: User Sidebar Container --- */
+.user-sidebar {
+    width: var(--user-sidebar-width);
+    height: calc(100vh - 70px);
+    background-color: var(--bg-color);
+    border-right: 1px solid var(--shadow-dark);
+    display: flex;
+    flex-direction: column;
+    padding-right: 10px;
+    position: sticky; /* Makes the element stick */
+    top: 70px; 
+}
+
+/* --- NEW: User Sidebar Header --- */
+.user-sidebar-header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--shadow-dark);
+}
+
+.add-user-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-color);
+    border: none;
+    color: var(--text-color);
+    font-size: 1rem;
+    margin-right: 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    transition: all 0.2s ease-in-out;
+}
+
+.add-user-btn:active {
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+}
+
+/* --- MODIFIED: Title inside header --- */
+.user-sidebar h3 { 
+    font-weight: 600; 
+}
+
+/* --- MODIFIED: User List is now the scrollable element --- */
+.user-list { 
+    list-style: none; 
+    overflow-y: auto;
+    flex-grow: 1; /* Allows the list to fill remaining space */
+    padding: 10px 20px; /* Add padding here instead of the parent */
+    font-family: 'Satoshi', sans-serif;
+}
+
+.user-list li {
+    font-family: 'Satoshi', sans-serif !important;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    transition: box-shadow 0.3s;
+
+    /* --- FIX STARTS HERE --- */
+    white-space: nowrap;      /* Keep text on a single line */
+    overflow: hidden;         /* Hide the overflowing text */
+    text-overflow: ellipsis;  /* Add ... to the end */
+    /* --- FIX ENDS HERE --- */
+}
+.user-list li:hover { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); }
+
+/* --- Custom Scrollbar for User List (was User Sidebar) --- */
+.user-list::-webkit-scrollbar {
+    width: 10px;
+}
+
+.user-list::-webkit-scrollbar-track {
+    background: var(--bg-color);
+    border-radius: 10px;
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+}
+
+.user-list::-webkit-scrollbar-thumb {
+    background: var(--text-color);
+    opacity: 0.6;
+    border-radius: 10px;
+    
+}
+
+.user-list::-webkit-scrollbar-thumb:hover {
+    opacity: 0.8;
+}
+
+.content-display { flex-grow: 1; padding: 30px; }
+
+.sidebar:hover ~ .main-content {
+    margin-left: var(--sidebar-width-expanded);
+    width: calc(100% - var(--sidebar-width-expanded));
+}
+/* --- NEW: Style for the selected user --- */
+.user-list li.selected {
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+}
+
+/* --- Custom Scrollbar for User List --- */
+.user-list::-webkit-scrollbar { width: 10px; }
+.user-list::-webkit-scrollbar-track {
+    background: var(--bg-color);
+    border-radius: 10px;
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+}
+.user-list::-webkit-scrollbar-thumb {
+    background: #0c0c0c;
+    opacity: 0.7;
+    border-radius: 10px;
+}
+.user-list::-webkit-scrollbar-thumb:hover { opacity: 0.9; }
+
+.content-display { flex-grow: 1; padding: 30px; }
+
+/* --- NEW: User Details Form Styling --- */
+.user-details-form h2 {
+    margin-bottom: 25px;
+    word-break: break-all;
+}
+
+/* +++ ADD THESE NEW RULES +++ */
+.details-grid {
+    display: grid;
+    /* Creates a responsive grid with columns that are at least 220px wide */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.detail-card {
+    background-color: var(--shadow-light); /* Slightly lighter than the background */
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-card label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    color: var(--text-color);
+    opacity: 0.6;
+    margin-bottom: 8px;
+}
+
+.detail-card input {
+    width: 100%;
+    border: none;
+    background-color: transparent; /* Makes input background match the card */
+    color: var(--text-color);
+    font-family: 'Satoshi', sans-serif;
+    font-size: 1.1rem; /* Larger font for the value */
+    font-weight: 700;
+    padding: 5px 0; /* Minimal padding */
+    border-bottom: 2px solid transparent; /* Add space for a focus border */
+    transition: border-color 0.3s ease;
+}
+
+.detail-card input:focus {
+    outline: none;
+    border-bottom: 2px solid var(--text-color); /* Highlight when editing */
+}
+
+.detail-card input:read-only {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.save-changes-btn {
+    display: block; /* Make it a block element */
+    width: 100%;    /* Make it full-width */
+    max-width: 300px; /* But not too wide on large screens */
+    margin: 30px auto 0; /* Center it with top margin */
+}
+
+.form-field input:read-only {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.save-changes-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    background-color: var(--bg-color);
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    margin-top: 20px;
+    float: right;
+}
+
+.save-changes-btn:active {
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+}
+
+/* +++ ADD THESE NEW STYLES FOR CUSTOM NUMBER INPUTS +++ */
+
+.number-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* Make the input take up all space except for the buttons */
+.number-input-wrapper input[type="number"] {
+    padding-right: 25px; /* Add space so text doesn't go under the buttons */
+}
+
+.stepper-buttons {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+}
+
+.stepper-up,
+.stepper-down {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.5;
+    cursor: pointer;
+    font-size: 0.6rem;
+    padding: 0 5px;
+    transition: opacity 0.2s ease;
+    line-height: 1.2; /* Adjust vertical spacing */
+}
+
+.stepper-up:hover,
+.stepper-down:hover {
+    opacity: 1;
+}
+/* --- Hide Arrows on Number Inputs (Updated to fix hover issue) --- */
+
+/* For Chrome, Safari, Edge, and Opera */
+/* This now explicitly includes hover and focus states to prevent overrides */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]:hover::-webkit-inner-spin-button,
+input[type="number"]:hover::-webkit-outer-spin-button,
+input[type="number"]:focus::-webkit-inner-spin-button,
+input[type="number"]:focus::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+/* +++ ADD THESE NEW STYLES +++ */
+
+/* --- Card Header and Expand Button --- */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.card-header label {
+    margin-bottom: 0; /* Override default margin */
+}
+
+.expand-card-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.4;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 5px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.expand-card-btn:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* --- Expanded Details Modal Content --- */
+.modal-form-field {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.modal-form-field label {
+    display: block;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+.modal-form-field input {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--bg-color);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    color: var(--text-color);
+    font-family: 'Satoshi', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+/* +++ ADD THIS NEW RULE +++ */
+.modal-form-field textarea {
+    width: 100%;
+    min-height: 120px; /* Set a default height */
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--bg-color);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    color: var(--text-color);
+    font-family: 'Satoshi', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    resize: vertical; /* Allow users to resize it vertically */
+}
+/* +++ ADD THESE NEW STYLES +++ */
+
+/* --- Styling for Select Dropdowns --- */
+.detail-card select,
+.modal-form-field select,
+.modal .form-group select { /* Added this selector */
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    color: var(--text-color);
+    font-family: 'Satoshi', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 5px 0;
+    -webkit-appearance: none; /* Remove default browser appearance */
+    -moz-appearance: none;
+    appearance: none;
+    /* Add custom dropdown arrow */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27292.4%27%20height%3D%27292.4%27%3E%3Cpath%20fill%3D%27%23d1d1d1%27%20d%3D%27M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%27%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 5px center;
+    background-size: 0.65em auto;
+    padding-right: 25px; /* Make space for the arrow */
+}
+
+.detail-card select {
+    border-bottom: 2px solid transparent;
+}
+
+.detail-card select:focus {
+    outline: none;
+    border-bottom: 2px solid var(--text-color);
+}
+
+.modal-form-field select {
+    padding: 15px;
+    border-radius: 12px;
+    background-color: var(--bg-color);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    font-size: 1.2rem;
+}
+/* +++ ADD THESE NEW STYLES FOR THE "ADD FIELD" BUTTON +++ */
+
+.add-field-card {
+    background-color: var(--bg-color); /* Match the main background */
+    border: 2px dashed var(--shadow-dark); /* Dashed border to indicate it's an action */
+    border-radius: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    min-height: 120px; /* Ensure it has a minimum height */
+}
+
+.add-field-card:hover {
+    background-color: var(--shadow-light);
+    border-color: var(--text-color);
+}
+
+.add-field-card i {
+    font-size: 2rem;
+    color: var(--text-color);
+    opacity: 0.5;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.add-field-card:hover i {
+    opacity: 1;
+}
+/* +++ ADD THESE NEW STYLES FOR MODAL ACTIONS +++ */
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    border-top: 1px solid var(--shadow-dark);
+    padding-top: 20px;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--shadow-dark);
+}
+
+.btn-primary {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    box-shadow: 4px 4px 8px var(--shadow-dark);
+}
+
+.btn-primary:hover {
+    opacity: 0.85;
+}
+/* +++ ADD THESE NEW STYLES +++ */
+
+/* --- Card Action Buttons --- */
+.card-actions {
+    display: flex;
+    gap: 8px; /* Adds space between the buttons */
+    align-items: center;
+}
+
+.delete-field-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    opacity: 0.4;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 5px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    transition: opacity 0.2s, color 0.2s, background-color 0.2s;
+    margin-left: 0px;
+}
+
+.delete-field-btn:hover {
+    opacity: 1;
+    color: #ff5252; /* Red color for destructive action on hover */
+    background-color: rgba(255, 82, 82, 0.1);
+}
+/* +++ ADD THIS NEW RULE +++ */
+.user-details-form h2 .label-text {
+    font-weight: 500; /* Makes the label text less bold than the email */
+    opacity: 0.7;     /* Fades the label slightly for emphasis on the email */
+    margin-right: 10px;
+}
+/* +++ ADD THESE NEW STYLES +++ */
+
+/* --- Subcollection Section Styling --- */
+#subcollections-container {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid var(--shadow-dark);
+}
+
+.subcollection-section h2 {
+    margin-bottom: 25px;
+}
+
+/* Style for read-only values in cards */
+.field-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    word-break: break-all; /* Ensure long values wrap */
+}
+
+/* Modifier to remove interaction from read-only cards */
+.detail-card.read-only {
+    background-color: var(--bg-color);
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+}
+/* +++ ADD THESE NEW STYLES +++ */
+
+.empty-subcollection-prompt {
+    text-align: center;
+    padding: 20px;
+    background-color: var(--shadow-dark);
+    border-radius: 16px;
+}
+
+.empty-subcollection-prompt p {
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.add-subcollection-btn {
+    padding: 12px 25px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+}
+
+.add-subcollection-btn:active {
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+}
+
+.add-subcollection-btn i {
+    margin-right: 8px;
+}
+/* +++ ADD THESE NEW STYLES +++ */
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Adds space between the home and theme buttons */
+}
+
+.home-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-color); /* Ensures icon color matches theme */
+    text-decoration: none;
+    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    transition: all 0.3s ease;
+}
+
+.home-btn:active {
+    box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+}
+
+@media (max-width: 768px) {
+    .sidebar, .sidebar:hover { width: var(--sidebar-width-collapsed); }
+    .sidebar:hover .tooltip { display: none; }
+    .main-content, .sidebar:hover ~ .main-content {
+        margin-left: var(--sidebar-width-collapsed);
+        width: calc(100% - var(--sidebar-width-collapsed));
+    }
+    .user-sidebar { width: 180px; }
+}

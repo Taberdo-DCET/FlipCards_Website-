@@ -29,8 +29,54 @@ let isUserReady = false;
 let lobbyDocRef = null;
 let currentLobbyHost = null;
 let lastRenderedTimestamp = 0;
+// PASTE THE NEW FUNCTION RIGHT HERE
+function showCustomAlert(message, type = 'default') {
+  const alertModal = document.getElementById("customAlertModal");
+  if (!alertModal) return; 
 
+  const alertContent = alertModal.querySelector('.modal-content');
+  const alertMessage = document.getElementById("customAlertMessage");
+  const closeBtn = document.getElementById("customAlertOkBtn");
 
+  alertContent.classList.remove('success', 'error');
+  if (type === 'success') {
+    alertContent.classList.add('success');
+  } else if (type === 'error') {
+    alertContent.classList.add('error');
+  }
+
+  alertMessage.textContent = message;
+  alertModal.classList.remove("hidden");
+
+  closeBtn.onclick = () => {
+    alertModal.classList.add("hidden");
+  };
+}
+// PASTE THIS NEW FUNCTION AFTER your showAlert function
+
+// Helper function to show a custom confirmation dialog
+function showConfirm(message) {
+  const confirmModal = document.getElementById("customConfirmModal");
+  if (!confirmModal) return Promise.resolve(false); // Failsafe
+
+  const confirmMessage = document.getElementById("confirmMessage");
+  const confirmBtn = document.getElementById("confirmBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+
+  confirmMessage.textContent = message;
+  confirmModal.classList.remove("hidden");
+
+  return new Promise(resolve => {
+    confirmBtn.onclick = () => {
+      confirmModal.classList.add("hidden");
+      resolve(true); // User clicked Confirm
+    };
+    cancelBtn.onclick = () => {
+      confirmModal.classList.add("hidden");
+      resolve(false); // User clicked Cancel
+    };
+  });
+}
 // --- AUTH STATE ---
 auth.onAuthStateChanged((user) => {
   if (user) {
@@ -300,7 +346,7 @@ div.classList.add("chat-message");
         renderTopAvatars();
         updateStartButtonState();
       } else {
-        alert("The lobby was closed by the host.");
+        showCustomAlert("The lobby was closed by the host.", 'error');
         acceptedPlayers = [];
         renderPlayerSlots();
         renderTopAvatars();
@@ -322,13 +368,13 @@ window.startGame = async function () {
 
   const allReady = players.length > 0 && players.every(player => player.ready);
   if (!allReady) {
-    alert("Not all players are ready!");
+    showCustomAlert("Not all players are ready!", 'error');
     return;
   }
 
   const reviewingSet = localStorage.getItem("reviewingSet");
   if (!reviewingSet) {
-    alert("No flashcard set found for the host!");
+    showCustomAlert("No flashcard set found for the host!", 'error');
     return;
   }
 
@@ -403,7 +449,7 @@ window.location.reload(true);
 
   } catch (err) {
     console.error("Failed to (re)start game:", err);
-    alert("Error starting game. Check console.");
+    showCustomAlert("Error starting game. Check console.", 'error');
   }
 };
 
@@ -578,7 +624,7 @@ window.selectFlashcardSet = async function (id, isPublic) {
     const setSnapshot = await getDoc(setRef);
 
     if (!setSnapshot.exists()) {
-      alert("Flashcard set not found!");
+      showCustomAlert("Flashcard set not found!", 'error');
       return;
     }
 
@@ -604,7 +650,7 @@ window.selectFlashcardSet = async function (id, isPublic) {
 
 
     updateQuibblTitle(selectedSet.title);  // <-- Add this line
-   alert("Flashcard set selected!");
+   showCustomAlert("Flashcard set selected!", 'success');
 closeSetModal();
 renderPlayerSlots();  // render first so the dropdown exists
 populateCardsDropdown(selectedSet.flashcards.length);  // THEN enable and populate
@@ -612,7 +658,7 @@ populateCardsDropdown(selectedSet.flashcards.length);  // THEN enable and popula
 
   } catch (err) {
     console.error("Error fetching or saving flashcard set:", err);
-    alert("Failed to load or save the flashcard set.");
+    showCustomAlert("Failed to load or save the flashcard set.", 'error');
   }
 };
 window.populateCardsDropdown = function(totalCards) {
@@ -832,7 +878,7 @@ playersToShow.forEach((player, index) => {
 // --- INVITE USER ---
 window.inviteUser = async function (inviteeEmail) {
   if (!currentUserEmail) {
-    alert("You must be logged in to invite users.");
+    showCustomAlert("You must be logged in to invite users.", 'error');
     return;
   }
 
@@ -871,7 +917,7 @@ window.inviteUser = async function (inviteeEmail) {
 
   } catch (error) {
     console.error("Error sending invitation:", error);
-    alert("Failed to send invitation. Check console for details.");
+    showCustomAlert("Failed to send invitation. Check console for details.", 'error');
   }
 };
 
@@ -980,11 +1026,11 @@ window.leaveLobby = async function () {
       localStorage.removeItem("reviewingSet");
       localStorage.removeItem("countdownFinished");
 
-      alert("You have left the lobby.");
+     showCustomAlert("You have left the lobby.", 'success');
       window.location.reload();
     } catch (err) {
       console.error("Failed to leave lobby:", err);
-      alert("Error leaving lobby.");
+      showCustomAlert("Error leaving lobby.", 'error');
     }
   }
 };
@@ -994,14 +1040,14 @@ window.leaveLobby = async function () {
 // --- CLOSE LOBBY ---
 window.closeLobby = async function () {
   if (currentUserEmail !== currentLobbyHost) {
-    alert("Only the host can close the lobby.");
+    showCustomAlert("Only the host can close the lobby.", 'error');
     return;
   }
 
   try {
     if (lobbyDocRef) {
       await deleteDoc(lobbyDocRef);
-      alert("Lobby closed.");
+      showCustomAlert("Lobby closed.", 'success');
       localStorage.removeItem("reviewingSet");
 
       window.location.reload();
@@ -1010,7 +1056,7 @@ window.closeLobby = async function () {
     }
   } catch (error) {
     console.error("Error closing lobby:", error);
-    alert("Failed to close the lobby. Check console for details.");
+    showCustomAlert("Failed to close the lobby. Check console for details.", 'error');
   }
 };
 // --- SEARCH FUNCTIONALITY ---

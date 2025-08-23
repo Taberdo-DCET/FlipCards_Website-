@@ -112,9 +112,24 @@ function clearForm() {
   updateCardNumbers();
 }
 
-function showCustomAlert(message) {
-  document.getElementById("createAlertMessage").textContent = message;
-  document.getElementById("createAlertModal").classList.remove("hidden");
+// This new function replaces the one you just deleted
+function showCustomAlert(message, type = 'default') { // type can be 'success' or 'error'
+  const alertModal = document.getElementById("createAlertModal");
+  const alertContent = alertModal.querySelector('.modal-content');
+  const alertMessage = document.getElementById("createAlertMessage");
+
+  // Always clear previous color classes
+  alertContent.classList.remove('success', 'error');
+
+  // Add the correct class based on the type
+  if (type === 'success') {
+    alertContent.classList.add('success');
+  } else if (type === 'error') {
+    alertContent.classList.add('error');
+  }
+
+  alertMessage.textContent = message;
+  alertModal.classList.remove("hidden");
 }
 
 async function getFlashcardData() {
@@ -183,7 +198,7 @@ async function checkPublicLimit(user, currentTitle, currentCreatedOn) {
     });
 
     if (!isAlreadyPublic && snapshot.size >= maxPublicSets) {
-      showCustomAlert(`❌ You can only publish up to ${maxPublicSets} public sets.`);
+      showCustomAlert(`❌ You can only publish up to ${maxPublicSets} public sets.`, 'error');
       return false;
     }
   } catch (err) {
@@ -195,7 +210,7 @@ async function checkPublicLimit(user, currentTitle, currentCreatedOn) {
 
 async function saveFlashcardSet(isPracticeAfter = false) {
   const { data, error } = await getFlashcardData();
-  if (error) return showCustomAlert(error);
+  if (error) return showCustomAlert(error, 'error');
 
   const user = auth.currentUser;
   const sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
@@ -241,7 +256,7 @@ async function saveFlashcardSet(isPracticeAfter = false) {
       }
     }
 
-    showCustomAlert("✔️ Flashcard set updated.");
+    showCustomAlert("✔️ Flashcard set updated.", 'success');
   } else {
     sets.push(data);
     localStorage.setItem("flashcardSets", JSON.stringify(sets));
@@ -275,7 +290,7 @@ if (data.public) {
 }
 
 
-    showCustomAlert(`✔️ Flashcard set saved.${data.public ? " Public version created too." : ""}`);
+    showCustomAlert(`✔️ Flashcard set saved.${data.public ? " Public version created too." : ""}`, 'success');
     if (typeof addXP === "function") addXP(20); // Give 20 XP for creating a set
 
   }
@@ -342,7 +357,7 @@ if (!isEditMode) {
 
 onAuthStateChanged(auth, user => {
   if (!user && document.getElementById("publicToggle").checked) {
-    showCustomAlert("⚠️ You must be logged in to make a set public.");
+    showCustomAlert("⚠️ You must be logged in to make a set public.", 'error');
   }
 });
 

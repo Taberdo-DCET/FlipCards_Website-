@@ -17,8 +17,8 @@
     <header class="navhead">
         <div class="container">
             <div class="left-side">
-                <button id="menu-toggle" class="menu-toggle">&#9776;</button>
-                <div class="logo"><a href="#epbe"><img class="group-5" src="group-5.svg" /></a></div>
+                 <button id="menu-toggle" class="menu-toggle">&#9776;</button>
+                <div class="logo"><a href="#" id="admin-link"><img class="group-5" src="group-5.svg" /></a></div>
                 <div class="TTitle">FlipCards.</div>
             </div>
             <nav class="side-nav" id="sideNav">
@@ -257,18 +257,43 @@
 
 
     </div>
-   <div id="musicModal" class="music-modal" style="width: 320px; height: auto; padding: 20px;">
-  <div id="musicModalHeader" class="music-modal-header">🎧 Listen on Spotify</div>
-  <div class="music-modal-content" style="display: flex; flex-direction: column; gap: 14px; align-items: center;">
-    <div style="font-size: 15px; font-family: 'Accasia'; margin-bottom: 5px; color: white;">🎵 Spotify Playlists</div>
-    <button class="neumorphic-button playlist-btn" data-id="3QhTLSPC91N9jQOqhDIODO" style="width: 240px;">🎶 The Smiths</button>
-    <button class="neumorphic-button playlist-btn" data-id="7ml2ua0UD8YWS9HULceCx1" style="width: 240px;">🌙 raaaph's Playlist</button>
-    <button class="neumorphic-button playlist-btn" data-id="6avG1f9f9Xahh5ljq98G2s" style="width: 240px;">💥 HUNTRX</button>
-    <p style="font-size: 12px; color: #aaa; margin-top: 12px; text-align: center;">
+<div id="musicModal" class="music-modal">
+  <div id="musicModalHeader" class="music-modal-header">🎧 Community Playlist
+     <div class="music-header-buttons">
+      <button id="howToUseMusicBtn" class="music-howto-btn" title="How to Use">?</button>
+      <span id="closeMusicModalBtn" class="music-modal-close">&times;</span>
+    </div>
+  </div>
+  <div class="music-modal-content">
+
+    <div class="spotify-input-container">
+      <p>Paste a Spotify Embed Code here:</p>
+      <textarea id="spotifyCodeInput" class="neumorphic-search" placeholder="<iframe src=...></iframe>"></textarea>
+      <button id="addSpotifyCodeBtn" class="neumorphic-button">Add to Playlist</button>
+      <small id="spotifyErrorText" class="spotify-error"></small>
+    </div>
+
+    <div id="spotifyPlayerContainer">
+      </div>
+
+  </div>
+  <!-- ▼▼▼ ADD THIS NEW FOOTER BLOCK ▼▼▼ -->
+  <div class="music-modal-footer">
+    <button id="minimizeMusicModalBtn" class="neumorphic-button">Minimize</button>
+  </div>
+  <!-- ▲▲▲ END OF NEW FOOTER ▲▲▲ -->
+</div>
+<div id="howToUseMusicModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content">
+    <h3 style="margin-top: 0; font-family: 'Satoshi', sans-serif;">How to Use the Playlist</h3>
+    <p id="customAlertMessage" style="font-size: 15px; line-height: 1.6;">
+      To enjoy full music playback instead of 30-second previews, please make sure you are logged into your account on the Spotify Web Player in this browser.
+      <br/><br/>
+      As a user, you can also add your favorite Spotify playlists to this shared collection for everyone to enjoy!
     </p>
+    <button id="howToUseMusicOkBtn" class="neumorphic-button">Got it</button>
   </div>
 </div>
-
 
 <!-- Notes Modal -->
 <div id="noteBackdrop" class="note-backdrop hidden" aria-hidden="true">
@@ -524,16 +549,16 @@
         <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
         <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
         <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update:   08/18/25</li>
-          <li>📢 FlipNotes Function Update!✨</li>
+          <li>📅 New features in this Update:   08/23/25</li>
+          <li>Major FlipNotes Upgrade: Class Feature is Here! 🎓</li>
           <li>✨ What’s New in FlipNotes:</li>
-          <span class="sub-announcement">➥📝 You can now create flashcard sets by uploading PDF files.</span>
-          <span class="sub-announcement">➥ 💡 For PowerPoint (PPT) files, we highly recommend saving them as a PDF first for the best results.</span>
-           <span class="sub-announcement">➥📌 Please note: The advanced Review Mode remains available only for JPG/PNG files for now.</span>
-          <li>✨ New Dynamic Profile Card!</li>
-          <span class="sub-announcement">➥ 👤 Your profile is now a dynamic, interactive card right on the lobby!</span>
-          <span class="sub-announcement">➥ 🖼️ Upload a custom photo that you can change anytime.!</span>
-          <span class="sub-announcement">➥ 👤 🎨 Personalize your card's background with an expanded selection of new color palettes!</span>
+          <span class="sub-announcement">➥You can now create your own classes right inside FlipNotes. Invite friends, classmates, and other users to join, share your notes, and collaborate like never before. 🤝</span>
+          <li>Undo & Redo Buttons Added 🎨</li>
+          <span class="sub-announcement">➥ We've added Undo and Redo buttons to the drawing toolbar in FlipNotes. Now you can easily fix any mistakes in your annotations. ✨</span>
+          <li>ParseCards Improvements 👍</li>
+          <span class="sub-announcement">➥ We've made some minor tune-ups to ParseCards for a smoother experience.</span>
+          <li>Music Modal Update 🎧</li>
+          <span class="sub-announcement">➥ The Music Modal has a new look! You can now paste an embedded code from a Spotify playlist, and everyone in the lobby can listen in. 🎶</span>
           <li>👁️👁️ Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes
           </li>
@@ -748,7 +773,7 @@
 </h3>
 
 
-    <p style="margin-bottom: 8px;">Exclusive Lifetime Benefits for Verified Users:</p>
+    <p style="margin-bottom: 8px;">Exclusive 3 Months of Benefits for Verified Users:</p>
     <ul style="padding-left: 15px; margin-bottom: 8px; line-height: 1.4;">
       <li>+20 Public Slots</li>
       <li>Verified Badge</li>
@@ -858,8 +883,157 @@ For the best results, avoid using low-quality images.</p>
   <button onclick="acceptCookies()" style="margin-left:10px; padding:6px 12px; background:#ffb988; color:black; border:none; border-radius:4px; cursor:pointer;">Accept</button>
 </div>
 
+<!-- ================================== -->
+<!-- ▼▼▼ PASTE THE NEW MODAL CODE HERE ▼▼▼ -->
+<!-- ================================== -->
+<div id="createClassBackdrop" class="note-backdrop hidden">
+  <div id="createClassModal" class="create-class-modal">
+    <!-- Header -->
+    <div class="create-class-header">
+      <h2 class="create-class-title">Create Class</h2>
+      <button id="saveClassBtn" class="neumorphic-button">Create!</button>
+    </div>
+    <!-- Body -->
+    <div class="create-class-body">
+      <!-- Left Side: Photo -->
+      <div class="create-class-photo-section">
+        <div class="photo-placeholder">
+          <img src="Group-100.png" id="classImagePreview" alt="Class Photo Preview">
+        </div>
+        <button id="addClassPhotoBtn" class="neumorphic-button22">Add Photo</button>
+        <input type="file" id="classPhotoInput" accept="image/*" style="display: none;">
+      </div>
+      <!-- Right Side: Inputs -->
+      <div class="create-class-form-section">
+        <input type="text" id="classNameInput" placeholder="Class Name" class="neumorphic-search" required maxlength="20">
+        <input type="text" id="classSectionInput" placeholder="Section" class="neumorphic-search" required>
+        <textarea id="classDescriptionInput" placeholder="Description (Optional)" class="neumorphic-search"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ▲▲▲ END OF NEW MODAL CODE for all ▲▲▲ -->
+<div id="customAlertModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content">
+    <p id="customAlertMessage"></p>
+    <button id="customAlertOkBtn" class="neumorphic-button">OK</button>
+  </div>
+</div>
+<div id="inviteUsersModal" class="note-backdrop hidden">
+  <div class="invite-modal-content">
+    <div class="invite-modal-header">
+      <h2>Invite Members</h2>
+      <button id="closeInviteModalBtn" class="note-icon-btn close">&times;</button>
+    </div>
+    <div class="invite-modal-body">
+      <input type="text" id="inviteUserSearch" class="neumorphic-search" placeholder="Search for users by username...">
+      <ul id="inviteUserList" class="invite-user-list">
+        </ul>
+    </div>
+  </div>
+</div>
+<div id="invitationToast" class="invitation-toast hidden">
+  <div id="invitationMessage" class="invitation-message"></div>
+  <div class="invitation-buttons">
+    <button id="acceptInviteBtn" class="neumorphic-button">Accept</button>
+    <button id="declineInviteBtn" class="neumorphic-button">Decline</button>
+  </div>
+</div>
+<!-- ===================================== -->
+<!-- ▼▼▼ NEW CONFIRMATION MODAL HERE ▼▼▼ -->
+<!-- ===================================== -->
+<div id="customConfirmModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content">
+    <p id="confirmMessage"></p>
+    <div class="modal-buttons">
+      <button id="confirmBtn" class="neumorphic-button">Confirm</button>
+      <button id="cancelBtn" class="neumorphic-button">Cancel</button>
+    </div>
+  </div>
+</div>
+<!-- ▲▲▲ END OF NEW CONFIRMATION MODAL ▲▲▲ -->
+ <!-- ===================================== -->
+<!-- ▼▼▼ NEW TUTORIAL ALERT MODAL HERE ▼▼▼ -->
+<!-- ===================================== -->
+<div id="classTutorialAlert" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content">
+    <p>Create a Class and invite your friends to Join!</p>
+    <button id="classTutorialGotItBtn" class="neumorphic-button">Got it</button>
+  </div>
+</div>
+<!-- ▲▲▲ END OF NEW TUTORIAL ALERT MODAL ▲▲▲ -->
+ <div id="addToClassBackdrop" class="note-backdrop hidden">
+  <div id="addToClassModal" class="create-class-modal" style="width: min(90vw, 420px); height: auto; max-height: 60vh;">
+    <div class="create-class-header">
+      <h2 id="addToClassTitle" class="create-class-title">Add Note to Class</h2>
+      <button id="closeAddToClassBtn" class="note-icon-btn close" title="Close">×</button>
+    </div>
+    <div id="addToClassBody" style="padding: 16px; overflow-y: auto;">
+      <ul id="addToClassList" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+        </ul>
+    </div>
+  </div>
+</div>
+<div id="classLogsBackdrop" class="note-backdrop hidden">
+  <div id="classLogsModal" class="create-class-modal" style="width: min(90vw, 520px); height: min(80vh, 700px);">
+    <div class="create-class-header">
+      <h2 class="create-class-title">Class Activity Logs</h2>
+      <button id="closeLogsModalBtn" class="note-icon-btn close" title="Close">×</button>
+    </div>
+    <div id="classLogsBody" class="class-logs-body">
+      <ul id="classLogsList" class="class-logs-list">
+        </ul>
+    </div>
+  </div>
+</div>
+<!-- in lobby.html -->
 
-
+<!-- ======================================= -->
+<!-- ▼▼▼ ADD THIS NEW MODAL AT THE END ▼▼▼ -->
+<!-- ======================================= -->
+<div id="announcementBackdrop" class="note-backdrop hidden">
+  <div id="announcementModal" class="create-class-modal" style="width: min(90vw, 560px);">
+    <div class="create-class-header">
+      <h2 class="create-class-title">Make an Announcement</h2>
+      <button id="closeAnnouncementModalBtn" class="note-icon-btn close" title="Close">×</button>
+    </div>
+    <div class="create-class-body" style="flex-direction: column; padding: 16px 24px;">
+      <input type="text" id="announcementTitle" class="neumorphic-search" placeholder="Announcement Title" required>
+      <textarea id="announcementDescription" class="neumorphic-search" placeholder="What's the announcement?" style="min-height: 150px; resize: vertical;"></textarea>
+      <button id="postAnnouncementBtn" class="neumorphic-button" style="align-self: flex-end; margin-top: 10px;">Post Announcement</button>
+    </div>
+  </div>
+</div>
+<!-- ▲▲▲ END OF NEW MODAL ▲▲▲ -->
+ <div id="memberActionsPopover" class="member-actions-popover hidden">
+  <button id="promoteMemberBtn" class="member-action-button promote">Promote</button>
+  <button id="kickMemberBtn" class="member-action-button kick">Drop</button>
+</div>
+<div id="usernameModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content">
+    <h3 style="margin-top: 0; margin-bottom: 20px; font-family: 'Satoshi', sans-serif;">Change Username</h3>
+    
+    <input type="text" id="usernameInput" class="neumorphic-search" placeholder="Enter new username..." maxlength="20" style="width: 90%;">
+    
+    <div class="modal-buttons" style="margin-top: 20px;">
+      <button id="confirmUsernameBtn" class="neumorphic-button">Confirm</button>
+      <button id="cancelUsernameBtn" class="neumorphic-button">Cancel</button>
+    </div>
+  </div>
+</div>
+    <div id="password-overlay" class="overlay hidden"></div>
+    <div id="password-modal" class="modal hidden">
+        <button id="close-modal-btn" class="close-btn">&times;</button>
+        <h2>Enter Admin Password</h2>
+        <form id="password-form">
+            <div class="form-group">
+                <label for="password-input">6-Digit Password</label>
+                <input type="password" id="password-input" maxlength="6" pattern="\d{6}" required>
+            </div>
+            <button type="submit" class="submit-btn">Proceed</button>
+            <p id="password-error" class="error-message"></p>
+        </form>
+    </div>
 <script type="module">
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { db } from "./firebaseinit.js";
@@ -923,7 +1097,7 @@ onSnapshot(docRef, (docSnap) => {
    <script type="module" src="displaylocalsets.js"></script>
     <script src="search.js"></script>
     <script src="icon.js"></script>
-    <script src="music.js"></script>
+    <script type="module" src="music.js"></script>
     
 
     <script type="module" src="presence.js"></script>
@@ -1130,7 +1304,6 @@ onSnapshot(docRef, (docSnap) => {
   startTimedXP(5, 45);
 </script>
 <script type="module" src="generalquestion.js"></script>
-<script type="module" src="generalquestionsearch.js"></script>
 <script src="loadingOverlay.js"></script>
 <script src="tut.js"></script>
 <script type="module" src="leaderboard.js"></script>
@@ -1207,5 +1380,8 @@ onSnapshot(docRef, (docSnap) => {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script type="module" src="userCard.js"></script>
+<script type="module" src="invListClass.js"></script>
+<script type="module" src="notificationListener.js"></script>
+<script src="pass.js"></script>
 </body>
 </html>

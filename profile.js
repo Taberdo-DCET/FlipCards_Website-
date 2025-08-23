@@ -29,7 +29,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const coverInput = document.getElementById("coverInput");
   const closeBtn = document.querySelector(".close-profile-modal");
   const logoutBtn = document.getElementById("logoutBtn");
+const usernameModal = document.getElementById("usernameModal");
+  const usernameInput = document.getElementById("usernameInput");
+  const confirmUsernameBtn = document.getElementById("confirmUsernameBtn");
+  const cancelUsernameBtn = document.getElementById("cancelUsernameBtn");
+   const customAlertModal = document.getElementById("customAlertModal");
+  const customAlertMessage = document.getElementById("customAlertMessage");
+  const customAlertOkBtn = document.getElementById("customAlertOkBtn");
+  // Helper function to show the custom alert
+  function showAlert(message, type = 'default') { // type can be 'success' or 'error'
+    const alertContent = customAlertModal.querySelector('.custom-alert-content');
+    
+    // Always clear previous color classes
+    alertContent.classList.remove('success', 'error');
 
+    // Add the correct class based on the type
+    if (type === 'success') {
+      alertContent.classList.add('success');
+    } else if (type === 'error') {
+      alertContent.classList.add('error');
+    }
+
+    customAlertMessage.textContent = message;
+    customAlertModal.classList.remove("hidden");
+    customAlertOkBtn.onclick = () => {
+      customAlertModal.classList.add("hidden");
+    };
+  }
   profileBtn?.addEventListener("click", () => {
   // Slide miniProfile out (if present), then open profile
   const mp = document.getElementById("miniProfile");
@@ -76,32 +102,59 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("coverPreview").src = url;
   });
 
-  document.querySelector(".edit-username").addEventListener("click", async () => {
+  // This new code block replaces the one you just deleted.
+  document.querySelector(".edit-username").addEventListener("click", () => {
     if (!currentUser) return;
-    const newUsername = prompt("Enter your new username:");
-    if (!newUsername || newUsername.trim() === "") return;
-    const username = newUsername.trim();
 
-    try {
-      const q = query(collection(db, "usernames"), where("username", "==", username));
-      const snapshot = await getDocs(q);
+    // Show your custom modal
+    usernameModal.classList.remove("hidden");
+    usernameInput.value = ""; // Clear previous input
+    usernameInput.focus();
 
-      if (!snapshot.empty && !snapshot.docs.every(doc => doc.id === currentUser.email)) {
-        alert("Username already taken. Please try a different one.");
-        return;
+    // This new code block replaces the one you just deleted
+    const handleConfirm = async () => {
+      const newUsername = usernameInput.value;
+      
+      // Hide the modal
+      usernameModal.classList.add("hidden");
+
+      if (!newUsername || newUsername.trim() === "") {
+        return; // Exit if input is empty
       }
+      
+      const username = newUsername.trim();
 
-      await setDoc(doc(db, "usernames", currentUser.email), {
-        username,
-        updatedAt: new Date()
-      });
+      // --- Logic updated to use showAlert ---
+      // --- Logic updated to use showAlert with success/error types ---
+      try {
+        const q = query(collection(db, "usernames"), where("username", "==", username));
+        const snapshot = await getDocs(q);
 
-      document.getElementById("userName").textContent = username;
-      alert("Username saved!");
-    } catch (err) {
-      console.error("Error saving username:", err);
-      alert("Failed to save username.");
-    }
+        if (!snapshot.empty && !snapshot.docs.every(doc => doc.id === currentUser.email)) {
+          showAlert("Username already taken. Please try a different one.", 'error');
+          return;
+        }
+
+        await setDoc(doc(db, "usernames", currentUser.email), {
+          username,
+          updatedAt: new Date()
+        });
+
+        document.getElementById("userName").textContent = username;
+        showAlert("Username saved!", 'success');
+      } catch (err) {
+        console.error("Error saving username:", err);
+        showAlert("Failed to save username.", 'error');
+      }
+    };
+
+    const handleCancel = () => {
+      usernameModal.classList.add("hidden");
+    };
+
+    // Attach event listeners for the modal buttons
+    confirmUsernameBtn.onclick = handleConfirm;
+    cancelUsernameBtn.onclick = handleCancel;
   });
 
   logoutBtn?.addEventListener("click", () => {

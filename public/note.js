@@ -1,6 +1,71 @@
+
 // note.js — Firestore-backed Notes with local fallback + auto-numbered docs
 // Structure: notepad/{email}/notes/{number}
+// ----- Custom Alert Function -----
+function showCustomAlert(message, type = 'info') { // type can be 'success' or 'error'
+  const modal = document.getElementById('customAlertModal');
+  const content = modal.querySelector('.custom-alert-content');
+  const msgEl = document.getElementById('customAlertMessage');
+  const okBtn = document.getElementById('customAlertOkBtn');
 
+  if (!modal || !msgEl || !okBtn) {
+    console.error("Custom alert elements not found!");
+    alert(message); // Fallback to default alert
+    return;
+  }
+
+  msgEl.textContent = message;
+
+  // Reset classes and add the new one for styling
+  content.classList.remove('success', 'error');
+  if (type === 'success' || type === 'error') {
+    content.classList.add(type);
+  }
+
+  modal.classList.remove('hidden');
+
+  // Focus the OK button for accessibility
+  okBtn.focus();
+
+  // Use a one-time listener for the OK button to close the modal
+  okBtn.onclick = () => {
+    modal.classList.add('hidden');
+    okBtn.onclick = null; // Clean up the listener
+  };
+}
+// ▼▼▼ ADD THIS NEW FUNCTION ▼▼▼
+function showCustomConfirm(message) {
+  return new Promise(resolve => {
+    const modal = document.getElementById('customConfirmModal');
+    const content = modal.querySelector('.custom-alert-content');
+    const msgEl = document.getElementById('confirmMessage');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    if (!modal || !msgEl || !confirmBtn || !cancelBtn) {
+      resolve(window.confirm(message)); // Fallback to default confirm
+      return;
+    }
+
+    msgEl.textContent = message;
+
+    // Add error class for red top border styling
+    content.classList.add('error');
+    modal.classList.remove('hidden');
+
+    // Use one-time listeners
+    confirmBtn.onclick = () => {
+      modal.classList.add('hidden');
+      resolve(true); // User confirmed
+    };
+    cancelBtn.onclick = () => {
+      modal.classList.add('hidden');
+      resolve(false); // User canceled
+    };
+  });
+}
+// ▲▲▲ END OF NEW FUNCTION ▲▲▲
+window.showCustomAlert = showCustomAlert; // Make it globally accessible
 (function () {
   // ----- Your Firebase config -----
   const firebaseConfig = {
@@ -21,7 +86,745 @@
   const addBtn = document.getElementById('noteAddBtn');
   const searchInput = document.getElementById('noteSearch');
   const list = document.getElementById('noteList');
+  const noteModal = document.getElementById('noteModal');
 
+// Create the new view for class info and append it to the modal
+// ▼▼▼ REPLACE THE OLD classInfoView CREATION CODE WITH THIS ▼▼▼
+// in note.js
+
+// ▼▼▼ REPLACE THE OLD classInfoView CREATION CODE WITH THIS ▼▼▼
+const classInfoView = document.createElement('div');
+classInfoView.id = 'classInfoView';
+classInfoView.className = 'class-info-view hidden'; // Start hidden
+// REPLACE the innerHTML with this updated version
+// REPLACE the entire innerHTML string with this corrected version
+// in note.js
+
+// REPLACE the innerHTML with this updated version
+classInfoView.innerHTML = `
+  <nav id="classInfoSidenav" class="class-info-sidenav">
+    <div class="sidenav-photo-container">
+      <img id="classInfoSidenavPhoto" src="" alt="Class Photo">
+      <button id="classConfigureBtn">Configure</button>
+    </div>
+
+    <div class="sidenav-collapsed-actions">
+      <button id="announcementBtnIcon" class="sidenav-icon-btn announce" title="Make Announcement"><img src="announce.png" alt="Announce"></button>
+      <button id="classLogsBtnIcon" class="sidenav-icon-btn" title="Class Logs">
+  <img src="logsclass.png" alt="Logs">
+  <span class="notification-dot hidden"></span>
+</button>
+      <button id="classActionBtnIcon" class="sidenav-icon-btn action-btn" title="Leave/Delete Class"></button>
+    </div>
+
+    <div class="sidenav-content">
+      <h6>Class Members</h6>
+      <button id="inviteMembersBtn" class="invite-btn">+ Invite</button>
+      <ul id="classInfoMemberList"></ul>
+      <div class="sidenav-footer-actions">
+        <button id="announcementBtnFull" class="class-action-btn announce">Make Announcement</button>
+        <button id="classLogsBtnFull" class="class-action-btn logs">Class Logs<span class="notification-dot hidden"></span></button>
+        <button id="classActionBtnFull" class="class-action-btn">Action</button>
+      </div>
+    </div>
+  </nav>
+
+  <main id="classInfoMain" class="class-info-main">
+    <div id="classInfoBodyPanel">
+        <div class="class-main-header">
+            <h2 id="classInfoName"></h2>
+            <p id="classInfoSection"></p>
+        </div>
+        <div class="class-main-body">
+            <h4>Description</h4>
+            <p id="classInfoDescription"></p>
+            <br/>
+            <h4>Flashcard Sets</h4>
+            <p><i>(Flashcard sets for this class will be shown here... Coming Soon~)</i></p>
+        </div>
+    </div>
+    <div id="classSharedNotesPanel" class="hidden">
+        <div id="classNoteList" class="class-note-list"></div>
+    </div>
+
+    <div id="classAnnouncementsPanel" class="hidden">
+      </div>
+    </main>
+
+  <nav class="class-info-right-nav">
+    <button id="viewInfoBtn" class="right-nav-btn active" title="Class Info"><img src="classpage.png" alt="Class Info Icon"></button>
+    <button id="viewNotesBtn" class="right-nav-btn" title="Class Shared Notes"><img src="notepage.png" alt="Shared Notes Icon"></button>
+    <button id="viewAnnouncementsBtn" class="right-nav-btn" title="Announcements"><img src="announcementsclass.png" alt="Announcements Icon"></button>
+  </nav>
+`;
+list.parentNode.insertBefore(classInfoView, list.nextSibling);
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+
+// Add click listener to the photo to toggle the sidenav
+const sidenav = document.getElementById('classInfoSidenav');
+const sidenavPhoto = document.getElementById('classInfoSidenavPhoto');
+if (sidenav && sidenavPhoto) {
+  sidenavPhoto.addEventListener('click', () => {
+    sidenav.classList.toggle('sidenav-expanded');
+  });
+}
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+const noteTitle = document.getElementById('noteTitle');
+
+// Create and add the "Create Class +" button
+// ▼▼▼ REPLACE THE OLD "Create Class +" BUTTON CODE WITH THIS ▼▼▼
+
+// Create and add the "Create Class +" button
+if (noteTitle) {
+  // ▼▼▼ PASTE THE NEW DROPDOWN CODE HERE ▼▼▼
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.className = 'class-dropdown';
+
+  const dropdownBtn = document.createElement('button');
+  dropdownBtn.id = 'classDropdownBtn';
+  dropdownBtn.textContent = 'My Notes ▼';
+
+  const dropdownContent = document.createElement('div');
+  dropdownContent.id = 'classDropdownContent';
+
+  dropdownContainer.appendChild(dropdownBtn);
+  dropdownContainer.appendChild(dropdownContent);
+
+  // Insert dropdown before the "Create Class" button
+  noteTitle.parentNode.insertBefore(dropdownContainer, noteTitle.nextSibling);
+
+  // Dropdown toggle logic
+  dropdownBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdownContent.classList.toggle('show');
+  });
+
+  // Close dropdown when clicking elsewhere
+  window.addEventListener('click', (e) => {
+    if (!dropdownContainer.contains(e.target)) {
+      dropdownContent.classList.remove('show');
+    }
+  });
+// ▼▼▼ REPLACE THE OLD displayClassInfo FUNCTION WITH THIS ▼▼▼
+
+
+// --- New Action Functions ---
+
+async function handleDeleteClass(creatorEmail, classId, className) {
+  const confirmed = await showCustomConfirm('Are you sure you want to permanently delete this class? This will notify all members and cannot be undone.');
+  if (!confirmed) return;
+
+  try {
+    const membersRef = db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('members');
+    const membersSnapshot = await membersRef.get();
+    const memberEmails = membersSnapshot.docs.map(doc => doc.id);
+
+    // 1. Create a notification for each member (in parallel)
+    const notificationPromises = memberEmails.map(email => {
+      if (email === creatorEmail) return Promise.resolve(); // Don't notify the creator
+      return db.collection('notifications').add({
+        recipientEmail: email,
+        message: `The class "${className}" has been deleted by the creator.`,
+        status: 'unread',
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    await Promise.all(notificationPromises);
+
+    // 2. Delete each member document from the subcollection (in parallel)
+    const deleteMemberPromises = memberEmails.map(email => membersRef.doc(email).delete());
+    await Promise.all(deleteMemberPromises);
+
+    // 3. Finally, delete the main class document
+    await db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).delete();
+
+    showCustomAlert('Class and all members successfully deleted.', 'success');
+
+    // Reset view to "My Notes" and refresh dropdown
+    document.querySelector('#classDropdownContent button').click();
+    await populateClassDropdown();
+
+  } catch (error) {
+    console.error('Error deleting class:', error);
+    showCustomAlert('Failed to delete class.', 'error');
+  }
+}
+
+async function handleLeaveClass(creatorEmail, classId, userEmail) {
+  const confirmed = await showCustomConfirm('Are you sure you want to leave this class?');
+  if (!confirmed) return;
+
+  try {
+    await db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('members').doc(userEmail).delete();
+
+    const invQuery = await db.collection('invclass')
+      .where('recipientEmail', '==', userEmail)
+      .where('classId', '==', classId)
+      .limit(1).get();
+
+    if (!invQuery.empty) {
+      await invQuery.docs[0].ref.update({ status: 'declined' });
+    }
+
+    showCustomAlert('You have left the class.', 'success');
+
+    document.querySelector('#classDropdownContent button').click();
+    await populateClassDropdown();
+  } catch (error) {
+    console.error('Error leaving class:', error);
+    showCustomAlert('Failed to leave the class.', 'error');
+  }
+}
+
+// --- New Action Functions ---
+
+
+  // Function to fetch and show user's classes
+  // ▼▼▼ REPLACE THE OLD populateClassDropdown FUNCTION WITH THIS ▼▼▼
+
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+
+  // Populate dropdown when the main modal opens
+ 
+  // ▲▲▲ END OF NEW DROPDOWN CODE ▲▲▲
+
+  const createClassBtn = document.createElement('button');
+  createClassBtn.textContent = 'Create Class +';
+  createClassBtn.id = 'createClassBtn';
+  createClassBtn.style.cssText = `
+    padding: 8px 14px;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  `;
+  noteTitle.insertAdjacentElement('afterend', createClassBtn);
+// ▼▼▼ ADD THIS EVENT LISTENER ▼▼▼
+createClassBtn.addEventListener('click', () => {
+  // First, ensure the modal is reset to its "create" state
+  closeAndResetCreateModal();
+  // Then, show the modal
+  document.getElementById('createClassBackdrop').classList.remove('hidden');
+});
+// ▲▲▲ END OF NEW EVENT LISTENER ▲▲▲
+
+
+
+}
+// ▼▼▼ PASTE THIS ENTIRE BLOCK OF NEW FUNCTIONS HERE ▼▼▼
+
+// --- Real-time Listener Management ---
+function detachMemberListener() {
+  if (memberListenerUnsubscribe) {
+    console.log('[Real-time] Detaching member listener.');
+    memberListenerUnsubscribe();
+    memberListenerUnsubscribe = null;
+  }
+}
+
+function detachDropdownListeners() {
+  if (dropdownListenersUnsubscribe.length > 0) {
+    console.log('[Real-time] Detaching dropdown listeners.');
+    dropdownListenersUnsubscribe.forEach(unsub => unsub());
+    dropdownListenersUnsubscribe = [];
+  }
+}
+
+// --- Class Info Display (Now with Real-time Members) ---
+// in note.js
+
+// in note.js
+// ▼▼▼ PASTE THE NEW SETUP FUNCTION HERE ▼▼▼
+// in note.js
+
+// REPLACE the existing function with this new version
+function setupClassInfoNav() {
+    const viewInfoBtn = document.getElementById('viewInfoBtn');
+    const viewNotesBtn = document.getElementById('viewNotesBtn');
+    const viewAnnouncementsBtn = document.getElementById('viewAnnouncementsBtn');
+
+    const infoPanel = document.getElementById('classInfoBodyPanel');
+    const notesPanel = document.getElementById('classSharedNotesPanel');
+    const announcementsPanel = document.getElementById('classAnnouncementsPanel');
+
+    const allBtns = [viewInfoBtn, viewNotesBtn, viewAnnouncementsBtn];
+    const allPanels = [infoPanel, notesPanel, announcementsPanel];
+
+    const safelyRun = (element, action) => { if (element) action(element); };
+
+    async function handleTabClick(activeBtn, activePanel) {
+             // ▼▼▼ THIS IS THE NEW ANIMATION RESET LOGIC ▼▼▼
+        // If we are leaving the announcements tab, reset the cards for the next visit
+        if (!announcementsPanel.classList.contains('hidden')) {
+            const announcementCards = announcementsPanel.querySelectorAll('.announcement-card.is-visible');
+            announcementCards.forEach(card => card.classList.remove('is-visible'));
+        }
+        // ▲▲▲ END OF NEW LOGIC ▲▲▲
+        allBtns.forEach(btn => safelyRun(btn, b => b.classList.remove('active')));
+        allPanels.forEach(panel => safelyRun(panel, p => p.classList.add('hidden')));
+
+        safelyRun(activeBtn, b => b.classList.add('active'));
+        safelyRun(activePanel, p => p.classList.remove('hidden'));
+
+        // ▼▼▼ NEW LOGIC: If the announcements tab is clicked, update the last viewed time ▼▼▼
+        if (activeBtn === viewAnnouncementsBtn) {
+            activeBtn.classList.remove('has-unread'); // Immediately remove pulse
+            const user = auth.currentUser;
+            const { id: classId } = window.activeClassContext;
+            if (user && classId) {
+                const lastViewedRef = db.collection('users').doc(user.email)
+                                        .collection('lastViewedAnnouncements').doc(classId);
+                await lastViewedRef.set({
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            const announcementCardsToAnimate = announcementsPanel.querySelectorAll('.announcement-card');
+            announcementCardsToAnimate.forEach((card, index) => {
+              setTimeout(() => {
+                card.classList.add('is-visible');
+              }, index * 200); 
+            });
+        }
+        // ▲▲▲ END OF NEW LOGIC ▲▲▲
+        
+    }
+
+    if (!window.classViewTabsInitialized) {
+        safelyRun(viewInfoBtn, btn => btn.addEventListener('click', () => handleTabClick(btn, infoPanel)));
+        safelyRun(viewNotesBtn, btn => btn.addEventListener('click', () => handleTabClick(btn, notesPanel)));
+        safelyRun(viewAnnouncementsBtn, btn => btn.addEventListener('click', () => handleTabClick(btn, announcementsPanel)));
+        window.classViewTabsInitialized = true;
+    }
+}
+
+// This is the function you were looking fo
+// REPLACE the existing displayClassInfo function with this one
+async function displayClassInfo(data) {
+    window.classViewTabsInitialized = false;
+    setupClassInfoNav();
+    document.getElementById('classInfoName').textContent = data.className || 'N/A';
+    document.getElementById('classInfoSection').textContent = 'Section: ' + (data.section || 'N/A');
+    document.getElementById('classInfoDescription').textContent = data.description || 'No description provided.';
+    document.getElementById('classInfoSidenavPhoto').src = data.imageUrl || 'Group-100.png';
+
+    const memberList = document.getElementById('classInfoMemberList');
+    const user = auth.currentUser;
+    const creatorEmail = data.createdBy;
+    const classId = window.activeClassContext?.id;
+
+    // Detach any previous listeners to prevent duplicates
+    detachMemberListener();
+    memberList.innerHTML = '<li>Loading members...</li>';
+
+    const membersRef = db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('members');
+
+    // This real-time listener now controls all permissions AND renders the member list
+    memberListenerUnsubscribe = membersRef.onSnapshot(async (membersSnapshot) => {
+        const memberDocs = membersSnapshot.docs;
+        const currentUserEmail = user ? user.email : null;
+
+        // --- 1. Real-time Permission Check ---
+        const isCreatorOrCoCreator = (currentUserEmail === creatorEmail) ||
+                                     memberDocs.some(doc => doc.id === currentUserEmail && doc.data().role === 'creator');
+        
+        // --- 2. Update All Buttons Based on Real-time Role ---
+        const inviteBtn = document.getElementById('inviteMembersBtn');
+        const announcementBtnFull = document.getElementById('announcementBtnFull');
+        const announcementBtnIcon = document.getElementById('announcementBtnIcon');
+        const configureBtn = document.getElementById('classConfigureBtn');
+        const actionBtnFull = document.getElementById('classActionBtnFull');
+        const actionBtnIcon = document.getElementById('classActionBtnIcon');
+        const logsBtnFull = document.getElementById('classLogsBtnFull');
+        const logsBtnIcon = document.getElementById('classLogsBtnIcon');
+
+        // Setup Invite Button
+        if (inviteBtn) {
+            inviteBtn.onclick = async () => {
+                if (isCreatorOrCoCreator) {
+                    document.getElementById('inviteUsersModal').classList.remove('hidden');
+                    await populateInviteList();
+                } else {
+                    showCustomAlert('Only the Creator and Co-Creators can invite other Preppers.', 'error');
+                }
+            };
+        }
+
+        // Setup Announcement, Configure, and Log Buttons
+        [announcementBtnFull, announcementBtnIcon, configureBtn, logsBtnFull, logsBtnIcon].forEach(btn => {
+            if(btn) btn.style.display = isCreatorOrCoCreator ? (btn.id.includes('Icon') ? 'grid' : 'block') : 'none';
+        });
+
+        if (isCreatorOrCoCreator) {
+            announcementBtnFull.onclick = () => openAnnouncementModal(creatorEmail, classId);
+            announcementBtnIcon.onclick = () => openAnnouncementModal(creatorEmail, classId);
+            configureBtn.onclick = () => openClassModalForEdit(data);
+        }
+        
+        // Log buttons are visible to everyone
+        logsBtnFull.style.display = 'block';
+        logsBtnIcon.style.display = 'grid';
+        logsBtnFull.onclick = () => openLogsModal(creatorEmail, classId);
+        logsBtnIcon.onclick = () => openLogsModal(creatorEmail, classId);
+
+
+        // Setup Leave/Delete Buttons
+        actionBtnIcon.className = 'sidenav-icon-btn action-btn';
+        if (currentUserEmail === creatorEmail) {
+            actionBtnFull.textContent = 'Delete Class';
+            actionBtnIcon.innerHTML = `<img src="deleteclass.png" alt="Delete">`;
+            actionBtnFull.onclick = () => handleDeleteClass(creatorEmail, classId, data.className);
+            actionBtnIcon.onclick = () => handleDeleteClass(creatorEmail, classId, data.className);
+        } else {
+            actionBtnFull.textContent = 'Leave Class';
+            actionBtnIcon.innerHTML = `<img src="leaveclass.png" alt="Leave">`;
+            actionBtnFull.onclick = () => handleLeaveClass(creatorEmail, classId, currentUserEmail);
+            actionBtnIcon.onclick = () => handleLeaveClass(creatorEmail, classId, currentUserEmail);
+        }
+
+        // --- 3. Render the Member List (This was the missing part) ---
+        let membersHtml = '';
+        const memberEmails = memberDocs.map(doc => doc.id);
+        if (!memberEmails.includes(creatorEmail)) {
+            memberEmails.unshift(creatorEmail);
+        }
+
+        for (const email of memberEmails) {
+            const memberDoc = memberDocs.find(doc => doc.id === email);
+            const memberData = memberDoc ? memberDoc.data() : {};
+            let displayName = email.split('@')[0];
+            let avatarUrl = 'Group-100.png';
+            let roleBadgeHtml = '';
+
+            const [usernameDoc, roleDoc] = await Promise.all([
+                db.collection('usernames').doc(email).get(),
+                db.collection('approved_emails').doc(email).get()
+            ]);
+
+            if (usernameDoc.exists && usernameDoc.data().username) {
+                displayName = usernameDoc.data().username;
+            }
+            
+            if (displayName.length > 9) {
+                displayName = displayName.substring(0, 9) + "...";
+            }
+
+            if (roleDoc.exists) {
+                const roles = roleDoc.data().role || '';
+                if (roles.includes('verified')) {
+                    roleBadgeHtml = `<img src="verified.svg" alt="Verified" class="member-role-badge">`;
+                } else if (roles.includes('first')) {
+                    roleBadgeHtml = `<img src="first.png" alt="First User" class="member-role-badge">`;
+                }
+            }
+
+            try {
+                const avatarRef = storage.ref(`avatars/${email}`);
+                avatarUrl = await avatarRef.getDownloadURL();
+            } catch (error) { /* Silently fail to default avatar */ }
+
+            const isOriginalCreator = email === creatorEmail;
+            const isCoCreator = memberData.role === 'creator';
+
+            let optionsButtonHtml = '';
+            if (currentUserEmail === creatorEmail && !isOriginalCreator) {
+                optionsButtonHtml = `<button class="member-options-btn" data-email="${email}" data-name="${displayName}" data-role="${isCoCreator ? 'creator' : 'member'}">⋮</button>`;
+            }
+
+            membersHtml += `
+                <li class="member-item">
+                    <img src="${avatarUrl}" alt="Avatar" class="member-avatar">
+                    <div class="member-details">
+                        <span class="member-name">${displayName}${roleBadgeHtml}</span>
+                        ${isOriginalCreator ? '<span class="creator-badge">Creator</span>' : ''}
+                        ${isCoCreator ? '<span class="creator-badge" style="background-color:#87CEEB; color:#00334d;">Co-Creator</span>' : ''}
+                    </div>
+                    ${optionsButtonHtml}
+                </li>
+            `;
+        }
+        memberList.innerHTML = membersHtml || '<li>No members yet.</li>';
+    }, error => {
+        console.error("Error fetching class members:", error);
+        memberList.innerHTML = '<li>Error loading members.</li>';
+    });
+    
+    // Final calls to update the other tabs
+    displayClassNotes(creatorEmail, classId);
+    displayAnnouncements(creatorEmail, classId);
+    updateLogsNotification(creatorEmail, classId);
+}
+// in note.js
+
+// PASTE THIS ENTIRE NEW BLOCK AFTER displayClassInfo
+
+const memberActionsPopover = document.getElementById('memberActionsPopover');
+let activeMemberTarget = null;
+
+// in note.js
+
+// REPLACE the existing openMemberOptionsMenu function
+function openMemberOptionsMenu(targetButton, email, name, role) { // Added 'role'
+    activeMemberTarget = { email, name, role }; // Store role
+    const btnRect = targetButton.getBoundingClientRect();
+
+    const promoteBtn = document.getElementById('promoteMemberBtn');
+
+    // ▼▼▼ THIS IS THE NEW LOGIC ▼▼▼
+    if (role === 'creator') {
+        promoteBtn.textContent = 'Demote';
+        promoteBtn.className = 'member-action-button unpromote'; // Use new CSS class
+    } else {
+        promoteBtn.textContent = 'Promote';
+        promoteBtn.className = 'member-action-button promote';
+    }
+    // ▲▲▲ END OF NEW LOGIC ▲▲▲
+
+    memberActionsPopover.classList.remove('hidden');
+    memberActionsPopover.style.top = `${btnRect.top}px`;
+    memberActionsPopover.style.left = `${btnRect.right + 5}px`;
+}
+
+function closeMemberOptionsMenu() {
+    memberActionsPopover.classList.add('hidden');
+    activeMemberTarget = null;
+}
+// in note.js
+
+// REPLACE your existing function with this new version
+async function handleKickMember() {
+    if (!activeMemberTarget) return;
+
+    const { email, name } = activeMemberTarget;
+    const { creatorEmail, id: classId, name: className } = window.activeClassContext;
+
+    const confirmed = await showCustomConfirm(`Are you sure you want to kick ${name} from the class?`);
+    closeMemberOptionsMenu();
+    if (!confirmed) return;
+
+    try {
+        // Action 1: Remove the user from the class's members list
+        const memberRef = db.collection('Class').doc(creatorEmail)
+                            .collection('userClasses').doc(classId)
+                            .collection('members').doc(email);
+        await memberRef.delete();
+
+        // ▼▼▼ THIS IS THE CRUCIAL FIX ▼▼▼
+        // Action 2: Find and update the original invitation status to 'kicked'
+        // This is what makes the class disappear from their dropdown in real-time.
+        const invQuery = await db.collection('invclass')
+                                 .where('recipientEmail', '==', email)
+                                 .where('classId', '==', classId)
+                                 .limit(1).get();
+
+        if (!invQuery.empty) {
+            const invDocRef = invQuery.docs[0].ref;
+            await invDocRef.update({ status: 'kicked' });
+        }
+
+        // Action 3: Send a notification to the kicked user
+        await db.collection('notifications').add({
+            recipientEmail: email,
+            message: `You have been kicked from the class "${className}".`,
+            status: 'unread',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Log the activity for the creator's record
+        await logClassActivity(classId, creatorEmail, `${name} was kicked from the class.`);
+        showCustomAlert(`${name} has been kicked.`, 'success');
+
+    } catch (error) {
+        console.error("Error kicking member:", error);
+        showCustomAlert('Failed to kick member.', 'error');
+    }
+}
+async function handlePromoteMember() {
+    if (!activeMemberTarget) return;
+    const { email, name } = activeMemberTarget;
+    const confirmed = await showCustomConfirm(`Promote ${name} to Co-Creator? They will get full permissions.`);
+    closeMemberOptionsMenu();
+    if (!confirmed) return;
+
+    try {
+        const { creatorEmail, id: classId } = window.activeClassContext;
+        const memberRef = db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('members').doc(email);
+        await memberRef.set({ role: 'creator' }, { merge: true });
+        await logClassActivity(classId, creatorEmail, `${name} was promoted to Co-Creator.`);
+        showCustomAlert(`${name} is now a Co-Creator.`, 'success');
+    } catch (error) {
+        console.error("Error promoting member:", error);
+        showCustomAlert('Failed to promote member.', 'error');
+    }
+}
+// in note.js
+
+// PASTE THIS NEW FUNCTION AFTER handlePromoteMember
+async function handleDemoteMember() {
+    if (!activeMemberTarget) return;
+    const { email, name } = activeMemberTarget;
+    const confirmed = await showCustomConfirm(`Demote ${name}? They will lose all creator permissions.`);
+    closeMemberOptionsMenu();
+    if (!confirmed) return;
+
+    try {
+        const { creatorEmail, id: classId } = window.activeClassContext;
+        const memberRef = db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('members').doc(email);
+        // Update the role back to 'member' or remove it
+        await memberRef.set({ role: 'member' }, { merge: true }); 
+        await logClassActivity(classId, creatorEmail, `${name} was demoted to a member.`);
+        showCustomAlert(`${name} is no longer a Co-Creator.`, 'success');
+    } catch (error) {
+        console.error("Error demoting member:", error);
+        showCustomAlert('Failed to demote member.', 'error');
+    }
+}
+// Event delegation for member options
+const memberListContainer = document.getElementById('classInfoMemberList');
+memberListContainer.addEventListener('click', (e) => {
+    const optionsBtn = e.target.closest('.member-options-btn');
+    if (optionsBtn) {
+        e.stopPropagation();
+        const email = optionsBtn.dataset.email;
+        const name = optionsBtn.dataset.name;
+        const role = optionsBtn.dataset.role; // <-- Get the role
+        openMemberOptionsMenu(optionsBtn, email, name, role); // <-- Pass the role
+    }
+});
+
+// Attach listeners to the popover buttons
+document.getElementById('promoteMemberBtn').addEventListener('click', () => {
+    if (activeMemberTarget && activeMemberTarget.role === 'creator') {
+        handleDemoteMember(); // <-- If they are a creator, call demote
+    } else {
+        handlePromoteMember(); // <-- Otherwise, call promote
+    }
+});
+document.getElementById('kickMemberBtn').addEventListener('click', handleKickMember);
+
+// Close popover when clicking elsewhere
+window.addEventListener('click', () => {
+    if (!memberActionsPopover.classList.contains('hidden')) {
+        closeMemberOptionsMenu();
+    }
+});
+// --- Action Functions (Delete/Leave) ---
+async function handleDeleteClass(creatorEmail, classId, className) {
+  const confirmed = await showCustomConfirm('Are you sure you want to permanently delete this class? This will notify all members and cannot be undone.');
+  if (!confirmed) return;
+  try {
+    const membersRef = db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('members');
+    const membersSnapshot = await membersRef.get();
+    const memberEmails = membersSnapshot.docs.map(doc => doc.id);
+    const notificationPromises = memberEmails.map(email => {
+      if (email === creatorEmail) return Promise.resolve();
+      return db.collection('notifications').add({
+        recipientEmail: email, message: `The class "${className}" has been deleted by the creator.`, status: 'unread', timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    });
+    await Promise.all(notificationPromises);
+    const deleteMemberPromises = memberEmails.map(email => membersRef.doc(email).delete());
+    await Promise.all(deleteMemberPromises);
+    await db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).delete();
+    showCustomAlert('Class and all members successfully deleted.', 'success');
+    document.querySelector('#classDropdownContent button').click();
+  } catch (error) {
+    console.error('Error deleting class:', error);
+    showCustomAlert('Failed to delete class.', 'error');
+  }
+}
+
+async function handleLeaveClass(creatorEmail, classId, userEmail) {
+  const confirmed = await showCustomConfirm('Are you sure you want to leave this class?');
+  if (!confirmed) return;
+  try {
+    await db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('members').doc(userEmail).delete();
+    const invQuery = await db.collection('invclass').where('recipientEmail', '==', userEmail).where('classId', '==', classId).limit(1).get();
+    if (!invQuery.empty) {
+      await invQuery.docs[0].ref.update({ status: 'declined' });
+    }
+    showCustomAlert('You have left the class.', 'success');
+    document.querySelector('#classDropdownContent button').click();
+  } catch (error) {
+    console.error('Error leaving class:', error);
+    showCustomAlert('Failed to leave the class.', 'error');
+  }
+}
+
+// --- Dropdown Rendering and Real-time Listeners ---
+function renderDropdown(classesMap) {
+  const dropdownContent = document.getElementById('classDropdownContent');
+  const dropdownBtn = document.getElementById('classDropdownBtn');
+  dropdownContent.innerHTML = '';
+
+  const myNotesOption = document.createElement('button');
+  myNotesOption.textContent = 'My Notes';
+  myNotesOption.onclick = () => {
+    dropdownBtn.textContent = 'My Notes ▼';
+    dropdownContent.classList.remove('show');
+    list.classList.remove('hidden');
+    classInfoView.classList.add('hidden');
+    window.activeClassContext = null;
+    detachMemberListener();
+  };
+  dropdownContent.appendChild(myNotesOption);
+
+  classesMap.forEach((classData, classId) => {
+    const classOption = document.createElement('button');
+    classOption.textContent = classData.className;
+    classOption.onclick = () => {
+      dropdownBtn.textContent = `${classData.className} ▼`;
+      dropdownContent.classList.remove('show');
+      window.activeClassContext = { id: classId, name: classData.className, creatorEmail: classData.createdBy };
+      list.classList.add('hidden');
+      classInfoView.classList.remove('hidden');
+      displayClassInfo(classData);
+    };
+    dropdownContent.appendChild(classOption);
+  });
+}
+
+function attachDropdownListeners() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  detachDropdownListeners();
+
+  let createdClasses = new Map();
+  let joinedClasses = new Map();
+
+  const createdRef = db.collection('Class').doc(user.email).collection('userClasses');
+  const unsubCreated = createdRef.onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(change => {
+      if (change.type === 'removed') createdClasses.delete(change.doc.id);
+      else createdClasses.set(change.doc.id, { id: change.doc.id, ...change.doc.data() });
+    });
+    renderDropdown(new Map([...createdClasses, ...joinedClasses]));
+  });
+
+  const joinedRef = db.collection('invclass').where('recipientEmail', '==', user.email).where('status', '==', 'accepted');
+  const unsubJoined = joinedRef.onSnapshot(async snapshot => {
+    const classDetailPromises = snapshot.docs.map(doc => {
+      const invite = doc.data();
+      return db.collection('Class').doc(invite.creatorEmail).collection('userClasses').doc(invite.classId).get();
+    });
+    const classDocs = await Promise.all(classDetailPromises);
+    joinedClasses.clear();
+    classDocs.forEach(doc => {
+      if (doc.exists) joinedClasses.set(doc.id, { id: doc.id, ...doc.data() });
+    });
+    renderDropdown(new Map([...createdClasses, ...joinedClasses]));
+  });
+
+  dropdownListenersUnsubscribe.push(unsubCreated, unsubJoined);
+}
+// ▲▲▲ END OF NEW FUNCTION BLOCK ▲▲▲
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+// ▲▲▲ END OF NEW CODE ▲▲▲
   // === Build the Preview Modal (smaller, sits above Notepad modal) ===
 const previewBackdrop = document.createElement('div');
 previewBackdrop.id = 'notePreviewBackdrop';
@@ -147,7 +950,18 @@ function applyReviewScale() {
 
 
 
-reviewBtn.addEventListener('click', () => {
+reviewBtn.addEventListener('click', async () => {
+  // NEW: Check if draw mode is on and has strokes before proceeding
+  if (drawModeOn && drawHasStrokes) {
+    const confirmed = await showCustomConfirm('Continue in Review Mode? Click the save button (✏️) first to avoid losing your drawing.');
+    if (!confirmed) {
+      return; // Stop if the user cancels
+    }
+    // If confirmed, programmatically click the draw button to save the drawing and exit draw mode.
+    btnDraw.click();
+  }
+
+  // --- The original logic now runs after the confirmation check ---
   const enabling = !previewModal.classList.contains('review-mode');
 
   previewBackdrop.classList.toggle('review-mode', enabling);
@@ -155,7 +969,6 @@ reviewBtn.addEventListener('click', () => {
   previewText.classList.toggle('review-mode', enabling);
 
   if (enabling) {
-    // --- ADD THIS LINE TO HIDE THE RIBBON ---
     previewRibbon.style.display = 'none';
 
     if (!previewModal.dataset.origW) {
@@ -164,7 +977,8 @@ reviewBtn.addEventListener('click', () => {
     }
     previewModal.style.width  = 'min(98vw, 1400px)';
     previewModal.style.height = 'min(94vh, 900px)';
-    if (drawModeOn) btnDraw.click();
+    
+    // This part is now handled by the confirmation logic above, but we keep the rest.
     btnDraw.disabled = true;
     btnDraw.title = 'Drawing is disabled in Review Mode';
     drawPalette.style.display = 'none';
@@ -181,13 +995,15 @@ reviewBtn.addEventListener('click', () => {
       ov.style.zIndex = '3';
       ov.style.left = '0px';
       ov.style.top  = '0px';
-      previewEditorWrap.appendChild(ov); // Corrected parent
+      previewEditorWrap.appendChild(ov);
     }
     if (ov) ov.style.display = 'block';
-    annotationStatus.textContent = 'Annotations Visible';
+    annotationStatus.textContent = '<-- Click to Save';
   } else {
-    // --- ADD THIS LINE TO SHOW THE RIBBON AGAIN ---
-    previewRibbon.style.display = 'flex';
+    // NEW: Only show the ribbon if the note is NOT shared
+    if (!currentPreviewNote?.isShared) {
+        previewRibbon.style.display = 'flex';
+    }
 
     previewModal.style.width  = previewModal.dataset.origW || '';
     previewModal.style.height = previewModal.dataset.origH || '';
@@ -195,9 +1011,14 @@ reviewBtn.addEventListener('click', () => {
     delete previewEditorWrap.dataset.baseH;
     btnDraw.disabled = false;
     btnDraw.title = 'Freehand drawing';
-    const _ov = document.getElementById('noteDrawOverlay');
-    if (_ov) _ov.style.display = drawModeOn ? 'block' : 'none';
-    annotationStatus.textContent = drawModeOn ? 'Annotations Visible' : 'Annotations Hidden';
+const _ov = document.getElementById('noteDrawOverlay');
+if (_ov) _ov.style.display = 'none'; // Always hide overlay when exiting review mode
+
+// --- THIS IS THE DEFINITIVE FIX ---
+// When exiting review mode, drawing should ALWAYS be considered off.
+drawModeOn = false;
+btnDraw.classList.remove('active');
+annotationStatus.textContent = '<-- Click to Add Drawing/Notes';
   }
 
   reviewBtn.classList.toggle('active', enabling);
@@ -207,8 +1028,6 @@ reviewBtn.addEventListener('click', () => {
     if (ev.target !== previewModal || (ev.propertyName !== 'width' && ev.propertyName !== 'height')) return;
     applyReviewScale(); 
     resizeOverlaysForReview();
-    // CORRECTED: Sync canvas size after transition
-    if (drawModeOn) syncDrawCanvasSize(); 
     if (!previewModal.classList.contains('review-mode')) {
       previewModal.removeEventListener('transitionend', onTransEnd);
     }
@@ -217,8 +1036,6 @@ reviewBtn.addEventListener('click', () => {
   requestAnimationFrame(() => {
     applyReviewScale();
     resizeOverlaysForReview();
-    // CORRECTED: Sync canvas size immediately
-    if (drawModeOn) syncDrawCanvasSize(); 
   });
 
   previewModal.addEventListener('transitionend', onTransEnd);
@@ -354,7 +1171,25 @@ function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.85) {
 // ==================================================================
 // END: UPDATED PDF and PPTX Logic
 // ==================================================================
+// ▶ Undo button
+const btnUndo = document.createElement('button');
+btnUndo.type = 'button';
+btnUndo.id = 'btnUndo';
+btnUndo.textContent = '↶';
+btnUndo.title = 'Undo';
+btnUndo.className = 'undo-redo-btn'; // Use new shared class
+btnUndo.disabled = true; // Start disabled
+previewRibbon.appendChild(btnUndo);
 
+// ▶ Redo button
+const btnRedo = document.createElement('button');
+btnRedo.type = 'button';
+btnRedo.id = 'btnRedo';
+btnRedo.textContent = '↷';
+btnRedo.title = 'Redo';
+btnRedo.className = 'undo-redo-btn'; // Use new shared class
+btnRedo.disabled = true; // Start disabled
+previewRibbon.appendChild(btnRedo);
 // ▶ Draw button → toggles drawing mode; palette slides in on the right
 const btnDraw = document.createElement('button');
 btnDraw.type = 'button';
@@ -383,7 +1218,7 @@ previewBody.appendChild(drawPalette);
 // ── Annotations status label (right side of the ribbon)
 const annotationStatus = document.createElement('span');
 annotationStatus.id = 'annotationStatus';
-annotationStatus.textContent = 'Annotations Hidden';
+annotationStatus.textContent = '<-- Click to Add Drawing/Notes';
 annotationStatus.style.cssText = `
   margin-left:auto;
   font:600 12px 'Satoshi',sans-serif;
@@ -652,15 +1487,21 @@ function closeHowTo() {
 }
 
 howToBtn.addEventListener('click', openHowTo);
-howToClose.addEventListener('click', closeHowTo);
+
+// When the 'x' button is clicked, close the modal and set the flag.
+howToClose.addEventListener('click', () => {
+  closeHowTo();
+  localStorage.setItem('seenNotesHowTo', 'true');
+});
 
 // click outside to close
 
 
-// ESC to close
+// Also set the flag when the user presses ESC to close it.
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && howToBackdrop.style.display !== 'none') {
     closeHowTo();
+    localStorage.setItem('seenNotesHowTo', 'true');
   }
 });
 
@@ -893,6 +1734,8 @@ let _editorRO = null; // ResizeObserver for previewText (set per-open, cleared o
 let drawColor = '#ffffff';
 let drawWidth = 3;
 let drawHasStrokes = false;
+let drawHistory = [];
+let redoHistory = [];
 // NEW: track bounds of the strokes so we can crop
 let bboxMinX, bboxMinY, bboxMaxX, bboxMaxY;
 let drawHasBase = false;   // ← whether we drew the existing overlay into the canvas
@@ -918,7 +1761,11 @@ drawCanvas.style.cssText = `
 
 
 let drawCtx = null;
-
+function updateUndoRedoState() {
+  // Can't undo if there's only the initial blank state left
+  btnUndo.disabled = drawHistory.length <= 1;
+  btnRedo.disabled = redoHistory.length === 0;
+}
 // Put canvas inside the editor wrapper so it scrolls with the editor
 // Prepare the TEXTAREA as a positioning context; we’ll attach the canvas only in draw mode
 previewText.style.position = 'relative';
@@ -997,7 +1844,7 @@ btnDraw.addEventListener('click', async () => {
   btnDraw.classList.toggle('active', drawModeOn);
 
   // Update the status label
-  annotationStatus.textContent = drawModeOn ? 'Annotations Visible' : 'Annotations Hidden';
+  annotationStatus.textContent = drawModeOn ? '<-- Click to Save' : '<-- Click to Add Drawing/Notes';
 
 
   if (drawModeOn) {
@@ -1020,6 +1867,22 @@ syncDrawCanvasSize();
 drawHasStrokes = false;
 drawHasBase = false;
 bboxReset();
+
+// NEW: Reset history and button states
+drawHistory = [];
+redoHistory = [];
+
+// If there's an existing drawing on the canvas (from a previous session),
+// make THAT the initial state for the undo history.
+if (drawHasBase || drawHasStrokes) {
+    const initialState = drawCanvas.toDataURL();
+    drawHistory.push(initialState);
+} else {
+    // Otherwise, start with a truly blank state.
+    const blankState = drawCanvas.toDataURL();
+    drawHistory.push(blankState);
+}
+updateUndoRedoState();
 
 // ensure canvas is the last child → highest within this stacking context
 previewText.appendChild(drawCanvas);
@@ -1088,6 +1951,10 @@ bboxExpand(W, H, 0);
 
 
   } else {
+     const overlay = document.getElementById('noteDrawOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
     // hide palette (slide out)
     drawPalette.style.opacity = '0';
     drawPalette.style.transform = 'translateX(10px)';
@@ -1231,12 +2098,56 @@ drawCanvas.addEventListener('pointermove', (e) => {
 
 function endStroke(e) {
   if (!drawModeOn || !drawing || previewModal.classList.contains('review-mode')) return;
-
   drawing = false;
   drawCanvas.releasePointerCapture?.(e.pointerId);
+
+  // NEW: Save state to history after a stroke is finished
+  if (drawHasStrokes) {
+    const dataUrl = drawCanvas.toDataURL();
+    drawHistory.push(dataUrl);
+    redoHistory = []; // Clear redo history on new action
+    updateUndoRedoState();
+  }
 }
 drawCanvas.addEventListener('pointerup', endStroke);
 drawCanvas.addEventListener('pointercancel', endStroke);
+function undoLast() {
+  if (drawHistory.length <= 1) return; // Guard against undoing the initial state
+
+  redoHistory.push(drawHistory.pop());
+  const prevState = drawHistory[drawHistory.length - 1];
+
+  const img = new Image();
+  img.onload = () => {
+    const cssW = drawCanvas.clientWidth;
+    const cssH = drawCanvas.clientHeight;
+    drawCtx.clearRect(0, 0, cssW, cssH); // Use CSS dimensions for clearing
+    drawCtx.drawImage(img, 0, 0, cssW, cssH); // And for drawing to handle scaling
+  };
+  img.src = prevState;
+  updateUndoRedoState();
+}
+
+function redoNext() {
+  if (redoHistory.length === 0) return;
+
+  const nextState = redoHistory.pop();
+  drawHistory.push(nextState);
+
+  const img = new Image();
+  img.onload = () => {
+    const cssW = drawCanvas.clientWidth;
+    const cssH = drawCanvas.clientHeight;
+    // It's good practice to clear before redrawing.
+    drawCtx.clearRect(0, 0, cssW, cssH);
+    drawCtx.drawImage(img, 0, 0, cssW, cssH); // Use CSS dimensions here as well
+  };
+  img.src = nextState;
+  updateUndoRedoState();
+}
+
+btnUndo.addEventListener('click', undoLast);
+btnRedo.addEventListener('click', redoNext);
 // Export only the ink area, optionally downscale, and compress to JPEG to fit Firestore limits
 function exportFullCanvasWEBP() {
   if (!drawCtx) return null;
@@ -1321,6 +2232,8 @@ previewText.addEventListener('keydown', (e) => {
   let auth = null;
   let storage = null; // Firebase Storage reference
   let notes = [];    // local cache for render/search
+  let memberListenerUnsubscribe = null;
+let dropdownListenersUnsubscribe = [];
   let query = '';
   let unsubscribe = null;
   let firebaseReady = false;
@@ -1430,12 +2343,21 @@ openBtn?.addEventListener('click', async () => {
 function openModal() {
   console.log("--- openModal() called ---");
   console.log("Body overflow BEFORE change:", document.body.style.overflow);
-  
+   // ▼▼▼ ADD THESE TWO LINES ▼▼▼
+    list.classList.remove('hidden');
+    classInfoView.classList.add('hidden');
+    // ▲▲▲
+    attachDropdownListeners(); //  ADD THIS LINE
   backdrop.classList.remove('hidden');
   backdrop.setAttribute('aria-hidden', 'false'); // <-- ADD THIS LINE
     document.documentElement.style.overflow = 'hidden'; // Lock the <html> tag
   document.body.style.overflow = 'hidden';         // Lock the <body> tag
-  
+    // ▼▼▼ ADD THIS NEW LOGIC ▼▼▼
+  // Check localStorage and show the "How to Use" modal if it's the user's first time.
+  if (localStorage.getItem('seenNotesHowTo') !== 'true') {
+    openHowTo();
+  }
+  // ▲▲▲ END OF NEW LOGIC ▲▲▲
   console.log("Body overflow AFTER change:", document.body.style.overflow);
   setTimeout(() => searchInput?.focus(), 60);
 }
@@ -1452,6 +2374,8 @@ function closeModal() {
   // --- The rest of the cleanup can run immediately ---
   backdrop.setAttribute('aria-hidden', 'true');
   document.documentElement.style.overflow = ''; // Restore <html> scroll
+  detachDropdownListeners(); // ADD THIS LINE
+  detachMemberListener();    // ADD THIS LINE
   document.body.style.overflow = '';         // Restore <body> scroll
 
   // Restore miniProfile (slide back in)
@@ -1480,29 +2404,43 @@ function updateReviewButtonVisibility() {
     reviewBtn.style.display = ''; // Use '' to revert to its default style
   }
 }
-function openPreview(note) {
-  // Fill fields
+// REPLACE the existing function with this new version
+
+function openPreview(note, isShared = false) { // <-- Added 'isShared' parameter
+  const previewRibbon = document.getElementById('previewRibbon');
+
+  // ▼▼▼ THIS IS THE NEW LOGIC ▼▼▼
+  // Hide ribbon for shared notes, show for personal notes
+  if (isShared) {
+    previewRibbon.style.display = 'none';
+    // Also make the text non-editable for shared notes
+    previewText.contentEditable = 'false';
+    previewTitleInput.readOnly = true;
+  } else {
+    previewRibbon.style.display = 'flex';
+    // Make sure text is editable for personal notes
+    previewText.contentEditable = 'true';
+    previewTitleInput.readOnly = false;
+  }
+  // ▲▲▲ END OF NEW LOGIC ▲▲▲
+
+  // --- The rest of the function remains the same ---
   previewTitleHeading.textContent = 'Title: ' + (note.title?.trim() || '(Untitled)');
   previewTitleInput.value = note.title || '';
-  previewText.innerHTML   = note.text  || '';
+  previewText.innerHTML = note.text || '';
   currentPreviewNote = note;
-// Check if the note is from a PDF and hide the Review Mode button
-  // Define note content for checks
-updateReviewButtonVisibility();
+currentPreviewNote.isShared = isShared; // Remember if the note is shared
+  updateReviewButtonVisibility();
   console.log('[DRAW][state] currentPreviewNote =', currentPreviewNote?.id);
-  annotationStatus.textContent = drawModeOn ? 'Annotations Visible' : 'Annotations Hidden';
+  annotationStatus.textContent = drawModeOn ? '<-- Click to Save' : '<-- Click to Add Drawing/Notes';
 
   if (!drawModeOn && drawCanvas.parentNode) {
     drawCanvas.parentNode.removeChild(drawCanvas);
   }
 
-  // --- Start of The Fix ---
-
-  // First, remove any old overlay
   const existing = document.getElementById('noteDrawOverlay');
   if (existing) existing.remove();
 
-  // If the note has a saved drawing, create the overlay image element
   if (note.drawLayer && note.drawLayer.src) {
     console.log('[DRAW][rehydrate] found drawLayer for note.id=', note.id);
     const overlay = document.createElement('img');
@@ -1512,30 +2450,21 @@ updateReviewButtonVisibility();
     overlay.style.pointerEvents = 'none';
     overlay.style.zIndex = '3';
     overlay.style.left = '0px';
-    overlay.style.top  = '0px';
-    
-    // Append it, but don't set the size yet
+    overlay.style.top = '0px';
     previewText.appendChild(overlay);
-    overlay.style.display = drawModeOn ? 'block' : 'none';
-
-    // CRITICAL FIX: Wait for the next browser frame to ensure all content (PDF images)
-    // has been laid out, THEN call the function that correctly sizes the overlay.
+    overlay.style.display = 'block';
     requestAnimationFrame(() => {
       resizeOverlaysForReview();
     });
-
   } else {
     console.log('[DRAW][rehydrate] no drawLayer for note.id=', note.id);
   }
-  
-  // --- End of The Fix ---
 
-  // Debounced savers
   previewSaveTitle = debounce(async (val) => { await persist(note.id, { title: val }); }, 200);
-  previewSaveText  = debounce(async (val) => { await persist(note.id, { text:  val }); }, 200);
+  previewSaveText = debounce(async (val) => { await persist(note.id, { text: val }); }, 200);
 
-  // Live updates
   previewTitleInput.oninput = () => {
+    if (isShared) return; // Prevent editing shared note titles
     const val = previewTitleInput.value;
     const idx = notes.findIndex(n => n.id === note.id);
     if (idx >= 0) notes[idx].title = val;
@@ -1543,6 +2472,7 @@ updateReviewButtonVisibility();
     previewSaveTitle(val);
   };
   previewText.oninput = () => {
+    if (isShared) return; // Prevent editing shared note text
     const val = previewText.innerHTML;
     const idx = notes.findIndex(n => n.id === note.id);
     if (idx >= 0) notes[idx].text = val;
@@ -1554,10 +2484,9 @@ updateReviewButtonVisibility();
   btnChecklist.textContent = '☑︎';
   btnChecklist.title = 'Checkbox mode: OFF — Enter inserts a normal line';
 
-  // Open
   previewBackdrop.style.display = 'grid';
   document.body.style.overflow = 'hidden';
-  
+
   if (typeof ResizeObserver !== 'undefined') {
     try { _editorRO && _editorRO.disconnect(); } catch {}
     _editorRO = new ResizeObserver(() => {
@@ -1575,75 +2504,56 @@ updateReviewButtonVisibility();
   setTimeout(() => previewTitleInput?.focus(), 30);
 }
 
-function closePreview() {
-  // 1) If drawing is ON, cancel safely *without exporting*
-  if (drawModeOn) {
-    // prevent an export in the OFF branch
-    drawHasStrokes = false;
-    drawModeOn = false;
-    btnDraw.classList.remove('active');
+// Replace the function above with this new version
+async function closePreview() {
+  // If drawing is on and the user has drawn something, ask for confirmation.
+  if (drawModeOn && drawHasStrokes) {
+    const confirmed = await showCustomConfirm('Are you sure you want to exit? Your drawing progress will be lost.');
+    if (!confirmed) {
+      return; // Stop the function if the user clicks "Cancel"
+    }
   }
 
-  // 2) Hide palette
+  // If the user confirms OR if drawing wasn't active, proceed with the original cleanup.
+  drawModeOn = false;
+  drawHasStrokes = false; // Ensure progress is always discarded
+  btnDraw.classList.remove('active');
   drawPalette.style.display = 'none';
   drawPalette.style.opacity = '0';
   drawPalette.style.transform = 'translateX(10px)';
-
-  // 3) Remove any overlay image from the editor
   const ov = previewText.querySelector('#noteDrawOverlay');
   if (ov) ov.remove();
-
-  // 4) Clear & detach the canvas so nothing stays visible
   if (drawCtx) {
     try { drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height); } catch {}
   }
-  drawCanvas.style.pointerEvents = 'none';
-  drawCanvas.style.cursor = '';
   if (drawCanvas.parentNode) drawCanvas.parentNode.removeChild(drawCanvas);
-
-  // 5) Restore editor interaction
   previewText.style.userSelect = '';
   previewText.style.caretColor = '';
   previewText.style.cursor = '';
-
-  // 6) Unbind inputs and hide the preview backdrop
   previewTitleInput.oninput = null;
   previewText.oninput = null;
   currentPreviewNote = null;
- // Always show hidden state when the preview closes
-  annotationStatus.textContent = 'Annotations Hidden';
+  annotationStatus.textContent = '<-- Click to Add Drawing/Notes';
   previewBackdrop.style.display = 'none';
   document.body.style.overflow = '';
-  // ▼ RESET Review Mode on close so next open is clean
-previewModal.classList.remove('review-mode');
-previewBackdrop.classList.remove('review-mode');
-previewText.classList.remove('review-mode');
-const _rmBtn = document.getElementById('reviewModeBtn');
-if (_rmBtn) {
-  _rmBtn.classList.remove('active');
-  _rmBtn.textContent = 'Review Mode';
-}
-// restore modal/editor sizes just in case
-if (previewModal.dataset.origW) previewModal.style.width  = previewModal.dataset.origW || '';
-if (previewModal.dataset.origH) previewModal.style.height = previewModal.dataset.origH || '';
-previewText.style.fontSize = '';
-previewText.style.lineHeight = '';
-// stop observing editor size changes
-try { _editorRO && _editorRO.disconnect(); } catch {}
-_editorRO = null;
-// reset review scaling baseline so next open recomputes cleanly
-previewEditorWrap.dataset.baseW = '';
-previewEditorWrap.dataset.baseH = '';
-previewEditorWrap.style.transform = '';
-previewEditorWrap.style.width = '';
-// reset review scaling baseline so next open recomputes cleanly
-previewEditorWrap.style.transform = '';
-previewEditorWrap.style.width = '';
-delete previewEditorWrap.dataset.baseW;
-delete previewEditorWrap.dataset.baseH;
-previewText.scrollLeft = 0;
-previewEditorWrap.scrollLeft = 0;
-
+  previewModal.classList.remove('review-mode');
+  previewBackdrop.classList.remove('review-mode');
+  previewText.classList.remove('review-mode');
+  const _rmBtn = document.getElementById('reviewModeBtn');
+  if (_rmBtn) {
+    _rmBtn.classList.remove('active');
+    _rmBtn.textContent = 'Review Mode';
+  }
+  if (previewModal.dataset.origW) previewModal.style.width  = previewModal.dataset.origW || '';
+  if (previewModal.dataset.origH) previewModal.style.height = previewModal.dataset.origH || '';
+  try { _editorRO && _editorRO.disconnect(); } catch {}
+  _editorRO = null;
+  delete previewEditorWrap.dataset.baseW;
+  delete previewEditorWrap.dataset.baseH;
+  previewEditorWrap.style.transform = '';
+  previewEditorWrap.style.width = '';
+  previewText.scrollLeft = 0;
+  previewEditorWrap.scrollLeft = 0;
   console.log('[DRAW][state] cleared currentPreviewNote and removed canvas/overlay');
 }
 
@@ -1990,24 +2900,34 @@ text.addEventListener('change', (e) => {
     text.dispatchEvent(new InputEvent('input', { bubbles: true }));
   }
 });
-
+// ▼▼▼ ADD THE NEW "ADD TO CLASS" BUTTON HERE ▼▼▼
+const addToClassBtn = document.createElement('button');
+addToClassBtn.className = 'note-card-action-btn note-add-to-class';
+addToClassBtn.type = 'button';
+addToClassBtn.title = 'Add to Class';
+addToClassBtn.innerHTML = `<img src="sharetoclass.png" alt="Add to Class">`;
+addToClassBtn.addEventListener('click', () => {
+    openAddToClassModal(note);
+});
+// ▲▲▲ END OF NEW BUTTON ▲▲▲
 // ▶ Expand button → opens Preview Modal
 const expandBtn = document.createElement('button');
-expandBtn.className = 'note-expand';
+expandBtn.className = 'note-expand note-card-action-btn';
 expandBtn.type = 'button';
 expandBtn.title = 'Expand';
 expandBtn.textContent = '⤢';
 // Minimal inline position in case CSS isn't present:
 expandBtn.style.cssText = 'position:absolute; right:10px; bottom:10px; width:32px; height:32px; border-radius:10px; border:1px solid #000; background:#171717; color:#fff; cursor:pointer;';
 
+// Change the line to this
 expandBtn.addEventListener('click', () => {
-  openPreview(note);
+  openPreview(note, false); // <-- Add false here
 });
 
 
 // ▶ Pin button → move card to top
 const pinBtn = document.createElement('button');
-pinBtn.className = 'note-pin';
+pinBtn.className = 'note-pin note-card-action-btn';
 pinBtn.type = 'button';
 pinBtn.title = 'Pin to top';
 pinBtn.textContent = '📌';
@@ -2019,7 +2939,7 @@ pinBtn.style.cssText = 'position:absolute; right:50px; bottom:10px; width:32px; 
 pinBtn.title = note.pinned ? 'Unpin' : 'Pin to top';
 // ▶ Color button → small palette popup
 const colorBtn = document.createElement('button');
-colorBtn.className = 'note-color';
+colorBtn.className = 'note-color note-card-action-btn';
 colorBtn.type = 'button';
 colorBtn.title = 'Color';
 colorBtn.textContent = '🎨';
@@ -2177,6 +3097,7 @@ pinBtn.addEventListener('click', async (e) => {
 
     wrap.appendChild(head);
 wrap.appendChild(text);
+wrap.appendChild(addToClassBtn); 
 wrap.appendChild(colorBtn);
 wrap.appendChild(colorPop);
 wrap.appendChild(pinBtn);
@@ -2185,7 +3106,635 @@ return wrap;
 
 
   }
+// PASTE this entire block of new functions here
 
+let activeNoteForAdding = null;
+
+function openAddToClassModal(note) {
+    activeNoteForAdding = note;
+    document.getElementById('addToClassTitle').textContent = `Add "${note.title || 'Untitled Note'}" to...`;
+    populateAddToClassList();
+    document.getElementById('addToClassBackdrop').classList.remove('hidden');
+}
+
+function closeAddToClassModal() {
+    document.getElementById('addToClassBackdrop').classList.add('hidden');
+    activeNoteForAdding = null;
+}
+
+// in note.js
+
+// REPLACE the existing function with this new version
+async function populateAddToClassList() {
+    const listElement = document.getElementById('addToClassList');
+    listElement.innerHTML = '<li>Loading your classes...</li>';
+    const user = auth.currentUser;
+    if (!user) {
+        listElement.innerHTML = '<li>You must be logged in.</li>';
+        return;
+    }
+
+    try {
+        const classesMap = new Map();
+
+        // Query 1: Get classes created by the user
+        const createdClassesRef = db.collection('Class').doc(user.email).collection('userClasses');
+        const createdSnapshot = await createdClassesRef.get();
+        createdSnapshot.forEach(doc => {
+            classesMap.set(doc.id, { id: doc.id, creatorEmail: user.email, ...doc.data() });
+        });
+
+        // Query 2: Get classes where the user is a co-creator
+        const coCreatorQuery = db.collectionGroup('members')
+                                 .where('role', '==', 'creator');
+        const coCreatorSnapshot = await coCreatorQuery.get();
+
+        for (const memberDoc of coCreatorSnapshot.docs) {
+            // Only consider classes where the current user is a co-creator but not the original creator
+            if (memberDoc.id === user.email) {
+                const classRef = memberDoc.ref.parent.parent; // Navigate up to the class document
+                if (!classesMap.has(classRef.id)) {
+                    const classDoc = await classRef.get();
+                    if (classDoc.exists) {
+                       const classData = classDoc.data();
+                       classesMap.set(classDoc.id, { id: classDoc.id, creatorEmail: classData.createdBy, ...classData });
+                    }
+                }
+            }
+        }
+
+        if (classesMap.size === 0) {
+            listElement.innerHTML = '<li>You have no classes available to add notes to.</li>';
+            return;
+        }
+
+        let classHtml = '';
+        classesMap.forEach(classData => {
+            classHtml += `
+                <li>
+                    <button class="neumorphic-button" data-class-id="${classData.id}" data-creator-email="${classData.creatorEmail}" style="width: 100%; text-align: left;">
+                        ${classData.className}
+                    </button>
+                </li>
+            `;
+        });
+        listElement.innerHTML = classHtml;
+
+        // Add event listeners
+        listElement.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const classId = e.currentTarget.dataset.classId;
+                const creatorEmail = e.currentTarget.dataset.creatorEmail;
+                addNoteToClass(creatorEmail, classId);
+            });
+        });
+
+    } catch (error) {
+        console.error("Error fetching classes for 'Add to Class' modal:", error);
+        listElement.innerHTML = '<li>Could not load classes. Check console for index errors.</li>';
+        // NOTE: This query might require a Firestore index. If it fails, the console will provide a link to create it.
+    }
+}
+
+async function addNoteToClass(creatorEmail, classId) {
+    if (!activeNoteForAdding) return;
+
+    const noteData = {
+        title: activeNoteForAdding.title || '',
+        text: activeNoteForAdding.text || '',
+        drawLayer: activeNoteForAdding.drawLayer || null,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        addedBy: auth.currentUser.email
+    };
+
+    try {
+        const classNotesRef = db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('notes');
+        await classNotesRef.doc(activeNoteForAdding.id).set(noteData);
+        showCustomAlert('Note successfully added to class!', 'success');
+         await logClassActivity(classId, creatorEmail, `Note "${noteData.title || 'Untitled'}"  by the Creator/Co Creator.`);
+        closeAddToClassModal();
+    } catch (error) {
+        console.error("Error adding note to class:", error);
+        showCustomAlert('Failed to add note.', 'error');
+    }
+}
+// PASTE THIS NEW FUNCTION HERE
+// ======================================
+// ▼▼▼ NEW FUNCTION TO DISPLAY CLASS NOTES ▼▼▼
+// ======================================
+let classNotesUnsubscribe = null; // To manage the real-time listener
+
+// REPLACE the existing displayClassNotes function with this one
+
+// REPLACE the existing displayClassNotes function with this one
+
+function displayClassNotes(creatorEmail, classId) {
+  const noteListContainer = document.getElementById('classNoteList');
+  if (!noteListContainer) return;
+
+  if (classNotesUnsubscribe) {
+    classNotesUnsubscribe();
+  }
+
+  noteListContainer.innerHTML = '<div class="note-empty">Loading notes...</div>';
+  const classNotesRef = db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('notes');
+
+  classNotesUnsubscribe = classNotesRef.onSnapshot(async (snapshot) => {
+    if (snapshot.empty) {
+      noteListContainer.innerHTML = '<div class="note-empty">No notes have been shared to this class yet.</div>';
+      return;
+    }
+
+    const cardPromises = snapshot.docs.map(doc => {
+      const noteData = { id: doc.id, ...doc.data() };
+      // ▼▼▼ THIS LINE IS UPDATED ▼▼▼
+      return renderSharedNoteCard(noteData, creatorEmail); // Pass creatorEmail here
+    });
+
+    const noteCards = await Promise.all(cardPromises);
+
+    noteListContainer.innerHTML = '';
+    noteCards.forEach(card => noteListContainer.appendChild(card));
+
+  }, error => {
+    console.error("Error fetching class notes: ", error);
+    noteListContainer.innerHTML = '<div class="note-empty">Could not load notes.</div>';
+  });
+}
+
+// A simplified card renderer for shared notes
+// REPLACE the existing function with this new version
+
+// A card renderer for shared notes, now with an expand button
+// REPLACE the existing function with this new async version
+
+// A card renderer for shared notes that now fetches the username
+// REPLACE the existing function with this new version
+
+// REPLACE the existing function with this new version
+
+async function renderSharedNoteCard(note, creatorEmail) {
+  const wrap = document.createElement('div');
+  wrap.className = 'note-card';
+  wrap.dataset.id = note.id;
+
+  const head = document.createElement('div');
+  head.className = 'note-card-header';
+  const title = document.createElement('div');
+  title.className = 'note-card-title';
+  title.textContent = note.title || '(Untitled)';
+  title.style.cssText = `background-color: transparent; box-shadow: none; padding: 0;`;
+  head.appendChild(title);
+
+  const text = document.createElement('div');
+  text.className = 'note-text';
+  text.innerHTML = note.text || '';
+  text.contentEditable = 'false';
+
+  const expandBtn = document.createElement('button');
+  expandBtn.className = 'note-expand note-card-action-btn';
+  expandBtn.type = 'button';
+  expandBtn.title = 'Expand Note';
+  expandBtn.textContent = '⤢';
+  expandBtn.addEventListener('click', () => {
+    openPreview(note, true);
+  });
+
+  wrap.appendChild(head);
+  wrap.appendChild(text);
+
+  // --- Permission logic for the delete button ---
+  const user = auth.currentUser;
+  let isAllowedToDelete = false;
+
+  if (user) {
+    // Check if the user is the original creator
+    if (user.email === creatorEmail) {
+      isAllowedToDelete = true;
+    } else {
+      // If not, check if they are a co-creator
+      const classId = window.activeClassContext.id;
+      const memberDoc = await db.collection('Class').doc(creatorEmail)
+                                .collection('userClasses').doc(classId)
+                                .collection('members').doc(user.email).get();
+      if (memberDoc.exists && memberDoc.data().role === 'creator') {
+        isAllowedToDelete = true;
+      }
+    }
+  }
+
+  // ▼▼▼ THIS SECTION HAS BEEN REORDERED TO FIX STACKING ▼▼▼
+
+  // 1. Add the footer FIRST.
+  if (note.addedBy) {
+    const footer = document.createElement('div');
+    footer.textContent = 'Loading author...';
+    footer.style.cssText = `font-size: 11px; opacity: 0.6; text-align: left; margin-top: 8px; padding-left: 4px;`;
+    wrap.appendChild(footer);
+    const username = await getUsernameFromEmail(note.addedBy);
+    footer.textContent = `Added by: ${username}`;
+  }
+
+  // 2. Add the delete button (if applicable) SECOND.
+  if (isAllowedToDelete) {
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'note-delete-shared note-card-action-btn';
+    deleteBtn.type = 'button';
+    deleteBtn.title = 'Delete Note from Class';
+    deleteBtn.innerHTML = `<img src="deleteclass.png" alt="Delete">`;
+    deleteBtn.addEventListener('click', () => {
+      handleDeleteSharedNote(creatorEmail, window.activeClassContext.id, note.id);
+    });
+    wrap.appendChild(deleteBtn);
+  }
+
+  // 3. Add the expand button LAST so it's on the very top.
+  wrap.appendChild(expandBtn);
+
+  // ▲▲▲ END OF REORDERED SECTION ▲▲▲
+
+  return wrap;
+}
+// PASTE THIS NEW FUNCTION AFTER renderSharedNoteCard
+
+async function handleDeleteSharedNote(creatorEmail, classId, noteId) {
+  const confirmed = await showCustomConfirm('Are you sure you want to delete this note from the class? This cannot be undone.');
+  if (!confirmed) return;
+
+  try {
+    const noteRef = db.collection('Class').doc(creatorEmail)
+                      .collection('userClasses').doc(classId)
+                      .collection('notes').doc(noteId);
+
+    await noteRef.delete();
+    showCustomAlert('Note removed from class successfully.', 'success');
+     await logClassActivity(classId, creatorEmail, `The Creator/Co Creator Removed a Shared Note from the Class.`);
+    // The real-time listener will automatically update the UI
+  } catch (error) {
+    console.error("Error deleting shared note:", error);
+    showCustomAlert('Failed to remove the note.', 'error');
+  }
+}
+// in note.js
+
+// PASTE THIS NEW FUNCTION AFTER handleDeleteSharedNote
+/**
+ * Logs an activity for a specific class to Firestore.
+ * @param {string} classId The ID of the class.
+ * @param {string} creatorEmail The email of the class creator.
+ * @param {string} message The log message.
+ */
+async function logClassActivity(classId, creatorEmail, message) {
+  if (!classId || !creatorEmail || !message) return;
+
+  try {
+    const logsRef = db.collection('Class').doc(creatorEmail)
+                      .collection('userClasses').doc(classId)
+                      .collection('logs');
+
+    await logsRef.add({
+      message: message,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (error) {
+    console.error("Failed to log class activity:", error);
+  }
+}// in note.js
+
+// PASTE THIS NEW BLOCK AFTER logClassActivity
+let logsUnsubscribe = null; // To manage the real-time listener for logs
+let inviteListMemberUnsubscribe = null; // <-- ADD THIS LINE
+
+// in note.js
+
+// REPLACE the existing openLogsModal function
+async function openLogsModal(creatorEmail, classId) {
+  const logsBackdrop = document.getElementById('classLogsBackdrop');
+  logsBackdrop.classList.remove('hidden');
+  displayClassLogs(creatorEmail, classId);
+
+  // Mark logs as read
+  const user = auth.currentUser;
+  if (user) {
+    const lastViewedRef = db.collection('users').doc(user.email).collection('lastViewedLogs').doc(classId);
+    await lastViewedRef.set({
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Immediately hide the dots
+    document.querySelector('#classLogsBtnIcon .notification-dot').classList.add('hidden');
+    document.querySelector('#classLogsBtnFull .notification-dot').classList.add('hidden');
+    updateLogsNotification(creatorEmail, classId);
+  }
+}
+
+function closeLogsModal() {
+  const logsBackdrop = document.getElementById('classLogsBackdrop');
+  logsBackdrop.classList.add('hidden');
+  // Detach the real-time listener when the modal is closed to save resources
+  if (logsUnsubscribe) {
+    logsUnsubscribe();
+    logsUnsubscribe = null;
+  }
+}
+// in note.js
+
+// PASTE THIS NEW FUNCTION AFTER closeLogsModal
+let logNotificationUnsubscribe = null;
+
+function updateLogsNotification(creatorEmail, classId) {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const logsDotIcon = document.querySelector('#classLogsBtnIcon .notification-dot');
+  const logsDotFull = document.querySelector('#classLogsBtnFull .notification-dot');
+  if (!logsDotIcon || !logsDotFull) return;
+
+  // Detach any previous listener
+  if (logNotificationUnsubscribe) logNotificationUnsubscribe();
+
+  const lastViewedRef = db.collection('users').doc(user.email).collection('lastViewedLogs').doc(classId);
+
+  lastViewedRef.get().then(lastViewedDoc => {
+    const lastViewedTimestamp = lastViewedDoc.exists ? lastViewedDoc.data().timestamp : null;
+
+    const logsQuery = lastViewedTimestamp 
+      ? db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('logs').where('timestamp', '>', lastViewedTimestamp)
+      : db.collection('Class').doc(creatorEmail).collection('userClasses').doc(classId).collection('logs');
+
+    logNotificationUnsubscribe = logsQuery.onSnapshot(snapshot => {
+      const unreadCount = snapshot.size;
+
+      if (unreadCount > 0) {
+        logsDotIcon.textContent = unreadCount;
+        logsDotFull.textContent = unreadCount;
+        logsDotIcon.classList.remove('hidden');
+        logsDotFull.classList.remove('hidden');
+      } else {
+        logsDotIcon.classList.add('hidden');
+        logsDotFull.classList.add('hidden');
+      }
+    });
+  });
+}
+function displayClassLogs(creatorEmail, classId) {
+  const logsList = document.getElementById('classLogsList');
+  if (!logsList) return;
+
+  logsList.innerHTML = `<li>Loading logs...</li>`;
+  const logsRef = db.collection('Class').doc(creatorEmail)
+                    .collection('userClasses').doc(classId)
+                    .collection('logs').orderBy('timestamp', 'desc');
+
+  logsUnsubscribe = logsRef.onSnapshot(snapshot => {
+    if (snapshot.empty) {
+      logsList.innerHTML = `<li>No activities have been logged for this class yet.</li>`;
+      return;
+    }
+
+    let logsHtml = '';
+    snapshot.forEach(doc => {
+      const log = doc.data();
+      const date = log.timestamp ? log.timestamp.toDate().toLocaleString() : 'Just now';
+      logsHtml += `
+        <li>
+          <span class="log-message">${log.message}</span>
+          <span class="log-timestamp">${date}</span>
+        </li>
+      `;
+    });
+    logsList.innerHTML = logsHtml;
+
+  }, error => {
+    console.error("Error fetching class logs:", error);
+    logsList.innerHTML = `<li>Could not load logs.</li>`;
+  });
+}
+// in note.js
+// in note.js
+
+// PASTE THIS NEW BLOCK AFTER displayClassLogs
+// in note.js
+
+// in note.js
+
+// REPLACE your existing function with this one
+// in note.js
+
+// REPLACE your existing function with this one
+let announcementsUnsubscribe = null;
+
+function displayAnnouncements(creatorEmail, classId) {
+  const announcementsPanel = document.getElementById('classAnnouncementsPanel');
+  const announcementsBtn = document.getElementById('viewAnnouncementsBtn');
+  if (!announcementsPanel || !announcementsBtn) return;
+
+  if (announcementsUnsubscribe) {
+    announcementsUnsubscribe();
+  }
+
+  announcementsPanel.innerHTML = '<div class="note-empty">Loading announcements...</div>';
+  const announcementsRef = db.collection('Class').doc(creatorEmail)
+                             .collection('userClasses').doc(classId)
+                             .collection('announcements').orderBy('timestamp', 'desc');
+
+  announcementsUnsubscribe = announcementsRef.onSnapshot(async (snapshot) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    // Get the timestamp of the latest announcement
+    const latestTimestamp = !snapshot.empty ? snapshot.docs[0].data().timestamp : null;
+
+    if (latestTimestamp) {
+      // Check when the user last viewed the announcements for this class
+      const lastViewedRef = db.collection('users').doc(user.email).collection('lastViewedAnnouncements').doc(classId);
+      const lastViewedDoc = await lastViewedRef.get();
+
+      if (!lastViewedDoc.exists || lastViewedDoc.data().timestamp < latestTimestamp) {
+        announcementsBtn.classList.add('has-unread'); // Add pulse animation
+      } else {
+        announcementsBtn.classList.remove('has-unread');
+      }
+    } else {
+        announcementsBtn.classList.remove('has-unread');
+    }
+
+    if (snapshot.empty) {
+      announcementsPanel.innerHTML = '<div class="note-empty">No announcements have been posted yet.</div>';
+      return;
+    }
+
+    let announcementsHtml = '';
+
+    for (const doc of snapshot.docs) {
+      const announcement = doc.data();
+      const username = await getUsernameFromEmail(announcement.postedBy);
+      const date = announcement.timestamp ? announcement.timestamp.toDate().toLocaleString() : 'Just now';
+
+      // ▼▼▼ NEW: Conditionally add a delete button ▼▼▼
+      let deleteButtonHtml = '';
+      if (user && user.email === creatorEmail) {
+        deleteButtonHtml = `<button class="announcement-delete-btn" data-doc-id="${doc.id}">🗑</button>`;
+      }
+      // ▲▲▲ END OF NEW CODE ▲▲▲
+
+      announcementsHtml += `
+        <div class="announcement-card">
+          <div class="announcement-header">
+            <h4 class="announcement-title">${announcement.title}</h4>
+            ${deleteButtonHtml}
+          </div>
+          <p class="announcement-description">${announcement.description}</p>
+          <div class="announcement-meta">
+            Posted by ${username} on ${date}
+          </div>
+        </div>
+      `;
+    }
+    announcementsPanel.innerHTML = announcementsHtml;
+
+    // Add event listeners to the new delete buttons
+    announcementsPanel.querySelectorAll('.announcement-delete-btn').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const docId = e.currentTarget.dataset.docId;
+        handleDeleteAnnouncement(creatorEmail, classId, docId);
+      });
+    });
+    // ▼▼▼ NEW ANIMATION LOGIC ▼▼▼
+    // After adding the cards to the DOM, animate them one by one
+    const announcementCards = announcementsPanel.querySelectorAll('.announcement-card');
+    announcementCards.forEach((card, index) => {
+      setTimeout(() => {
+        card.classList.add('is-visible');
+      }, index * 200); // 100ms delay between each card
+    });
+    // ▲▲▲ END OF NEW LOGIC ▲▲▲
+  }, error => {
+    console.error("Error fetching announcements:", error);
+    announcementsPanel.innerHTML = '<div class="note-empty">Could not load announcements.</div>';
+  });
+}
+// in note.js
+
+// PASTE THIS NEW FUNCTION AFTER displayAnnouncements
+async function handleDeleteAnnouncement(creatorEmail, classId, announcementId) {
+    const confirmed = await showCustomConfirm('Are you sure you want to delete this announcement?');
+    if (!confirmed) return;
+
+    try {
+        const announcementRef = db.collection('Class').doc(creatorEmail)
+                                  .collection('userClasses').doc(classId)
+                                  .collection('announcements').doc(announcementId);
+
+        await announcementRef.delete();
+
+        await logClassActivity(classId, creatorEmail, `Deleted an announcement.`);
+        showCustomAlert('Announcement deleted.', 'success');
+        // The real-time listener will automatically update the UI
+
+    } catch (error) {
+        console.error("Error deleting announcement:", error);
+        showCustomAlert('Failed to delete announcement.', 'error');
+    }
+}
+// PASTE THIS NEW BLOCK AFTER displayClassLogs
+// ======================================
+// ▼▼▼ ANNOUNCEMENT MODAL FUNCTIONS ▼▼▼
+// ======================================
+let activeClassForAnnouncement = null;
+
+function openAnnouncementModal(creatorEmail, classId) {
+    activeClassForAnnouncement = { creatorEmail, classId };
+    document.getElementById('announcementBackdrop').classList.remove('hidden');
+}
+
+function closeAnnouncementModal() {
+    document.getElementById('announcementBackdrop').classList.add('hidden');
+    document.getElementById('announcementTitle').value = '';
+    document.getElementById('announcementDescription').value = '';
+    activeClassForAnnouncement = null;
+}
+
+async function handlePostAnnouncement() {
+    const user = auth.currentUser;
+    if (!user || !activeClassForAnnouncement) return;
+
+    const title = document.getElementById('announcementTitle').value.trim();
+    const description = document.getElementById('announcementDescription').value.trim();
+
+    if (!title || !description) {
+        return showCustomAlert('Title and description are required.', 'error');
+    }
+
+    const postBtn = document.getElementById('postAnnouncementBtn');
+    postBtn.disabled = true;
+    postBtn.textContent = 'Posting...';
+
+    try {
+        const { creatorEmail, classId } = activeClassForAnnouncement;
+        const announcementsRef = db.collection('Class').doc(creatorEmail)
+                                   .collection('userClasses').doc(classId)
+                                   .collection('announcements');
+
+        await announcementsRef.add({
+            title,
+            description,
+            postedBy: user.email,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        await logClassActivity(classId, creatorEmail, `Posted an announcement: "${title}"`);
+        showCustomAlert('Announcement posted successfully!', 'success');
+        closeAnnouncementModal();
+
+    } catch (error) {
+        console.error("Error posting announcement:", error);
+        showCustomAlert('Failed to post announcement.', 'error');
+    } finally {
+        postBtn.disabled = false;
+        postBtn.textContent = 'Post Announcement';
+    }
+}
+
+// Hook up the new modal's buttons
+document.getElementById('closeAnnouncementModalBtn').addEventListener('click', closeAnnouncementModal);
+document.getElementById('postAnnouncementBtn').addEventListener('click', handlePostAnnouncement);
+document.getElementById('announcementBackdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'announcementBackdrop') {
+        closeAnnouncementModal();
+    }
+});
+// Hook up the close button and backdrop click for the new modal
+document.getElementById('closeLogsModalBtn').addEventListener('click', closeLogsModal);
+document.getElementById('classLogsBackdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'classLogsBackdrop') {
+        closeLogsModal();
+    }
+});
+// PASTE THIS NEW FUNCTION AFTER renderSharedNoteCard
+
+/**
+ * Fetches a user's username from Firestore using their email.
+ * Falls back to the first part of the email if no username is found.
+ * @param {string} email The user's email address.
+ * @returns {Promise<string>} The username or truncated email.
+ */
+async function getUsernameFromEmail(email) {
+  if (!email) return 'Unknown';
+  try {
+    const userDoc = await db.collection('usernames').doc(email).get();
+    if (userDoc.exists && userDoc.data().username) {
+      return userDoc.data().username;
+    } else {
+      // Fallback if the user has no username set
+      return email.split('@')[0];
+    }
+  } catch (error) {
+    console.error("Error fetching username:", error);
+    // Fallback in case of an error
+    return email.split('@')[0];
+  }
+}
   // =====================
   // Firestore/local persistence
   // =====================
@@ -2383,4 +3932,331 @@ function setContentEditableCaretIndex(el, idx) {
 }
 
   function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+  // ======================================
+// ▼▼▼ INVITE USERS MODAL LOGIC HERE ▼▼▼
+// ======================================
+const inviteModal = document.getElementById('inviteUsersModal');
+const closeInviteBtn = document.getElementById('closeInviteModalBtn');
+const inviteUserList = document.getElementById('inviteUserList');
+const inviteUserSearch = document.getElementById('inviteUserSearch');
+
+// We need to get the button *after* its parent (classInfoView) is created.
+// A short timeout ensures the element is in the DOM.
+
+
+
+// Close Modal Logic
+const closeInviteModal = () => inviteModal.classList.add('hidden');
+closeInviteBtn.addEventListener('click', closeInviteModal);
+inviteModal.addEventListener('click', (e) => {
+  if (e.target === inviteModal) {
+    closeInviteModal();
+  }
+});
+
+// Search/Filter Logic
+inviteUserSearch.addEventListener('input', () => {
+  const searchTerm = inviteUserSearch.value.toLowerCase();
+  const allUsers = inviteUserList.querySelectorAll('li');
+  allUsers.forEach(userItem => {
+    const username = userItem.querySelector('.invite-user-name').textContent.toLowerCase();
+    if (username.includes(searchTerm)) {
+      userItem.style.display = 'flex';
+    } else {
+      userItem.style.display = 'none';
+    }
+  });
+});
+
+// Function to fetch and display all users
+async function populateInviteList() {
+  const inviteUserList = document.getElementById('inviteUserList');
+  inviteUserList.innerHTML = `<li>Loading users...</li>`;
+
+  const { creatorEmail, id: classId } = window.activeClassContext;
+  if (!creatorEmail || !classId) {
+    inviteUserList.innerHTML = `<li>Could not identify the current class.</li>`;
+    return;
+  }
+
+  // Detach any previous listener
+  if (inviteListMemberUnsubscribe) {
+    inviteListMemberUnsubscribe();
+  }
+
+  // Listen for real-time changes to the members list
+  const membersRef = db.collection('Class').doc(creatorEmail)
+                       .collection('userClasses').doc(classId)
+                       .collection('members');
+
+  inviteListMemberUnsubscribe = membersRef.onSnapshot(async (membersSnapshot) => {
+    // Create a set of current members for quick lookup, always including the creator
+    const currentMemberEmails = new Set(membersSnapshot.docs.map(doc => doc.id));
+    currentMemberEmails.add(creatorEmail);
+
+    try {
+      const usersSnapshot = await db.collection('usernames').get();
+      if (usersSnapshot.empty) {
+        inviteUserList.innerHTML = `<li>No registered users found.</li>`;
+        return;
+      }
+
+      let userHtml = '';
+      let usersAvailableToInvite = 0;
+
+      for (const doc of usersSnapshot.docs) {
+        const email = doc.id;
+
+        // If the user is already in the class, skip them
+        if (currentMemberEmails.has(email)) {
+          continue;
+        }
+
+        usersAvailableToInvite++;
+        const username = doc.data().username || email;
+        let avatarUrl = 'Group-100.png';
+        let roleBadgeHtml = '';
+
+        try {
+          const avatarRef = storage.ref(`avatars/${email}`);
+          avatarUrl = await avatarRef.getDownloadURL();
+        } catch (error) { /* Use default avatar */ }
+
+        const roleDoc = await db.collection('approved_emails').doc(email).get();
+        if (roleDoc.exists) {
+          const roles = roleDoc.data().role || '';
+          if (roles.includes('verified')) roleBadgeHtml = `<img src="verified.svg" alt="Verified" class="member-role-badge">`;
+          else if (roles.includes('first')) roleBadgeHtml = `<img src="first.png" alt="First User" class="member-role-badge">`;
+        }
+
+        userHtml += `
+          <li>
+            <img src="${avatarUrl}" alt="Avatar" class="invite-user-avatar">
+            <div class="invite-user-details">
+              <span class="invite-user-name">${username}</span>
+              ${roleBadgeHtml}
+            </div>
+            <button class="invite-user-add-btn" data-email="${email}" title="Invite ${username}">+</button>
+          </li>
+        `;
+      }
+
+      if (usersAvailableToInvite === 0) {
+        inviteUserList.innerHTML = `<li>All registered users are already in this class.</li>`;
+      } else {
+        inviteUserList.innerHTML = userHtml;
+      }
+
+      // Add event listeners to the new invite buttons
+      inviteUserList.querySelectorAll('.invite-user-add-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const emailToInvite = btn.dataset.email;
+          const user = auth.currentUser;
+
+          btn.textContent = '...';
+          btn.disabled = true;
+
+          try {
+            await db.collection('invclass').add({
+              senderEmail: user.email,
+              recipientEmail: emailToInvite,
+              classId: window.activeClassContext.id,
+              className: window.activeClassContext.name,
+              creatorEmail: window.activeClassContext.creatorEmail,
+              status: 'pending',
+              timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showCustomAlert(`Invitation sent to ${emailToInvite}!`, 'success');
+            await logClassActivity(window.activeClassContext.id, window.activeClassContext.creatorEmail, `An invitation was sent to ${emailToInvite}.`);
+            btn.textContent = '✓';
+          } catch (error) {
+            console.error("Error sending invitation:", error);
+            showCustomAlert('Failed to send invitation.', 'error');
+            btn.textContent = '+';
+            btn.disabled = false;
+          }
+        });
+      });
+
+    } catch (error) {
+      console.error("Error fetching users for invite list:", error);
+      inviteUserList.innerHTML = `<li>Error loading users.</li>`;
+    }
+  });
+}
+// ▼▼▼ REPLACE YOUR EXISTING PHOTO LOGIC BLOCK WITH THIS ONE ▼▼▼
+const addPhotoButton = document.getElementById('addClassPhotoBtn');
+const classImagePreview = document.getElementById('classImagePreview');
+const classPhotoInput = document.getElementById('classPhotoInput');
+
+// 1. NEW: Function to update the button text based on the image source
+function updatePhotoButtonText() {
+  if (classImagePreview.src.includes('Group-100.png')) {
+    addPhotoButton.textContent = 'Add Photo';
+  } else {
+    addPhotoButton.textContent = 'Edit Photo';
+  }
+}
+
+// 2. When the user clicks the "Add Photo" / "Edit Photo" button, open the file picker.
+if (addPhotoButton && classPhotoInput) {
+  addPhotoButton.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevents the button from submitting a form
+    classPhotoInput.click();
+  });
+}
+
+// 3. When a file is selected, update the preview image AND the button text.
+if (classPhotoInput && classImagePreview) {
+  classPhotoInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        classImagePreview.src = e.target.result;
+        updatePhotoButtonText(); // Call the new function here
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+// ▼▼▼ PASTE THIS ENTIRE BLOCK AT THE END OF THE FILE ▼▼▼
+
+let isEditMode = false;
+let editingClassId = null;
+
+function openClassModalForEdit(classData) {
+  isEditMode = true;
+  editingClassId = window.activeClassContext?.id;
+
+  // Populate the modal with existing data
+  document.getElementById('classNameInput').value = classData.className || '';
+  document.getElementById('classSectionInput').value = classData.section || '';
+  document.getElementById('classDescriptionInput').value = classData.description || '';
+  document.getElementById('classImagePreview').src = classData.imageUrl || 'Group-100.png';
+  updatePhotoButtonText();
+
+  // Update titles and button text
+  document.querySelector('.create-class-title').textContent = 'Edit Class';
+  document.getElementById('saveClassBtn').textContent = 'Save Changes';
+
+  // Show the modal
+  document.getElementById('createClassBackdrop').classList.remove('hidden');
+}
+
+async function handleCreateOrUpdateClass() {
+  const user = auth.currentUser;
+  if (!user) return showCustomAlert('You must be logged in.', 'error');
+
+  const className = document.getElementById('classNameInput').value.trim();
+  const section = document.getElementById('classSectionInput').value.trim();
+  if (!className || !section) return showCustomAlert('Class Name and Section are required.', 'error');
+
+  const saveBtn = document.getElementById('saveClassBtn');
+  saveBtn.textContent = 'Saving...';
+  saveBtn.disabled = true;
+
+  const description = document.getElementById('classDescriptionInput').value.trim();
+  const photoFile = document.getElementById('classPhotoInput').files[0];
+  let imageUrl = document.getElementById('classImagePreview').src;
+
+  try {
+    // Upload a new image only if a new one was selected
+    if (photoFile) {
+      const storageRef = storage.ref(`class_photos/${user.uid}/${Date.now()}_${photoFile.name}`);
+      const snapshot = await storageRef.put(photoFile);
+      imageUrl = await snapshot.ref.getDownloadURL();
+    }
+
+    const classDataObject = { className, section, description, imageUrl, createdBy: user.email };
+
+    if (isEditMode && editingClassId) {
+      // --- UPDATE LOGIC ---
+      const classRef = db.collection('Class').doc(user.email).collection('userClasses').doc(editingClassId);
+      await classRef.update(classDataObject);
+      showCustomAlert('Class updated successfully!', 'success');
+    } else {
+      // --- CREATE LOGIC ---
+      classDataObject.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      await db.collection('Class').doc(user.email).collection('userClasses').add(classDataObject);
+      showCustomAlert('Class created successfully!', 'success');
+    }
+
+    closeAndResetCreateModal();
+
+  } catch (error) {
+    console.error("Error saving class:", error);
+    showCustomAlert('Failed to save class.', 'error');
+  } finally {
+    saveBtn.disabled = false;
+  }
+}
+
+function closeAndResetCreateModal() {
+  document.getElementById('createClassBackdrop').classList.add('hidden');
+
+  // Reset form fields and state
+  document.getElementById('classNameInput').value = '';
+  document.getElementById('classSectionInput').value = '';
+  document.getElementById('classDescriptionInput').value = '';
+  document.getElementById('classImagePreview').src = 'Group-100.png';
+  document.getElementById('classPhotoInput').value = '';
+  updatePhotoButtonText();
+
+  document.querySelector('.create-class-title').textContent = 'Create Class';
+  document.getElementById('saveClassBtn').textContent = 'Create!';
+
+  isEditMode = false;
+  editingClassId = null;
+}
+
+// Replace the old save logic with this new dynamic handler
+document.getElementById('saveClassBtn').addEventListener('click', handleCreateOrUpdateClass);
+
+// Also update the backdrop click to use the new reset function
+const classBackdrop = document.getElementById('createClassBackdrop');
+classBackdrop.addEventListener('click', (e) => {
+  if (e.target === classBackdrop) {
+    closeAndResetCreateModal();
+  }
+});
+
+// ▲▲▲ END OF NEW BLOCK ▲▲▲
+document.getElementById('closeAddToClassBtn').addEventListener('click', closeAddToClassModal);
+document.getElementById('addToClassBackdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'addToClassBackdrop') {
+        closeAddToClassModal();
+    }
+});
+// ======================================
+// ▼▼▼ CLASS TUTORIAL ALERT LOGIC ▼▼▼
+// ======================================
+(function() {
+    const tutorialAlert = document.getElementById('classTutorialAlert');
+    const gotItBtn = document.getElementById('classTutorialGotItBtn');
+    const openNotesBtn = document.querySelector('.music-icon.notes');
+
+    // Function to show the alert if it hasn't been seen
+    const showTutorialIfNeeded = () => {
+        if (localStorage.getItem('seenClassTutorial') !== 'true') {
+            tutorialAlert?.classList.remove('hidden');
+        }
+    };
+
+    // When the "Got it" button is clicked, hide the alert and save to localStorage
+    gotItBtn?.addEventListener('click', () => {
+        tutorialAlert?.classList.add('hidden');
+        localStorage.setItem('seenClassTutorial', 'true');
+    });
+
+    // When the main notes modal is opened, check if the tutorial should be shown
+    openNotesBtn?.addEventListener('click', showTutorialIfNeeded);
+
 })();
+})();
+// in note.js
+
+// ▼▼▼ PASTE THIS ENTIRE BLOCK AT THE END OF THE FILE ▼▼▼
+
+
