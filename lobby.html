@@ -157,8 +157,9 @@
                 </h1>
                 <h6 class="typing-line">
   <span id="typingText"></span>
+  
 </h6>
-
+ <button id="suggestionBtn" class="neumorphic-button suggestion-btn">💡 Have a Suggestion?</button>
             </div>
             <article class="article-wrapper">
   <div class="rounded-lg container-project" id="user-card-image-container">
@@ -286,7 +287,7 @@
 <div id="howToUseMusicModal" class="custom-alert-backdrop hidden">
   <div class="custom-alert-content">
     <h3 style="margin-top: 0; font-family: 'Satoshi', sans-serif;">How to Use the Playlist</h3>
-    <p id="customAlertMessage" style="font-size: 15px; line-height: 1.6;">
+    <p id="howToUseMusicMessage" style="font-size: 15px; line-height: 1.6;">
       To enjoy full music playback instead of 30-second previews, please make sure you are logged into your account on the Spotify Web Player in this browser.
       <br/><br/>
       As a user, you can also add your favorite Spotify playlists to this shared collection for everyone to enjoy!
@@ -1034,6 +1035,26 @@ For the best results, avoid using low-quality images.</p>
             <p id="password-error" class="error-message"></p>
         </form>
     </div>
+    <div id="suggestionModal" class="custom-modal hidden">
+  <div class="modal-content2" style="background: #171717; border: 1px solid white; color: white;">
+    <span id="closeSuggestionModal" class="close-profile-modal" style="top: 15px; right: 20px;">&times;</span>
+    <h3 style="margin-bottom: 20px; font-family: 'Satoshi', sans-serif;">Share Your Suggestion!</h3>
+    <p style="font-size: 14px; color: #ccc; margin-top: -15px; margin-bottom: 20px; font-family: 'Satoshi', sans-serif;">
+      Help us improve FlipCards. What new features or changes would you like to see?
+    </p>
+    <input type="text" id="suggestionTitleInput" class="neumorphic-search" placeholder="Suggestion Title..." maxlength="50" style="margin-bottom: 10px;">
+<textarea id="suggestionInput" class="neumorphic-search" placeholder="Type your suggestion here..."></textarea>
+    <div class="modal-buttons" style="margin-top: 20px;">
+      <button id="submitSuggestionBtn" class="neumorphic-button">Submit</button>
+    </div>
+  </div>
+</div>
+<div id="suggestionNotificationToast" class="invitation-toast hidden">
+  <div id="suggestionNotificationMessage" class="invitation-message"></div>
+  <div class="invitation-buttons">
+    <button id="dismissSuggestionNotificationBtn" class="neumorphic-button">Dismiss</button>
+  </div>
+</div>
 <script type="module">
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { db } from "./firebaseinit.js";
@@ -1383,5 +1404,7 @@ onSnapshot(docRef, (docSnap) => {
 <script type="module" src="invListClass.js"></script>
 <script type="module" src="notificationListener.js"></script>
 <script src="pass.js"></script>
+<script type="module" src="suggestion.js"></script>
+<script type="module" src="notifsugg.js"></script>
 </body>
 </html>

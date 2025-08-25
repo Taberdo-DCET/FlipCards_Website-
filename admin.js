@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 // +++ Replace it with this line +++
-import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, updateDoc, deleteField, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, getDoc, getDocs, updateDoc, deleteField, setDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 // --- DOM ELEMENT SELECTORS ---
 const themeToggle = document.getElementById('theme-toggle');
@@ -36,6 +36,7 @@ const addUserOverlay = document.getElementById('add-user-overlay');
 const closeAddUserModalBtn = document.getElementById('close-add-user-modal-btn');
 const addUserForm = document.getElementById('add-user-form');
 const cancelAddUserBtn = document.getElementById('cancel-add-user-btn');
+const suggestionsBtn = document.getElementById('suggestions-btn');
 // --- THEME TOGGLE LOGIC ---
 themeToggle.addEventListener('click', () => {
     body.classList.toggle('dark-mode');
@@ -692,5 +693,155 @@ addUserForm.addEventListener('submit', async (e) => {
     } catch (error) {
         console.error("Error adding new user:", error);
         alert('Failed to add new user. See console for details.');
+    }
+});
+// --- SUGGESTIONS VIEW LOGIC ---
+
+// Import query and orderBy if they are not already in the import statement at the top
+// Note: Ensure your main import from 'firebase-firestore' includes these.
+import { query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+/**
+ * Fetches and displays user suggestions from Firestore in real-time.
+ */
+function displaySuggestions() {
+    const suggestionsCol = collection(db, 'suggestions');
+    // Query to order suggestions by timestamp, with the newest appearing first
+    const q = query(suggestionsCol, orderBy('timestamp', 'desc'));
+
+    // Set a title for the view and a container for the list
+    contentDisplay.innerHTML = `
+        <div class="suggestions-container">
+            <h2>User Suggestions</h2>
+            <div id="suggestions-list" class="details-grid">
+                <p>Loading suggestions...</p>
+            </div>
+        </div>
+    `;
+    const suggestionsList = document.getElementById('suggestions-list');
+
+    // Use onSnapshot for real-time updates
+    onSnapshot(q, (snapshot) => {
+        suggestionsList.innerHTML = ''; // Clear previous results
+        if (snapshot.empty) {
+            suggestionsList.innerHTML = '<p>No suggestions have been submitted yet.</p>';
+            return;
+        }
+
+        // In admin.js inside displaySuggestions function
+// In admin.js, inside the displaySuggestions function
+
+snapshot.forEach(doc => {
+    const data = doc.data();
+    const userEmail = data.userEmail || 'Anonymous';
+    const suggestionText = data.suggestion || 'No content';
+    
+    let datePart = '';
+    let timePart = '';
+
+    if (data.timestamp) {
+        const dateObj = data.timestamp.toDate();
+        datePart = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        timePart = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+    }
+
+    // ▼▼▼ THIS IS THE FIX ▼▼▼
+    // Check the suggestion's status from Firestore
+    const isApproved = data.status === 'approved';
+    const buttonText = isApproved ? 'Approved' : 'Approve';
+    const buttonDisabled = isApproved ? 'disabled' : '';
+    // ▲▲▲ END OF FIX ▲▲▲
+
+    // In admin.js, inside the displaySuggestions function's forEach loop
+const suggestionTitle = (data.title || 'Your suggestion').replace(/"/g, '&quot;');
+
+const suggestionCardHTML = `
+    <div class="suggestion-card detail-card">
+        <div class="suggestion-header">
+            <span class="suggestion-email-part">${userEmail}</span>
+            <div class="suggestion-timestamp-wrapper">
+                 <span class="suggestion-date-part">${datePart}</span>
+                 <span class="suggestion-time-part">${timePart}</span>
+            </div>
+        </div>
+        <p class="suggestion-text">${suggestionText}</p>
+        <div class="suggestion-actions">
+            <button class="approve-suggestion-btn" data-doc-id="${doc.id}" data-user-email="${userEmail}" data-suggestion-title="${suggestionTitle}" ${buttonDisabled}>${buttonText}</button>
+        </div>
+    </div>
+`;
+    suggestionsList.insertAdjacentHTML('beforeend', suggestionCardHTML);
+});
+    }, (error) => {
+        console.error("Error fetching suggestions:", error);
+        suggestionsList.innerHTML = '<p>An error occurred while loading suggestions.</p>';
+    });
+}
+
+// Add click event listener for the new sidebar button
+suggestionsBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevent default link behavior
+    
+    // De-select any user in the user list to avoid confusion
+    const currentlySelected = userList.querySelector('.selected');
+    if (currentlySelected) {
+        currentlySelected.classList.remove('selected');
+    }
+
+    // Unsubscribe from the user details listener to save resources
+    if (unsubscribeUserDetails) {
+        unsubscribeUserDetails();
+        unsubscribeUserDetails = null;
+    }
+
+    // Call the function to render the suggestions view
+    displaySuggestions();
+});
+// --- APPROVE SUGGESTION LOGIC ---
+
+/**
+ * Creates a notification for the user and updates the suggestion's status.
+ * @param {string} docId - The ID of the suggestion document.
+ * @param {string} userEmail - The email of the user who made the suggestion.
+ * @param {string} suggestionTitle - The title of the suggestion.
+ */
+async function approveSuggestion(docId, userEmail, suggestionTitle) {
+    if (!docId || !userEmail) {
+        console.error("Missing document ID or user email for approval.");
+        return;
+    }
+
+    try {
+        const notificationsCol = collection(db, 'notifications');
+        await addDoc(notificationsCol, {
+            recipientEmail: userEmail,
+            title: `💡 Suggestion Approved: "${suggestionTitle}"`,
+            message: `The admin has approved your suggestion. Thank you for your feedback!`,
+            timestamp: serverTimestamp(),
+            read: false
+        });
+
+        const suggestionRef = doc(db, 'suggestions', docId);
+        await updateDoc(suggestionRef, { status: 'approved' });
+
+        console.log(`Suggestion ${docId} approved and notification sent to ${userEmail}.`);
+    } catch (error) {
+        console.error("Error approving suggestion: ", error);
+        alert("There was an error approving the suggestion.");
+    }
+}
+
+// Use event delegation to handle clicks on the dynamically added approve buttons
+contentDisplay.addEventListener('click', async (e) => {
+    if (e.target && e.target.classList.contains('approve-suggestion-btn')) {
+        const button = e.target;
+        const docId = button.dataset.docId;
+        const userEmail = button.dataset.userEmail;
+        const suggestionTitle = button.dataset.suggestionTitle; // Get title
+
+        button.disabled = true;
+        button.textContent = 'Approved';
+        
+        await approveSuggestion(docId, userEmail, suggestionTitle);
     }
 });

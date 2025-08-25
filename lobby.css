@@ -4406,6 +4406,7 @@ box-shadow: none !important;
     inset -5px -5px 8px #1f1f1f;
 }
 .note-text {
+  position: relative; /* <-- ADD THIS LINE */
   min-height: 120px;
   max-height: 40vh;
   overflow: auto;
@@ -4711,59 +4712,44 @@ color: red !important;
   margin-bottom: 10px !important;
   font-family: 'Satoshi', sans-serif !important;
 }
+/* lobby.css */
+
 #drawPalette {
-  top: 29.3% !important;
-  left: 9.7% !important;
+  position: absolute;
+  top: calc(100% + 8px); /* Position below the button with an 8px gap */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px); /* Center horizontally and set initial animation state */
+  display: none;
+  z-index: 5;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  background: #171717;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f,
+              inset 1px 1px 0 rgba(255,255,255,0.04), inset -1px -1px 0 rgba(0,0,0,0.55);
+  gap: 6px;
+  width: auto;
+  opacity: 0;
+  transition: opacity 180ms ease, transform 180ms ease;
 }
 #btnReview {
   margin-left: -17.7% !important;
 }
+/* lobby.css */
+
 #annotationStatus {
-  margin-right: 33% !important;
-  margin-left: -0.1% !important;
-  border-radius: 5px !important;
-  padding-right: 6px !important;
-  
+  /* This pushes the status text to the far right of its current line */
+  margin-right: auto !important;
+
+  /* Reset other properties from the previous incorrect fix */
+  margin-left: 0 !important;
+  width: auto !important;
+  text-align: left !important;
+  margin-top: 0 !important;
+  padding: 0 !important;
 }
 /* Active style for the checklist toggle button in the preview ribbon */
-#previewRibbon #btnChecklist.active {
-  background: white !important;
-  color: #171717 !important;
-  border: 2px solid black !important;
-  
-}
-#btnChecklist {
-  font-family: 'Satoshi', sans-serif !important;
-  border-radius: 100px !important;
-  border: 2px solid #fff !important;
-}
-#previewRibbon #btnPptx.active {
-  background: white !important;
-  color: #171717 !important;
-  border: 2px solid black !important;
-  
-}
-#btnPptx {
-  font-family: 'Satoshi', sans-serif !important;
-  border-radius: 100px !important;
-  border: 2px solid #fff !important;
-}
-#btnPdf img {
-  width: 30px !important;
-  height: 30px !important;
-}
-#previewRibbon #btnPdf.active {
-  background: white !important;
-  color: #171717 !important;
-  border: 2px solid black !important;
-  
-}
-#btnPdf {
-  font-family: 'Satoshi', sans-serif !important;
-  border-radius: 100px !important;
-  border: 2px solid #fff !important;
-  margin-left: 13%  !important;
-}
+
 #reviewModeBtn.active {
   background: white !important;
   color: #171717 !important;
@@ -4810,30 +4796,7 @@ color: red !important;
   border-radius: 100px !important;
   border: 2px solid #fff !important;
 }
-#previewRibbon #btnImage.active {
-  background: white !important;
-  color: #171717 !important;
-  border: 2px solid black !important;
-  
-}
-#btnImage {
-  font-family: 'Satoshi', sans-serif !important;
-  border-radius: 100px !important;
-  border: 2px solid #fff !important;
- 
-}
-#previewRibbon #btnDraw.active {
-  background: white !important;
-  color: #171717 !important;
-  border: 2px solid black !important;
-  
-}
-#btnDraw {
-  font-family: 'Satoshi', sans-serif !important;
-  border-radius: 100px !important;
-  border: 2px solid #fff !important;
- 
-}
+
 #notePreviewText::-webkit-scrollbar {
   width: 8px;
 }
@@ -4855,10 +4818,8 @@ color: red !important;
 }
 /* Force transparent backgrounds and white text inside the preview editor */
 /* Force transparent bg + white text, but don't kill checkbox background-image */
-#notePreviewText * {
-  background-color: transparent !important;
-  -webkit-text-fill-color: inherit !important;
-  color: #fff !important;
+#notePreviewText *:not(input) {
+
   font-family: 'Satoshi', sans-serif !important;
 }
 .note-color-pop {
@@ -4892,10 +4853,8 @@ color: red !important;
 
 
 /* Force transparent bg + white text, but don't kill checkbox background-image */
-.note-text * {
-  background-color: transparent !important;
-  -webkit-text-fill-color: inherit !important;
-  color: #fff !important;
+.note-text *:not(input) {
+
   font-family: 'Satoshi', sans-serif !important;
 }
 
@@ -6686,27 +6645,50 @@ margin-top: -10px;
   animation: slideInFromLeft 0.5s ease-out forwards;
 }
 /* Replace with this new rule for the ribbon buttons */
-.undo-redo-btn {
-  padding: 6px 10px;
-  border-radius: 100px;
-  border: 2px solid #fff;
+/* ============================ */
+/* ▼▼▼ RIBBON BUTTON STYLES ▼▼▼ */
+/* ============================ */
+.ribbon-btn {
+  all: unset; /* Reset default button styles */
+  box-sizing: border-box;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
   background: #1e1e1e;
-  color: #eee;
+  color: #b0b0b0; /* Icon color */
   cursor: pointer;
-  font-family: 'Satoshi', sans-serif;
-  font-size: 16px;
-  transition: all 0.2s ease;
+  border: 1px solid #1a1a1a;
+  box-shadow: 4px 4px 8px #131313, -4px -4px 8px #292929;
+  transition: all 0.15s ease-out;
 }
 
-.undo-redo-btn:hover {
-  background: #333;
+.ribbon-btn:hover {
+  color: #ffffff;
+  box-shadow: 2px 2px 4px #131313, -2px -2px 4px #292929;
 }
 
-.undo-redo-btn:disabled {
-  opacity: 0.4;
+/* "Pressed in" effect for active clicks or toggled states */
+.ribbon-btn:active,
+.ribbon-btn.active {
+  color: #ffcf00; /* Highlight color for active/pressed state */
+  box-shadow: inset 4px 4px 8px #131313, inset -4px -4px 8px #292929;
+  transform: translateY(1px);
+}
+
+.ribbon-btn:disabled {
+  color: #555;
   cursor: not-allowed;
-  background: #1e1e1e;
-  color: #eee;
+  background: #1a1a1a;
+  box-shadow: inset 2px 2px 4px #131313, inset -2px -2px 4px #292929;
+  opacity: 0.6;
+}
+
+.ribbon-btn svg {
+  width: 20px;
+  height: 20px;
+  pointer-events: none; /* Make sure clicks go to the button */
 }
 /* Main Modal Container */
 #musicModal {
@@ -7017,11 +6999,223 @@ margin-top: -10px;
 #password-input {
   width: 90% !important;
 }
+/* NEW: Show border ONLY when the text tool is active */
+.note-text.text-tool-active .custom-textbox {
+  border: 1px solid #555;
+}
+/* ======================================= */
+/* ▼▼▼ CUSTOM TEXT BOX & EDIT ICON STYLES ▼▼▼ */
+/* ======================================= */
 
+.custom-textbox {
+  position: relative; 
+}
 
+/* Style for the edit icon itself */
+.textbox-edit-icon {
+  opacity: 0; /* Use opacity to hide for smooth transition */
+  pointer-events: none; /* Prevent clicking when invisible */
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  color: white !important;
+  border-radius: 50%;
+  border: 1px solid white;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
 
+/* NEW: Show the icon when hovering over the parent text box */
+.custom-textbox:hover .textbox-edit-icon {
+  opacity: 1;
+  pointer-events: auto; /* Allow clicking when visible */
+}
 
+.textbox-edit-icon:hover {
+  transform: scale(1.01);
+}
 
+/* Show border ONLY when the text tool is active */
+.note-text.text-tool-active .custom-textbox {
+  border: 1px solid #555;
+}
+/* lobby.css */
+
+#textPalette {
+  position: absolute;
+  top: calc(100% + 8px); /* Position below the button with an 8px gap */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px); /* Center horizontally and set initial animation state */
+  display: none;
+  z-index: 5;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  background: #171717;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f,
+              inset 1px 1px 0 rgba(255,255,255,0.04), inset -1px -1px 0 rgba(0,0,0,0.55);
+  gap: 6px;
+  width: auto;
+  opacity: 0;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+/* lobby.css */
+
+.tool-wrapper {
+  position: relative;
+  display: inline-block;
+}
+/* lobby.css */
+
+#highlighterPalette {
+  position: absolute;
+  top: calc(100% + 8px); /* Position below the button with an 8px gap */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px); /* Center horizontally and set initial animation state */
+  display: none;
+  z-index: 5;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #000;
+  background: #171717;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f,
+              inset 1px 1px 0 rgba(255,255,255,0.04), inset -1px -1px 0 rgba(0,0,0,0.55);
+  gap: 6px;
+  width: auto;
+  opacity: 0;
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+/* lobby.css */
+
+/* Style for the new delete icon */
+.textbox-delete-icon {
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 28px; /* Position it directly below the edit icon (24px + 4px gap) */
+  right: 0px;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  color: #ff6b6b; /* Red color for delete action */
+  border-radius: 50%;
+  border: 1px solid #ff6b6b;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Show the delete icon when hovering over the parent text box */
+.custom-textbox:hover .textbox-delete-icon {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.textbox-delete-icon:hover {
+  transform: scale(1.01);
+  background-color: rgba(255, 107, 107, 0.2);
+}
+/* lobby.css */
+
+/* lobby.css */
+
+/* Hide edit and delete icons on text boxes that are inside the shared class notes panel */
+#classNoteList .custom-textbox:hover .textbox-edit-icon,
+#classNoteList .custom-textbox:hover .textbox-delete-icon {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.suggestion-btn {
+  display: block; 
+  margin: -20px 90px; 
+  padding: 12px 24px;
+  font-size: 15px;
+  font-family: 'Satoshi', sans-serif;
+  z-index: 5; 
+  position: relative; 
+  margin-bottom: 20px;
+}
+/* ========================== */
+/* ▼▼▼ Suggestion Modal Styles ▼▼▼ */
+/* ========================== */
+
+/* The main modal content box */
+#suggestionModal .modal-content2 {
+  background: #171717;
+  color: white;
+  padding: 30px 35px;
+  border-radius: 20px;
+  border: 1px solid #2a2a2a;
+  box-shadow: 
+    12px 12px 24px #0f0f0f, 
+    -12px -12px 24px #1f1f1f,
+    inset 1px 1px 0 rgba(255,255,255,0.04),
+    inset -1px -1px 0 rgba(0,0,0,0.55);
+  font-family: 'Satoshi', sans-serif;
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+  position: relative; /* For positioning the close button */
+  animation: suggestionPopIn 0.3s ease-out;
+}
+
+/* Keyframes for the pop-in animation */
+@keyframes suggestionPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Title */
+#suggestionModal h3 {
+  font-family: 'Accasia', sans-serif;
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #ffcf00; /* Gold accent color */
+}
+
+/* Subtitle/description text */
+#suggestionModal p {
+  font-size: 14px;
+  color: #ccc;
+  line-height: 1.6;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+/* Textarea for the suggestion input */
+#suggestionInput {
+  min-height: 120px;
+  resize: vertical;
+  width: 100%; /* Use 100% to fill the container */
+  box-sizing: border-box; /* Ensures padding is included in the width */
+  margin-bottom: 20px;
+}
+
+/* Submit button */
+#submitSuggestionBtn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
+#suggestionTitleInput{
+  width: 90% !important;
+}
 
 
 
@@ -7132,12 +7326,7 @@ margin-top: -10px;
   box-sizing: border-box; /* ensures padding/border fit inside width */
   text-align: start;    /* center text inside */
 }
-#btnPdf {
-  font-family: 'Satoshi', sans-serif !important;
-  border-radius: 100px !important;
-  border: 2px solid #fff !important;
-  margin-left: 1%  !important;
-}
+
 #notePreviewText.review-mode {
   
   height: min(94vh, 680px) !important;
@@ -7147,10 +7336,7 @@ margin-top: -10px;
 #notePreviewText {
   margin-bottom: 100px !important;
 }
-#drawPalette {
-  top: 29.3% !important;
-  left: 9.7% !important;
-}
+
 .note-color-pop {
   margin-left: 50px !important;
   margin-top: -65px;
@@ -7162,6 +7348,9 @@ margin-top: -10px;
 }
 #previewRibbon {
   margin-top: 8px !important;
+}
+#previewRibbon {
+  flex-wrap: wrap;
 }
 .article-wrapper{
   margin-top: 20px;

@@ -200,7 +200,7 @@ body {
 .sidebar-link .tooltip {
     position: absolute;
     left: var(--sidebar-width-collapsed);
-    margin-left: 20px;
+    margin-left: -10px;
     white-space: nowrap;
     opacity: 0;
     visibility: hidden;
@@ -794,6 +794,98 @@ input[type="number"]:focus::-webkit-outer-spin-button {
 .home-btn:active {
     box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
 }
+/* --- Suggestions View Styles --- */
+.suggestions-container h2 {
+    margin-bottom: 25px;
+}
+
+.suggestion-card {
+    /* Reuses .detail-card styles */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between header and text content */
+}
+
+/* New, more robust Flexbox layout for the suggestion header */
+.suggestion-header {
+    display: flex;
+    justify-content: space-between; /* Pushes email left, timestamp right */
+    align-items: flex-start; /* Aligns items to the top of the header */
+    font-size: 0.8rem;
+    opacity: 0.8;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--shadow-dark);
+    gap: 10px; /* Adds space between email and timestamp block */
+}
+
+/* Styles the user's email on the left */
+.suggestion-email-part {
+    font-weight: 700;
+    margin-top: 22px; /* Pushes email down to the desired position */
+    /* Prevents long emails from breaking the layout */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* New wrapper for date and time on the right */
+.suggestion-timestamp-wrapper {
+    display: flex;
+    flex-direction: column;   /* Stacks date and time vertically */
+    align-items: flex-end;     /* Right-aligns the text */
+    flex-shrink: 0;          /* Prevents the timestamp from shrinking or wrapping */
+}
+
+.suggestion-date-part,
+.suggestion-time-part {
+    font-weight: 500;
+}
+.suggestion-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    /* These properties ensure the text wraps correctly */
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex-grow: 1; /* Allows the text area to fill available card space */
+    text-align: left;
+}
+/* --- Suggestion Card Actions --- */
+.suggestion-actions {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--shadow-dark);
+    display: flex;
+    justify-content: flex-end; /* Aligns button to the right */
+}
+
+.approve-suggestion-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #2a3c1a; /* Greenish background */
+    color: #b8ff8f;
+    box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+}
+
+.approve-suggestion-btn:hover {
+    background-color: #3c7a2a;
+    color: #d1ffbf;
+}
+
+.approve-suggestion-btn:disabled {
+    background-color: var(--shadow-light);
+    color: var(--text-color);
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+}
+
 
 @media (max-width: 768px) {
     .sidebar, .sidebar:hover { width: var(--sidebar-width-collapsed); }
