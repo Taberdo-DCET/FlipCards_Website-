@@ -318,7 +318,15 @@ function renderSidebarHeader(username, email, role) {
   const badgeContainer = document.createElement("span");
   badgeContainer.style.display = "flex";
   badgeContainer.style.gap = "4px";
-
+if (role.toLowerCase().includes("plus")) {
+    const plusBadge = document.createElement("img");
+    plusBadge.src = "plas.png";
+    plusBadge.alt = "plus";
+    plusBadge.title = "FlipCards+";
+    plusBadge.style.width = "29px";
+    plusBadge.style.height = "21px";
+    badgeContainer.appendChild(plusBadge);
+  }
   if (role.toLowerCase().includes("verified")) {
     const verifiedBadge = document.createElement("img");
     verifiedBadge.src = "verified.svg";
@@ -441,7 +449,14 @@ avatarImg.style.boxShadow = "0 0 4px rgba(0,0,0,0.5)"; // Optional shadow for be
     const badgeContainer = document.createElement("span");
     badgeContainer.style.display = "flex";
     badgeContainer.style.gap = "4px";
-
+if (role.includes("plus")) {
+      const badge = document.createElement("img");
+      badge.src = "plas.png";
+      badge.alt = "plus";
+      badge.title = "FlipCards+";
+      badge.className = "role-badge plus-badge";
+      badgeContainer.appendChild(badge);
+    }
     if (role.includes("verified")) {
       const badge = document.createElement("img");
       badge.src = "verified.svg";
@@ -599,7 +614,14 @@ userDiv.appendChild(avatarImg);
   nameSpan.style.fontSize = "1em";
 
   nameBadgeWrapper.appendChild(nameSpan);
-
+if (role.includes("plus")) {
+    const plusBadge = document.createElement("img");
+    plusBadge.src = "plas.png";
+    plusBadge.alt = "plus";
+    plusBadge.title = "FlipCards+";
+    plusBadge.className = "role-badge plus-badge";
+    nameBadgeWrapper.appendChild(plusBadge);
+  }
   // Badges
   if (role.includes("verified")) {
     const verifiedBadge = document.createElement("img");
@@ -730,8 +752,19 @@ async function addToSelectedUsers(user, avatarUrl) {
   name.style.color = "#f0f0f0";
   nameContainer.appendChild(name);
 
-  if (user.role) {
+if (user.role) {
     const role = user.role.toLowerCase();
+    
+    // Add this new block to check for the 'plus' role
+    if (role.includes("plus")) {
+      const plusBadge = document.createElement("img");
+      plusBadge.src = "plas.png";
+      plusBadge.alt = "plus";
+      plusBadge.title = "FlipCards+";
+      plusBadge.className = "role-badge plus-badge";
+      nameContainer.appendChild(plusBadge);
+    }
+
     if (role.includes("verified")) {
       const verifiedBadge = document.createElement("img");
       verifiedBadge.src = "verified.svg";
@@ -786,6 +819,14 @@ async function addToSelectedUsers(user, avatarUrl) {
 
   // Badges
   const role = user.role.toLowerCase();
+  if (role.includes("plus")) {
+      const plusBadge = document.createElement("img");
+      plusBadge.src = "plas.png";
+      plusBadge.alt = "plus";
+      plusBadge.title = "FlipCards+";
+      plusBadge.className = "role-badge plus-badge";
+      nameContainer.appendChild(plusBadge);
+    }
   if (role.includes("verified")) {
     const verifiedBadge = document.createElement("img");
     verifiedBadge.src = "verified.svg";

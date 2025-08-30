@@ -152,43 +152,4 @@ function createTimerBox() {
 }
 
 // ✅ Modal for expired sessions
-function showGuestModal(message, redirect = false) {
-  let modal = document.getElementById("guestModal");
-  if (!modal) {
-    modal = document.createElement("div");
-    modal.id = "guestModal";
-    modal.style.position = "fixed";
-    modal.style.top = "0";
-    modal.style.left = "0";
-    modal.style.width = "100%";
-    modal.style.height = "100%";
-    modal.style.background = "rgba(0, 0, 0, 0.8)";
-    modal.style.display = "flex";
-    modal.style.alignItems = "center";
-    modal.style.justifyContent = "center";
-    modal.style.zIndex = "9999";
-    modal.style.fontFamily = "Accasia, sans-serif";
-    modal.innerHTML = `
-      <div style="background:#171717; padding:30px 40px; border-radius:20px; box-shadow:inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color:white; text-align:center;">
-        <h2 style="margin-bottom:10px;">Session Ended</h2>
-        <p id="guestModalMessage" style="font-size:16px; margin-bottom:20px;"></p>
-        <button onclick="closeGuestModal()" style="padding:10px 18px; border:none; border-radius:10px; background:#292929; color:white; cursor:pointer;">Okay</button>
-      </div>
-    `;
-    document.body.appendChild(modal);
-  }
-  document.getElementById("guestModalMessage").textContent = message;
-  modal.dataset.redirect = redirect;
-  modal.style.display = "flex";
-}
 
-// ✅ Modal close with optional redirect
-window.closeGuestModal = function () {
-  const modal = document.getElementById("guestModal");
-  if (modal) {
-    modal.style.display = "none";
-    if (modal.dataset.redirect === "true") {
-      location.href = "index.html";
-    }
-  }
-};

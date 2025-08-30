@@ -53,18 +53,28 @@ function createFlashcard() {
     <div class="flashcard-header">
       <span></span>
       <div class="card-buttons">
-        <button class="add-btn" title="Add Card"></button>
-        <button class="delete-btn" title="Delete Card"></button>
-      </div>
+  <button class="add-btn" title="Add Card">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+  </button>
+  <button class="delete-btn" title="Delete Card">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+  </button>
+</div>
     </div>
     <div class="flashcard-body">
-      <input type="text" class="input term" placeholder="Enter term" />
-      <input type="text" class="input definition" placeholder="Enter definition" />
-    </div>
+  <div class="input-group">
+    <label>Term</label>
+    <input type="text" class="input term" placeholder="e.g., Photosynthesis" />
+  </div>
+  <div class="input-group">
+    <label>Definition</label>
+    <input type="text" class="input definition" placeholder="e.g., Process used by plants to convert light..." />
+  </div>
+</div>
   `;
 
   flashcard.querySelector(".add-btn").addEventListener("click", () => {
-    wrapper.insertBefore(createFlashcard(), document.querySelector(".btn-row"));
+    wrapper.appendChild(createFlashcard());
     updateCardNumbers();
   });
 
@@ -77,7 +87,7 @@ function createFlashcard() {
 }
 
 addBtn.addEventListener("click", () => {
-  wrapper.insertBefore(createFlashcard(), document.querySelector(".btn-row"));
+  wrapper.appendChild(createFlashcard());
   updateCardNumbers();
 });
 
@@ -320,7 +330,7 @@ if (!isEditMode) {
       card.querySelector(".term").value = fc.term || "";
       card.querySelector(".definition").value = fc.definition || "";
       card.querySelector(".flashcard-header span").textContent = index + 1;
-      wrapper.insertBefore(card, document.querySelector(".btn-row"));
+      wrapper.appendChild(card);
     });
 
     // Clear flashcardsData from localStorage to prevent duplicate insertion next time
@@ -346,7 +356,7 @@ if (!isEditMode) {
     card.querySelector(".term").value = fc.term;
     card.querySelector(".definition").value = fc.definition;
     card.querySelector(".flashcard-header span").textContent = index + 1;
-    wrapper.insertBefore(card, document.querySelector(".btn-row"));
+    wrapper.appendChild(card);
   });
 
   createBtn.textContent = "Update";

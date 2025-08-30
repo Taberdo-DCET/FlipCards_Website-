@@ -6,52 +6,78 @@
     <title>Flashcard | FlipCards</title>
     <link rel="stylesheet" href="flashcard.css">
     <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
-      <div class="container">
+    <header class="shop-header">
+    <div class="header-left">
+        <a href="lobby.html#Folderr" class="back-button">← Back to Folders</a>
+        <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
+    </div>
+    <h2 class="shop-title">FlipCards.</h2>
+</header>
+
+    <main class="flashcard-main-container">
+        
+        <div class="meta-info">
+            <div class="meta-item">
+                <span>Category:</span>
+                <strong id="cardCategory">General</strong>
+            </div>
+            <div class="meta-border"></div>
+            <div class="meta-item">
+                <span>Creator:</span>
+                <strong id="cardCreator">N/A</strong>
+            </div>
+        </div>
+
+        <div class="set-details">
     <div class="title-row">
-  <h1 class="page-title" id="setTitle"></h1>
-</div>
-<div class="dot-tracker-wrapper">
-  <div class="dot-tracker" id="dotTracker"></div>
-</div>
-
-    <div class="button-container">
-      <button class="neumorphic-button active">Flashcard</button>
-      <button class="neumorphic-button" onclick="goToTest()">Test</button>
-      <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
-      <button class="neumorphic-button" onclick="goToMatch()">Match</button>
-      <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
+    <div class="title-and-label">
+        <span class="title-label">Title:</span>
+        <h1 class="page-title" id="setTitle"></h1>
     </div>
-    <div class="card-row">
-  <a href="lobby.html#Folderr">
-    <img src="homeenc.png" alt="Home" class="home-icon hover-switch" data-default="homeenc.png" data-hover="homeec.png" />
-  </a>
-
-  <div class="flashcard-container">
-    <div class="flashcard">
-
-      <div class="front">What is a variable?</div>
-      <div class="back">A container used to store data in a program.</div>
+    <div class="reverse-mode-container">
+    <button id="reverseInfoBtn" class="info-icon">?</button>
+    <span>Reverse Mode</span>
+    <label class="toggle-switch">
+        <input type="checkbox" id="reverseToggle" checked="">
+        <span class="slider"></span>
+    </label>
+</div>
+</div>
+    <div class="description-container">
+        <div class="description-box" id="descriptionBox">Loading description...</div>
     </div>
-  </div>
 </div>
 
-<div class="navigation-buttons">
-  <img src="prevnc.png" alt="Previous" class="nav-btn" id="prevBtn" />
-  <div id="card-counter" class="card-counter">1 / 10</div>
-  <img src="nextnc.png" alt="Next" class="nav-btn" id="nextBtn" />
-</div>
-<div style="margin-top: -70px; margin-bottom: 20px;">
-  <button id="reverseToggle" class="neumorphic-button">Reverse Mode: OFF</button>
-</div>
+        <div class="button-container">
+            <button class="neumorphic-button active">Flashcard</button>
+            <button class="neumorphic-button" onclick="goToTest()">Test</button>
+            <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
+            <button class="neumorphic-button" onclick="goToMatch()">Match</button>
+            <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
+        </div>
 
-<div class="description-wrapper">
-  <div class="description-label">Description:</div>
-  <div class="description-box" id="descriptionBox">Loading description...</div>
-</div>
+        <div class="flashcard-container">
+            <div class="flashcard">
+                <div class="front"></div>
+                <div class="back"></div>
+            </div>
+        </div>
 
-  </div>
+        <div class="dot-tracker-wrapper">
+            <div class="dot-tracker" id="dotTracker"></div>
+        </div>
+        
+        <div class="navigation-controls">
+            <img src="prevnc.png" alt="Previous" class="nav-btn" id="prevBtn" />
+            <div id="card-counter" class="card-counter">1 / 10</div>
+            <img src="nextnc.png" alt="Next" class="nav-btn" id="nextBtn" />
+        </div>
+
+        
+    </main>
 <div id="flipTimerModal" class="flip-timer-modal hidden">
   <div class="flip-timer-header">
     <span class="flip-timer-title">🕒 FlipTimer</span>
@@ -110,74 +136,121 @@
     </div>
   </div>
 </div>
+<div id="reverseInfoModal" class="modal-overlay">
+  <div class="modal-box info-modal-content">
+    <i class="fa-solid fa-lightbulb modal-info-icon"></i>
+    <h3>What is Reverse Mode?</h3>
+    <p>Reverse Mode swaps the term and definition. You will be shown the definition first and must recall the term.</p>
+    <button id="closeReverseInfoModal" class="neumorphic-button">Got it</button>
+  </div>
+</div>
 <script src="flipTimer.js"></script>
 
-<script>
-  let reverseMode = false;
+<script type="module">
+  // Import the Firebase functions we need
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import { db } from "./firebaseinit.js";
 
-  document.getElementById("reverseToggle").addEventListener("click", () => {
-    reverseMode = !reverseMode;
-    document.getElementById("reverseToggle").textContent = `Reverse Mode: ${reverseMode ? "ON" : "OFF"}`;
-    updateCard(currentIndex);
-  });
+  const auth = getAuth();
 
-  const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
-  if (!reviewingSet || !reviewingSet.flashcards) {
-    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data available.</h2>";
-    throw new Error("No flashcards found.");
-  }
-
+  // --- Global variables within the module ---
+  let reverseMode = true;
   let currentIndex = 0;
-  const flashcards = reviewingSet.flashcards;
-  document.getElementById("setTitle").textContent = reviewingSet.title || "Untitled Flashcard Set";
-  document.getElementById("descriptionBox").textContent = reviewingSet.description || "No description provided.";
+  let flashcards = [];
+  let currentReviewingSet = null; // ▼▼▼ NEW: Variable to store the fresh data ▼▼▼
 
+  // --- Get references to HTML elements ---
   const front = document.querySelector(".flashcard .front");
   const back = document.querySelector(".flashcard .back");
   const card = document.querySelector(".flashcard");
   const counter = document.getElementById("card-counter");
-function isImageUrl(text) {
-  return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com");
-}
+  const reverseToggle = document.getElementById("reverseToggle");
 
+  onAuthStateChanged(auth, async (user) => {
+    if (user && !user.isAnonymous) {
+      const upgradeBtn = document.getElementById('upgradeBtn');
+      const userRolesRef = doc(db, "approved_emails", user.email);
+      const userRolesSnap = await getDoc(userRolesRef);
+
+      if (userRolesSnap.exists()) {
+        const roles = userRolesSnap.data().role.toLowerCase();
+        if (!roles.includes('plus') && !roles.includes('verified')) {
+          upgradeBtn.style.display = 'inline-block';
+        }
+      }
+    }
+
+    const reviewingSetId = localStorage.getItem("reviewingSetId");
+    const collectionName = localStorage.getItem("reviewingSetCollection");
+
+    if (!reviewingSetId || !collectionName) {
+      document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>Error: No flashcard set ID found.</h2>";
+      return;
+    }
+
+    try {
+      const setRef = doc(db, collectionName, reviewingSetId);
+      const docSnap = await getDoc(setRef);
+
+      if (docSnap.exists()) {
+        const reviewingSetData = docSnap.data();
+        currentReviewingSet = reviewingSetData; // ▼▼▼ NEW: Save fresh data to our variable ▼▼▼
+        flashcards = reviewingSetData.flashcards || [];
+
+        document.getElementById("setTitle").textContent = reviewingSetData.title || "Untitled Set";
+        document.getElementById("descriptionBox").textContent = reviewingSetData.description || "No description provided.";
+        document.getElementById("cardCategory").textContent = reviewingSetData.category || "General";
+        
+        const creatorEmail = reviewingSetData.creatorEmail || reviewingSetData.user;
+        if (creatorEmail) {
+          const usernameRef = doc(db, "usernames", creatorEmail);
+          const usernameSnap = await getDoc(usernameRef);
+          if (usernameSnap.exists() && usernameSnap.data().username) {
+            document.getElementById("cardCreator").textContent = usernameSnap.data().username;
+          } else {
+            document.getElementById("cardCreator").textContent = creatorEmail.split('@')[0];
+          }
+        } else {
+          document.getElementById("cardCreator").textContent = "N/A";
+        }
+
+        if (flashcards.length > 0) {
+          setupDotTracker(flashcards.length);
+          updateCard(currentIndex);
+        } else {
+          front.textContent = "This set is empty.";
+          back.textContent = "Add some cards!";
+        }
+      } else {
+         document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>Error: Could not find this flashcard set.</h2>";
+      }
+    } catch (error) {
+      console.error("Error fetching flashcard set:", error);
+      document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>An error occurred while loading the set.</h2>";
+    }
+  });
+
+  // --- Helper Functions ---
+  function isImageUrl(text) { return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com"); }
   function updateCard(index) {
-  card.style.transition = "none";
-  card.classList.remove("flipped");
-
-  const cardData = flashcards[index];
-
-  if (!reverseMode) {
-    // Normal mode
-    front.textContent = cardData.term;
-
-    if (isImageUrl(cardData.definition)) {
-      back.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:200px; border-radius: 8px;" />`;
+    card.style.transition = "none";
+    card.classList.remove("flipped");
+    const cardData = flashcards[index];
+    if (!cardData) return;
+    if (!reverseMode) {
+      front.textContent = cardData.term;
+      if (isImageUrl(cardData.definition)) { back.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />`; } else { back.textContent = cardData.definition; }
     } else {
-      back.textContent = cardData.definition;
+      if (isImageUrl(cardData.definition)) { front.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />`; } else { front.textContent = cardData.definition; }
+      back.textContent = cardData.term;
     }
-
-  } else {
-    // Reverse mode
-    if (isImageUrl(cardData.definition)) {
-      front.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:200px; border-radius: 8px;" />`;
-    } else {
-      front.textContent = cardData.definition;
-    }
-
-    back.textContent = cardData.term;
+    counter.textContent = `${index + 1} / ${flashcards.length}`;
+    updateDotTracker(index, flashcards.length);
+    setTimeout(() => { card.style.transition = "transform 0.8s"; }, 10);
   }
-
-  counter.textContent = `${index + 1} / ${flashcards.length}`;
-  updateDotTracker(index, flashcards.length);
-
-  setTimeout(() => {
-    card.style.transition = "transform 0.8s";
-  }, 10);
-}
-
-
-  function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
-    const container = document.getElementById(containerId);
+  function setupDotTracker(total) {
+    const container = document.getElementById("dotTracker");
     container.innerHTML = "";
     for (let i = 0; i < total; i++) {
       const dot = document.createElement("div");
@@ -185,134 +258,69 @@ function isImageUrl(text) {
       container.appendChild(dot);
     }
   }
-
-  function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVisible = 6) {
-    const container = document.getElementById(containerId);
+  function updateDotTracker(currentIndex, total, maxVisible = 6) {
+    const container = document.getElementById("dotTracker");
     const dots = container.querySelectorAll(".dot");
-
-    dots.forEach((dot, i) => {
-      dot.classList.toggle("active", i === currentIndex);
-    });
-
+    dots.forEach((dot, i) => dot.classList.toggle("active", i === currentIndex));
     let start = Math.max(0, currentIndex - Math.floor(maxVisible / 2));
     start = Math.min(start, Math.max(0, total - maxVisible));
     const offset = start * (12 + 10);
     container.style.transform = `translateX(-${offset}px)`;
   }
 
-  document.getElementById("prevBtn").addEventListener("click", () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      updateCard(currentIndex);
+  // --- Event Listeners ---
+  reverseToggle.addEventListener("change", (event) => { reverseMode = event.target.checked; updateCard(currentIndex); });
+  document.getElementById("prevBtn").addEventListener("click", () => { if (currentIndex > 0) { currentIndex--; updateCard(currentIndex); } });
+  document.getElementById("nextBtn").addEventListener("click", () => { if (currentIndex < flashcards.length - 1) { currentIndex++; updateCard(currentIndex); } });
+  card.addEventListener("click", () => { card.classList.toggle("flipped"); });
+  document.addEventListener("keydown", (e) => {
+    if (document.activeElement.tagName !== "INPUT") {
+      if (e.key === "ArrowRight") { document.getElementById("nextBtn").click(); } 
+      else if (e.key === "ArrowLeft") { document.getElementById("prevBtn").click(); }
     }
   });
 
-  document.getElementById("nextBtn").addEventListener("click", () => {
-    if (currentIndex < flashcards.length - 1) {
-      currentIndex++;
-      updateCard(currentIndex);
+  // --- ▼▼▼ UPDATED: Functions for Mode Buttons ▼▼▼ ---
+  function navigateToMode(modeUrl) {
+    if (currentReviewingSet) {
+      localStorage.setItem("reviewingSet", JSON.stringify(currentReviewingSet));
     }
-  });
-
-  card.addEventListener("click", () => {
-    card.classList.toggle("flipped");
-  });
-
-  document.querySelectorAll(".hover-switch").forEach(img => {
-    const def = img.getAttribute("data-default");
-    const hov = img.getAttribute("data-hover");
-    img.addEventListener("mouseover", () => img.src = hov);
-    img.addEventListener("mouseout", () => img.src = def);
-  });
-
-  setupDotTracker(flashcards.length);
-  updateCard(currentIndex);
-</script>
-
-
-
-
-<script>
-  // Existing logic here...
-
-  // Hover-switch for home icon
-  document.querySelectorAll(".hover-switch").forEach(img => {
-    const def = img.getAttribute("data-default");
-    const hov = img.getAttribute("data-hover");
-    img.addEventListener("mouseover", () => img.src = hov);
-    img.addEventListener("mouseout", () => img.src = def);
-  });
-</script>
-<script>
-  function goToTest() {
-    localStorage.setItem("currentIndex", currentIndex); // Save current index
-    window.location.href = "test.html";
-  }
-</script>
-<script>
-document.addEventListener("keydown", function (e) {
-  if (document.activeElement.tagName !== "INPUT") {
-    if (e.key === "ArrowRight") {
-      goToCard(1); // next
-    } else if (e.key === "ArrowLeft") {
-      goToCard(-1); // previous
-    }
-  }
-});
-
-</script>
-<script>
-  function goToMatch() {
-    localStorage.setItem("currentIndex", currentIndex); // optional if you want to track card index
-    window.location.href = "match.html";
-  }
-</script>
-<script>
-  function goToDefidrop() {
     localStorage.setItem("currentIndex", currentIndex);
-    window.location.href = "defidrop.html";
+    window.location.href = modeUrl;
   }
-</script>
 
-<script>
-  function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
-  const container = document.getElementById(containerId);
-  container.innerHTML = "";
-  for (let i = 0; i < total; i++) {
-    const dot = document.createElement("div");
-    dot.classList.add("dot");
-    container.appendChild(dot);
-  }
-}
-
-function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVisible = 6) {
-  const container = document.getElementById(containerId);
-  const dots = container.querySelectorAll(".dot");
-
-  dots.forEach((dot, i) => {
-    dot.classList.toggle("active", i === currentIndex);
-  });
-
-  // Calculate scroll window
-  let start = Math.max(0, currentIndex - Math.floor(maxVisible / 2));
-  start = Math.min(start, Math.max(0, total - maxVisible));
-  const offset = start * (12 + 10); // dot width + gap
-
-  container.style.transform = `translateX(-${offset}px)`;
-}
-
-</script>
-<script>
-  function goToLearn() {
-    localStorage.setItem("currentIndex", currentIndex);
-    window.location.href = "learn.html";
-  }
+  window.goToTest = function() { navigateToMode("test.html"); }
+  window.goToMatch = function() { navigateToMode("match.html"); }
+  window.goToDefidrop = function() { navigateToMode("defidrop.html"); }
+  window.goToLearn = function() { navigateToMode("learn.html"); }
 </script>
 <script type="module">
   import { checkUserStatus } from './userstatuscheck.js';
   checkUserStatus();
 </script>
 <script type="module" src="presence.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const infoBtn = document.getElementById('reverseInfoBtn');
+    const infoModal = document.getElementById('reverseInfoModal');
+    const closeInfoModalBtn = document.getElementById('closeReverseInfoModal');
+
+    infoBtn.addEventListener('click', () => {
+      infoModal.classList.add('visible');
+    });
+
+    closeInfoModalBtn.addEventListener('click', () => {
+      infoModal.classList.remove('visible');
+    });
+
+    // Also close if the user clicks the dark background
+    infoModal.addEventListener('click', (event) => {
+      if (event.target === infoModal) {
+        infoModal.classList.remove('visible');
+      }
+    });
+  });
+</script>
 <script src="protect.js"></script>
 </body>
 </html>
