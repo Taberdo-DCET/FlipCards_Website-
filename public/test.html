@@ -9,9 +9,38 @@
 </head>
 <body>
 
-  <div class="title-bar" id="titlee">
-    <h1>Flashcard Quiz</h1>
-  </div>
+  <header class="shop-header">
+    <div class="header-left">
+        <a href="lobby.html#Folderr" class="back-button">← Back to Folders</a>
+        <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
+    </div>
+    <h2 class="shop-title">FlipCards.</h2>
+</header>
+    <main class="test-main-container">
+        
+        <div class="meta-info">
+            <div class="meta-item">
+                <span>Category:</span>
+                <strong id="cardCategory">General</strong>
+            </div>
+            <div class="meta-border"></div>
+            <div class="meta-item">
+                <span>Creator:</span>
+                <strong id="cardCreator">N/A</strong>
+            </div>
+        </div>
+
+        <div class="set-details">
+            <div class="title-row">
+                <div class="title-and-label">
+                    <span class="title-label">Title:</span>
+                    <h1 class="page-title" id="setTitle"></h1>
+                </div>
+            </div>
+            <div class="description-container">
+                <div class="description-box" id="descriptionBox">Loading description...</div>
+            </div>
+        </div>
   
 <div class="button-container">
       <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
@@ -20,12 +49,10 @@
       <button class="neumorphic-button" onclick="goToMatch()">Match</button>
       <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
     </div>
-    <a href="lobby.html#Folderr" class="home-wrapper">
-  <img src="homeenc.png" alt="Home" class="home-btn hover-switch" data-hover="homeec.png" data-default="homeenc.png" />
-</a>
+
   <div class="card-container">
     <div class="definition-text" id="definition">
-      This is where the definition or question will appear.
+      Loading...
     </div>
 
     <div class="input-area">
@@ -103,14 +130,17 @@
 
 <!--Mistakes-->
 <div class="mistake-review">
-  <div class="mistake-header">
-  <h2>Try Again?</h2>
-  <div>
-    <button class="neumorphic-button2" onclick="reviewMistakes()">Review/Reveal Mistakes</button>
-    <button class="neumorphic-button2" onclick="retryMistakes()">Retry Mode</button>
-    <button class="neumorphic-button2 hidden" id="goBackBtn" onclick="goBackToNormal()">Go Back</button>
-    <button class="neumorphic-button2" onclick="clearAllMistakes()">Clear Mistakes</button>
-  </div>
+<div class="mistake-header">
+    <div class="mistake-title-wrapper">
+        <button id="mistakeInfoBtn" class="info-icon">?</button>
+        <h2>Try Again?</h2>
+    </div>
+    <div>
+        <button class="neumorphic-button2" onclick="reviewMistakes()">Review/Reveal Mistakes</button>
+        <button class="neumorphic-button2" onclick="retryMistakes()">Retry Mode</button>
+        <button class="neumorphic-button2 hidden" id="goBackBtn" onclick="goBackToNormal()">Go Back</button>
+        <button class="neumorphic-button2" onclick="clearAllMistakes()">Clear Mistakes</button>
+    </div>
 </div>
 
   <div class="mistake-list" id="mistakeList">
@@ -118,122 +148,180 @@
   </div>
 </div>
 
-
-
+</main>
+<div id="mistakeInfoModal" class="modal-overlay">
+  <div class="modal-box info-modal-content">
+    <h3>About "Try Again?"</h3>
+    <p>This section helps you master the material. Your incorrect answers are saved here so you can learn from them.</p>
+    <ul>
+        <li><strong>Review/Reveal Mistakes:</strong> Shows a list of your incorrect answers and the correct terms.</li>
+        <li><strong>Retry Mode:</strong> Starts a new quiz using only the cards you got wrong.</li>
+        <li><strong>Clear Mistakes:</strong> Deletes all saved mistakes for this set.</li>
+    </ul>
+    <button id="closeMistakeInfoModal" class="neumorphic-button">Got it</button>
+  </div>
+</div>
 <script src="flipTimer.js"></script>
 <script type="module">
-import { db, auth } from './firebaseinit.js';
-import {
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove
-} from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-function isImageUrl(text) {
-  return typeof text === "string" &&
-         text.startsWith("https://") &&
-         text.includes("firebasestorage.googleapis.com");
-}
+  import { db, auth } from './firebaseinit.js';
+  import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import {
+    doc,
+    getDoc,
+    updateDoc,
+    arrayUnion,
+    arrayRemove
+  } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-window.addEventListener("DOMContentLoaded", async () => {
-  const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
-  if (!reviewingSet || !reviewingSet.flashcards || reviewingSet.flashcards.length === 0) {
-    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data to test.</h2>";
-    return;
-  }
-
-  const termInput = document.getElementById("termInput");
-  const defElement = document.getElementById("definition");
-
+  // --- Global Variables ---
   let retryMode = false;
   let liveMistakeTracking = false;
-  let originalFlashcards = reviewingSet.flashcards;
-  let flashcards = [...originalFlashcards];
-  let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
+  let originalFlashcards = [];
+  let flashcards = [];
+  let currentIndex = 0;
+  let currentReviewingSet = null;
 
-  setTitle();
-  setupDotTracker(flashcards.length);
-  updateDefinition(currentIndex);
-  toggleGoBackBtn(false);
-  await reviewMistakes(); // Load mistakes at startup
+  // --- Element References ---
+  const termInput = document.getElementById("termInput");
+  const defElement = document.getElementById("definition");
+  const alertBox = document.getElementById("customAlert");
+  const alertMsg = document.getElementById("customAlertMessage");
 
-  function setTitle() {
-    const titleText = retryMode ? "Retry Mode: Mistakes Only" : reviewingSet.title || "Flashcard Quiz";
-    document.querySelector('.title-bar h1').textContent = titleText;
+  // This runs when the user's login state is known
+  onAuthStateChanged(auth, async (user) => {
+    // --- Logic to show/hide the upgrade button ---
+    if (user && !user.isAnonymous) {
+      const upgradeBtn = document.getElementById('upgradeBtn');
+      const userRolesRef = doc(db, "approved_emails", user.email);
+      const userRolesSnap = await getDoc(userRolesRef);
+
+      if (userRolesSnap.exists()) {
+        const roles = userRolesSnap.data().role.toLowerCase();
+        // Show button ONLY if user is NOT plus and NOT verified
+        if (!roles.includes('plus') && !roles.includes('verified')) {
+          upgradeBtn.style.display = 'inline-block';
+        }
+      }
+    }
+    // --- End of new logic ---
+
+    // The rest of the script now runs inside the auth state listener
+    const reviewingSetId = localStorage.getItem("reviewingSetId");
+    const collectionName = localStorage.getItem("reviewingSetCollection");
+
+    if (!reviewingSetId || !collectionName) {
+      document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: No set ID found.</h2>";
+      return;
+    }
+
+    try {
+      const setRef = doc(db, collectionName, reviewingSetId);
+      const docSnap = await getDoc(setRef);
+
+      if (docSnap.exists()) {
+        currentReviewingSet = docSnap.data();
+        originalFlashcards = currentReviewingSet.flashcards || [];
+        flashcards = [...originalFlashcards];
+        
+        populatePageInfo(currentReviewingSet);
+        
+        if (flashcards.length > 0) {
+            currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
+            updateTitle();
+            setupDotTracker(flashcards.length);
+            updateDefinition(currentIndex);
+            toggleGoBackBtn(false);
+            await reviewMistakes();
+        } else {
+            defElement.textContent = "This set is empty.";
+        }
+      } else {
+        document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
+      }
+    } catch (error) {
+      console.error("Error loading set:", error);
+      document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set.</h2>";
+    }
+  });
+
+  async function populatePageInfo(setData) {
+    document.getElementById("setTitle").textContent = setData.title || "Untitled Set";
+    document.getElementById("descriptionBox").textContent = setData.description || "No description provided.";
+    document.getElementById("cardCategory").textContent = setData.category || "General";
+    
+    const creatorEmail = setData.creatorEmail || setData.user;
+    if (creatorEmail) {
+      const usernameRef = doc(db, "usernames", creatorEmail);
+      const usernameSnap = await getDoc(usernameRef);
+      if (usernameSnap.exists() && usernameSnap.data().username) {
+        document.getElementById("cardCreator").textContent = usernameSnap.data().username;
+      } else {
+        document.getElementById("cardCreator").textContent = creatorEmail.split('@')[0];
+      }
+    } else {
+      document.getElementById("cardCreator").textContent = "N/A";
+    }
+  }
+
+  // --- All original Test Mode functions remain below ---
+  
+  function isImageUrl(text) { return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com"); }
+  
+  function updateTitle() {
+    const titleText = retryMode ? "Retry Mode: Mistakes Only" : currentReviewingSet.title || "Flashcard Quiz";
+    document.getElementById('setTitle').textContent = titleText;
   }
 
   function updateDefinition(index) {
-  const def = flashcards[index]?.definition || "All done!";
-  if (isImageUrl(def)) {
-    defElement.innerHTML = `<img src="${def}" alt="Definition Image" style="max-width:100%; max-height:200px; border-radius: 8px;" />`;
-  } else {
-    defElement.textContent = def;
+    const def = flashcards[index]?.definition || "All done!";
+    if (isImageUrl(def)) {
+      defElement.innerHTML = `<img src="${def}" alt="Definition Image" />`;
+    } else {
+      defElement.textContent = def;
+    }
+    updateDotTracker(index, flashcards.length);
   }
-  updateDotTracker(index, flashcards.length);
-}
-
 
   async function saveMistakeToFirebase(card) {
-    const user = auth.currentUser;
-    if (!user) return;
-    const title = reviewingSet.title || "Untitled Set";
+    const user = auth.currentUser; if (!user) return;
+    const title = currentReviewingSet.title || "Untitled Set";
     const docRef = doc(db, "mistakes", user.uid);
-    await setDoc(docRef, {
-      email: user.email,
-      sets: {
-        [title]: arrayUnion(card)
-      }
-    }, { merge: true });
+    await setDoc(docRef, { email: user.email, sets: { [title]: arrayUnion(card) } }, { merge: true });
   }
 
   async function removeMistakeFromFirebase(card) {
-    const user = auth.currentUser;
-    if (!user) return;
-    const title = reviewingSet.title || "Untitled Set";
+    const user = auth.currentUser; if (!user) return;
+    const title = currentReviewingSet.title || "Untitled Set";
     const docRef = doc(db, "mistakes", user.uid);
-    await updateDoc(docRef, {
-      [`sets.${title}`]: arrayRemove(card)
-    });
+    await updateDoc(docRef, { [`sets.${title}`]: arrayRemove(card) });
   }
 
   async function clearAllMistakes() {
-    const user = auth.currentUser;
-    if (!user) return;
-    const title = reviewingSet.title || "Untitled Set";
+    const user = auth.currentUser; if (!user) return;
+    const title = currentReviewingSet.title || "Untitled Set";
     const docRef = doc(db, "mistakes", user.uid);
-    await updateDoc(docRef, {
-      [`sets.${title}`]: []
-    });
-
-    const list = document.getElementById("mistakeList");
-    list.innerHTML = "<p style='color: gray;'>No mistakes so far!</p>";
+    await updateDoc(docRef, { [`sets.${title}`]: [] });
+    document.getElementById("mistakeList").innerHTML = "<p style='color: gray;'>No mistakes so far!</p>";
     showCustomAlert("🗑️ All mistakes cleared.");
   }
 
   function toggleGoBackBtn(show) {
-    const btn = document.getElementById("goBackBtn");
-    if (btn) btn.classList.toggle("hidden", !show);
+    document.getElementById("goBackBtn")?.classList.toggle("hidden", !show);
   }
 
   async function submitAnswer() {
     const input = termInput.value.trim();
     if (!input || !flashcards[currentIndex]) return;
-
     const currentCard = flashcards[currentIndex];
     const isCorrect = input.toLowerCase() === currentCard.term.toLowerCase();
 
     if (isCorrect) {
       showCustomAlert("✅ Correct!");
-addXP(100); // Give 30 XP for correct answer
-
-
+      if (typeof addXP === "function") addXP(100);
       if (retryMode) {
         await removeMistakeFromFirebase(currentCard);
         flashcards.splice(currentIndex, 1);
         if (liveMistakeTracking) await reviewMistakes();
-
         if (flashcards.length === 0) {
           await clearAllMistakes();
           showCustomAlert("🎉 All mistakes corrected!");
@@ -242,17 +330,12 @@ addXP(100); // Give 30 XP for correct answer
       } else {
         currentIndex = (currentIndex + 1) % flashcards.length;
       }
-
     } else {
       showCustomAlert(`❌ Incorrect.<br>Correct answer: <strong>${currentCard.term}</strong>`);
-      await saveMistakeToFirebase({
-        ...currentCard,
-        userAnswer: input // 🟨 store user mistake
-      });
+      await saveMistakeToFirebase({ ...currentCard, userAnswer: input });
       if (liveMistakeTracking) await reviewMistakes();
       currentIndex = (currentIndex + 1) % flashcards.length;
     }
-
     termInput.value = "";
     localStorage.setItem("currentIndex", currentIndex);
     updateDefinition(currentIndex);
@@ -260,81 +343,50 @@ addXP(100); // Give 30 XP for correct answer
   }
 
   function showCustomAlert(message) {
-    const alertBox = document.getElementById("customAlert");
-    const alertMsg = document.getElementById("customAlertMessage");
     alertMsg.innerHTML = message;
     alertBox.style.display = "flex";
   }
 
-  function closeCustomAlert() {
-    document.getElementById("customAlert").style.display = "none";
-  }
+  function closeCustomAlert() { alertBox.style.display = "none"; }
 
   async function reviewMistakes() {
     liveMistakeTracking = true;
-
     const list = document.getElementById("mistakeList");
-    list.innerHTML = "";
-
     const user = auth.currentUser;
-    if (!user) {
-      list.innerHTML = "<p style='color: gray;'>Click Review/Reveal Mistakes to view Progress!.</p>";
-      return;
-    }
-
-    const title = reviewingSet.title || "Untitled Set";
+    if (!user) { list.innerHTML = "<p style='color: gray;'>Click Review/Reveal Mistakes to view Progress!.</p>"; return; }
+    const title = currentReviewingSet.title || "Untitled Set";
     const docRef = doc(db, "mistakes", user.uid);
     const snap = await getDoc(docRef);
     const mistakeSet = snap.exists() ? snap.data().sets?.[title] || [] : [];
-
-    if (mistakeSet.length === 0) {
-      list.innerHTML = "<p style='color: gray;'>No mistakes so far!</p>";
-      return;
-    }
-
+    if (mistakeSet.length === 0) { list.innerHTML = "<p style='color: gray;'>No mistakes so far!</p>"; return; }
     const counts = {};
     mistakeSet.forEach(card => {
       const key = card.term;
       if (!counts[key]) counts[key] = { ...card, count: 1 };
       else counts[key].count += 1;
     });
-
-    Object.values(counts).forEach(card => {
-      const item = document.createElement("div");
-      item.classList.add("mistake-item");
-      item.innerHTML = `
+    list.innerHTML = Object.values(counts).map(card => `
+      <div class="mistake-item">
         <div class="term">${card.term} <span style="font-size:12px; color:goldenrod;">mistakes: ${card.count}</span></div>
         <div class="definition"><strong>Correct:</strong> ${card.definition}</div>
         <div class="definition"><strong>Your answer:</strong> ${card.userAnswer || 'N/A'}</div>
-      `;
-      list.appendChild(item);
-    });
+      </div>
+    `).join('');
   }
 
   async function retryMistakes() {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const title = reviewingSet.title || "Untitled Set";
+    const user = auth.currentUser; if (!user) return;
+    const title = currentReviewingSet.title || "Untitled Set";
     const docRef = doc(db, "mistakes", user.uid);
     const snap = await getDoc(docRef);
-
-    if (!snap.exists() || !snap.data().sets || !snap.data().sets[title]) {
-      alert("No mistakes to retry.");
-      return;
+    if (!snap.exists() || !snap.data().sets || !snap.data().sets[title] || !snap.data().sets[title].length) {
+      alert("No mistakes to retry."); return;
     }
-
-    const mistakeSet = snap.data().sets[title];
-    if (!mistakeSet.length) {
-      alert("All mistakes are cleared for this set!");
-      return;
-    }
-
     retryMode = true;
     toggleGoBackBtn(true);
-    flashcards = [...mistakeSet];
+    flashcards = [...snap.data().sets[title]];
     currentIndex = 0;
-    setTitle();
+    updateTitle();
     setupDotTracker(flashcards.length);
     updateDefinition(currentIndex);
     showCustomAlert("🔁 Retry Mode Loaded!");
@@ -345,14 +397,14 @@ addXP(100); // Give 30 XP for correct answer
     toggleGoBackBtn(false);
     flashcards = [...originalFlashcards];
     currentIndex = 0;
-    setTitle();
+    updateTitle();
     setupDotTracker(flashcards.length);
     updateDefinition(currentIndex);
     showCustomAlert("↩️ Back to Normal Mode.");
   }
 
-  function setupDotTracker(total, containerId = "dotTracker", maxVisible = 6) {
-    const container = document.getElementById(containerId);
+  function setupDotTracker(total) {
+    const container = document.getElementById("dotTracker");
     container.innerHTML = "";
     for (let i = 0; i < total; i++) {
       const dot = document.createElement("div");
@@ -361,60 +413,25 @@ addXP(100); // Give 30 XP for correct answer
     }
   }
 
-  function updateDotTracker(currentIndex, total, containerId = "dotTracker", maxVisible = 6) {
-    const container = document.getElementById(containerId);
+  function updateDotTracker(currentIndex, total) {
+    const container = document.getElementById("dotTracker");
     const dots = container.querySelectorAll(".dot");
     dots.forEach((dot, i) => dot.classList.toggle("active", i === currentIndex));
-    const start = Math.max(0, Math.min(currentIndex - Math.floor(maxVisible / 2), total - maxVisible));
-    const offset = start * 22;
-    container.style.transform = `translateX(-${offset}px)`;
   }
 
-  termInput.addEventListener("keypress", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      submitAnswer();
-    }
-  });
+  termInput.addEventListener("keypress", e => { if (e.key === "Enter") { e.preventDefault(); submitAnswer(); } });
 
-  document.addEventListener("keydown", e => {
-    if (document.activeElement.tagName !== "INPUT") {
-      if (e.key === "ArrowRight") {
-        currentIndex = (currentIndex + 1) % flashcards.length;
-        updateDefinition(currentIndex);
-      } else if (e.key === "ArrowLeft") {
-        currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
-        updateDefinition(currentIndex);
-      }
-    }
-  });
-
-  window.goToFlashcard = () => {
-    localStorage.setItem("currentIndex", currentIndex);
-    window.location.href = "flashcard.html";
-  };
-
-  window.goToLearn = () => {
-    localStorage.setItem("currentIndex", currentIndex);
-    window.location.href = "learn.html";
-  };
-
-  window.goToMatch = () => {
-    localStorage.setItem("currentIndex", currentIndex);
-    window.location.href = "match.html";
-  };
-  window.goToDefidrop = () => {
-    localStorage.setItem("currentIndex", currentIndex);
-    window.location.href = "defidrop.html";
-  };
-
+  // Make functions available to HTML onclick attributes
   window.submitAnswer = submitAnswer;
   window.closeCustomAlert = closeCustomAlert;
   window.reviewMistakes = reviewMistakes;
   window.retryMistakes = retryMistakes;
   window.goBackToNormal = goBackToNormal;
   window.clearAllMistakes = clearAllMistakes;
-});
+  window.goToFlashcard = () => { window.location.href = "flashcard.html"; };
+  window.goToLearn = () => { window.location.href = "learn.html"; };
+  window.goToMatch = () => { window.location.href = "match.html"; };
+  window.goToDefidrop = () => { window.location.href = "defidrop.html"; };
 </script>
 <script type="module" src="xpTracker.js"></script>
 
@@ -430,6 +447,28 @@ addXP(100); // Give 30 XP for correct answer
   checkUserStatus();
 </script>
 <script type="module" src="presence.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const infoBtn = document.getElementById('mistakeInfoBtn');
+    const infoModal = document.getElementById('mistakeInfoModal');
+    const closeInfoModalBtn = document.getElementById('closeMistakeInfoModal');
+
+    infoBtn.addEventListener('click', () => {
+      infoModal.style.display = 'flex';
+    });
+
+    closeInfoModalBtn.addEventListener('click', () => {
+      infoModal.style.display = 'none';
+    });
+
+    // Also close if the user clicks the dark background
+    infoModal.addEventListener('click', (event) => {
+      if (event.target === infoModal) {
+        infoModal.style.display = 'none';
+      }
+    });
+  });
+</script>
 <script src="protect.js"></script>
 </body>
 </html>

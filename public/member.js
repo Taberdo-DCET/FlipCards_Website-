@@ -102,6 +102,7 @@ document.addEventListener("keydown", (e) => {
         betatester: "betatester.png",
         prepper: "prepper.png",
         test: "test.png",
+        plus: "plas.png", // Add this line
         verified: "verified.svg",
         first: "first.png",
         hearted: "hearted.png",
@@ -159,6 +160,9 @@ document.addEventListener("keydown", (e) => {
           const verifiedHTML = roleArray.includes("verified")
             ? `<img src="${badgeIcons.verified}" alt="verified" class="role-badge" title="Verified">`
             : "";
+            const plusHTML = roleArray.includes("plus")
+  ? `<img src="${badgeIcons.plus}" alt="plus" class="role-badge" title="FlipCards+">`
+  : "";
 
           // Get top rank data from localStorage
 const topLevel = JSON.parse(localStorage.getItem('topLevelEmails') || "[]");
@@ -253,7 +257,7 @@ else if (user.level >= 15 && user.level <= 24) {
         ${dotHTML}
         <span class="username email" title="${user.email}" data-uid="${user.uid}" 
           style="font-weight:bold; background: transparent; color: white;">Loading...</span>
-        ${verifiedHTML}${firstHTML}
+        ${plusHTML}${verifiedHTML}${firstHTML}
       </div>
       <span class="email user-email" title="${user.email}" data-uid="${user.uid}" 
         style="font-size:11px; opacity:0.6; background: transparent; color: white;">

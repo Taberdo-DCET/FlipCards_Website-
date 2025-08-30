@@ -9,7 +9,39 @@
 </head>
 <body>
   <div class="card-set-container">
-    <h2 class="card-set-title" id="learnSetTitle">Loading...</h2>
+    <header class="shop-header">
+        <div class="header-left">
+            <a href="lobby.html#Folderr" class="back-button">← Back to Folders</a>
+            <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
+        </div>
+        <h2 class="shop-title">FlipCards.</h2>
+    </header>
+
+    <main class="learn-main-container">
+        
+        <div class="meta-info">
+            <div class="meta-item">
+                <span>Category:</span>
+                <strong id="cardCategory">General</strong>
+            </div>
+            <div class="meta-border"></div>
+            <div class="meta-item">
+                <span>Creator:</span>
+                <strong id="cardCreator">N/A</strong>
+            </div>
+        </div>
+
+        <div class="set-details">
+            <div class="title-row">
+                <div class="title-and-label">
+                    <span class="title-label">Title:</span>
+                    <h1 class="page-title" id="learnSetTitle"></h1>
+                </div>
+            </div>
+            <div class="description-container">
+                <div class="description-box" id="descriptionBox">Loading description...</div>
+            </div>
+        </div>
 
     <div class="button-container">
       <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
@@ -19,30 +51,26 @@
       <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
     </div>
 
-    <div class="definition-row">
-  <a href="lobby.html#Folderr">
-    <img src="homeenc.png" alt="Home" class="home-icon hover-switch" data-default="homeenc.png" data-hover="homeec.png" />
-  </a>
-
-  <div class="definition-box">
-    <p id="learnDefinition">Loading definition...</p>
-  </div>
-</div>
-
+<div class="definition-row">
+        <div class="definition-box" id="learnDefinition">
+            Loading definition...
+        </div>
+        <div class="progress-wrapper" id="progressWrapper">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </div>
 
     <div class="choices-container" id="learnChoices">
-      <!-- Choices will be generated here -->
-    </div>
+      </div>
+
     <div class="navigation-buttons">
-  <img src="retrync.png" alt="Previous" class="nav-btn" id="prevBtn" />
-  <div id="card-counter" class="card-counter">1 / 10</div>
-  <img src="nextnc.png" alt="Next" class="nav-btn" id="nextBtn" />
-</div>
-<div class="progress-wrapper" id="progressWrapper">
-  <div class="progress-bar" id="progressBar"></div>
-</div>
+        <img src="retrync.png" alt="Previous" class="nav-btn" id="prevBtn" />
+        <div id="card-counter" class="card-counter">1 / 1</div>
+        <img src="nextnc.png" alt="Next" class="nav-btn" id="nextBtn" />
+    </div>
 
   </div>
+  </main>
 <div id="flipTimerModal" class="flip-timer-modal hidden">
   <div class="flip-timer-header">
     <span class="flip-timer-title">🕒 FlipTimer</span>
@@ -102,145 +130,193 @@
   </div>
 </div>
 <script src="flipTimer.js"></script>
-<script>
-  const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
+<script type="module">
+    import { db, auth } from './firebaseinit.js';
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-  if (!reviewingSet || !reviewingSet.flashcards || reviewingSet.flashcards.length === 0) {
-    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcards to learn from.</h2>";
-    throw new Error("No flashcard data.");
-  }
+    // --- Global Variables ---
+    let flashcards = [];
+    let currentIndex = 0;
+    let autoAdvanceTimeout = null;
+    let currentReviewingSet = null;
 
-  const titleElement = document.getElementById("learnSetTitle");
-  const defElement = document.getElementById("learnDefinition");
-  const choicesContainer = document.getElementById("learnChoices");
-  const counterElement = document.getElementById("card-counter");
-  const progressWrapper = document.getElementById("progressWrapper");
-  const progressBar = document.getElementById("progressBar");
+    // --- Element References ---
+    const titleElement = document.getElementById("learnSetTitle");
+    const defElement = document.getElementById("learnDefinition");
+    const choicesContainer = document.getElementById("learnChoices");
+    const counterElement = document.getElementById("card-counter");
+    const progressWrapper = document.getElementById("progressWrapper");
+    const progressBar = document.getElementById("progressBar");
 
-  const flashcards = reviewingSet.flashcards;
+    // This runs when the user's login state is known
+    onAuthStateChanged(auth, async (user) => {
+        // Logic to show/hide the upgrade button
+        if (user && !user.isAnonymous) {
+            const upgradeBtn = document.getElementById('upgradeBtn');
+            const userRolesRef = doc(db, "approved_emails", user.email);
+            const userRolesSnap = await getDoc(userRolesRef);
 
-  let currentIndex = 0;
-  let autoAdvanceTimeout = null;
+            if (userRolesSnap.exists()) {
+                const roles = userRolesSnap.data().role.toLowerCase();
+                if (!roles.includes('plus') && !roles.includes('verified')) {
+                    upgradeBtn.style.display = 'inline-block';
+                }
+            }
+        }
 
-  titleElement.textContent = reviewingSet.title || "Untitled Flashcard Set";
+        // Logic to load the flashcard set
+        const reviewingSetId = localStorage.getItem("reviewingSetId");
+        const collectionName = localStorage.getItem("reviewingSetCollection");
 
-  function showProgressBar(duration = 3000) {
-    if (!progressWrapper || !progressBar) return;
-    progressWrapper.style.display = "block";
-    progressBar.style.transition = "none";
-    progressBar.style.width = "0%";
+        if (!reviewingSetId || !collectionName) {
+            document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: No set ID found.</h2>";
+            return;
+        }
 
-    setTimeout(() => {
-      progressBar.style.transition = `width ${duration}ms linear`;
-      progressBar.style.width = "100%";
-    }, 50);
-  }
+        try {
+            const setRef = doc(db, collectionName, reviewingSetId);
+            const docSnap = await getDoc(setRef);
 
-  function resetProgressBar() {
-    if (!progressWrapper || !progressBar) return;
-    progressWrapper.style.display = "none";
-    progressBar.style.width = "0%";
-    progressBar.style.transition = "none";
-  }
-function isImageUrl(text) {
-  return typeof text === "string" &&
-         text.startsWith("https://") &&
-         text.includes("firebasestorage.googleapis.com");
-}
-  function updateCard(index) {
-    clearTimeout(autoAdvanceTimeout);
-    resetProgressBar();
+            if (docSnap.exists()) {
+                currentReviewingSet = docSnap.data();
+                flashcards = currentReviewingSet.flashcards || [];
 
-    const currentCard = flashcards[index];
-    if (isImageUrl(currentCard.definition)) {
-  defElement.innerHTML = `<img src="${currentCard.definition}" alt="Definition Image" style="max-width:100%; max-height:200px; border-radius: 8px;" />`;
-} else {
-  defElement.textContent = currentCard.definition;
-}
+                populatePageInfo(currentReviewingSet);
 
+                if (flashcards.length < 4) {
+                    defElement.textContent = "You need at least 4 cards in a set to use Learn Mode.";
+                    choicesContainer.innerHTML = "";
+                    return;
+                }
+                
+                updateCard(currentIndex);
 
-    const correct = currentCard.term;
-    const allTerms = flashcards.map(fc => fc.term);
-    let choices = allTerms.filter(term => term !== correct);
-    choices = choices.sort(() => 0.5 - Math.random()).slice(0, 3);
-    choices.push(correct);
-    choices = choices.sort(() => 0.5 - Math.random());
-
-    const labels = ['A', 'B', 'C', 'D'];
-    choicesContainer.innerHTML = choices.map((opt, i) =>
-      `<div class="choice" data-term="${opt}">${labels[i]}. ${opt}</div>`
-    ).join('');
-
-    counterElement.textContent = `${index + 1} / ${flashcards.length}`;
-
-    document.querySelectorAll('.choice').forEach(choice => {
-      choice.addEventListener('click', function handleChoice() {
-        const selectedTerm = this.getAttribute('data-term');
-        const isCorrect = selectedTerm === correct;
-
-        document.querySelectorAll('.choice').forEach(c => {
-          const cTerm = c.getAttribute('data-term');
-          c.classList.add('disabled');
-          if (cTerm === correct) {
-            c.style.backgroundColor = '#228B22';
-          }
-        });
-
-       if (!isCorrect) {
-  this.style.backgroundColor = '#B22222';
-} else {
-  this.style.backgroundColor = '#228B22';
-
-  if (typeof addXP === "function") {
-    addXP(100);
-
-    // ✅ Optional: Show small XP popup
-    const xpMsg = document.createElement("div");
-    xpMsg.textContent = "+100 XP!";
-    xpMsg.style.cssText = `
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 14px;
-      font-family: 'QilkaBold';
-      color: #ffcf00;
-      animation: fadeUp 1s ease-out forwards;
-      z-index: 999;
-    `;
-    this.appendChild(xpMsg);
-    setTimeout(() => xpMsg.remove(), 1000);
-  }
-}
-
-
-        showProgressBar(3000);
-        autoAdvanceTimeout = setTimeout(() => {
-          goToCard(1);
-        }, 3000);
-      }, { once: true });
+            } else {
+                document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
+            }
+        } catch (error) {
+            console.error("Error loading set:", error);
+            document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set.</h2>";
+        }
     });
-  }
 
-  function goToCard(direction) {
+    async function populatePageInfo(setData) {
+        document.getElementById("learnSetTitle").textContent = setData.title || "Untitled Set";
+        document.getElementById("descriptionBox").textContent = setData.description || "No description provided.";
+        document.getElementById("cardCategory").textContent = setData.category || "General";
+        const creatorEmail = setData.creatorEmail || setData.user;
+        if (creatorEmail) {
+            const usernameRef = doc(db, "usernames", creatorEmail);
+            const usernameSnap = await getDoc(usernameRef);
+            document.getElementById("cardCreator").textContent = usernameSnap.exists() && usernameSnap.data().username 
+                ? usernameSnap.data().username 
+                : creatorEmail.split('@')[0];
+        } else {
+            document.getElementById("cardCreator").textContent = "N/A";
+        }
+    }
+    
+    // --- All original Learn Mode functions remain below ---
+
+    function showProgressBar(duration = 3000) {
+        if (!progressWrapper || !progressBar) return;
+        progressWrapper.style.display = "block";
+        progressBar.style.transition = "none";
+        progressBar.style.width = "0%";
+        setTimeout(() => {
+            progressBar.style.transition = `width ${duration}ms linear`;
+            progressBar.style.width = "100%";
+        }, 50);
+    }
+
+    function resetProgressBar() {
+        if (!progressWrapper || !progressBar) return;
+        progressWrapper.style.display = "none";
+        progressBar.style.width = "0%";
+        progressBar.style.transition = "none";
+    }
+
+    function isImageUrl(text) {
+        return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com");
+    }
+
+    function updateCard(index) {
+        clearTimeout(autoAdvanceTimeout);
+        resetProgressBar();
+        const currentCard = flashcards[index];
+        if (isImageUrl(currentCard.definition)) {
+            defElement.innerHTML = `<img src="${currentCard.definition}" alt="Definition Image" />`;
+        } else {
+            defElement.textContent = currentCard.definition;
+        }
+
+        const correct = currentCard.term;
+        const allTerms = flashcards.map(fc => fc.term);
+        let choices = allTerms.filter(term => term !== correct);
+        choices = choices.sort(() => 0.5 - Math.random()).slice(0, 3);
+        choices.push(correct);
+        choices = choices.sort(() => 0.5 - Math.random());
+
+        const labels = ['A', 'B', 'C', 'D'];
+        choicesContainer.innerHTML = choices.map((opt, i) =>
+            `<div class="choice" data-term="${opt}">${labels[i]}. ${opt}</div>`
+        ).join('');
+        counterElement.textContent = `${index + 1} / ${flashcards.length}`;
+        document.querySelectorAll('.choice').forEach(choice => {
+            choice.addEventListener('click', function handleChoice() {
+                const selectedTerm = this.getAttribute('data-term');
+                const isCorrect = selectedTerm === correct;
+                document.querySelectorAll('.choice').forEach(c => {
+                    c.classList.add('disabled');
+                    if (c.getAttribute('data-term') === correct) c.style.backgroundColor = '#228B22';
+                });
+                if (!isCorrect) { this.style.backgroundColor = '#B22222'; }
+                if (isCorrect && typeof addXP === "function") addXP(100);
+                showProgressBar(3000);
+                autoAdvanceTimeout = setTimeout(() => { goToCard(1); }, 3000);
+            }, { once: true });
+        });
+    }
+
+    function goToCard(direction) {
+        clearTimeout(autoAdvanceTimeout);
+        resetProgressBar();
+        currentIndex = (currentIndex + direction + flashcards.length) % flashcards.length;
+        updateCard(currentIndex);
+    }
+
+    document.getElementById("nextBtn").addEventListener("click", () => goToCard(1));
+    function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+  }
+}
+
+document.getElementById("prevBtn").addEventListener("click", () => {
     clearTimeout(autoAdvanceTimeout);
     resetProgressBar();
-    currentIndex = (currentIndex + direction + flashcards.length) % flashcards.length;
+
+    // --- NEW: Shuffle the flashcards array ---
+    shuffleArray(flashcards);
+
+    currentIndex = 0; // Reset to the new first card
     updateCard(currentIndex);
-  }
-
-  document.getElementById("nextBtn").addEventListener("click", () => {
-    goToCard(1);
-  });
-
-  document.getElementById("prevBtn").addEventListener("click", () => {
-    clearTimeout(autoAdvanceTimeout);
-    resetProgressBar();
-    currentIndex = 0;
-    updateCard(currentIndex);
-  });
-
-  updateCard(currentIndex);
+});
+    
+    // --- Functions for other mode buttons ---
+    function navigateToMode(modeUrl) {
+        if (currentReviewingSet) {
+            localStorage.setItem("reviewingSet", JSON.stringify(currentReviewingSet));
+        }
+        localStorage.setItem("currentIndex", currentIndex);
+        window.location.href = modeUrl;
+    }
+    window.goToFlashcard = () => navigateToMode("flashcard.html");
+    window.goToTest = () => navigateToMode("test.html");
+    window.goToMatch = () => navigateToMode("match.html");
+    window.goToDefidrop = () => navigateToMode("defidrop.html");
 </script>
 
 <script>

@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       <div class="username-level-wrapper">
         <span id="miniProfileUsername">Loading...</span>
+        <img id="plusBadge" src="plass.png" alt="plus" title="FlipCards+" class="plus-badgemini" style="display:none; width:16px; height:16px;"/>
         <img id="verifiedBadge" src="verified.svg" alt="verified" style="display:none; width:16px; height:16px;"/>
         <img id="firstBadge" src="first.png" alt="first" style="display:none; width:16px; height:16px;"/>
         <span id="miniProfileLevel" class="level-badge">Lvl 0</span>
@@ -83,6 +84,7 @@ function populateMiniProfile(data) {
   document.getElementById("miniProfileUsername").textContent = data.username || "Guest";
   document.getElementById("miniProfileLevel").textContent = `Lvl ${data.level || 0}`;
   document.getElementById("miniProfileAvatar").src = data.avatar || "Group-10.png";
+   document.getElementById("plusBadge").style.display = data.plus ? "inline-block" : "none";
   document.getElementById("verifiedBadge").style.display = data.verified ? "inline-block" : "none";
 document.getElementById("firstBadge").style.display = data.first ? "inline-block" : "none";
 
@@ -148,7 +150,7 @@ async function fetchAndCacheUserData(email) {
     }
 
     const verified = roles.includes("verified");
-    
+    const plus = roles.includes("plus"); // Add this line
     const first = roles.includes("first");
     const goldborder = roles.includes("goldborder");
     const adminborder = roles.includes("admn");
@@ -170,7 +172,7 @@ const firstuser = roles.includes("1st");
       console.warn("No avatar found, using default.");
     }
 
-    const profileData = { email, username, level, verified, first, goldborder, adminborder, agaborder, coadminborder, persborder, secondborder, firstuser,avatar: avatarUrl };
+    const profileData = { email, username, level, plus, verified, first, goldborder, adminborder, agaborder, coadminborder, persborder, secondborder, firstuser,avatar: avatarUrl };
     localStorage.setItem("miniProfileData", JSON.stringify(profileData));
     populateMiniProfile(profileData);
   } catch (error) {

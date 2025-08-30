@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop | FlipCards</title>
+    <link rel="stylesheet" href="shop.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <header class="shop-header">
+        <a href="lobby.html" class="back-button">← Back to Lobby</a>
+        <h2 class="shop-title">FlipCards.</h2>
+    </header>
+
+<main>
+    <h2 class="shop-main-title">Upgrade your Plan</h2>
+    <p class="shop-subtitle">Tap/Hold for Info</p>
+ <p class="shop-description">Unlock your academic potential and achieve the grades you've always wanted.</p> 
+    <div class="plans-fullscreen-container">
+        <div class="plan-panel">
+            <img src="normal1.png" alt="Standard Access background">
+            <div class="plan-content">
+                <h2 class="plan-title">Standard Access</h2>
+                <ul class="benefits-list">
+                    <li>Create Unlimited Local Sets</li>
+            <li>Access All Study Modes</li>
+            <li>Track Your Progress</li>
+                </ul>
+            </div>
+<a href="#" class="view-more-btn is-owned" 
+   data-plan="Standard" 
+   data-billing="Billed at $23.88/year, that's like"
+   data-price="$1.99"
+   data-image="normal.png"
+   data-bestdeal="false">Owned</a>
+        </div>
+        <div class="plan-panel">
+            <img src="veri1.png" alt="Verified User background">
+            <div class="plan-content">
+                <img src="verii.png" alt="Verified User" class="plan-title">
+                <ul class="benefits-list">
+                    <li>All Standard Benefits</li>
+            <li>Verified Profile Badge</li>
+            <li>Increased Public Slots</li>
+            <li>Increased ParseCards Usage</li>
+            <li>Bonus Experience Points</li>
+            <li>Upgraded to Bronze Spender</li>
+                </ul>
+            </div>
+            <a href="#" class="view-more-btn" id="verifiedPlanBtn"
+   data-plan="Verified"
+   data-billing="Billed at ₱360/year, that's like"
+   data-price="₱90"
+   data-image="veri.png"
+   data-bestdeal="true">View More Info</a>
+        </div>
+        <div class="plan-panel">
+            <img src="plus1.png" alt="FlipCards Plus background">
+            <div class="plan-content">
+                <img src="pluss.png" alt="FlipCards+" class="plan-title">
+                <ul class="benefits-list">
+                    <li>All Verified Benefits</li>
+            <li>Plus Plan Badge</li>
+            <li>Custom Avatar Border</li>
+            <li>Exclusive Early Features</li>
+            <li>Priority Support</li>
+            <li>Upgraded to Platinum Spender</li>
+                </ul>
+            </div>
+            <a href="#" class="view-more-btn" id="plusPlanBtn"
+   data-plan="FlipCards+"
+   data-billing="Billed at ₱760/year, that's like"
+   data-price="₱190"
+   data-image="plus.png"
+   data-bestdeal="false">View More Info</a>
+        </div>
+    </div>
+    </div> <section class="plus-benefits-section">
+      <div class="plus-benefits-title">
+  <img src="plas.png" alt="FlipCards+">
+  <h2>FlipCardsPlus+ Benefits</h2>
+</div>
+
+      <div class="benefits-grid">
+        <ul>
+          <li>All Verified Benefits</li>
+          <li>Plus Plan Badge</li>
+          <li>Custom Avatar Border</li>
+        </ul>
+        <ul>
+          <li>Exclusive Early Features</li>
+          <li>Priority Support</li>
+          <li>Upgraded to Platinum Spender</li>
+        </ul>
+      </div>
+    </section>
+    </main>
+</main>
+
+<footer>
+  <div class="social-column">
+    <a href="aboutus.html" target="_blank" class="social-icon" aria-label="About Us">
+      <i class="fa-solid fa-circle-info"></i>
+    </a>
+    <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon" aria-label="Visit Facebook">
+      <i class="fa-brands fa-facebook"></i>
+    </a>
+    <a href="https://instagram.com" target="_blank" class="social-icon" aria-label="Visit Instagram">
+      <i class="fa-brands fa-instagram"></i>
+    </a>
+    <a href="https://twitter.com" target="_blank" class="social-icon" aria-label="Visit X">
+      <i class="fa-brands fa-x-twitter"></i>
+    </a>
+    <a href="https://discord.com" target="_blank" class="social-icon" aria-label="Visit Discord">
+      <i class="fa-brands fa-discord"></i>
+    </a>
+  </div>
+  <p>&copy; 2025 FlipCards.</p>
+</footer>
+<div id="planDetailsModal" class="modal-overlay">
+<div class="modal-box plan-modal-content">
+    <div class="plan-details-image">
+      <img id="modalPlanImage" src="veri1.png" alt="Plan image">
+    </div>
+    <div class="plan-details-text">
+  <div class="plan-details-info">
+    <span id="modalBestDeal" class="best-deal-tag">Best deal</span>
+    <h2 id="modalPlanTitle">Annual</h2>
+    <p id="modalPlanBilling">Billed at $35.99/year, that's like</p>
+    <p class="plan-price" id="modalPlanPrice">$2.99 <span>/3months</span></p>
+    <p id="modalPlanTrial">Get yours Now!</p>
+  </div>
+  <button id="modalStartTrialBtn" class="start-trial-button">Buy this Subscription</button>
+</div>
+    <button id="closePlanModalBtn" class="plan-modal-close">&times;</button>
+</div>
+</div>
+<div id="contactBanner">
+    <div class="banner-icon">
+        <i class="fa-solid fa-cart-shopping"></i>
+    </div>
+    <div class="banner-text">
+        <p>Contact us to avail!</p>
+        <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon">
+            <i class="fa-brands fa-facebook"></i>
+        </a>
+    </div>
+    <button id="closeContactBannerBtn" class="banner-close">&times;</button>
+</div>
+<script type="module" src="firebaseinit.js"></script>
+
+<script type="module">
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import { db } from "./firebaseinit.js";
+
+  const auth = getAuth();
+
+  onAuthStateChanged(auth, (user) => {
+    if (user && !user.isAnonymous) {
+      const verifiedBtn = document.getElementById('verifiedPlanBtn');
+      const plusBtn = document.getElementById('plusPlanBtn');
+      
+      const userRolesRef = doc(db, "approved_emails", user.email);
+
+      onSnapshot(userRolesRef, (docSnap) => {
+        const roles = docSnap.exists() ? docSnap.data().role.toLowerCase() : "";
+
+        // Check for 'verified' role
+        if (roles.includes('verified')) {
+          verifiedBtn.textContent = 'Owned';
+          verifiedBtn.classList.add('is-owned');
+        } else {
+          // Reset the button if the role is not present
+          verifiedBtn.textContent = 'View More Info';
+          verifiedBtn.classList.remove('is-owned');
+        }
+
+        // Check for 'plus' role
+        if (roles.includes('plus')) {
+          plusBtn.textContent = 'Owned';
+          plusBtn.classList.add('is-owned');
+        } else {
+          // Reset the button if the role is not present
+          plusBtn.textContent = 'View More Info';
+          plusBtn.classList.remove('is-owned');
+        }
+      });
+    }
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // --- Get all elements ---
+  const planDetailsModal = document.getElementById('planDetailsModal');
+  const closePlanModalBtn = document.getElementById('closePlanModalBtn');
+  const viewMoreButtons = document.querySelectorAll('.view-more-btn');
+  
+  // New elements for this feature
+  const buyButton = document.getElementById('modalStartTrialBtn');
+  const contactBanner = document.getElementById('contactBanner');
+  const closeContactBannerBtn = document.getElementById('closeContactBannerBtn');
+
+  // --- Get modal content elements ---
+  const modalBestDeal = document.getElementById('modalBestDeal');
+  const modalPlanTitle = document.getElementById('modalPlanTitle');
+  const modalPlanBilling = document.getElementById('modalPlanBilling');
+  const modalPlanPrice = document.getElementById('modalPlanPrice');
+  const modalPlanImage = document.getElementById('modalPlanImage');
+  
+  // --- Functions ---
+  function openPlanModal(planData) {
+    modalPlanTitle.textContent = planData.plan;
+    modalPlanBilling.textContent = planData.billing;
+    modalPlanPrice.innerHTML = `${planData.price} <span>/3months</span>`;
+    modalPlanImage.src = planData.image;
+
+    if (planData.bestdeal === 'true') {
+      modalBestDeal.style.display = 'inline-block';
+    } else {
+      modalBestDeal.style.display = 'none';
+    }
+    planDetailsModal.classList.add('visible');
+  }
+
+  function closePlanModal() {
+    planDetailsModal.classList.remove('visible');
+  }
+
+  // --- Event Listeners ---
+  viewMoreButtons.forEach(button => {
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (event.currentTarget.classList.contains('is-owned')) {
+        return; 
+      }
+      openPlanModal(event.currentTarget.dataset);
+    });
+  });
+
+  closePlanModalBtn.addEventListener('click', closePlanModal);
+  planDetailsModal.addEventListener('click', (event) => {
+    if (event.target === planDetailsModal) {
+      closePlanModal();
+    }
+  });
+
+  // --- NEW: Event listener for the "Buy" button ---
+  buyButton.addEventListener('click', () => {
+    // 1. Close the main modal
+    closePlanModal();
+
+    // 2. Show the contact banner
+    contactBanner.classList.add('expanded');
+  });
+
+  // --- NEW: Event listener to close the contact banner ---
+  closeContactBannerBtn.addEventListener('click', () => {
+    contactBanner.classList.remove('expanded');
+  });
+});
+</script>
+<script src="protect.js"></script>
+</body>
+</html>
+</body>
+</html>

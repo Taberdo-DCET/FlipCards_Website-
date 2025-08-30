@@ -5,24 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlipCards | Add Card</title>
     <link rel="stylesheet" href="card.css">
-    <link rel="stylesheet" href="lobb.css">
+    
     <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
 </head>
 <body>
+<header class="main-header">
+  <a href="lobby.html#Folderr" class="back-btn">&larr; Back to Folders</a>
+  <div class="btn-row">
+    <button class="btn create" id="mainActionBtn">Create Set</button>
+    <button class="btn practice" id="mainActionBtnn">Create and Practice</button>
+  </div>
+  <span class="header-title">FlipCards</span>
+</header>
     <div class="flashcard-wrapper">
-    <div class="header-with-home">
-  <h1>Create a Flashcard Set</h1>
-  <a href="lobby.html#Folderr">
-    <img src="homeenc.png" alt="Home" class="home-btn" />
-  </a>
-  <button class="music-icon notes" aria-label="Notes">
-  <img src="notenc.png" alt="Notes" class="hover-switch" data-hover="notec.png" data-default="notenc.png">
-</button>
-
-</div>
+        <div class="page-title-container">
+        <h1>Create a Flashcard Set</h1>
+        
+    </div>
 
     <label class="public-toggle">
-  <input type="checkbox" id="publicToggle" /> Make this set public
+  <span>Make this set public</span>
+  <div class="toggle-container">
+      <input type="checkbox" id="publicToggle" />
+      <span class="toggle-slider"></span>
+  </div>
   <span id="publicUsage" style="font-size: 14px; margin-left: 8px;"></span>
 
   <select id="categorySelect" class="category-select">
@@ -44,21 +50,27 @@
       <div class="flashcard-header">
         <span>1</span>
         <div class="card-buttons">
-          <button class="add-btn" title="Add Card"></button>
-          <button class="delete-btn" title="Delete Card"></button>
-        </div>
+  <button class="add-btn" title="Add Card">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+  </button>
+  <button class="delete-btn" title="Delete Card">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+  </button>
+</div>
       </div>
-      <div class="flashcard-body">
-        <input type="text" class="input term" placeholder="Enter term" />
-        <input type="text" class="input definition" placeholder="Enter definition" />
-        
-      </div>
+<div class="flashcard-body">
+  <div class="input-group">
+    <label>Term</label>
+    <input type="text" class="input term" placeholder="e.g., Photosynthesis" />
+  </div>
+  <div class="input-group">
+    <label>Definition</label>
+    <input type="text" class="input definition" placeholder="e.g., Process used by plants to convert light..." />
+  </div>
+</div>
     </div>
 
-    <div class="btn-row">
-  <button class="btn create" id="mainActionBtn">Create</button>
-  <button class="btn practice" id="mainActionBtnn">Create and Practice</button>
-</div>
+
 
   </div>
 <div id="createAlertModal" class="custom-modal hidden">
@@ -71,65 +83,9 @@
     </div>
   </div>
 </div>
-<div id="notepad" class="notepad-modal hidden">
-  <div id="notepadHeader" class="notepad-header">📝 Notepad</div>
-  <textarea id="notepadText" placeholder="Type here..."></textarea>
-</div>
+
   <script type="module" src="addcard.js"></script>
-  <script src="menu.js"></script>
-  <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const noteBtn = document.querySelector(".music-icon.notes");
-    const notepad = document.getElementById("notepad");
-    const notepadHeader = document.getElementById("notepadHeader");
-    const notepadText = document.getElementById("notepadText");
 
-    // Load saved note
-    notepadText.value = localStorage.getItem("userNote") || "";
-
-    // Real-time saving
-    notepadText.addEventListener("input", () => {
-      localStorage.setItem("userNote", notepadText.value);
-    });
-
-    // Toggle visibility
-    noteBtn.addEventListener("click", () => {
-      notepad.classList.toggle("hidden");
-    });
-
-    // Drag functionality
-    let offsetX = 0, offsetY = 0, isDragging = false;
-
-    notepadHeader.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      offsetX = e.clientX - notepad.offsetLeft;
-      offsetY = e.clientY - notepad.offsetTop;
-      document.body.style.userSelect = "none";
-    });
-
-    document.addEventListener("mouseup", () => {
-      isDragging = false;
-      document.body.style.userSelect = "";
-    });
-
-    document.addEventListener("mousemove", (e) => {
-  if (!isDragging) return;
-
-  const maxX = window.innerWidth - notepad.offsetWidth;
-  const maxY = window.innerHeight - notepad.offsetHeight;
-
-  let newX = e.clientX - offsetX;
-  let newY = e.clientY - offsetY;
-
-  newX = Math.min(Math.max(0, newX), maxX);
-  newY = Math.min(Math.max(0, newY), maxY);
-
-  notepad.style.left = `${newX}px`;
-  notepad.style.top = `${newY}px`;
-});
-
-  });
-</script>
 <script>
   document.querySelectorAll('.hover-switch').forEach(img => {
     const def = img.getAttribute('data-default');

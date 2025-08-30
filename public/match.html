@@ -9,53 +9,88 @@
   <link rel="icon" type="image/png" href="Group-100.png">
 </head>
 <body>
+    <header class="shop-header">
+        <div class="header-left">
+            <a href="lobby.html#Folderr" class="back-button">← Back to Folders</a>
+            <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
+        </div>
+        <h2 class="shop-title">FlipCards.</h2>
+    </header>
 
-  <h1 id="setTitle">Loading Set Title...</h1>
+    <main class="match-main-container">
 
-  <div class="button-container">
-    <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
-    <button class="neumorphic-button" onclick="goToTest()">Test</button>
-    <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
-    <button class="neumorphic-button active">Match</button>
-    <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
-  </div>
-<a href="lobby.html#Folderr" class="home-wrapper">
-  <img src="homeenc.png" alt="Home" class="home-btn hover-switch" data-hover="homeec.png" data-default="homeenc.png" />
-</a>
-<div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-  <label for="timeSelect">⏱ Timer:</label>
-  <select id="timeSelect" class="neumorphic-button">
-    <option value="10">10 seconds</option>
-    <option value="20" selected>20 seconds</option>
-    <option value="30">30 seconds</option>
-    <option value="45">45 seconds</option>
-  </select>
-</div>
-<div style="margin-bottom: 20px;">
-  <a href="#timerConatiner"><button class="neumorphic-button" onclick="startGame()">▶ Start Game</button></a>
-</div>
-  <div class="grid-container" id="grid"></div>
-<div id="winPopup" class="win-popup hidden">
-  <div class="win-box">
-    <h2>🎉 You matched them all!</h2>
-    <button class="neumorphic-button" onclick="restartGame()">Let’s Go Again!</button>
-  </div>
-</div>
-<div id="timerContainer" style="width: 90%; max-width: 700px; margin-top: 30px;">
-  <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-    <span>Time Left:</span>
-    <span id="timerNumber">0s</span>
-  </div>
-  <div style="width: 100%; height: 12px; background: #2e2e2e; border-radius: 10px; overflow: hidden;">
-    <div id="timerBar" style="height: 100%; width: 0%; background: #ffcf00; transition: width linear;"></div>
-  </div>
-</div>
-<div class="custom-alert" id="timeAlert">
-  <div class="win-box">
-    <h2>⏰ Time's Up!</h2>
-    <button class="neumorphic-button" onclick="closeTimeAlert()">Try Again</button>
-  </div>
-</div>
+        <div class="meta-info">
+            <div class="meta-item">
+                <span>Category:</span>
+                <strong id="cardCategory">General</strong>
+            </div>
+            <div class="meta-border"></div>
+            <div class="meta-item">
+                <span>Creator:</span>
+                <strong id="cardCreator">N/A</strong>
+            </div>
+        </div>
+
+        <div class="set-details">
+            <div class="title-row">
+                <div class="title-and-label">
+                    <span class="title-label">Title:</span>
+                    <h1 class="page-title" id="setTitle"></h1>
+                </div>
+            </div>
+            <div class="description-container">
+                <div class="description-box" id="descriptionBox">Loading description...</div>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
+            <button class="neumorphic-button" onclick="goToTest()">Test</button>
+            <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
+            <button class="neumorphic-button active">Match</button>
+            <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
+        </div>
+
+        <div class="game-controls">
+            <button class="neumorphic-button help-button" onclick="openHelpModal()" aria-label="How to Play">?</button>
+            
+            <div class="timer-select">
+                <label for="timeSelect">⏱ Timer:</label>
+                <select id="timeSelect" class="neumorphic-button">
+                    <option value="10">10 seconds</option>
+                    <option value="20" selected>20 seconds</option>
+                    <option value="30">30 seconds</option>
+                    <option value="45">45 seconds</option>
+                </select>
+            </div>
+            <button class="neumorphic-button" onclick="startGame()">▶ Start Game</button>
+        </div>
+
+        <div class="grid-container" id="grid"></div>
+
+        <div id="timerContainer">
+            <div class="timer-labels">
+                <span>Time Left:</span>
+                <span id="timerNumber">0s</span>
+            </div>
+            <div class="timer-bar-wrapper">
+                <div id="timerBar"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="winPopup" class="custom-alert hidden">
+        <div class="custom-alert-content success">
+            <h2 style="font-family: 'Satoshi', sans-serif;">🎉 You matched them all!</h2>
+            <button class="neumorphic-button" onclick="restartGame()">Let’s Go Again!</button>
+        </div>
+    </div>
+    <div class="custom-alert" id="timeAlert">
+        <div class="custom-alert-content error">
+            <h2 style="font-family: 'Satoshi', sans-serif;">⏰ Time's Up!</h2>
+            <button class="neumorphic-button" onclick="closeTimeAlert()">Try Again</button>
+        </div>
+    </div>
 <div id="flipTimerModal" class="flip-timer-modal hidden">
   <div class="flip-timer-header">
     <span class="flip-timer-title">🕒 FlipTimer</span>
@@ -114,241 +149,232 @@
     </div>
   </div>
 </div>
+<div id="helpModal" class="custom-alert hidden">
+        <div class="custom-alert-content info">
+            <h2 style="font-family: 'Satoshi', sans-serif;">How to Play Match</h2>
+            <ul class="help-list">
+                <li>Click 'Start Game' to begin the timer.</li>
+                <li>Click on a card to reveal its term or definition.</li>
+                <li>Find and click its corresponding match.</li>
+                <li>Match all the pairs before time runs out to win!</li>
+            </ul>
+            <button class="neumorphic-button" onclick="closeHelpModal()">Got it!</button>
+        </div>
+    </div>
 <script src="flipTimer.js"></script>
-<script>
-  function isImageUrl(text) {
-  return typeof text === "string" &&
-         text.startsWith("https://") &&
-         text.includes("firebasestorage.googleapis.com");
-}
+<script type="module">
+    import { db, auth } from './firebaseinit.js';
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-  const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet"));
-  if (!reviewingSet || !Array.isArray(reviewingSet.flashcards)) {
-    document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>No flashcard data available for Match Mode.</h2>";
-    throw new Error("No flashcard data.");
-  }
+    // --- Global Variables ---
+    let flippedCards = [];
+    let matchedCount = 0;
+    let timerInterval = null;
+    let gameActive = false;
+    let totalPairs = 0;
+    let currentReviewingSet = null;
 
-  document.getElementById("setTitle").textContent = reviewingSet.title || "Untitled Match Set";
+    // --- Element References ---
+    const grid = document.getElementById("grid");
+    const winPopup = document.getElementById("winPopup");
+    const timeSelect = document.getElementById("timeSelect");
+    const timerBar = document.getElementById("timerBar");
+    const timerNumber = document.getElementById("timerNumber");
+    const timeAlert = document.getElementById("timeAlert");
+    const helpModal = document.getElementById("helpModal");
 
-  const grid = document.getElementById("grid");
-  const winPopup = document.getElementById("winPopup");
-  const timeSelect = document.getElementById("timeSelect");
-  const timerBar = document.getElementById("timerBar");
-  const timerNumber = document.getElementById("timerNumber");
-  const timerContainer = document.getElementById("timerContainer");
-  const timeAlert = document.getElementById("timeAlert");
+    // --- Main Function on Page Load ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user && !user.isAnonymous) {
+            const upgradeBtn = document.getElementById('upgradeBtn');
+            const userRolesRef = doc(db, "approved_emails", user.email);
+            const userRolesSnap = await getDoc(userRolesRef);
 
-  let flippedCards = [];
-  let matchedCount = 0;
-  let timerDuration = parseInt(timeSelect.value);
-  let timerInterval = null;
-  let remainingTime = 0;
-  let gameActive = false;
-  let totalPairs = 0;
-
-  setupCards();
-
-  function startGame() {
-    clearInterval(timerInterval);
-    timerDuration = parseInt(timeSelect.value);
-    remainingTime = timerDuration;
-    matchedCount = 0;
-    flippedCards = [];
-    gameActive = true;
-
-    setupCards();
-
-    timerBar.style.transition = "none";
-    timerBar.style.width = "100%";
-    timerNumber.textContent = `${remainingTime}s`;
-
-    timerContainer.scrollIntoView({ behavior: "smooth" });
-
-    setTimeout(() => {
-      timerBar.style.transition = `width ${timerDuration}s linear`;
-      timerBar.style.width = "0%";
-    }, 50);
-
-    timerInterval = setInterval(() => {
-      remainingTime--;
-      timerNumber.textContent = `${remainingTime}s`;
-      if (remainingTime <= 0) {
-        clearInterval(timerInterval);
-        gameActive = false;
-        showTimeAlert();
-      }
-    }, 1000);
-  }
-
-  function setupCards() {
-    grid.innerHTML = "";
-    winPopup.classList.add("hidden");
-
-    const flashcards = [...reviewingSet.flashcards];
-    flashcards.sort(() => 0.5 - Math.random());
-
-    const selected = flashcards.slice(0, 6);
-    const missing = 6 - selected.length;
-
-    for (let i = 1; i <= missing; i++) {
-      selected.push({
-        term: "Bonus Card",
-        definition: "Bonus Card",
-        matchId: "bonus" // ✅ All bonus cards use same ID
-      });
-    }
-
-    const pairItems = [];
-    selected.forEach(card => {
-      const id = card.matchId || card.term;
-      pairItems.push({ type: "term", value: card.term, matchId: id });
-      pairItems.push({ type: "definition", value: card.definition, matchId: id });
-    });
-
-    totalPairs = pairItems.length / 2;
-    matchedCount = 0;
-
-    pairItems.sort(() => 0.5 - Math.random());
-
-    pairItems.forEach((item, i) => {
-      const div = document.createElement("div");
-      div.className = "card";
-      div.dataset.matchId = item.matchId;
-      div.dataset.type = item.type;
-      div.dataset.index = i;
-      if (item.matchId === "bonus") {
-  div.textContent = "🃏 Bonus Card";
-} else if (isImageUrl(item.value)) {
-  const img = document.createElement("img");
-  img.src = item.value;
-  img.alt = "Definition Image";
-  img.style.maxWidth = "100%";
-  img.style.maxHeight = "100px";
-  img.style.borderRadius = "6px";
-  div.appendChild(img);
-} else {
-  div.textContent = item.value;
-}
-
-      div.addEventListener("click", handleCardClick);
-      grid.appendChild(div);
-    });
-  }
-
-  function handleCardClick(e) {
-    if (!gameActive) return;
-
-    const card = e.currentTarget;
-    if (flippedCards.length === 2 || card.classList.contains("matched") || card.classList.contains("revealed")) return;
-
-    card.classList.add("revealed");
-    flippedCards.push(card);
-
-    if (flippedCards.length === 2) {
-      const [first, second] = flippedCards;
-
-      const isBonusMatch = first.dataset.matchId === "bonus" && second.dataset.matchId === "bonus";
-      const isStandardMatch = (
-        first.dataset.matchId === second.dataset.matchId &&
-        first.dataset.type !== second.dataset.type
-      );
-
-      const isMatch = isBonusMatch || isStandardMatch;
-
-      if (isMatch) {
-        first.classList.add("correct", "matched");
-        second.classList.add("correct", "matched");
-
-        setTimeout(() => {
-          first.style.visibility = "hidden";
-          second.style.visibility = "hidden";
-        }, 300);
-
-        matchedCount += 2;
-
-        if (matchedCount === totalPairs * 2) {
-          clearInterval(timerInterval);
-          gameActive = false;
-          resetTimerBar();
-          setTimeout(() => {
-            winPopup.classList.remove("hidden");
-          }, 400);
+            if (userRolesSnap.exists()) {
+                const roles = userRolesSnap.data().role.toLowerCase();
+                if (!roles.includes('plus') && !roles.includes('verified')) {
+                    upgradeBtn.style.display = 'inline-block';
+                }
+            }
         }
-      } else {
-        first.classList.add("incorrect");
-        second.classList.add("incorrect");
-        setTimeout(() => {
-          first.classList.remove("revealed", "incorrect");
-          second.classList.remove("revealed", "incorrect");
-        }, 800);
-      }
 
-      flippedCards = [];
+        const reviewingSetId = localStorage.getItem("reviewingSetId");
+        const collectionName = localStorage.getItem("reviewingSetCollection");
+
+        if (!reviewingSetId || !collectionName) {
+            document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: No set ID found.</h2>";
+            return;
+        }
+
+        try {
+            const setRef = doc(db, collectionName, reviewingSetId);
+            const docSnap = await getDoc(setRef);
+
+            if (docSnap.exists()) {
+                currentReviewingSet = docSnap.data();
+                populatePageInfo(currentReviewingSet);
+                setupCards();
+            } else {
+                document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
+            }
+        } catch (error) {
+            console.error("Error loading set:", error);
+            document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set.</h2>";
+        }
+    });
+
+    async function populatePageInfo(setData) {
+        document.getElementById("setTitle").textContent = setData.title || "Untitled Set";
+        document.getElementById("descriptionBox").textContent = setData.description || "No description provided.";
+        document.getElementById("cardCategory").textContent = setData.category || "General";
+        const creatorEmail = setData.creatorEmail || setData.user;
+        if (creatorEmail) {
+            const usernameRef = doc(db, "usernames", creatorEmail);
+            const usernameSnap = await getDoc(usernameRef);
+            document.getElementById("cardCreator").textContent = usernameSnap.exists() && usernameSnap.data().username 
+                ? usernameSnap.data().username 
+                : creatorEmail.split('@')[0];
+        } else {
+            document.getElementById("cardCreator").textContent = "N/A";
+        }
     }
-  }
+    
+    // --- All original Match Mode functions remain below ---
 
-  function resetTimerBar() {
-    timerBar.style.transition = "none";
-    timerBar.style.width = "0%";
-    timerNumber.textContent = `${parseInt(timeSelect.value)}s`;
-  }
+    function startGame() {
+        clearInterval(timerInterval);
+        const timerDuration = parseInt(timeSelect.value);
+        let remainingTime = timerDuration;
+        matchedCount = 0;
+        flippedCards = [];
+        gameActive = true;
 
-  function showTimeAlert() {
-    timeAlert.style.display = "flex";
-  }
+        setupCards();
 
-  function closeTimeAlert() {
-    timeAlert.style.display = "none";
-    clearInterval(timerInterval);
-    gameActive = false;
-    resetTimerBar();
-    setupCards();
-  }
+        timerBar.style.transition = "none";
+        timerBar.style.width = "100%";
+        timerNumber.textContent = `${remainingTime}s`;
+        
+        document.getElementById("timerContainer").scrollIntoView({ behavior: "smooth" });
 
-  function restartGame() {
-    clearInterval(timerInterval);
-    gameActive = false;
-    resetTimerBar();
-    setupCards();
-  }
+        setTimeout(() => {
+            timerBar.style.transition = `width ${timerDuration}s linear`;
+            timerBar.style.width = "0%";
+        }, 50);
 
-  timeSelect.addEventListener("change", () => {
-    clearInterval(timerInterval);
-    gameActive = false;
-    timerDuration = parseInt(timeSelect.value);
-    resetTimerBar();
-  });
+        timerInterval = setInterval(() => {
+            remainingTime--;
+            timerNumber.textContent = `${remainingTime}s`;
+            if (remainingTime <= 0) {
+                clearInterval(timerInterval);
+                gameActive = false;
+                timeAlert.style.display = "flex";
+            }
+        }, 1000);
+    }
 
-  function goToFlashcard() {
-    localStorage.setItem("currentIndex", 0);
-    window.location.href = "flashcard.html";
-  }
+    function isImageUrl(text) { return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com"); }
 
-  function goToLearn() {
-    localStorage.setItem("currentIndex", 0);
-    window.location.href = "learn.html";
-  }
+    function setupCards() {
+        grid.innerHTML = "";
+        winPopup.classList.add("hidden");
 
-  function goToTest() {
-    localStorage.setItem("currentIndex", 0);
-    window.location.href = "test.html";
-  }
+        const flashcards = [...(currentReviewingSet?.flashcards || [])];
+        if (flashcards.length === 0) return;
 
-  function goToMatch() {
-    localStorage.setItem("currentIndex", 0);
-    window.location.href = "match.html";
-  }
-  function goToDefidrop() {
-    localStorage.setItem("currentIndex", 0);
-    window.location.href = "defidrop.html";
-  }
+        flashcards.sort(() => 0.5 - Math.random());
+        const selected = flashcards.slice(0, 6);
+        const pairItems = [];
+        selected.forEach(card => {
+            const id = card.matchId || card.term;
+            pairItems.push({ type: "term", value: card.term, matchId: id });
+            pairItems.push({ type: "definition", value: card.definition, matchId: id });
+        });
+        totalPairs = pairItems.length / 2;
+        matchedCount = 0;
+        pairItems.sort(() => 0.5 - Math.random());
+        pairItems.forEach((item, i) => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.dataset.matchId = item.matchId;
+            div.dataset.type = item.type;
+            div.dataset.index = i;
+            if (isImageUrl(item.value)) {
+                const img = document.createElement("img");
+                img.src = item.value;
+                img.alt = "Definition Image";
+                img.style.maxWidth = "100%";
+                img.style.maxHeight = "90px";
+                div.appendChild(img);
+            } else {
+                div.textContent = item.value;
+            }
+            div.addEventListener("click", handleCardClick);
+            grid.appendChild(div);
+        });
+    }
 
-  document.querySelectorAll(".hover-switch").forEach(img => {
-    const def = img.getAttribute("data-default");
-    const hov = img.getAttribute("data-hover");
-    img.addEventListener("mouseover", () => img.src = hov);
-    img.addEventListener("mouseout", () => img.src = def);
-  });
+    function handleCardClick(e) {
+        if (!gameActive) return;
+        const card = e.currentTarget;
+        if (flippedCards.length === 2 || card.classList.contains("matched") || card.classList.contains("revealed")) return;
+        card.classList.add("revealed");
+        flippedCards.push(card);
+        if (flippedCards.length === 2) {
+            const [first, second] = flippedCards;
+            const isMatch = first.dataset.matchId === second.dataset.matchId && first.dataset.type !== second.dataset.type;
+            if (isMatch) {
+                first.classList.add("correct", "matched");
+                second.classList.add("correct", "matched");
+                setTimeout(() => { first.style.visibility = "hidden"; second.style.visibility = "hidden"; }, 300);
+                matchedCount += 2;
+                if (matchedCount === totalPairs * 2) {
+                    clearInterval(timerInterval);
+                    gameActive = false;
+                    setTimeout(() => { winPopup.classList.remove("hidden"); }, 400);
+                }
+            } else {
+                first.classList.add("incorrect");
+                second.classList.add("incorrect");
+                setTimeout(() => { first.classList.remove("revealed", "incorrect"); second.classList.remove("revealed", "incorrect"); }, 800);
+            }
+            flippedCards = [];
+        }
+    }
+
+    function restartGame() {
+        // Simply call startGame(), which handles a full reset including the timer.
+        startGame();
+    }
+    
+    function closeTimeAlert() {
+        timeAlert.style.display = "none";
+        restartGame();
+    }
+    function openHelpModal() {
+        helpModal.classList.remove("hidden");
+    }
+
+    function closeHelpModal() {
+        helpModal.classList.add("hidden");
+    }
+    // Make functions available to HTML onclick attributes
+    window.startGame = startGame;
+    window.restartGame = restartGame;
+    window.closeTimeAlert = closeTimeAlert;
+    window.openHelpModal = openHelpModal;   // Add this line
+    window.closeHelpModal = closeHelpModal; // Add this line
+
+    // Navigation
+    function navigateToMode(modeUrl) {
+        if (currentReviewingSet) { localStorage.setItem("reviewingSet", JSON.stringify(currentReviewingSet)); }
+        window.location.href = modeUrl;
+    }
+    window.goToFlashcard = () => navigateToMode("flashcard.html");
+    window.goToTest = () => navigateToMode("test.html");
+    window.goToLearn = () => navigateToMode("learn.html");
+    window.goToDefidrop = () => navigateToMode("defidrop.html");
 </script>
 
 <script type="module">

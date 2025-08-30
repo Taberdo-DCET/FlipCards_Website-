@@ -34,6 +34,7 @@ function keyFor(choice) {
 }
 
 // -------- Event wiring --------
+// -------- Event wiring --------
 guestBtn.addEventListener("click", () => {
   const blocked = localStorage.getItem("guestBlocked");
   if (blocked === "true") {
@@ -41,11 +42,11 @@ guestBtn.addEventListener("click", () => {
     showGuestModal("⛔ Guest access is no longer available. Contact us to avail a slot.");
     return;
   }
-  surveyModal.style.display = "flex";
+  surveyModal.classList.add('visible'); // Use class to show
 });
 
 surveyCancel?.addEventListener("click", () => {
-  surveyModal.style.display = "none";
+  surveyModal.classList.remove('visible'); // Use class to hide
 });
 
 surveyForm.addEventListener("submit", async (e) => {
@@ -61,7 +62,7 @@ surveyForm.addEventListener("submit", async (e) => {
   const choices = Array.from(checkedInputs).map(i => i.value);
   localStorage.setItem("guestDiscovery", JSON.stringify(choices)); // keep for redirect edge cases
 
-  surveyModal.style.display = "none";
+  surveyModal.classList.remove('visible'); // Use class to hide
   proceedGuestLogin();
 });
 

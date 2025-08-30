@@ -415,6 +415,8 @@ function generateRow(u, i, medals, valueLabel, valueKey) {
         <img src="${u.avatar}" alt="avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #888;">
         <span style="color: ${color}; background: transparent; cursor: pointer;">
           ${u.display}
+          ${/* ▼▼▼ ADD THIS LINE ▼▼▼ */''}
+          ${u.role?.includes("plus") ? `<img src="plas.png" title="FlipCards+" class="role-badge2 rol plus-badge">` : ""}
           ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol">` : ""}
           ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol">` : ""}
         </span>

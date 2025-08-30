@@ -1101,28 +1101,36 @@ previewRibbon.style.cssText = `
   display:flex; gap:8px; align-items:center;
   padding:6px 0; border-bottom:1px dashed #2a2a2a;
 `;
-
+const DRAW_COLORS = [
+  '#ffffff', // white
+  '#0ea5e9', // sky-500
+  '#22c55e', // green-500
+  '#eab308', // yellow-500
+  '#ef4444', // red-500
+  '#8b5cf6', // violet-500
+  '#f97316', // orange-500
+  '#14b8a6', // teal-500
+  '#000000ff',
+  '#00ff0dff'
+];
+// -------------------------------------------
 const btnChecklist = document.createElement('button');
 btnChecklist.type = 'button';
 btnChecklist.id = 'btnChecklist';
-btnChecklist.textContent = '☑︎';
 btnChecklist.title = 'Add checklist items';
-btnChecklist.style.cssText = `
-  padding:6px 10px; border-radius:8px; border:1px solid #333;
-  background:#1e1e1e; color:#eee; cursor:pointer;
-`;
+btnChecklist.className = 'ribbon-btn';
+// note.js
+
+btnChecklist.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><polyline points="3 6 4 7 6 5"></polyline><polyline points="3 12 4 13 6 11"></polyline><polyline points="3 18 4 19 6 17"></polyline></svg>`;
 
 previewRibbon.appendChild(btnChecklist);
 // ▶ Image button + hidden file input (JPG/PNG) — inserts image at caret in previewText
 const btnImage = document.createElement('button');
 btnImage.type = 'button';
 btnImage.id = 'btnImage';
-btnImage.textContent = '🖼️';
 btnImage.title = 'Insert image (JPG/PNG)';
-btnImage.style.cssText = `
-  padding:6px 10px; border-radius:8px; border:1px solid #333;
-  background:#1e1e1e; color:#eee; cursor:pointer;
-`;
+btnImage.className = 'ribbon-btn';
+btnImage.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
 
 // keep the picker out of sight but in the DOM
 const imgPicker = document.createElement('input');
@@ -1134,114 +1142,13 @@ imgPicker.style.display = 'none';
 // add to ribbon / body
 previewRibbon.appendChild(btnImage);
 previewBody.appendChild(imgPicker);
-
-// ==================================================================
-// START: UPDATED PDF and PPTX Logic with Firebase Storage
-// ==================================================================
-
-// Helper function to show a temporary message in the editor
-function showEditorMessage(message, isPersistent = false) {
-    const originalContent = previewText.innerHTML;
-    previewText.innerHTML = `<div style="text-align: center; opacity: 0.7; padding: 20px;"><i>${message}</i></div>`;
-    
-    if (isPersistent) {
-        return () => {}; // Return an empty function if the message should stay
-    }
-    
-    return () => { // Return a function to restore original content
-        if (previewText.innerHTML.includes(message)) {
-            previewText.innerHTML = originalContent;
-        }
-    };
-}
-
-// Helper to convert a canvas to a Blob
-function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.85) {
-    return new Promise(resolve => {
-        canvas.toBlob(blob => resolve(blob), type, quality);
-    });
-}
-
-
-
-
-
-
-
-// ==================================================================
-// END: UPDATED PDF and PPTX Logic
-// ==================================================================
-// ▶ Undo button
-const btnUndo = document.createElement('button');
-btnUndo.type = 'button';
-btnUndo.id = 'btnUndo';
-btnUndo.textContent = '↶';
-btnUndo.title = 'Undo';
-btnUndo.className = 'undo-redo-btn'; // Use new shared class
-btnUndo.disabled = true; // Start disabled
-previewRibbon.appendChild(btnUndo);
-
-// ▶ Redo button
-const btnRedo = document.createElement('button');
-btnRedo.type = 'button';
-btnRedo.id = 'btnRedo';
-btnRedo.textContent = '↷';
-btnRedo.title = 'Redo';
-btnRedo.className = 'undo-redo-btn'; // Use new shared class
-btnRedo.disabled = true; // Start disabled
-previewRibbon.appendChild(btnRedo);
-// ▶ Draw button → toggles drawing mode; palette slides in on the right
-const btnDraw = document.createElement('button');
-btnDraw.type = 'button';
-btnDraw.id = 'btnDraw';
-btnDraw.textContent = '✏️';
-btnDraw.title = 'Freehand drawing';
-btnDraw.style.cssText = `
-  padding:6px 10px; border-radius:8px; border:1px solid #333;
-  background:#1e1e1e; color:#eee; cursor:pointer;
-  transition: transform 120ms ease;
-`;
-previewRibbon.appendChild(btnDraw);
-
-// Small color palette that slides in to the RIGHT of the draw button
-const drawPalette = document.createElement('div');
-drawPalette.id = 'drawPalette';
-drawPalette.style.cssText = `
-  position: absolute; display: none; z-index: 5;
-  padding: 8px; border-radius: 10px; border: 1px solid #000; background: #171717;
-  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f,
-              inset 1px 1px 0 rgba(255,255,255,0.04), inset -1px -1px 0 rgba(0,0,0,0.55);
-  gap: 6px; width: auto; display: none;   /* keep hidden initially */
-  opacity: 0; transform: translateX(10px); transition: opacity 180ms ease, transform 180ms ease;
-`;
-previewBody.appendChild(drawPalette);
-// ── Annotations status label (right side of the ribbon)
-const annotationStatus = document.createElement('span');
-annotationStatus.id = 'annotationStatus';
-annotationStatus.textContent = '<-- Click to Add Drawing/Notes';
-annotationStatus.style.cssText = `
-  margin-left:auto;
-  font:600 12px 'Satoshi',sans-serif;
-  letter-spacing:.3px;
-  opacity:.8;
-  user-select:none;
-`;
-previewRibbon.appendChild(annotationStatus);
 // ▶ PDF button + hidden file input
 const btnPdf = document.createElement('button');
 btnPdf.type = 'button';
 btnPdf.id = 'btnPdf';
 btnPdf.title = 'Import from PDF as Images';
-btnPdf.style.cssText = `
-  padding: 6px 10px; border-radius: 8px; border: 1px solid #333;
-  background: #1e1e1e; color: #eee; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-`;
-const pdfIcon = document.createElement('img');
-pdfIcon.src = 'PDF.png';
-pdfIcon.alt = 'PDF';
-pdfIcon.style.cssText = 'width: 16px; height: 16px;';
-btnPdf.appendChild(pdfIcon);
+btnPdf.className = 'ribbon-btn';
+btnPdf.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M10 12v6"></path><path d="M10 15h2a2 2 0 1 0 0-4h-2v4Z"></path><path d="M15 18h1a2 2 0 0 0 0-4h-1v4Z"></path></svg>`;
 
 const pdfPicker = document.createElement('input');
 pdfPicker.type = 'file';
@@ -1321,21 +1228,404 @@ pdfPicker.addEventListener('change', async (e) => {
         pdfPicker.value = '';
     }
 });
+// ==================================================================
+// START: UPDATED PDF and PPTX Logic with Firebase Storage
+// ==================================================================
 
-// ---- DRAWING COLORS (edit freely later) ----
-const DRAW_COLORS = [
-  '#ffffff', // white
-  '#0ea5e9', // sky-500
-  '#22c55e', // green-500
-  '#eab308', // yellow-500
-  '#ef4444', // red-500
-  '#8b5cf6', // violet-500
-  '#f97316', // orange-500
-  '#14b8a6', // teal-500
-  '#000000ff',
-  '#00ff0dff'
-];
-// -------------------------------------------
+// Helper function to show a temporary message in the editor
+function showEditorMessage(message, isPersistent = false) {
+    const originalContent = previewText.innerHTML;
+    previewText.innerHTML = `<div style="text-align: center; opacity: 0.7; padding: 20px;"><i>${message}</i></div>`;
+    
+    if (isPersistent) {
+        return () => {}; // Return an empty function if the message should stay
+    }
+    
+    return () => { // Return a function to restore original content
+        if (previewText.innerHTML.includes(message)) {
+            previewText.innerHTML = originalContent;
+        }
+    };
+}
+
+// Helper to convert a canvas to a Blob
+function canvasToBlob(canvas, type = 'image/jpeg', quality = 0.85) {
+    return new Promise(resolve => {
+        canvas.toBlob(blob => resolve(blob), type, quality);
+    });
+}
+
+
+
+
+
+
+
+// ==================================================================
+// END: UPDATED PDF and PPTX Logic
+// ==================================================================
+// ▶ Undo button
+const btnUndo = document.createElement('button');
+btnUndo.type = 'button';
+btnUndo.id = 'btnUndo';
+btnUndo.title = 'Undo';
+btnUndo.className = 'ribbon-btn';
+btnUndo.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 9v6a5 5 0 0 1-5 5H3l4-4M3 9h13a5 5 0 0 1 5 5v1"></path></svg>`;
+btnUndo.disabled = true; // Start disabled
+previewRibbon.appendChild(btnUndo);
+
+// ▶ Redo button
+const btnRedo = document.createElement('button');
+btnRedo.type = 'button';
+btnRedo.id = 'btnRedo';
+btnRedo.title = 'Redo';
+btnRedo.className = 'ribbon-btn';
+btnRedo.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9v6a5 5 0 0 0 5 5h13l-4-4M21 9H8a5 5 0 0 0-5 5v1"></path></svg>`;
+btnRedo.disabled = true; // Start disabled
+previewRibbon.appendChild(btnRedo);
+// ▶ Add Text Box button
+// ▶ Add Text Box button (New Drag-to-Create Functionality)
+// ▼▼▼ PASTE THE ENTIRE NEW BLOCK HERE ▼▼▼
+
+// ▶ Add Text Box button & Palette Wrapper
+const textToolWrapper = document.createElement('div');
+textToolWrapper.className = 'tool-wrapper';
+
+// 1. Create the button and add it to the wrapper
+const btnAddText = document.createElement('button');
+btnAddText.type = 'button';
+btnAddText.id = 'btnAddText';
+btnAddText.title = 'Add text box';
+btnAddText.className = 'ribbon-btn';
+btnAddText.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20L11 4l6 16"/><path d="M7.5 14h9"/><path d="M18 4h4"/><path d="M20 2v4"/></svg>`;
+textToolWrapper.appendChild(btnAddText);
+
+// 2. Create the palette and add it to the wrapper
+let textColor = '#ffffff'; // Default text color
+const textPalette = document.createElement('div');
+textPalette.id = 'textPalette';
+
+function makeTextSwatch(c) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.title = c;
+  b.style.cssText = `
+    width:22px; height:22px; border-radius:6px; border:1px solid #333;
+    background:${c}; cursor:pointer;
+  `;
+  b.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    textColor = c; // Set the active text color
+  });
+  return b;
+}
+
+// Re-using DRAW_COLORS from the draw tool for consistency
+DRAW_COLORS.forEach(c => textPalette.appendChild(makeTextSwatch(c)));
+textToolWrapper.appendChild(textPalette);
+
+// 3. Add the complete wrapper (with button and palette) to the ribbon
+previewRibbon.appendChild(textToolWrapper);
+
+// ▲▲▲ END OF THE NEW BLOCK ▲▲▲
+let textToolActive = false;
+let isDraggingText = false;
+let textStartX, textStartY;
+let ghostBox = null;
+
+const handleTextDragStart = (e) => {
+    if (e.target !== previewEditorWrap && e.target !== previewText) return;
+    e.preventDefault();
+    isDraggingText = true;
+
+    const rect = previewText.getBoundingClientRect();
+    textStartX = e.clientX - rect.left;
+    textStartY = e.clientY - rect.top;
+
+    ghostBox = document.createElement('div');
+    ghostBox.style.cssText = `
+        position: absolute;
+        border: 2px dashed #ffcf00;
+        background: rgba(255, 207, 0, 0.1);
+        pointer-events: none;
+        z-index: 9999;
+    `;
+    ghostBox.style.left = `${textStartX}px`;
+    ghostBox.style.top = `${textStartY}px`;
+    previewText.appendChild(ghostBox);
+
+    window.addEventListener('mousemove', handleTextDrag);
+    window.addEventListener('mouseup', handleTextDragEnd, { once: true });
+};
+
+const handleTextDrag = (e) => {
+    if (!isDraggingText) return;
+    const rect = previewText.getBoundingClientRect();
+    const currentX = e.clientX - rect.left;
+    const currentY = e.clientY - rect.top;
+
+    const left = Math.min(textStartX, currentX);
+    const top = Math.min(textStartY, currentY);
+    const width = Math.abs(currentX - textStartX);
+    const height = Math.abs(currentY - textStartY);
+
+    ghostBox.style.left = `${left}px`;
+    ghostBox.style.top = `${top}px`;
+    ghostBox.style.width = `${width}px`;
+    ghostBox.style.height = `${height}px`;
+};
+
+const handleTextDragEnd = (e) => {
+    isDraggingText = false;
+    window.removeEventListener('mousemove', handleTextDrag);
+    ghostBox?.remove();
+    ghostBox = null;
+
+    const rect = previewText.getBoundingClientRect();
+    const endX = e.clientX - rect.left;
+    const endY = e.clientY - rect.top;
+
+    const width = Math.abs(endX - textStartX);
+    const height = Math.abs(endY - textStartY);
+
+    if (width < 10 || height < 10) return;
+
+       // --- NEW: Font size calculation logic ---
+    const minFontSize = 12;
+    const maxFontSize = 92;
+    // Formula: Start with a base of 10px and add a fraction of the height.
+    let calculatedFontSize = 10 + (height / 10);
+    // Clamp the font size between the min and max values.
+    const finalFontSize = Math.round(Math.max(minFontSize, Math.min(calculatedFontSize, maxFontSize)));
+    // --- END: New logic ---
+
+    const newTextBox = document.createElement('div');
+    newTextBox.className = 'custom-textbox';
+    newTextBox.contentEditable = 'true';
+    newTextBox.innerHTML = '<em>Type here...</em>';
+
+    newTextBox.style.position = 'absolute';
+    newTextBox.style.left = `${Math.min(textStartX, endX)}px`;
+    newTextBox.style.top = `${Math.min(textStartY, endY)}px`;
+    newTextBox.style.width = `${width}px`;
+    newTextBox.style.height = `${height}px`;
+    newTextBox.style.padding = '0 5px';
+    newTextBox.style.overflow = 'hidden';
+    newTextBox.style.wordWrap = 'break-word';
+    newTextBox.style.fontSize = `${finalFontSize}px`;
+     // ▼▼▼ ADD THESE LINES ▼▼▼
+    newTextBox.style.display = 'flex';
+    newTextBox.style.alignItems = 'center';      // Vertically centers the text
+    newTextBox.style.justifyContent = 'center';  // Horizontally centers the text
+    // ▲▲▲ END OF NEW LINES ▲▲▲
+    newTextBox.style.lineHeight = '1';
+    newTextBox.style.pointerEvents = 'auto';
+    newTextBox.style.color = textColor;
+
+    const editIcon = document.createElement('div');
+    editIcon.className = 'textbox-edit-icon';
+    editIcon.title = 'Edit this text';
+    editIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`;
+    newTextBox.appendChild(editIcon);
+    // ▼▼▼ ADD THIS NEW BLOCK FOR THE DELETE ICON ▼▼▼
+    const deleteIcon = document.createElement('div');
+    deleteIcon.className = 'textbox-delete-icon'; // Use a new class for styling
+    deleteIcon.title = 'Delete this text box';
+    deleteIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`; // A simple 'X' icon
+
+    // Add click event to delete the parent text box
+    deleteIcon.addEventListener('click', () => {
+        newTextBox.remove(); // Removes the text box from the note
+        previewText.dispatchEvent(new InputEvent('input', { bubbles: true })); // Trigger a save
+    });
+    newTextBox.appendChild(deleteIcon);
+    // ▲▲▲ END OF NEW BLOCK ▲▲▲
+    previewText.appendChild(newTextBox);
+    
+    
+
+    const range = document.createRange();
+    range.selectNodeContents(newTextBox);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    newTextBox.focus();
+};
+
+btnAddText.addEventListener('click', () => {
+    if (drawModeOn) {
+        btnDraw.click();
+    }
+
+    textToolActive = !textToolActive;
+    btnAddText.classList.toggle('active', textToolActive);
+    previewText.classList.toggle('text-tool-active', textToolActive);
+
+    if (textToolActive) {
+        // --- ACTIVATE TOOL ---
+        previewEditorWrap.style.cursor = 'crosshair';
+        previewText.contentEditable = 'false';
+        previewText.style.pointerEvents = 'none';
+        previewEditorWrap.addEventListener('mousedown', handleTextDragStart);
+
+        previewText.querySelectorAll('.custom-textbox').forEach(box => {
+            box.style.pointerEvents = 'auto';
+        });
+
+        // --- NEW: Show and position the text palette ---
+        
+        textPalette.style.display = 'flex';
+        requestAnimationFrame(() => {
+            textPalette.style.opacity = '1';
+            textPalette.style.transform = 'translateX(-50%) translateY(0)';
+        });
+
+    } else {
+        // --- DEACTIVATE TOOL & SAVE ---
+        previewEditorWrap.style.cursor = 'auto';
+        previewText.contentEditable = 'true';
+        previewText.style.pointerEvents = 'auto';
+        previewEditorWrap.removeEventListener('mousedown', handleTextDragStart);
+
+        previewText.querySelectorAll('.custom-textbox').forEach(box => {
+            box.contentEditable = 'false';
+        });
+
+        // --- NEW: Hide the text palette ---
+        textPalette.style.opacity = '0';
+        textPalette.style.transform = 'translateX(10px)';
+        setTimeout(() => { textPalette.style.display = 'none'; }, 180);
+
+        previewText.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    }
+});
+// ▼▼▼ PASTE THE NEW HIGHLIGHTER CODE BLOCK HERE ▼▼▼
+
+// ▶ Highlighter Button & Palette Wrapper
+const highlighterToolWrapper = document.createElement('div');
+highlighterToolWrapper.className = 'tool-wrapper';
+
+// 1. Create the button and add it to the wrapper
+const btnHighlighter = document.createElement('button');
+btnHighlighter.type = 'button';
+btnHighlighter.id = 'btnHighlighter';
+btnHighlighter.title = 'Highlighter Tool';
+btnHighlighter.className = 'ribbon-btn';
+btnHighlighter.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l-6 6v3h9l3-3"/><path d="M22 6l-3-3-9 9 3 3L22 6z"/></svg>`;
+highlighterToolWrapper.appendChild(btnHighlighter);
+
+// 2. Create the palette and add it to the wrapper
+let highlighterColor = '#eab308'; // Default highlight color (yellow-500)
+const highlighterPalette = document.createElement('div');
+highlighterPalette.id = 'highlighterPalette';
+
+function makeHighlighterSwatch(c) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.title = c;
+  b.style.cssText = `
+    width:22px; height:22px; border-radius:6px; border:1px solid #333;
+    background:${c}; cursor:pointer;
+  `;
+  b.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    highlighterColor = c; // Update the active highlight color
+    previewText.focus(); // Ensure the editor has focus
+    
+    // Use execCommand to change the background color of the selected text
+    document.execCommand('backColor', false, highlighterColor);
+  });
+  return b;
+}
+
+// Re-using DRAW_COLORS for consistency
+DRAW_COLORS.forEach(c => highlighterPalette.appendChild(makeHighlighterSwatch(c)));
+highlighterToolWrapper.appendChild(highlighterPalette);
+
+// 3. Add the complete wrapper to the ribbon
+previewRibbon.appendChild(highlighterToolWrapper);
+
+// 4. Add the main event listener for the highlighter tool
+let highlighterToolActive = false;
+btnHighlighter.addEventListener('click', () => {
+  // Deactivate other tools if they are active
+  if (drawModeOn) btnDraw.click();
+  if (textToolActive) btnAddText.click();
+
+  highlighterToolActive = !highlighterToolActive;
+  btnHighlighter.classList.toggle('active', highlighterToolActive);
+
+  if (highlighterToolActive) {
+    // Show palette
+    highlighterPalette.style.display = 'flex';
+    requestAnimationFrame(() => {
+      highlighterPalette.style.opacity = '1';
+      highlighterPalette.style.transform = 'translateX(-50%) translateY(0)';
+    });
+  } else {
+    // Hide palette
+    highlighterPalette.style.opacity = '0';
+    highlighterPalette.style.transform = 'translateX(-50%) translateY(10px)';
+    setTimeout(() => { highlighterPalette.style.display = 'none'; }, 180);
+
+// note.js
+
+// ▼▼▼ REPLACE WITH THIS BLOCK ▼▼▼
+previewText.focus(); // Ensure the editor is active
+// This replicates the working command from the white color swatch.
+document.execCommand('backColor', false, '#FFFFFF');
+// This ensures the font color also returns to the default white.
+document.execCommand('foreColor', false, '#FFFFFF');
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+  }
+});
+
+// ▲▲▲ END OF NEW CODE BLOCK ▲▲▲
+// ▶ Draw button → toggles drawing mode; palette slides in on the right
+// ▶ Draw button → toggles drawing mode; palette slides in on the right
+
+// ▶ Draw button & Palette Wrapper
+const drawToolWrapper = document.createElement('div');
+drawToolWrapper.className = 'tool-wrapper';
+const btnDraw = document.createElement('button');
+btnDraw.type = 'button';
+btnDraw.id = 'btnDraw';
+btnDraw.title = 'Freehand drawing';
+btnDraw.className = 'ribbon-btn';
+// SVG icon is now the pen tool, formerly on the Add Text button
+btnDraw.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/><path d="M14 7h4"/><path d="M16 5v4"/></svg>`;
+drawToolWrapper.appendChild(btnDraw);
+
+// Small color palette that slides in to the RIGHT of the draw button
+const drawPalette = document.createElement('div');
+drawPalette.id = 'drawPalette';
+drawPalette.style.cssText = `
+  position: absolute; display: none; z-index: 5;
+  padding: 8px; border-radius: 10px; border: 1px solid #000; background: #171717;
+  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f,
+              inset 1px 1px 0 rgba(255,255,255,0.04), inset -1px -1px 0 rgba(0,0,0,0.55);
+  gap: 6px; width: auto; display: none;   /* keep hidden initially */
+  opacity: 0; transform: translateX(10px); transition: opacity 180ms ease, transform 180ms ease;
+`;
+drawToolWrapper.appendChild(drawPalette);
+previewRibbon.appendChild(drawToolWrapper);
+// ── Annotations status label (right side of the ribbon)
+const annotationStatus = document.createElement('span');
+annotationStatus.id = 'annotationStatus';
+annotationStatus.textContent = '<-- Click to Add Drawing/Notes';
+annotationStatus.style.cssText = `
+  margin-left:auto;
+  font:600 12px 'Satoshi',sans-serif;
+  letter-spacing:.3px;
+  opacity:.8;
+  user-select:none;
+`;
+previewRibbon.appendChild(annotationStatus);
+
+
+
 
 
 
@@ -1359,6 +1649,39 @@ previewEditorWrap.style.cssText = `
 `;
 
 previewEditorWrap.appendChild(previewText);
+// Event listener to handle clicks on the new edit icons
+previewText.addEventListener('click', (e) => {
+    const editIcon = e.target.closest('.textbox-edit-icon');
+    
+    // If an edit icon was clicked, make its parent text box editable.
+    if (editIcon) {
+        const textBox = editIcon.parentElement;
+        if (textBox) {
+            textBox.contentEditable = 'true';
+            textBox.focus();
+
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(textBox);
+            range.collapse(false);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    }
+});
+// NEW: Add a 'focusout' listener to lock and save the textbox when clicking away.
+previewText.addEventListener('focusout', (e) => {
+    // Check if the element losing focus is a custom text box
+    if (e.target.matches('.custom-textbox')) {
+        const textBox = e.target;
+        
+        // Make it non-editable again
+        textBox.contentEditable = 'false';
+        
+        // Trigger a save for the whole note
+        previewText.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    }
+});
 previewBody.appendChild(previewEditorWrap);
 
 
@@ -1827,6 +2150,9 @@ function syncDrawCanvasSize() {
 // Toggle draw mode + show/hide palette
 // Toggle draw mode + show/hide palette
 btnDraw.addEventListener('click', async () => {
+   if (textToolActive) {
+      btnAddText.click();
+  }
   const cur = currentPreviewNote;
   if (!cur) {
     console.warn('[DRAW] no currentPreviewNote; open a note first');
@@ -1849,21 +2175,19 @@ btnDraw.addEventListener('click', async () => {
 
   if (drawModeOn) {
     // position palette to the RIGHT of the draw button
-    const btnRect = btnDraw.getBoundingClientRect();
-    const bodyRect = previewBody.getBoundingClientRect();
-    drawPalette.style.left = `${Math.min(bodyRect.width - 12, btnRect.right - bodyRect.left + 12)}px`;
-    drawPalette.style.top  = `${Math.max(6, btnRect.top - bodyRect.top - 6)}px`;
+    
     drawPalette.style.display = 'flex';
     // slide in
     requestAnimationFrame(() => {
       drawPalette.style.opacity = '1';
-      drawPalette.style.transform = 'translateX(0)';
+      drawPalette.style.transform = 'translateX(-50%) translateY(0)';
     });
 
     // enable canvas
     // enable canvas
 // enable canvas
 syncDrawCanvasSize();
+drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 drawHasStrokes = false;
 drawHasBase = false;
 bboxReset();
@@ -2506,55 +2830,88 @@ currentPreviewNote.isShared = isShared; // Remember if the note is shared
 
 // Replace the function above with this new version
 async function closePreview() {
-  // If drawing is on and the user has drawn something, ask for confirmation.
-  if (drawModeOn && drawHasStrokes) {
-    const confirmed = await showCustomConfirm('Are you sure you want to exit? Your drawing progress will be lost.');
-    if (!confirmed) {
-      return; // Stop the function if the user clicks "Cancel"
+    // If drawing is on and the user has drawn something, ask for confirmation.
+    if (drawModeOn && drawHasStrokes) {
+        const confirmed = await showCustomConfirm('Are you sure you want to exit? Your drawing progress will be lost.');
+        if (!confirmed) {
+            return; // Stop the function if the user clicks "Cancel"
+        }
     }
-  }
 
-  // If the user confirms OR if drawing wasn't active, proceed with the original cleanup.
-  drawModeOn = false;
-  drawHasStrokes = false; // Ensure progress is always discarded
-  btnDraw.classList.remove('active');
-  drawPalette.style.display = 'none';
-  drawPalette.style.opacity = '0';
-  drawPalette.style.transform = 'translateX(10px)';
-  const ov = previewText.querySelector('#noteDrawOverlay');
-  if (ov) ov.remove();
-  if (drawCtx) {
-    try { drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height); } catch {}
-  }
-  if (drawCanvas.parentNode) drawCanvas.parentNode.removeChild(drawCanvas);
-  previewText.style.userSelect = '';
-  previewText.style.caretColor = '';
-  previewText.style.cursor = '';
-  previewTitleInput.oninput = null;
-  previewText.oninput = null;
-  currentPreviewNote = null;
-  annotationStatus.textContent = '<-- Click to Add Drawing/Notes';
-  previewBackdrop.style.display = 'none';
-  document.body.style.overflow = '';
-  previewModal.classList.remove('review-mode');
-  previewBackdrop.classList.remove('review-mode');
-  previewText.classList.remove('review-mode');
-  const _rmBtn = document.getElementById('reviewModeBtn');
-  if (_rmBtn) {
-    _rmBtn.classList.remove('active');
-    _rmBtn.textContent = 'Review Mode';
-  }
-  if (previewModal.dataset.origW) previewModal.style.width  = previewModal.dataset.origW || '';
-  if (previewModal.dataset.origH) previewModal.style.height = previewModal.dataset.origH || '';
-  try { _editorRO && _editorRO.disconnect(); } catch {}
-  _editorRO = null;
-  delete previewEditorWrap.dataset.baseW;
-  delete previewEditorWrap.dataset.baseH;
-  previewEditorWrap.style.transform = '';
-  previewEditorWrap.style.width = '';
-  previewText.scrollLeft = 0;
-  previewEditorWrap.scrollLeft = 0;
-  console.log('[DRAW][state] cleared currentPreviewNote and removed canvas/overlay');
+    // --- THOROUGH CLEANUP LOGIC ---
+    
+    // 1. Reset all drawing state flags immediately.
+    drawModeOn = false;
+    drawHasStrokes = false;
+    drawHasBase = false;
+    drawing = false;
+
+    // 2. Clear drawing and redo history.
+    drawHistory = [];
+    redoHistory = [];
+
+    // 3. Clear the canvas content if it exists.
+    if (drawCtx) {
+        try {
+            drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        } catch (e) {
+            console.warn("Could not clear canvas context on close:", e);
+        }
+    }
+
+    // 4. Remove the canvas from the DOM if it's there.
+    if (drawCanvas && drawCanvas.parentNode) {
+        drawCanvas.parentNode.removeChild(drawCanvas);
+    }
+
+    // 5. Remove any drawing overlay image.
+    const overlay = document.getElementById('noteDrawOverlay');
+    if (overlay) {
+        overlay.remove();
+    }
+    
+    // 6. Reset all UI elements to their default state.
+    btnDraw.classList.remove('active');
+    if (drawPalette) {
+        drawPalette.style.display = 'none';
+        drawPalette.style.opacity = '0';
+        drawPalette.style.transform = 'translateX(10px)';
+    }
+    if (previewText) {
+        previewText.style.userSelect = '';
+        previewText.style.caretColor = '';
+        previewText.style.cursor = '';
+    }
+    if (annotationStatus) {
+        annotationStatus.textContent = '<-- Click to Add Drawing/Notes';
+    }
+    
+    // 7. Nullify event listeners and state for the closed note.
+    if (previewTitleInput) previewTitleInput.oninput = null;
+    if (previewText) previewText.oninput = null;
+    currentPreviewNote = null;
+
+    // 8. Hide the modal and restore page scrolling.
+    previewBackdrop.style.display = 'none';
+    document.body.style.overflow = '';
+
+    // 9. Reset review mode styles and state.
+    previewModal.classList.remove('review-mode');
+    previewBackdrop.classList.remove('review-mode');
+    previewText.classList.remove('review-mode');
+    const reviewModeBtn = document.getElementById('reviewModeBtn');
+    if (reviewModeBtn) {
+        reviewModeBtn.classList.remove('active');
+        reviewModeBtn.textContent = 'Review Mode';
+    }
+
+    // 10. Disconnect the ResizeObserver.
+    try {
+        _editorRO && _editorRO.disconnect();
+    } catch (e) {}
+    _editorRO = null;
+
+    console.log('[DRAW][state] Closed preview and performed full drawing state cleanup.');
 }
 
 
@@ -3273,6 +3630,8 @@ function displayClassNotes(creatorEmail, classId) {
 
 // REPLACE the existing function with this new version
 
+// note.js
+
 async function renderSharedNoteCard(note, creatorEmail) {
   const wrap = document.createElement('div');
   wrap.className = 'note-card';
@@ -3288,7 +3647,21 @@ async function renderSharedNoteCard(note, creatorEmail) {
 
   const text = document.createElement('div');
   text.className = 'note-text';
-  text.innerHTML = note.text || '';
+  
+  // ▼▼▼ THIS IS THE NEW JAVASCRIPT FIX ▼▼▼
+  // Create a temporary container to safely parse the note's HTML
+  const tempContainer = document.createElement('div');
+  tempContainer.innerHTML = note.text || '';
+
+  // Find and remove all edit and delete icons within this container
+  tempContainer.querySelectorAll('.textbox-edit-icon, .textbox-delete-icon').forEach(icon => {
+    icon.remove();
+  });
+
+  // Use the cleaned HTML for display
+  text.innerHTML = tempContainer.innerHTML;
+  // ▲▲▲ END OF FIX ▲▲▲
+
   text.contentEditable = 'false';
 
   const expandBtn = document.createElement('button');
@@ -3308,11 +3681,9 @@ async function renderSharedNoteCard(note, creatorEmail) {
   let isAllowedToDelete = false;
 
   if (user) {
-    // Check if the user is the original creator
     if (user.email === creatorEmail) {
       isAllowedToDelete = true;
     } else {
-      // If not, check if they are a co-creator
       const classId = window.activeClassContext.id;
       const memberDoc = await db.collection('Class').doc(creatorEmail)
                                 .collection('userClasses').doc(classId)
@@ -3323,9 +3694,7 @@ async function renderSharedNoteCard(note, creatorEmail) {
     }
   }
 
-  // ▼▼▼ THIS SECTION HAS BEEN REORDERED TO FIX STACKING ▼▼▼
-
-  // 1. Add the footer FIRST.
+  // Add footer, delete button (if permitted), and expand button
   if (note.addedBy) {
     const footer = document.createElement('div');
     footer.textContent = 'Loading author...';
@@ -3335,7 +3704,6 @@ async function renderSharedNoteCard(note, creatorEmail) {
     footer.textContent = `Added by: ${username}`;
   }
 
-  // 2. Add the delete button (if applicable) SECOND.
   if (isAllowedToDelete) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'note-delete-shared note-card-action-btn';
@@ -3348,10 +3716,7 @@ async function renderSharedNoteCard(note, creatorEmail) {
     wrap.appendChild(deleteBtn);
   }
 
-  // 3. Add the expand button LAST so it's on the very top.
   wrap.appendChild(expandBtn);
-
-  // ▲▲▲ END OF REORDERED SECTION ▲▲▲
 
   return wrap;
 }

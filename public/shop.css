@@ -1,0 +1,518 @@
+@font-face {
+  font-family: 'Satoshi';
+  src: url('Satoshi-Black.ttf') format('truetype');
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  font-family: 'Satoshi', sans-serif;
+  color: white;
+}
+
+/* --- Header --- */
+.shop-header {
+  position: sticky; /* Changed from fixed to sticky */
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 15px 5%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+  background-color: #171717; /* Solid background */
+  border-bottom: 1px solid #333;
+}
+
+.back-button {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  background-color: rgba(255,255,255,0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.2s ease;
+}
+.back-button:hover {
+  background-color: white;
+  color: black;
+}
+
+.shop-title {
+  margin: 0;
+  font-size: 28px;
+}
+
+/* --- Main Content --- */
+.plans-fullscreen-container {
+  display: flex;
+  width: 90%;
+  max-width: 1400px;
+  height: 65vh;
+  min-height: 500px;
+  margin: 40px auto 80px auto; /* Reduced top margin */
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.plan-panel {
+  flex: 1; 
+  position: relative;
+  overflow: hidden;
+  transition: flex 0.5s ease-in-out;
+  cursor: pointer;
+}
+
+.plan-panel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  
+  transition: all 0.5s ease-in-out;
+}
+
+/* --- Hover Effects --- */
+.plan-panel:hover {
+  flex: 1.5;
+}
+
+.plan-panel:hover img {
+  filter: grayscale(0%) brightness(0.8);
+  transform: scale(1.05);
+}
+
+/* --- Content Overlay --- */
+.plan-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 40px;
+  box-sizing: border-box;
+  text-align: left;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  transition: all 0.5s ease-in-out;
+}
+
+/* General style for ALL plan titles (text and images) */
+.plan-title {
+  margin: 0 0 10px 0;
+  transform: translateY(40px);
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+
+/* Specific font size for the h2 text title */
+h2.plan-title {
+  font-size: 2.5rem;
+}
+
+/* Specific size for the img titles */
+img.plan-title {
+  height: 80px; /* Adjust height as needed */
+  width: auto;  /* Maintain aspect ratio */
+}
+/* New Title and Subtitle Styles */
+.shop-main-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin: 60px 0 10px 0;
+}
+
+.shop-subtitle {
+  text-align: center;
+  color: #aaa;
+  font-style: italic;
+  margin-top: 0;
+}
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1.8;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.5s ease-in-out;
+}
+
+.benefits-list li::before {
+  content: '✓';
+  color: #ffcf00;
+  margin-right: 10px;
+}
+
+/* Content appears on hover */
+.plan-panel:hover .plan-content .plan-title {
+  transform: translateY(0);
+  opacity: 1;
+}
+.plan-panel:hover .benefits-list {
+  opacity: 1;
+  max-height: 200px; /* Adjust as needed */
+}
+
+/* --- Footer Styles (Copied from styles.css) --- */
+footer {
+  text-align: center;
+  padding: 30px 20px;
+  margin-top: 40px;
+  border-top: 1px solid #2d2d2d;
+}
+
+.social-column {
+  display: inline-flex;
+  margin-bottom: 15px;
+}
+
+.social-icon {
+  display: inline-block;
+  padding: 10px;
+}
+
+.social-icon i {
+  font-size: 32px;
+  color: #888;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.social-icon:hover i {
+  transform: scale(1.2);
+}
+
+.social-icon:hover .fa-circle-info { color: #ffcf00; }
+.social-icon:hover .fa-facebook { color: #1877F2; }
+.social-icon:hover .fa-instagram { color: #E1306C; }
+.social-icon:hover .fa-x-twitter { color: #ffffff; }
+.social-icon:hover .fa-discord { color: #5865F2; }
+/* --- View More Button --- */
+.view-more-btn {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  
+  background-color: #ffcf00;
+  color: #111;
+  padding: 12px 24px;
+  border-radius: 25px; /* Creates a pill shape */
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  
+  /* Hidden by default and positioned slightly down */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Show the button when the parent .plan-panel is hovered */
+.plan-panel:hover .view-more-btn {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.2s; /* A slight delay so it appears after the main animation starts */
+}
+/* === Plan Details Modal Styles === */
+
+.plan-modal-content {
+  display: flex;
+  max-width: 800px;
+  width: 90%;
+  background-color: #1e2a4a; /* Dark blue from your image */
+  border-radius: 20px;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #4a5a8a;
+}
+
+.plan-details-text {
+  flex-basis: 55%;
+  padding: 40px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.best-deal-tag {
+  background-color: #ffcf00;
+  color: #111;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 20px;
+  align-self: flex-start; /* Aligns to the left */
+  margin-bottom: 20px;
+}
+
+.plan-details-text h2 {
+  font-size: 48px;
+  margin: 0 0 10px 0;
+}
+
+.plan-details-text p {
+  margin: 0 0 5px 0;
+  color: #ccc;
+  font-size: 16px;
+}
+
+.plan-price {
+  font-size: 72px !important; /* Increased from 52px */
+  font-weight: bold;
+  color: white;
+  margin: 10px 0 !important;
+}
+
+.plan-price span {
+  font-size: 20px;
+  font-weight: normal;
+  color: #ccc;
+}
+
+#modalPlanTrial {
+  margin-top: 10px !important;
+  margin-bottom: 30px !important;
+}
+
+.start-trial-button {
+  width: 100% !important; /* Make the button full-width */
+  background-color: #ffcf00;
+  color: #111;
+  font-size: 18px ;
+  font-weight: bold !important;
+  border: none !important;
+  border-radius: 30px !important;
+  padding: 16px !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+}
+.plan-details-info {
+  flex-grow: 1; /* This makes the text container expand and push the button down */
+}
+.start-trial-button:hover {
+  background-color: #fff;
+}
+
+.plan-details-image {
+  flex-basis: 45%;
+  background-color: #111;
+}
+
+.plan-details-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plan-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+.plan-modal-close:hover {
+  color: #ff0000;
+}
+/* === GENERAL MODAL ANIMATION STYLES === */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background-color: rgba(0,0,0,0.6);
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  z-index: 1000;
+  
+  /* --- Default Hidden State --- */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal-box {
+  transition: transform 0.3s ease-in-out;
+  transform: scale(0.95);
+}
+
+/* --- Visible State (Toggled by JavaScript) --- */
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-overlay.visible .modal-box {
+  transform: scale(1);
+}
+/* --- Style for the "Owned" button --- */
+/* --- Style for the "Owned" button --- */
+.view-more-btn.is-owned {
+  /* New visual style for the "Owned" state */
+  background-color: transparent;
+  color: #fff;
+  border: 2px solid #ffcf00; /* Gold border */
+
+  /* This makes the button unclickable */
+  pointer-events: none; 
+}
+/* === CONTACT BANNER STYLES === */
+
+#contactBanner {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #1e2a4a; /* Same color as the modal */
+  color: white;
+  border-radius: 40px; /* Pill shape */
+  border: 1px solid #4a5a8a;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+
+  display: flex;
+  align-items: center;
+  
+  /* Start hidden off-screen */
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+/* The "Expanded" state when the banner is visible */
+#contactBanner.expanded {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.banner-icon {
+  font-size: 20px;
+  padding: 15px;
+  background-color: #ffcf00;
+  color: #111;
+  border-radius: 50%;
+  margin: 5px;
+  display: grid;
+  place-items: center;
+}
+
+.banner-text {
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 10px;
+  
+  /* Start with text hidden */
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.5s ease-in-out 0.5s, opacity 0.3s ease-in-out 0.5s;
+}
+
+/* Text is revealed when the banner is expanded */
+#contactBanner.expanded .banner-text {
+  max-width: 300px;
+  opacity: 1;
+}
+
+.banner-text p {
+  margin: 0;
+  font-weight: bold;
+}
+
+.banner-text .social-icon i {
+  font-size: 24px; /* Smaller icon for the banner */
+  color: #1877F2;
+}
+
+.banner-close {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 20px;
+  align-self: stretch; /* Make it full height */
+}
+.banner-close:hover {
+  color: white;
+}
+.shop-description {
+  text-align: center;
+  color: #ddd;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 20px auto 0 auto; /* Adds spacing and centers the text block */
+}
+/* === PLUS BENEFITS SECTION === */
+.plus-benefits-section {
+  max-width: 900px;
+  margin: 0 auto; /* Centers the section */
+  padding: 80px 20px;
+  border-top: 1px solid #2d2d2d;
+}
+
+.plus-benefits-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Adds space between the image and text */
+  margin-bottom: 50px;
+}
+.plus-benefits-title h2 {
+  font-size: 2.5rem;
+  margin: 0; /* Removes default heading margin */
+}
+
+.plus-benefits-title img {
+  height: 200px; /* Adjust size as needed */
+  width: auto;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Creates two equal columns */
+  gap: 40px; /* Space between the columns */
+  padding-left: 145px; /* Space for the custom bullet */
+}
+
+.benefits-grid ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.benefits-grid li {
+  position: relative;
+  padding-left: 25px; /* Space for the custom bullet */
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+}
+
+/* Custom yellow bullet point */
+/* Custom yellow checkmark */
+.benefits-grid li::before {
+  content: '✓'; /* Changed from an empty circle to a checkmark character */
+  position: absolute;
+  left: 0;
+  top: 2px; /* Adjusted vertical alignment for the character */
+  color: #ffcf00; /* Make the checkmark yellow */
+  font-weight: bold; /* Makes the checkmark thicker */
+}
+
+/* --- Responsive adjustment for smaller screens --- */
+@media (max-width: 768px) {
+  .benefits-grid {
+    grid-template-columns: 1fr; /* Stack to a single column */
+    gap: 0; /* Remove column gap */
+  }
+}

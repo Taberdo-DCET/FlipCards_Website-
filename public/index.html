@@ -5,53 +5,194 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | FlipCards</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
      crossorigin="anonymous"></script>
 </head>
 <body>
-  <form onsubmit="event.preventDefault(); login();">
-    <div class="loginlogo">
+<header>
+  <div class="header-container">
+    <div class="logo">
       <img class="group-5" src="group-5.svg" />
       <h2>FlipCards.</h2>
     </div>
+    <nav>
+      <button id="openLoginModalBtn" class="login-btn-neumorphic">Login</button>
+    </nav>
+  </div>
+</header>
 
-    <input type="email" name="username" placeholder="Email" required />
-    <input type="password" name="password" placeholder="Password" required />
-    <button id="loginBtn" type="submit">Login</button>
+<main>
+<section class="hero-section">
+  <div class="video-container">
+    <video autoplay loop muted playsinline src="vidlog.mp4"></video>
+  </div>
+  <div class="hero-title-container">
+  <h1>Master Any Subject with FlipCards</h1>
+  <svg class="hero-checkmark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+    <circle class="hero-checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+    <path class="hero-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+  </svg>
+</div>
+  <p>The ultimate tool for students and lifelong learners. Create, share, and study with our intuitive flashcard platform.</p>
 
-    <button id="guestLoginBtn" type="button" class="guest-btn">Continue as Guest</button>
+  
+</section>
 
-  </form>
+  <section class="feature-section">
+    <div class="feature-image">
+      <img src="uno.png" alt="A descriptive image of the feature">
+    </div>
+    <div class="feature-content">
+      <h3>Content that clicks. Results that count.</h3>
+      <p>Experience a smarter, more efficient way to learn. Our platform provides perfectly tailored content that makes complex topics click, helping you save time, retain more information, and achieve the academic results that truly count.
+</p>
+    </div>
+  </section>
 
- <div class="social-column">
+<section class="feature-section alt-layout">
+  <div class="feature-image">
+     <img src="dos.png" alt="A descriptive image of the feature">
+  </div>
+  <div class="feature-content">
+    <h3>Community Library: Student-Made, Admin-Approved</h3>
+    <p>Explore a growing library of flashcard sets made by fellow students for the courses you're taking right now. Each deck is verified by our team to guarantee it's up-to-date and accurate, giving you a reliable way to accelerate your learning. Find the perfect set and start studying in seconds.</p>
+  </div>
+</section>
+  
+  <section class="feature-section">
+    <div class="feature-image">
+       <img src="tres.png" alt="A descriptive image of the feature">
+    </div>
+    <div class="feature-content">
+      <h3>Friendly Competition: Learn Together</h3>
+      <p>It’s time to take your studying to the next level. Go head-to-head with friends or challenge other preppers in exciting, real-time quizzes. Every match is a chance to not only test your skills but also to learn and have fun. Sharpen your knowledge, climb the ranks, and conquer your subjects together.</p>
+    </div>
+  </section>
+
+  <section class="feature-section alt-layout">
+  <div class="feature-image">
+     <img src="singko.png" alt="A descriptive image of the feature">
+  </div>
+  <div class="feature-content">
+    <h3> Shared Classrooms</h3>
+    <p>Take control of your learning by creating a private classroom. Invite your friends, classmates, or fellow preppers to join your dedicated space. Share notes, flashcard sets, and study materials seamlessly, ensuring everyone in your group is on the same page and has the resources they need to succeed.
+
+</p>
+  </div>
+</section>
+</main>
+<section class="plans-section">
+  <h2 class="plans-main-title">Upgrade your Plan</h2>
+  <p class="plans-subtitle">Tap/Hold for Info</p>
+  <div class="plans-container">
+
+    <div class="plan-card">
+      <div class="plan-image-wrapper">
+        <img src="normal.png" alt="Standard Access">
+        <div class="plan-overlay">
+          <ul class="benefits-list">
+            <li>Create Unlimited Local Sets</li>
+            <li>Access All Study Modes</li>
+            <li>Track Your Progress</li>
+          </ul>
+        </div>
+      </div>
+      <h3 class="plan-title">Standard Access</h3>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-image-wrapper">
+        <img src="veri.png" alt="Verified User">
+        <div class="plan-overlay">
+          <ul class="benefits-list">
+            <li>All Standard Benefits</li>
+            <li>Verified Profile Badge</li>
+            <li>Increased Public Slots</li>
+            <li>Increased ParseCards Usage</li>
+            <li>Bonus Experience Points</li>
+            <li>Upgraded to Bronze Spender</li>
+          </ul>
+        </div>
+      </div>
+      <h3 class="plan-title">Verified User</h3>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-image-wrapper">
+        <img src="plus.png" alt="FlipCards Plus">
+        <div class="plan-overlay">
+          <ul class="benefits-list">
+            <li>All Verified Benefits</li>
+            <li>Plus Plan Badge</li>
+            <li>Custom Avatar Border</li>
+            <li>Exclusive Early Features</li>
+            <li>Priority Support</li>
+            <li>Upgraded to Platinum Spender</li>
+          </ul>
+        </div>
+      </div>
+      <h3 class="plan-title">FlipCards+</h3>
+    </div>
+
+  </div>
+</section>
+<footer>
+  <div class="social-column">
     <a href="aboutus.html" target="_blank" class="social-icon" aria-label="About Us">
-      <img src="anc.png" alt="About Us" data-hover="ac.png" data-default="anc.png">
+      <i class="fa-solid fa-circle-info"></i>
     </a>
-    <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon fb" aria-label="Visit Facebook">
-      <img src="facebooknc.png" alt="Facebook" data-hover="Facebookc.png" data-default="facebooknc.png">
+    <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon" aria-label="Visit Facebook">
+      <i class="fa-brands fa-facebook"></i>
     </a>
-    <a href="https://instagram.com" target="_blank" class="social-icon">
-      <img src="instanc.png" data-hover="instac.png" data-default="instanc.png">
+    <a href="https://instagram.com" target="_blank" class="social-icon" aria-label="Visit Instagram">
+      <i class="fa-brands fa-instagram"></i>
     </a>
-    <a href="https://twitter.com" target="_blank" class="social-icon">
-      <img src="xnc.png" data-hover="xc.png" data-default="xnc.png">
+    <a href="https://twitter.com" target="_blank" class="social-icon" aria-label="Visit X">
+      <i class="fa-brands fa-x-twitter"></i>
     </a>
-    <a href="https://discord.com" target="_blank" class="social-icon">
-      <img src="discordnc.png" data-hover="discordc.png" data-default="discordnc.png">
+    <a href="https://discord.com" target="_blank" class="social-icon" aria-label="Visit Discord">
+      <i class="fa-brands fa-discord"></i>
     </a>
   </div>
-<div id="guestModal" class="modal-overlay" style="display: none;">
-  <div class="modal-box">
+  <p>&copy; 2025 FlipCards.</p>
+</footer>
+
+<div id="loginModal" class="modal-overlay">
+  <div class="modal-box login-modal-content">
+    <div class="login-modal-image">
+      <img src="kwatro.png" alt="Login visual">
+    </div>
+    <div class="login-modal-form">
+      <button class="close-modal-btn" id="closeLoginModalBtn">&times;</button>
+      <form onsubmit="event.preventDefault(); login();">
+        <div class="loginlogo">
+          <img class="group-5" src="group-5.svg" />
+          <h2>FlipCards.</h2>
+        </div>
+        <p class="login-welcome">Welcome back! Please login to your account.</p>
+        <input type="email" name="username" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <button id="loginBtn" type="submit">Login</button>
+        <button id="guestLoginBtn" type="button" class="guest-btn">Continue as Guest</button>
+      </form>
+    </div>
+  </div>
+</div>
+<div id="guestModal" class="modal-overlay">
+  <div class="modal-box guest-modal-content">
+    <div class="modal-icon-wrapper">
+      <svg class="checkmark-icon" xmlns="http://www.w.org/2000/svg" viewBox="0 0 52 52">
+        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+      </svg>
+    </div>
     <p id="guestModalMessage"></p>
-
-    <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon fb" aria-label="Visit Facebook">
-      <img src="facebooknc.png" id="epbe" alt="Facebook"
-        data-hover="Facebookc.png" data-default="facebooknc.png"
-        style="width: 52px; height: 52px; margin-top: 10px;">
+    <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon" aria-label="Visit Facebook">
+      <i class="fa-brands fa-facebook"></i>
     </a>
-
-    <button onclick="closeGuestModal()" style="margin-top: 20px;">OK</button>
+    <button onclick="closeGuestModal()">OK</button>
   </div>
 </div>
 <div id="cookieBanner" style="position:fixed; bottom:0; left:0; width:100%; background:#222; color:white; padding:15px; display:none; z-index:10000; text-align:center; font-family:Arial, sans-serif;">
@@ -59,26 +200,37 @@
   <button onclick="acceptCookies()" style="margin-left:10px; padding:6px 12px; background:#ffb988; color:black; border:none; border-radius:4px; cursor:pointer;">Accept</button>
 </div>
 <!-- Survey Modal -->
-<div id="surveyModal" class="modal-overlay" style="display:none;">
-  <div class="modal-box">
-    <h3 style="margin-top:0; font-family: 'Satoshi', sans-serif;">How did you discover FlipCards?</h3><span>Select all that Applies.</span>
-    <form id="surveyForm" style="text-align:left; margin-top:12px;">
-      <label style="display:block; margin:8px 0;">
-         <input type="checkbox" name="discovery" value="FB Page Post"> FB Page Post
-      </label>
-      <label style="display:block; margin:8px 0;">
-        <input type="checkbox" name="discovery" value="FB Group Post"> FB Group Post
-      </label>
-      <label style="display:block; margin:8px 0;">
-        <input type="checkbox" name="discovery" value="Tiktok"> Tiktok
-      </label>
-      <label style="display:block; margin:8px 0;">
-        <input type="checkbox" name="discovery" value="Recommended by a Friend"> Recommended by a Friend
-      </label>
+<div id="surveyModal" class="modal-overlay">
+  <div class="modal-box survey-modal-content">
+    
+    
+    <div class="survey-header">
+      <h3>How did you find us?</h3>
+      <p>Your feedback helps us grow. Select all that apply.</p>
+    </div>
 
-      <div style="display:flex; gap:10px; margin-top:16px;">
+    <form id="surveyForm">
+      <div class="survey-options">
+        <label>
+          <input type="checkbox" name="discovery" value="FB Page Post">
+          <span>FB Page Post</span>
+        </label>
+        <label>
+          <input type="checkbox" name="discovery" value="FB Group Post">
+          <span>FB Group Post</span>
+        </label>
+        <label>
+          <input type="checkbox" name="discovery" value="Tiktok">
+          <span>Tiktok</span>
+        </label>
+        <label>
+          <input type="checkbox" name="discovery" value="Recommended by a Friend">
+          <span>Friend Recommendation</span>
+        </label>
+      </div>
+      <div class="survey-actions">
         <button type="submit">Continue as Guest</button>
-        <button type="button" id="surveyCancel" style="background:#2d2d2d; color:white;">Cancel</button>
+        <button type="button" id="surveyCancel">Cancel</button>
       </div>
     </form>
   </div>
@@ -86,7 +238,7 @@
 
   <script src="icon.js"></script>
   <script type="module" src="auth.js"></script>
-  <script type="module" src="presence.js"></script>
+  
   
   <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -109,17 +261,46 @@
     const modal = document.getElementById('guestModal');
     const text = document.getElementById('guestModalMessage');
     text.textContent = message;
-    modal.style.display = 'flex';
+    modal.classList.add('visible'); // Use class to show
     modal.dataset.callback = callback ? "true" : "";
   }
 
   function closeGuestModal() {
     const modal = document.getElementById('guestModal');
-    modal.style.display = 'none';
+    modal.classList.remove('visible'); // Use class to hide
     if (modal.dataset.callback === "true") {
-      location.href = "index.html";
+      // Optional: delay redirect to allow animation to finish
+      setTimeout(() => {
+        location.href = "index.html";
+      }, 300); // 300ms matches animation time
     }
   }
+</script>
+<script>
+  // Updated script to control the login modal with animation
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginModal = document.getElementById('loginModal');
+    const openBtn = document.getElementById('openLoginModalBtn');
+    const closeBtn = document.getElementById('closeLoginModalBtn');
+
+    function openModal() {
+      loginModal.classList.add('visible');
+    }
+
+    function closeModal() {
+      loginModal.classList.remove('visible');
+    }
+
+    openBtn.onclick = openModal;
+    closeBtn.onclick = closeModal;
+
+    // Also close if user clicks on the overlay background
+    window.onclick = function(event) {
+      if (event.target == loginModal) {
+        closeModal();
+      }
+    }
+  });
 </script>
 <script type="module" src="guestTimer.js"></script>
 <script src="protect.js"></script>

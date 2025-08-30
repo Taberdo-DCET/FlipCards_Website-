@@ -18,7 +18,7 @@
         <div class="container">
             <div class="left-side">
                  <button id="menu-toggle" class="menu-toggle">&#9776;</button>
-                <div class="logo"><a href="#" id="admin-link"><img class="group-5" src="group-5.svg" /></a></div>
+                <div class="logo"><a href="#" id="admin-link"><img class="group-5" src="Group-100.png" /></a></div>
                 <div class="TTitle">FlipCards.</div>
             </div>
             <nav class="side-nav" id="sideNav">
@@ -33,12 +33,30 @@
                         Folder
                         </a>
                     </li>
-                            <li>
-                                <a href="addcard.html"><button class="getstarted2" style="text-decoration: none;">
-                                    <img class="group-82" src="group-8.png" />Get Started
-                                </button></a>
-                            </li>
-                            
+                                               <li class="get-started-container">
+  <button class="getstarted" id="getStartedBtn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+  <span>Get Started</span>
+</button>
+  <div id="getStartedModal" class="get-started-modal hidden">
+    <!-- The two buttons now live inside this modal -->
+    <a href="addcard.html" class="lobby-action-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      <span>Add Card Sets</span>
+    </a>
+    <a href="addcard_image.html" class="lobby-action-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>Add Image Sets</span>
+    </a>
+  </div>
+</li>  
+ <li>
+  <a href="shop.html" class="upgrade-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <path d="M16 10a4 4 0 0 1-8 0"></path>
+    </svg>Upgrade your Plan</a>
+</li                           
                         </ul>
                     </div>
                         <div class="rayt">
@@ -69,18 +87,32 @@
                         Folder
                         </a>
                     </li>            
-                    <li>
-                        <a href="addcard.html"><button class="getstarted" >
-                        <img class="group-8" src="group-8.png" />Get Started
-                        </button></a>
-                    </li>    
+                    <li class="get-started-container">
+  <button class="getstarted" id="getStartedBtn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+  <span>Get Started</span>
+</button>
+  <div id="getStartedModal" class="get-started-modal hidden">
+    <!-- The two buttons now live inside this modal -->
+    <a href="addcard.html" class="lobby-action-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      <span>Add Card Sets</span>
+    </a>
+    <a href="addcard_image.html" class="lobby-action-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>Add Image Sets</span>
+    </a>
+  </div>
+</li>  
                     <!-- Gemini Button -->
 <!-- Gemini Button -->
                     <li>
-                        <a href="#Folderr" class="getstarted folder-getstarted2">
-                        ParseCards<img src="beta.png" alt="Beta" style="height: 19px;" />
-                        </a>
-                    </li>  
+  <a href="shop.html" class="upgrade-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; vertical-align: middle;">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <path d="M16 10a4 4 0 0 1-8 0"></path>
+    </svg>Upgrade your Plan</a>
+</li>
 
  
                 </ul>
@@ -120,143 +152,94 @@
 </div> 
     <section class="catchphrase">
       <!-- Social Modal -->
-<div class="social-container">
-  <button id="socialToggleBtn" class="social-toggle-btn">
-    <img src="glassarrowdown.png" alt="Toggle Social" id="socialArrow">
-  </button>
+<!-- New Social Sidebar -->
+<div class="social-sidebar-container">
+    <button id="socialSidebarToggle" class="social-sidebar-toggle">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
 
-  <div id="socialModal" class="social-modal">
-    <div class="social-column">
-      <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-icon fb" aria-label="Visit Facebook">
-        <img src="glassfbnc.png" id="epbe" alt="Facebook" data-hover="glassfbc.png" data-default="glassfbnc.png">
-      </a>
-      <a href="https://instagram.com/rph.wy" target="_blank" class="social-icon">
-        <img src="glassignc.png" data-hover="glassigc.png" data-default="glassignc.png">
-      </a>
-      <a href="https://twitter.com" target="_blank" class="social-icon">
-        <img src="glassxnc.png" data-hover="glassxc.png" data-default="glassxnc.png">
-      </a>
-      <a href="https://discord.com/users/raaaph28" target="_blank" class="social-icon">
-        <img src="dcglassnc.png" data-hover="dcglassc.png" data-default="dcglassnc.png">
-      </a>
-      <a href="https://www.threads.net/@rph.wy" target="_blank" class="social-icon">
-        <img src="tridncglass.png" data-hover="tridcglass.png" data-default="tridncglass.png">
-      </a>
-      <a href="https://www.tiktok.com/@raaaphbrrt" target="_blank" class="social-icon">
-        <img src="tiktokglassnc.png" data-hover="tiktokglassc.png" data-default="tiktokglassnc.png">
-      </a>
+    <div id="socialSidebar" class="social-sidebar">
+        <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="social-sidebar-icon fa-facebook" title="Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+        </a>
+        <a href="https://instagram.com/rph.wy" target="_blank" class="social-sidebar-icon fa-instagram" title="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+        </a>
+        <a href="https://twitter.com" target="_blank" class="social-sidebar-icon" title="Twitter/X">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+</a>
     </div>
-  </div>
 </div>
 
         <div class="container2">
             <div class="catch-text">
-                 <h1>
-                    Read. Review. 
-                    Remember. <span>Repeat.</span>
-                </h1>
+                 <h1>Read. Review. Remember. <span class="ll">Repeat.</span></h1>
                 <h6 class="typing-line">
   <span id="typingText"></span>
+  
 </h6>
 
             </div>
-            <article class="article-wrapper">
-  <div class="rounded-lg container-project" id="user-card-image-container">
-  <img id="user-card-image" src="" alt="User card image" class="user-card-photo" style="display: none;">
-  <button id="user-card-add-photo-btn" class="add-photo-btn">Add Photo</button>
-  <input type="file" id="user-card-photo-input" accept="image/*" style="display: none;">
-</div>
-    <div class="project-info">
-      <div class="flex-pr">
-        <div class="project-text-wrapper">
- <div class="project-title" id="user-card-username-container"></div>
-  <div class="project-subtitle" id="user-card-email">...</div>
-</div>
-          <div class="project-hover">
-            <svg style="color: rgb(0, 0, 0);" xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" color="black" stroke-linejoin="round" stroke-linecap="round" viewBox="0 0 24 24" stroke-width="2" fill="none" stroke="currentColor"><line y2="12" x2="19" y1="12" x1="5"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </div>
-          </div>
-          
-
-
-<div class="card-footer">
- <div class="types" id="user-card-roles-container">
-  </div>
-  <div id="user-card-color-picker" class="color-picker">
-    <div class="color-swatch" data-color="#FFFFFF" style="background-color: #FFFFFF; border: 1px solid #ddd;"></div>
-    <div class="color-swatch" data-color="#FFADAD" style="background-color: #FFADAD;"></div>
-    <div class="color-swatch" data-color="#FFD6A5" style="background-color: #FFD6A5;"></div>
-    <div class="color-swatch" data-color="#FDFFB6" style="background-color: #FDFFB6;"></div>
-    <div class="color-swatch" data-color="#CAFFBF" style="background-color: #CAFFBF;"></div>
-    <div class="color-swatch" data-color="#9BF6FF" style="background-color: #9BF6FF;"></div>
-    <div class="color-swatch" data-color="#A0C4FF" style="background-color: #A0C4FF;"></div>
-    <div class="color-swatch" data-color="#BDB2FF" style="background-color: #BDB2FF;"></div>
-    <div class="color-swatch" data-color="#FFC6FF" style="background-color: #FFC6FF;"></div>
-  </div>
-  <button id="user-card-palette-btn" class="palette-btn">🎨</button>
-</div>
-  </div>
-</article>
+<button id="suggestionBtn" class="upgrade-btn suggestion-btn">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15.09 14.51h.01"/><path d="M12.02 18.51h.01"/><path d="M8.95 14.51h.01"/><path d="M12 22a2.8 2.8 0 0 0 2.8-2.8v-2.4a2.8 2.8 0 0 0-2.8-2.8h0a2.8 2.8 0 0 0-2.8 2.8v2.4A2.8 2.8 0 0 0 12 22Z"/><path d="M12 2a4.4 4.4 0 0 0-4.4 4.4v.6a4.4 4.4 0 0 0 4.4 4.4h0a4.4 4.4 0 0 0 4.4-4.4v-.6A4.4 4.4 0 0 0 12 2Z"/>
+  </svg>
+  <span>Have a Suggestion?</span>
+</button>
+<p class="platform-description">
+        This platform is founded on the belief that quality education should be accessible to everyone. It provides students with a premium learning experience, powerful study tools, and a vibrant community without the high costs. The service is designed to support learners from all financial backgrounds, ensuring education empowers rather than burdens.
+    </p>
         </div>
 <div class="musicrow">
-      
-        <div class="tooltip-container" data-tooltip="Music">
-  <button class="music-icon music" aria-label="Toggle Music">
-    <img src="musicnc.png" alt="Music" data-hover="musicc.png" data-default="musicnc.png">
-  </button>
-</div>
-
-<div class="tooltip-container" data-tooltip="Profile">
-  <button class="music-icon profile" aria-label="Profile" onclick="showLoader()">
-    <img src="profilenc.png" alt="Profile" data-hover="profilec.png" data-default="profilenc.png">
-  </button>
-</div>
-
-<div class="tooltip-container" data-tooltip="FlipNotes">
-  <button class="music-icon notes" aria-label="Notes">
-    <img src="notenc.png" alt="Notes" data-hover="notec.png" data-default="notenc.png">
-  </button>
-</div>
-
-<div class="tooltip-container" data-tooltip="Leaderboards">
-  <button id="leaderboardsBtn" class="music-icon notes" aria-label="Leaderboards">
-    <img src="leadnc.png" alt="Leaderboards" data-hover="leadc.png" data-default="leadnc.png">
-  </button>
-</div>
-<!-- Chat button -->
-<div class="tooltip-container" data-tooltip="Chat">
-  <a href="chat.html" class="chat-link">
-    <button class="music-icon chat" aria-label="Chat" id="chatIconButton">
-      <span id="chatDot" class="chat-dot" style="display: none;"></span>
-      <img src="chatnc.png" alt="Chat" data-hover="chatc.png" data-default="chatnc.png">
-    </button>
-  </a>
-</div>
-
-<!-- Members button -->
-<div class="tooltip-container" data-tooltip="Members">
-  <button class="music-icon" id="openMemberList" aria-label="Members">
-    <img src="memnc.png" alt="Members" data-hover="memc.png" data-default="memnc.png">
-  </button>
-</div>
-
-<!-- FlipTimer button -->
-<div class="tooltip-container" data-tooltip="FlipTimer">
-  <button class="music-icon" id="pomodoroToggleBtn" aria-label="FlipTimer">
-    <img src="timernc.png" alt="FlipTimer" data-hover="timerc.png" data-default="timernc.png">
-  </button>
-</div>
-<!-- Shop button -->
-<div class="tooltip-container" data-tooltip="Shop">
-  <button class="music-icon" id="shopBtn" aria-label="Shop">
-    <img src="shopnc.png" alt="Shop" data-hover="shopc.png" data-default="shopnc.png">
-  </button>
-</div>
-
-
-
-
+    <div class="tooltip-container" data-tooltip="Music">
+        <button class="music-icon music" aria-label="Toggle Music">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+        </button>
     </div>
+
+    <div class="tooltip-container" data-tooltip="Profile">
+        <button class="music-icon profile" aria-label="Profile" onclick="showLoader()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </button>
+    </div>
+
+    <div class="tooltip-container" data-tooltip="FlipNotes">
+        <button class="music-icon notes" aria-label="Notes">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </button>
+    </div>
+
+    <div class="tooltip-container" data-tooltip="Leaderboards">
+        <button id="leaderboardsBtn" class="music-icon" aria-label="Leaderboards">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          </svg>
+        </button>
+    </div>
+
+    <div class="tooltip-container" data-tooltip="Chat">
+        <a href="chat.html" class="chat-link">
+            <button class="music-icon chat" aria-label="Chat" id="chatIconButton">
+                <span id="chatDot" class="chat-dot" style="display: none;"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </button>
+        </a>
+    </div>
+
+    <div class="tooltip-container" data-tooltip="Members">
+        <button class="music-icon" id="openMemberList" aria-label="Members">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </button>
+    </div>
+
+    <div class="tooltip-container" data-tooltip="FlipTimer">
+        <button class="music-icon" id="pomodoroToggleBtn" aria-label="FlipTimer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </button>
+    </div>
+</div>
 <div id="musicModal" class="music-modal">
   <div id="musicModalHeader" class="music-modal-header">🎧 Community Playlist
      <div class="music-header-buttons">
@@ -286,7 +269,7 @@
 <div id="howToUseMusicModal" class="custom-alert-backdrop hidden">
   <div class="custom-alert-content">
     <h3 style="margin-top: 0; font-family: 'Satoshi', sans-serif;">How to Use the Playlist</h3>
-    <p id="customAlertMessage" style="font-size: 15px; line-height: 1.6;">
+    <p id="howToUseMusicMessage" style="font-size: 15px; line-height: 1.6;">
       To enjoy full music playback instead of 30-second previews, please make sure you are logged into your account on the Spotify Web Player in this browser.
       <br/><br/>
       As a user, you can also add your favorite Spotify playlists to this shared collection for everyone to enjoy!
@@ -332,26 +315,27 @@
     </section>
     <section class="folder-section" id="Folderr">
   <h2 class="features-title" style="color: white;">Flashcard Folders</h2>
-  <a href="addcard.html">
-  <button class="getstarted folder-getstarted">
-    <img class="group-8" src="group-8.png" />Add More Card Sets!
-  </button>
-</a>
-<a href="addcard_image.html">
-  <button class="getstarted folder-getstarted imagee hover-switch" style="margin-top: -12px;">
-    <img src="imahenc.png" data-hover="imahec.png" data-default="imahenc.png" style="width: 40px; height: 40px;" />
-    Use Image as Definition
-  </button>
-</a>
+<!-- New Button Container -->
+<div class="lobby-actions-row">
+  <a href="addcard.html" class="lobby-action-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+    <span>Add Card Sets</span>
+  </a>
+  <a href="addcard_image.html" class="lobby-action-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    <span>Add Image Sets</span>
+  </a>
+</div>
+<div class="lobby-actions-row2">
 <button class="quibbl-btn hover-switch" onclick="location.href='Quibbl.html'">
   Quibbl
   <img src="new.png" alt="New" class="quibbl-new-icon">
 </button>
 
-                      <button id="geminiBtn" class="getstarted folder-getstarted">
-                          <img class="group-8 hover-switch" src="gemininc.png" data-default="gemininc.png" data-hover="geminic.png" />
+                      <button id="geminiBtn" class="quibbl-btn"> ParseCards
+                          
                       </button>
-                   
+                   </div>
 
   <div style="margin: 20px auto; max-width: 300px; margin-bottom: 60px;">
     <input id="folderSearch" type="text" class="neumorphic-search" placeholder="Search folders, Category...Emails or Users...">
@@ -442,13 +426,11 @@
     <p>Browse and study from public card sets shared by others to expand your learning and connect with the community.</p>
   </div>
 </div>
-<div id="deleteModal" class="custom-modal hidden">
-  <div class="modal-content">
-    <div class="modal-message" id="deleteMessage">Are you sure you want to delete?</div>
+<div id="confirmDeleteModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content error"> <p id="confirmDeleteMessage">Are you sure?</p>
     <div class="modal-buttons">
-      <button id="confirmDelete" class="neumorphic-button">Okay</button>
-      <button id="cancelDelete" class="neumorphic-button">Cancel</button>
-      
+      <button id="confirmDeleteBtn" class="neumorphic-button">Delete</button>
+      <button id="cancelDeleteBtn" class="neumorphic-button">Cancel</button>
     </div>
   </div>
 </div>
@@ -475,22 +457,22 @@
     Found any Bugs or Do you have Recommendations? Message us!
   </p>
 
-  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=taberdoraphael189@gmail.com" target="_blank" class="footer-gmail">
-    <img src="gmeylnc.png" alt="Gmail" class="hover-switch" data-hover="gmeylc.png" data-default="gmeylnc.png">
-  </a>
+<a href="https://mail.google.com/mail/?view=cm&fs=1&to=taberdoraphael189@gmail.com" target="_blank" class="footer-icon-btn fa-gmail" title="Gmail">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+</a>
 
-  <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="footer-gmail" aria-label="Visit Facebook">
-    <img src="facebooknc.png" alt="Facebook" class="hover-switch" data-hover="Facebookc.png" data-default="facebooknc.png">
-  </a>
+<a href="https://www.facebook.com/Raaaph.28" target="_blank" class="footer-icon-btn fa-facebook" title="Facebook">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+</a>
 
-  <a href="https://instagram.com/rph.wy" target="_blank" class="footer-gmail">
-    <img src="instanc.png" alt="Instagram" class="hover-switch" data-hover="instac.png" data-default="instanc.png">
-  </a>
-  <a href="privacy-policy.html" target="_blank" class="footer-gmail">
-    <img src="privnc.png" alt="Instagram" class="hover-switch" data-hover="privc.png" data-default="privnc.png">
-  </a>
+<a href="https://instagram.com/rph.wy" target="_blank" class="footer-icon-btn fa-instagram" title="Instagram">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+</a>
+<a href="privacy-policy.html" target="_blank" class="footer-icon-btn fa-privacy" title="Privacy Policy">
+   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+</a>
   <div class="footer-logo">
-  <img src="group-5.svg" alt="Site Logo"><h1>FlipCards.</h1>
+  <img src="Group-100.png" alt="Site Logo"><h1>FlipCards.</h1>
 </div>
 </footer>
 <!-- Profile Modal -->
@@ -542,35 +524,34 @@
 </div>
 
 <div id="welcomeModal" class="custom-modal hidden">
-  <div class="modal-content" style="background: #171717; border: 1px solid white; border-radius: 20px; padding: 0; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia'; text-align: center; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden;">
+  <div class="modal-content">
     
-    <div class="welcome-scroll-content">
-      <div style="padding: 30px;">
-        <h2 style="margin-bottom: 15px;">🎉 Welcome to FlipCards!</h2>
-        <p style="font-size: 15px; line-height: 1.5;">We're excited to share new updates with you:</p>
-        <ul style="text-align: left; margin: 20px auto; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update:   08/23/25</li>
-          <li>Major FlipNotes Upgrade: Class Feature is Here! 🎓</li>
-          <li>✨ What’s New in FlipNotes:</li>
-          <span class="sub-announcement">➥You can now create your own classes right inside FlipNotes. Invite friends, classmates, and other users to join, share your notes, and collaborate like never before. 🤝</span>
-          <li>Undo & Redo Buttons Added 🎨</li>
-          <span class="sub-announcement">➥ We've added Undo and Redo buttons to the drawing toolbar in FlipNotes. Now you can easily fix any mistakes in your annotations. ✨</span>
-          <li>ParseCards Improvements 👍</li>
-          <span class="sub-announcement">➥ We've made some minor tune-ups to ParseCards for a smoother experience.</span>
-          <li>Music Modal Update 🎧</li>
-          <span class="sub-announcement">➥ The Music Modal has a new look! You can now paste an embedded code from a Spotify playlist, and everyone in the lobby can listen in. 🎶</span>
-          <li>👁️👁️ Visual Glitch Fixes</li>
-          <li>🛠 Bug Fixes
-          </li>
+    <div class="welcome-modal-image">
+      <img src="wilkam.png" alt="Welcome to FlipCards">
+    </div>
+
+    <div class="welcome-modal-text">
+      <div class="welcome-scroll-content">
+        <h2>🎉 Welcome to FlipCards!</h2>
+        <p>We're excited to share new updates with you:</p>
+        <ul style="text-align: left; font-size: 14px; line-height: 1.6;">
+          <li>📅 New features in this Update: 08/30/25</li>
+          <li>✨ We've been hard at work optimizing the user interface to make your study sessions smoother and more intuitive.</li>
+          <span class="sub-announcement">➥ Flashcard Mode 🃏: Enjoy a cleaner, more focused layout to help you review your cards with ease.</span>
+          <span class="sub-announcement">➥Learn Mode 🧠: We've streamlined the learning path, making it easier to track your progress and master new concepts.</span>
+          <span class="sub-announcement">➥ Test Mode ✅: The testing interface is now more user-friendly, providing a clearer and less distracting experience for exam prep.</span>
+          <span class="sub-announcement">➥ Match Mode ✨: Get ready for faster, more responsive gameplay with our revamped matching game UI.</span>
+          <li>👀 Visual Glitch Fixes</li>
+          <li>🛠 Bug Fixes</li>
           <br>
           <li>🪲 Found any Bugs? Message Us!</li>
         </ul>
       </div>
+      <div class="welcome-button-footer">
+        <button id="dismissWelcome" class="neumorphic-button">Okay</button>
+      </div>
     </div>
 
-    <div class="welcome-button-footer">
-      <button id="dismissWelcome" class="neumorphic-button">Okay</button>
-    </div>
   </div>
 </div>
 <div id="leaderboardModal" class="custom-modal hidden">
@@ -725,13 +706,18 @@
 <div id="announcementStrip" class="announcement-strip hidden">
   <div id="announcementText" class="announcement-text"></div>
 </div>
-<div id="guestModal" class="modal-overlay" style="display: none;">
-  <div class="modal-box">
+<div id="guestModal" class="modal-overlay">
+  <div class="modal-box guest-modal-content">
+    <div class="modal-icon-wrapper">
+      <svg class="checkmark-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+      </svg>
+    </div>
     <p id="guestModalMessage"></p>
     <button onclick="closeGuestModal()">OK</button>
   </div>
 </div>
-
 <!-- Hidden form for adding question -->
 <div id="questionModal" class="custom-modal hidden">
   <div class="modal-content2" style="background: white; border-radius: 20px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 10px 10px 30px rgba(0,0,0,0.2); color: black; font-family: 'Accasia'; text-align: center;">
@@ -757,106 +743,7 @@
   <div class="tutorial-dots" id="tutorialDots"></div>
   <button class="tutorial-close" onclick="closeTutorial()">✖</button>
 </div>
-<div id="shopModal" class="shop-modal hidden">
-  <div class="shop-modal-content" style="background: #171717; padding: 20px; border-radius: 20px; box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f; color: white; font-family: 'Accasia';">
-  
-<div class="shop-modal-header">
-  <span id="closeShopModal" class="shop-modal-close">&times;</span>
-  <h2 class="shop-modal-title">Shop</h2>
-</div>
 
-  <!-- Container 3 -->
-  <div class="shop-container" style="background: #171717; padding: 15px; border-radius: 16px; box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;">
-    <h3 class="verified-title">
-  Interested in Becoming Verified?
-  <img src="verified.svg" alt="Verified Badge" class="verified-badge">
-</h3>
-
-
-    <p style="margin-bottom: 8px;">Exclusive 3 Months of Benefits for Verified Users:</p>
-    <ul style="padding-left: 15px; margin-bottom: 8px; line-height: 1.4;">
-      <li>+20 Public Slots</li>
-      <li>Verified Badge</li>
-      <li>+50% XP Boost</li>
-      <li>Instant +10 Levels</li>
-      <li>Total of 15 Uses in ParseCards (base usage included)</li>
-      <li>Immediate Upgrade to Bronze Spender</li>
-    </ul>
-    <p><strong>All of these for just 100 Pesos</strong></p>
-    <div class="shop-contact">
-  <span>Contact Us to Avail!</span>
-  <div class="shop-socials">
-    <a href="https://www.facebook.com/Raaaph.28" target="_blank" aria-label="Visit Facebook">
-      <img src="facebooknc.png" alt="Facebook" class="hover-switch" data-hover="Facebookc.png" data-default="facebooknc.png">
-    </a>
-    <a href="https://instagram.com/rph.wy" target="_blank">
-      <img src="instanc.png" alt="Instagram" class="hover-switch" data-hover="instac.png" data-default="instanc.png">
-    </a>
-  </div>
-</div>
-
-  </div>
-  <!-- Container 1 -->
-  <div class="shop-container" style="background: #171717; padding: 15px; margin-bottom: 20px; border-radius: 16px; box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;">
-    <h3 style="margin-bottom: 8px;">Need More Public Slots?</h3>
-    <p>+5 Slots : <strong>20 Pesos</strong></p>
-    <p>+10 Slots : <strong>35 Pesos</strong></p>
-    <p style="font-size: 12px; color: #bbb; margin-top: 8px;">
-      Tip: Inviting other users to claim slots for you is a better way to increase your public slots than direct purchases.
-    </p>
-    <div class="shop-contact">
-  <span>Contact Us to Avail!</span>
-  <div class="shop-socials">
-    <a href="https://www.facebook.com/Raaaph.28" target="_blank" aria-label="Visit Facebook">
-      <img src="facebooknc.png" alt="Facebook" class="hover-switch" data-hover="Facebookc.png" data-default="facebooknc.png">
-    </a>
-    <a href="https://instagram.com/rph.wy" target="_blank">
-      <img src="instanc.png" alt="Instagram" class="hover-switch" data-hover="instac.png" data-default="instanc.png">
-    </a>
-  </div>
-</div>
-
-  </div>
-
-  <!-- Container 2 -->
-  <div class="shop-container" style="background: #171717; padding: 15px; margin-bottom: 20px; border-radius: 16px; box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;">
-    <h3 style="margin-bottom: 8px;">Want an Additional Account Slot?</h3>
-    <p>Note: This second slot is tied to your current account, not a separate one.</p>
-    <p><strong>2nd Account Slot: 50% off the standard price</strong></p>
-    <div class="shop-contact">
-  <span>Contact Us to Avail!</span>
-  <div class="shop-socials">
-    <a href="https://www.facebook.com/Raaaph.28" target="_blank" aria-label="Visit Facebook">
-      <img src="facebooknc.png" alt="Facebook" class="hover-switch" data-hover="Facebookc.png" data-default="facebooknc.png">
-    </a>
-    <a href="https://instagram.com/rph.wy" target="_blank">
-      <img src="instanc.png" alt="Instagram" class="hover-switch" data-hover="instac.png" data-default="instanc.png">
-    </a>
-  </div>
-</div>
-
-  </div>
-<!-- Container 4: Custom Avatar Border -->
-<div class="shop-container" style="background: #171717; padding: 15px; margin-bottom: 20px; border-radius: 16px; box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;">
-  <h3 style="margin-bottom: 8px;">Looking to Personalize Your Avatar with a Custom Border?</h3>
-  <p>Reach Out to Get Yours for Just ₱60</p>
-  <div class="shop-contact">
-    <span>Contact Us to Avail!</span>
-    <div class="shop-socials">
-      <a href="https://www.facebook.com/Raaaph.28" target="_blank" aria-label="Visit Facebook">
-        <img src="facebooknc.png" alt="Facebook" class="hover-switch" data-hover="Facebookc.png" data-default="facebooknc.png">
-      </a>
-      <a href="https://instagram.com/rph.wy" target="_blank">
-        <img src="instanc.png" alt="Instagram" class="hover-switch" data-hover="instac.png" data-default="instanc.png">
-      </a>
-    </div>
-  </div>
-</div>
-
-
-</div>
-
-</div>
 <div id="parsecardsModal" class="glass-modal hidden">
   <div class="modal-content">
     <span class="close-modal" onclick="document.getElementById('parsecardsModal').classList.add('hidden')">✖</span>
@@ -1034,6 +921,26 @@ For the best results, avoid using low-quality images.</p>
             <p id="password-error" class="error-message"></p>
         </form>
     </div>
+    <div id="suggestionModal" class="custom-modal hidden">
+  <div class="modal-content2" style="background: #171717; border: 1px solid white; color: white;">
+    <span id="closeSuggestionModal" class="close-profile-modal" style="top: 15px; right: 20px;">&times;</span>
+    <h3 style="margin-bottom: 20px; font-family: 'Satoshi', sans-serif;">Share Your Suggestion!</h3>
+    <p style="font-size: 14px; color: #ccc; margin-top: -15px; margin-bottom: 20px; font-family: 'Satoshi', sans-serif;">
+      Help us improve FlipCards. What new features or changes would you like to see?
+    </p>
+    <input type="text" id="suggestionTitleInput" class="neumorphic-search" placeholder="Suggestion Title..." maxlength="50" style="margin-bottom: 10px;">
+<textarea id="suggestionInput" class="neumorphic-search" placeholder="Type your suggestion here..."></textarea>
+    <div class="modal-buttons" style="margin-top: 20px;">
+      <button id="submitSuggestionBtn" class="neumorphic-button">Submit</button>
+    </div>
+  </div>
+</div>
+<div id="suggestionNotificationToast" class="invitation-toast hidden">
+  <div id="suggestionNotificationMessage" class="invitation-message"></div>
+  <div class="invitation-buttons">
+    <button id="dismissSuggestionNotificationBtn" class="neumorphic-button">Dismiss</button>
+  </div>
+</div>
 <script type="module">
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { db } from "./firebaseinit.js";
@@ -1201,55 +1108,6 @@ onSnapshot(docRef, (docSnap) => {
 <script type="module" src="./AIgeminibtn.js"></script>
 
 
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const noteBtn = document.querySelector(".music-icon.notes");
-    const notepad = document.getElementById("notepad");
-    const notepadHeader = document.getElementById("notepadHeader");
-    const notepadText = document.getElementById("notepadText");
-
-    // Load saved note
-    notepadText.value = localStorage.getItem("userNote") || "";
-
-    // Real-time saving
-    notepadText.addEventListener("input", () => {
-      localStorage.setItem("userNote", notepadText.value);
-    });
-
-    // Toggle visibility & reset position on open
-    noteBtn.addEventListener("click", () => {
-      const isHidden = notepad.classList.contains("hidden");
-      notepad.classList.toggle("hidden");
-
-      if (isHidden) {
-        notepad.style.left = '';
-        notepad.style.top = '';
-      }
-    });
-
-    // Drag functionality
-    let offsetX = 0, offsetY = 0, isDragging = false;
-
-    notepadHeader.addEventListener("mousedown", (e) => {
-      isDragging = true;
-      offsetX = e.clientX - notepad.offsetLeft;
-      offsetY = e.clientY - notepad.offsetTop;
-      document.body.style.userSelect = "none";
-    });
-
-    document.addEventListener("mouseup", () => {
-      isDragging = false;
-      document.body.style.userSelect = "";
-    });
-
-    document.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
-      notepad.style.left = `${e.clientX - offsetX}px`;
-      notepad.style.top = `${e.clientY - offsetY}px`;
-    });
-  });
-</script>
-
 <script type="module">
   import { checkUserStatus } from './userstatuscheck.js';
   checkUserStatus();
@@ -1259,18 +1117,6 @@ onSnapshot(docRef, (docSnap) => {
 <script type="module" src="member.js"></script>
 
 <script type="module" src="firebaseinit.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const tooltips = document.querySelectorAll('.tooltip-container');
-
-    tooltips.forEach((el, i) => {
-      const tooltip = el;
-      tooltip.style.setProperty('--delay', `${i * 0.25}s`);
-      tooltip.querySelector('::before'); // ensure rendering
-      tooltip.style.animationDelay = `${i * 0.25}s`;
-    });
-  });
-</script>
 <script src="flipTimer.js"></script>
 
 
@@ -1280,19 +1126,21 @@ onSnapshot(docRef, (docSnap) => {
 
 <script type="module" src="guestTimer.js"></script>
 <script>
-  function showGuestModal(message, callback = null) {
+  window.showGuestModal = function(message, callback = null) {
     const modal = document.getElementById('guestModal');
     const text = document.getElementById('guestModalMessage');
     text.textContent = message;
-    modal.style.display = 'flex';
+    modal.classList.add('visible');
     modal.dataset.callback = callback ? "true" : "";
   }
 
-  function closeGuestModal() {
+  window.closeGuestModal = function() {
     const modal = document.getElementById('guestModal');
-    modal.style.display = 'none';
+    modal.classList.remove('visible');
     if (modal.dataset.callback === "true") {
-      location.href = "index.html";
+      setTimeout(() => {
+        location.href = "index.html";
+      }, 300); // Wait for animation to finish
     }
   }
 </script>
@@ -1352,26 +1200,42 @@ onSnapshot(docRef, (docSnap) => {
     typeLoop();
   });
 </script>
+
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const toggleBtn = document.getElementById("socialToggleBtn");
-    const socialModal = document.getElementById("socialModal");
-    const arrow = document.getElementById("socialArrow");
+  document.addEventListener('DOMContentLoaded', () => {
+    const getStartedBtn = document.getElementById('getStartedBtn');
+    const getStartedModal = document.getElementById('getStartedModal');
 
-    toggleBtn.addEventListener("click", () => {
-  const isOpen = socialModal.classList.toggle("show");
-  toggleBtn.classList.toggle("open", isOpen);
-  arrow.src = isOpen ? "glassarrowup.png" : "glassarrowdown.png";
-});
+    // Toggles the modal's visibility when the button is clicked
+    getStartedBtn.addEventListener('click', (event) => {
+      event.stopPropagation(); // Prevents the window click listener from firing immediately
+      getStartedModal.classList.toggle('hidden');
+    });
 
+    // Hides the modal if you click anywhere else on the page
+    window.addEventListener('click', (event) => {
+      if (!getStartedModal.classList.contains('hidden') && !getStartedBtn.contains(event.target)) {
+        getStartedModal.classList.add('hidden');
+      }
+    });
   });
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const toggleBtn = document.getElementById("socialSidebarToggle");
+    const sidebar = document.getElementById("socialSidebar");
 
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      toggleBtn.classList.toggle("open");
+    });
+  });
+</script>
 <script type="module" src="invitationListener.js"></script>
 <script type="module" src="multiplayer.js"></script>
 <script type="module" src="miniprofile.js"></script>
-<script src="shop.js"></script>
-<script src="protect.js"></script>
+
+
 <script src="cookie.js"></script>
 <script type="module" src="./AIppt.js"></script>
 <script type="module" src="classfav.js"></script>
@@ -1379,9 +1243,11 @@ onSnapshot(docRef, (docSnap) => {
 <script type="module" src="note.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script type="module" src="userCard.js"></script>
+<script src="protect.js"></script>
 <script type="module" src="invListClass.js"></script>
 <script type="module" src="notificationListener.js"></script>
 <script src="pass.js"></script>
+<script type="module" src="suggestion.js"></script>
+<script type="module" src="notifsugg.js"></script>
 </body>
 </html>

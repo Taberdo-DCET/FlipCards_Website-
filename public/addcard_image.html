@@ -8,16 +8,23 @@
   <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
 </head>
 <body>
+<header class="main-header">
+  <a href="lobby.html#Folderr" class="back-btn">&larr; Back to Folders</a>
+  <div class="btn-row">
+    <button class="btn create" id="createImageCardBtn">Create Set</button>
+  </div>
+  <span class="header-title">FlipCards</span>
+</header>
   <div class="flashcard-wrapper">
-    <div class="header-with-home">
-      <h1>Create a Flashcard Set (Image Definition)</h1>
-      <a href="lobby.html#Folderr">
-        <img src="homeenc.png" alt="Home" class="home-btn" />
-      </a>
-    </div>
+      <h1>Create a Flashcard Set</h1>
+
 
     <label class="public-toggle">
-  <input type="checkbox" id="publicToggle" /> Make this set public
+  <span>Make this set public</span>
+  <div class="toggle-container">
+      <input type="checkbox" id="publicToggle" />
+      <span class="toggle-slider"></span>
+  </div>
 
   <select id="categorySelect" class="category-select">
     <option value="">Select Category</option>
@@ -38,9 +45,7 @@
       <!-- Flashcards will be added here -->
     </div>
 
-    <div class="btn-row">
-      <button class="btn" id="createImageCardBtn">Create</button>
-    </div>
+   
   </div>
 <div id="createAlertModal" class="custom-modal hidden">
   <div class="modal-content">
