@@ -11,14 +11,14 @@
 <body>
     <header class="shop-header">
     <div class="header-left">
-        <a href="lobby.html#Folderr" class="back-button">← Back to Folders</a>
+        <a href="#" id="backToFoldersBtn" class="back-button">← Back to Folders</a>
         <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
     </div>
     <h2 class="shop-title">FlipCards.</h2>
 </header>
 
     <main class="flashcard-main-container">
-        
+        <div id="feedbackText" class="floating-text"></div>
         <div class="meta-info">
             <div class="meta-item">
                 <span>Category:</span>
@@ -47,8 +47,12 @@
 </div>
 </div>
     <div class="description-container">
-        <div class="description-box" id="descriptionBox">Loading description...</div>
-    </div>
+    <div class="description-box" id="descriptionBox">Loading description...</div>
+</div>
+
+<button id="exitReviewBtn" class="neumorphic-button exit-review-btn hidden">
+    Exit Review Session
+</button>
 </div>
 
         <div class="button-container">
@@ -66,15 +70,28 @@
             </div>
         </div>
 
-        <div class="dot-tracker-wrapper">
-            <div class="dot-tracker" id="dotTracker"></div>
-        </div>
         
-        <div class="navigation-controls">
-            <img src="prevnc.png" alt="Previous" class="nav-btn" id="prevBtn" />
-            <div id="card-counter" class="card-counter">1 / 10</div>
-            <img src="nextnc.png" alt="Next" class="nav-btn" id="nextBtn" />
-        </div>
+        
+<div class="navigation-controls">
+    <div class="performance-monitor-container">
+    <span>Monitor performance</span>
+    <label class="toggle-switch">
+        <input type="checkbox" id="performanceToggle">
+        <span class="slider"></span>
+    </label>
+    <span id="reviewCounter" class="review-counter">0</span>
+</div>
+
+    <div class="nav-btn" id="prevBtn">
+        <i class="fa-solid fa-chevron-left"></i>
+    </div>
+<div class="nav-btn" id="nextBtn">
+        <i class="fa-solid fa-chevron-right"></i>
+    </div>
+    <div id="card-counter" class="card-counter">1 / 10</div>
+
+
+</div>
 
         
     </main>
@@ -144,12 +161,44 @@
     <button id="closeReverseInfoModal" class="neumorphic-button">Got it</button>
   </div>
 </div>
+<div id="toggleSidenavBtn" class="sidenav-toggle-btn">
+    <i class="fa-solid fa-chevron-right"></i>
+</div>
+
+<div id="reviewSidenav" class="sidenav">
+    <h3>Cards for Review</h3>
+    <div class="sidenav-buttons">
+        <button id="reviewBtn" class="sidenav-btn review">
+            <i class="fa-solid fa-star"></i> Review
+        </button>
+        <button id="resetReviewBtn" class="sidenav-btn reset">
+            <i class="fa-solid fa-trash"></i> Reset
+        </button>
+    </div>
+    <div id="reviewCardsList">
+        <p>Loading review cards...</p>
+    </div>
+</div>
+<div id="customConfirmModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content error">
+    <p id="confirmMessage"></p>
+    <div class="modal-buttons">
+      <button id="confirmBtn" class="neumorphic-button">Confirm</button>
+      <button id="cancelBtn" class="neumorphic-button">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="customAlertModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content">
+    <p id="customAlertMessage"></p>
+    <button id="customAlertOkBtn" class="neumorphic-button">OK</button>
+</div>
 <script src="flipTimer.js"></script>
 
 <script type="module">
   // Import the Firebase functions we need
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
   import { db } from "./firebaseinit.js";
 
   const auth = getAuth();
@@ -159,6 +208,8 @@
   let currentIndex = 0;
   let flashcards = [];
   let currentReviewingSet = null; // ▼▼▼ NEW: Variable to store the fresh data ▼▼▼
+  let originalSetData = null; // To store the original set before review
+const exitReviewBtn = document.getElementById('exitReviewBtn');
 
   // --- Get references to HTML elements ---
   const front = document.querySelector(".flashcard .front");
@@ -166,6 +217,9 @@
   const card = document.querySelector(".flashcard");
   const counter = document.getElementById("card-counter");
   const reverseToggle = document.getElementById("reverseToggle");
+  const backToFoldersBtn = document.getElementById("backToFoldersBtn");
+  const feedbackText = document.getElementById('feedbackText');
+  const reviewCounter = document.getElementById('reviewCounter');
 
   onAuthStateChanged(auth, async (user) => {
     if (user && !user.isAnonymous) {
@@ -194,9 +248,20 @@
       const docSnap = await getDoc(setRef);
 
       if (docSnap.exists()) {
-        const reviewingSetData = docSnap.data();
-        currentReviewingSet = reviewingSetData; // ▼▼▼ NEW: Save fresh data to our variable ▼▼▼
-        flashcards = reviewingSetData.flashcards || [];
+    const reviewingSetData = docSnap.data();
+
+    // ▼▼▼ NEW: Store the original set data when the page first loads ▼▼▼
+    originalSetData = {
+        flashcards: reviewingSetData.flashcards || [],
+        title: reviewingSetData.title || "Untitled Set",
+        description: reviewingSetData.description || "No description provided.",
+        category: reviewingSetData.category || "General",
+        creatorEmail: reviewingSetData.creatorEmail || reviewingSetData.user
+    };
+    // ▲▲▲ END OF ADDITION ▲▲▲
+
+    currentReviewingSet = reviewingSetData;
+    flashcards = reviewingSetData.flashcards || [];
 
         document.getElementById("setTitle").textContent = reviewingSetData.title || "Untitled Set";
         document.getElementById("descriptionBox").textContent = reviewingSetData.description || "No description provided.";
@@ -207,21 +272,23 @@
           const usernameRef = doc(db, "usernames", creatorEmail);
           const usernameSnap = await getDoc(usernameRef);
           if (usernameSnap.exists() && usernameSnap.data().username) {
-            document.getElementById("cardCreator").textContent = usernameSnap.data().username;
-          } else {
-            document.getElementById("cardCreator").textContent = creatorEmail.split('@')[0];
-          }
+  const creatorName = usernameSnap.data().username;
+  document.getElementById("cardCreator").textContent = creatorName;
+  originalSetData.creatorName = creatorName; // --- ADD THIS LINE ---
+} else {
+  document.getElementById("cardCreator").textContent = creatorEmail.split('@')[0];
+}
         } else {
           document.getElementById("cardCreator").textContent = "N/A";
         }
 
         if (flashcards.length > 0) {
-          setupDotTracker(flashcards.length);
+          
           updateCard(currentIndex);
         } else {
           front.textContent = "This set is empty.";
           back.textContent = "Add some cards!";
-        }
+        }fetchAndDisplayReviewCards();
       } else {
          document.body.innerHTML = "<h2 style='color:white; text-align:center; padding-top:100px;'>Error: Could not find this flashcard set.</h2>";
       }
@@ -246,48 +313,443 @@
       back.textContent = cardData.term;
     }
     counter.textContent = `${index + 1} / ${flashcards.length}`;
-    updateDotTracker(index, flashcards.length);
-    setTimeout(() => { card.style.transition = "transform 0.8s"; }, 10);
+    
+    setTimeout(() => { card.style.transition = "transform 0.3s"; }, 10);
   }
-  function setupDotTracker(total) {
-    const container = document.getElementById("dotTracker");
-    container.innerHTML = "";
-    for (let i = 0; i < total; i++) {
-      const dot = document.createElement("div");
-      dot.classList.add("dot");
-      container.appendChild(dot);
-    }
-  }
-  function updateDotTracker(currentIndex, total, maxVisible = 6) {
-    const container = document.getElementById("dotTracker");
-    const dots = container.querySelectorAll(".dot");
-    dots.forEach((dot, i) => dot.classList.toggle("active", i === currentIndex));
-    let start = Math.max(0, currentIndex - Math.floor(maxVisible / 2));
-    start = Math.min(start, Math.max(0, total - maxVisible));
-    const offset = start * (12 + 10);
-    container.style.transform = `translateX(-${offset}px)`;
-  }
+function showFeedback(type) {
+    // Don't show feedback if we're in the locked "My Review Session" mode
+    if (performanceToggle.disabled) return;
 
+    if (type === 'sad') {
+        feedbackText.textContent = "+1 Card for Review";
+        feedbackText.className = 'floating-text sad animate';
+    } else if (type === 'happy') {
+        feedbackText.textContent = "✔️ Marked as Known";
+        feedbackText.className = 'floating-text happy animate';
+    }
+
+    // Reset the animation class after it finishes
+    setTimeout(() => {
+        feedbackText.className = 'floating-text';
+    }, 1200); // This duration must match the animation time in the CSS
+}
   // --- Event Listeners ---
-  reverseToggle.addEventListener("change", (event) => { reverseMode = event.target.checked; updateCard(currentIndex); });
-  document.getElementById("prevBtn").addEventListener("click", () => { if (currentIndex > 0) { currentIndex--; updateCard(currentIndex); } });
-  document.getElementById("nextBtn").addEventListener("click", () => { if (currentIndex < flashcards.length - 1) { currentIndex++; updateCard(currentIndex); } });
-  card.addEventListener("click", () => { card.classList.toggle("flipped"); });
-  document.addEventListener("keydown", (e) => {
-    if (document.activeElement.tagName !== "INPUT") {
-      if (e.key === "ArrowRight") { document.getElementById("nextBtn").click(); } 
-      else if (e.key === "ArrowLeft") { document.getElementById("prevBtn").click(); }
-    }
-  });
+reverseToggle.addEventListener("change", (event) => { reverseMode = event.target.checked; updateCard(currentIndex); });
+card.addEventListener("click", () => { card.classList.toggle("flipped"); });
 
-  // --- ▼▼▼ UPDATED: Functions for Mode Buttons ▼▼▼ ---
-  function navigateToMode(modeUrl) {
-    if (currentReviewingSet) {
-      localStorage.setItem("reviewingSet", JSON.stringify(currentReviewingSet));
+// --- Helper function to advance to the next card ---
+function handleNextCard() {
+    if (currentIndex < flashcards.length - 1) {
+        currentIndex++;
+        updateCard(currentIndex);
     }
-    localStorage.setItem("currentIndex", currentIndex);
-    window.location.href = modeUrl;
+}
+
+// --- Helper function to save a card to Firestore for review ---
+// --- Helper function to save a card to Firestore for review ---
+async function recordCardForReview() {
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) {
+        console.log("Anonymous or logged-out user. Cannot save card for review.");
+        return;
+    }
+
+    const cardToReview = flashcards[currentIndex];
+    if (!cardToReview) {
+        console.error("Could not find card data to save.");
+        return;
+    }
+
+    const isAlreadyInReview = localReviewCards.some(
+        (card) => card.term === cardToReview.term && card.definition === cardToReview.definition
+    );
+
+    if (isAlreadyInReview) {
+        console.log("This card is already in the review list. Skipping.");
+        return;
+    }
+
+    const userEmail = user.email;
+    const reviewRef = doc(db, "flashcardreview", userEmail);
+
+    try {
+        const newCardData = {
+            term: cardToReview.term,
+            definition: cardToReview.definition,
+            fromSetId: localStorage.getItem("reviewingSetId"),
+            fromSetTitle: document.getElementById("setTitle").textContent
+        };
+
+        // Now we ONLY update Firestore. The real-time listener will handle all UI and local array updates.
+        await setDoc(reviewRef, {
+            cardsForReview: arrayUnion(newCardData)
+        }, { merge: true });
+
+    } catch (error) {
+        console.error("Error saving card for review:", error);
+    }
+}
+
+// --- Helper function to REMOVE a card from the Firestore review list ---
+async function removeCardFromReview() {
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) return; // Exit if no user
+
+    const cardToRemove = flashcards[currentIndex];
+    if (!cardToRemove) return; // Exit if there's no card data
+
+    const reviewRef = doc(db, "flashcardreview", user.email);
+
+    try {
+        // Use updateDoc and arrayRemove to pull the specific card object from the array
+        await updateDoc(reviewRef, {
+            cardsForReview: arrayRemove(cardToRemove)
+        });
+    } catch (error) {
+        console.error("Error removing card from review:", error);
+    }
+}
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+prevBtn.addEventListener("click", async () => {
+    if (performanceToggle.checked) {
+      showFeedback('sad');
+        // PERFORMANCE MODE: The sad face was clicked ("I didn't know this card")
+        // 1. Record the current card to Firestore.
+        await recordCardForReview();
+        // 2. Proceed to the next card.
+        handleNextCard();
+    } else {
+        // NORMAL MODE: This is the "previous" button.
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateCard(currentIndex);
+        }
+    }
+});
+
+nextBtn.addEventListener('click', async () => {
+    if (performanceToggle.disabled) {
+        // --- This is the "My Review Session" mode logic ---
+        // (No changes needed here)
+        if (flashcards.length > 0 && currentIndex < flashcards.length) {
+            await removeCardFromReview();
+        }
+        if (currentIndex >= flashcards.length && flashcards.length > 0) {
+            currentIndex = flashcards.length - 1;
+        }
+        if (flashcards.length === 0) {
+            front.textContent = "Review Complete!";
+            back.textContent = "You've mastered all your review cards.";
+            counter.textContent = "0 / 0";
+        } else {
+            updateCard(currentIndex);
+        }
+    } else {
+        // --- This is the NORMAL mode logic ---
+        if (performanceToggle.checked) {
+            showFeedback('happy'); // Show happy feedback
+        }
+        handleNextCard(); // Always go to the next card
+    }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (document.activeElement.tagName !== "INPUT") {
+    if (e.key === "ArrowRight") { nextBtn.click(); } 
+    else if (e.key === "ArrowLeft") { prevBtn.click(); }
   }
+});
+// --- New Performance Monitor Logic ---
+const performanceToggle = document.getElementById('performanceToggle');
+const prevIcon = document.querySelector('#prevBtn i');
+const nextIcon = document.querySelector('#nextBtn i');
+
+performanceToggle.addEventListener('change', (event) => {
+    const isPerformanceMode = event.target.checked;
+
+    if (isPerformanceMode) {
+        prevIcon.className = 'fa-regular fa-face-frown';
+        nextIcon.className = 'fa-regular fa-face-smile';
+        reviewCounter.classList.add('visible'); // --- THIS LINE IS NEW ---
+    } else {
+        prevIcon.className = 'fa-solid fa-chevron-left';
+        nextIcon.className = 'fa-solid fa-chevron-right';
+        reviewCounter.classList.remove('visible'); // --- THIS LINE IS NEW ---
+    }
+});
+// --- Review Sidenav Logic ---
+const toggleSidenavBtn = document.getElementById('toggleSidenavBtn');
+const reviewSidenav = document.getElementById('reviewSidenav');
+const reviewCardsList = document.getElementById('reviewCardsList');
+const toggleIcon = document.querySelector('#toggleSidenavBtn i');
+const reviewBtn = document.getElementById('reviewBtn');
+const resetReviewBtn = document.getElementById('resetReviewBtn');
+let reviewDataLoaded = false;
+let localReviewCards = []; // To store a local copy of review cards
+// Single function to toggle the navigation panel
+function toggleNav() {
+    const currentWidth = reviewSidenav.style.width;
+    if (currentWidth === "350px") {
+        // If it's open, close it
+        reviewSidenav.style.width = "0";
+        toggleSidenavBtn.style.left = "0";
+        toggleIcon.style.transform = "rotate(0deg)";
+    } else {
+        // If it's closed, open it
+        reviewSidenav.style.width = "350px";
+        toggleSidenavBtn.style.left = "350px";
+        toggleIcon.style.transform = "rotate(180deg)";
+    }
+}
+
+// Function to fetch and display cards from the 'flashcardreview' collection
+// Function to fetch and display cards from the 'flashcardreview' collection
+// This function now sets up a REAL-TIME listener for review cards
+function fetchAndDisplayReviewCards() {
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) {
+        reviewCardsList.innerHTML = "<p>Please log in to see your review list.</p>";
+        return;
+    }
+
+    const reviewRef = doc(db, "flashcardreview", user.email);
+
+    // Use onSnapshot to listen for real-time changes
+    // Use onSnapshot to listen for real-time changes
+onSnapshot(reviewRef, (docSnap) => {
+    const cards = (docSnap.exists() && docSnap.data().cardsForReview) ? docSnap.data().cardsForReview : [];
+    localReviewCards = cards;
+
+    reviewCounter.textContent = `${cards.length}`; // --- THIS LINE IS NEW ---
+
+    if (performanceToggle.disabled) {
+        flashcards = cards;
+    }
+
+    if (cards.length > 0) {
+        reviewCardsList.innerHTML = "";
+        cards.forEach(card => {
+            const cardElement = document.createElement('div');
+            cardElement.className = 'review-card-item';
+            cardElement.innerHTML = `
+                <p class="term">${card.term}</p>
+                <p class="definition">${card.definition}</p>
+            `;
+            reviewCardsList.appendChild(cardElement);
+        });
+    } else {
+        reviewCardsList.innerHTML = "<p>You haven't marked any cards for review yet.</p>";
+    }
+}, (error) => {
+    console.error("Error with real-time listener:", error);
+    reviewCardsList.innerHTML = "<p>Sorry, there was an error loading your review cards.</p>";
+});
+    reviewDataLoaded = true; // Mark the listener as attached
+}
+// Attach a single event listener to the toggle button
+toggleSidenavBtn.addEventListener('click', toggleNav);
+// --- Event listener for the "Reset" button ---
+// --- Event listener for the "Reset" button ---
+resetReviewBtn.addEventListener('click', () => {
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) {
+        alert("You must be logged in to reset your review list.");
+        return;
+    }
+
+    showCustomConfirm("Are you sure you want to clear all cards from your review list? This cannot be undone.", async () => {
+        const reviewRef = doc(db, "flashcardreview", user.email);
+        try {
+            // Now we ONLY update Firestore. The real-time listener will handle the UI.
+            await setDoc(reviewRef, { cardsForReview: [] }, { merge: true });
+        } catch (error) {
+            console.error("Error clearing review list:", error);
+            alert("There was an error clearing your list.");
+        }
+    });
+});
+
+// --- NEW: Helper function to manage the custom confirmation modal ---
+function showCustomConfirm(message, onConfirm) {
+    const confirmModal = document.getElementById('customConfirmModal');
+    const confirmMessage = document.getElementById('confirmMessage');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    confirmMessage.textContent = message;
+    confirmModal.classList.remove('hidden');
+
+    // Create one-time event listeners to prevent duplicates
+    const confirmHandler = () => {
+        onConfirm();
+        closeHandler();
+    };
+
+    const closeHandler = () => {
+        confirmModal.classList.add('hidden');
+        confirmBtn.removeEventListener('click', confirmHandler);
+        cancelBtn.removeEventListener('click', closeHandler);
+    };
+
+    confirmBtn.addEventListener('click', confirmHandler);
+    cancelBtn.addEventListener('click', closeHandler);
+}
+// --- NEW: Helper function to manage a simple custom alert modal ---
+function showCustomAlert(message) {
+    const alertModal = document.getElementById('customAlertModal');
+    const alertMessage = document.getElementById('customAlertMessage');
+    const alertOkBtn = document.getElementById('customAlertOkBtn');
+
+    alertMessage.textContent = message;
+    alertModal.classList.remove('hidden');
+
+    const closeHandler = () => {
+        alertModal.classList.add('hidden');
+        alertOkBtn.removeEventListener('click', closeHandler);
+    };
+
+    alertOkBtn.addEventListener('click', closeHandler);
+}
+// --- Event listener for the "Review" button ---
+// --- Event listener for the "Review" button ---
+// --- Event listener for the "Review" button ---
+reviewBtn.addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) {
+        showCustomAlert("You must be logged in to review your cards.");
+        return;
+    }
+
+    const reviewRef = doc(db, "flashcardreview", user.email);
+    const docSnap = await getDoc(reviewRef);
+
+    if (docSnap.exists() && docSnap.data().cardsForReview && docSnap.data().cardsForReview.length > 0) {
+        const reviewCards = docSnap.data().cardsForReview;
+
+        flashcards = reviewCards; 
+        currentIndex = 0; 
+
+        updateCard(currentIndex); 
+        document.getElementById("setTitle").textContent = "My Review Session";
+        document.getElementById("descriptionBox").textContent = "Reviewing cards you found difficult.";
+        document.getElementById("cardCategory").textContent = "Review";
+        // --- ▼▼▼ ADD THIS LINE FOR DEBUGGING ▼▼▼ ---
+        console.log("Entering Review Mode. Current user object:", user);
+        // --- ▲▲▲ END OF ADDED LINE ▲▲▲ ---
+        // Set creator to the current user's username
+const usernameRef = doc(db, "usernames", user.email);
+const usernameSnap = await getDoc(usernameRef);
+if (usernameSnap.exists() && usernameSnap.data().username) {
+    document.getElementById("cardCreator").textContent = usernameSnap.data().username;
+} else {
+    // Fallback to email if no username is found
+    document.getElementById("cardCreator").textContent = user.email.split('@')[0];
+}
+
+        // --- ADD THESE LINES ---
+        performanceToggle.checked = true; // Turn the toggle on
+        performanceToggle.dispatchEvent(new Event('change')); // Trigger the icon change
+        performanceToggle.disabled = true; // Disable the toggle
+        // --- END OF ADDED LINES ---
+exitReviewBtn.classList.remove('hidden'); // Show the exit button
+        toggleNav();
+
+    } else {
+        showCustomAlert("You have no cards in your review list to study!");
+    }
+});
+// --- New Event Listener for Back to Folders Button ---
+// --- New Event Listener for Back to Folders Button ---
+backToFoldersBtn.addEventListener('click', async (event) => {
+    event.preventDefault(); // Prevent the link from navigating immediately
+
+    const user = auth.currentUser;
+    if (user && !user.isAnonymous) {
+        const userEmail = user.email;
+        const reviewRef = doc(db, "flashcardreview", userEmail);
+
+        try {
+            await setDoc(reviewRef, { cardsForReview: [] }, { merge: true });
+        } catch (error) {
+            console.error("Error clearing the review collection:", error);
+        }
+    }
+
+    // --- ADD THIS LINE ---
+    // Re-enable the toggle before leaving the page
+    performanceToggle.disabled = false; 
+    // --- END OF ADDED LINE ---
+
+    // Navigate to the lobby after the operation is complete
+    window.location.href = "lobby.html#Folderr";
+});
+// --- Event Listener for Exiting Review Mode ---
+// --- Event Listener for Exiting Review Mode ---
+exitReviewBtn.addEventListener('click', () => {
+    // Show the custom confirmation modal first
+    showCustomConfirm(
+        "Exiting will clear all cards from your review list. Are you sure?",
+        async () => {
+            // This code runs only after the user clicks "Confirm"
+            const user = auth.currentUser;
+            if (user && !user.isAnonymous) {
+                const reviewRef = doc(db, "flashcardreview", user.email);
+                try {
+                    // Clear the review list in Firestore
+                    await setDoc(reviewRef, { cardsForReview: [] }, { merge: true });
+                } catch (error) {
+                    console.error("Error clearing review list on exit:", error);
+                    // Optionally show an error alert to the user
+                }
+            }
+
+            if (!originalSetData) return; // Safety check
+
+            // 1. Restore the original flashcard data
+            flashcards = originalSetData.flashcards;
+            currentIndex = 0;
+
+            // 2. Update the UI with original data
+            updateCard(currentIndex);
+            document.getElementById("setTitle").textContent = originalSetData.title;
+            document.getElementById("descriptionBox").textContent = originalSetData.description;
+            document.getElementById("cardCategory").textContent = originalSetData.category;
+            document.getElementById("cardCreator").textContent = originalSetData.creatorName || originalSetData.creatorEmail.split('@')[0];
+
+            // 3. Reset and re-enable the performance toggle
+            performanceToggle.checked = false;
+            performanceToggle.dispatchEvent(new Event('change'));
+            performanceToggle.disabled = false;
+
+            // 4. Hide the "Exit Review Session" button
+            exitReviewBtn.classList.add('hidden');
+        }
+    );
+});
+  async function navigateToMode(modeUrl) {
+  // --- ADD THIS BLOCK TO CLEAR THE REVIEW LIST ---
+  const user = auth.currentUser;
+  if (user && !user.isAnonymous) {
+      const userEmail = user.email;
+      const reviewRef = doc(db, "flashcardreview", userEmail);
+      try {
+          // Set the 'cardsForReview' array to be empty
+          await setDoc(reviewRef, { cardsForReview: [] }, { merge: true });
+      } catch (error) {
+          console.error("Error clearing the review collection:", error);
+      }
+  }
+  // --- END OF ADDED BLOCK ---
+
+  if (currentReviewingSet) {
+    localStorage.setItem("reviewingSet", JSON.stringify(currentReviewingSet));
+  }
+  localStorage.setItem("currentIndex", currentIndex);
+  window.location.href = modeUrl;
+}
 
   window.goToTest = function() { navigateToMode("test.html"); }
   window.goToMatch = function() { navigateToMode("match.html"); }

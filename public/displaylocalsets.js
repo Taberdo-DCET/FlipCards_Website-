@@ -42,7 +42,7 @@ async function getUsernameOrEmail(email) {
   let displayName = email;
   let verified = false;
   let first = false;
-
+let plus = false; // Add this line
   try {
     // Get username
     const usernameDoc = await getDoc(doc(db, "usernames", email));
@@ -56,12 +56,13 @@ async function getUsernameOrEmail(email) {
       const roleData = (roleDoc.data().role || "").toLowerCase();
       verified = roleData.includes("verified");
       first = roleData.includes("first");
+      plus = roleData.includes("plus"); 
     }
   } catch (error) {
     console.warn("Failed to fetch username/role for:", email, error);
   }
 
-  const result = { name: displayName, verified, first };
+  const result = { name: displayName, verified, first, plus };
   window._usernameCache = window._usernameCache || {};
   window._usernameCache[email] = result;
   return result;
@@ -141,6 +142,7 @@ async function createCard(set, docId = null, isPublic = false) {
     by ${sanitize(userInfo.name)}
     ${userInfo.verified ? `<img src="verified.svg" alt="Verified" style="width:16px; height:16px;">` : ""}
     ${userInfo.first ? `<img src="first.png" alt="First" style="width:16px; height:16px;">` : ""}
+    ${userInfo.plus ? `<img src="plass.png" alt="Plus" class="plus-badgemini">` : ""}
   </div>` : ""}
 
 

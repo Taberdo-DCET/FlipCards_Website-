@@ -450,153 +450,90 @@ body {
 #breakCounter{
   font-family: 'Qilkabold';
 }
-@media (max-width: 768px) {
-  body {
-    padding: 20px;
-  }
+/* === Responsive Media Queries (Improved) === */
 
-  h1 {
-    font-size: 1.5rem;
-  }
-
-
-
-
-  .grid-container {
-    grid-template-columns: repeat(3, 1fr); /* 2 cards per row */
-    padding: 20px 40px;
-    gap: 30px;
-  }
-
-  .card {
-    width: 100%;
-    max-width: 300px;
-    height: 90px;
-    font-size: 16px;
-  }
-
-  .home-wrapper {
-    position: static;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
-  }
-
-  .home-wrapper img {
-    width: 48px;
-    height: 48px;
-  }
-
-  #timerContainer {
-    width: 100%;
-    padding: 0 10px;
-  }
-
-  select.neumorphic-button {
-    width: auto;
-    padding: 8px 12px;
-  }
-  h1 {
-    font-size: 1.5rem;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .grid-container {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    padding: 20px;
-    justify-items: center;
-  }
-
-  .card {
-    width: 100%;
-    max-width: 200px;
-    height: auto;
-    min-height: 80px;
-    font-size: 15px;
-    padding: 16px;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-    text-align: center;
-  }
-
-  .neumorphic-button {
-    font-size: 15px;
-    padding: 12px 18px;
-  }
-
-  .win-box h2 {
-    font-size: 20px;
-    padding: 12px;
-    text-align: center;
-  }
-
-  .home-wrapper {
-    bottom: 15px;
-    left: 15px;
-    position: fixed;
-  }
-
-  #timerContainer {
-    width: 90%;
-    margin: 0 auto;
-  }
-
-  select.neumorphic-button {
-    font-size: 15px;
-    padding: 8px 12px;
+/* For Tablets (<= 1024px) */
+@media (max-width: 1024px) {
+  .page-title {
+    font-size: 1.8rem;
   }
   
+  .grid-container {
+    /* Adjust min card width for a better fit on tablets */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
 }
-@media (max-width: 426px) {
-  h1 {
-    font-size: 1.25rem;
-    padding: 10px;
+
+/* For Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
+  .match-main-container {
+    padding: 20px 15px;
+  }
+
+  .meta-info,
+  .title-row {
+    flex-direction: column; /* Stack meta info and title sections */
+    text-align: center;
+    gap: 10px;
+  }
+
+  .meta-border {
+    display: none; /* Hide divider when stacked */
+  }
+
+  .page-title { /* Corrected selector from h1 */
+    font-size: 1.6rem;
+  }
+
+  .game-controls {
+    flex-direction: column; /* Stack the game start buttons */
+    gap: 15px;
+  }
+  
+  .button-container {
+      flex-wrap: wrap;
   }
 
   .grid-container {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 20px;
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr); /* A 3-column grid is good for most phones */
+    gap: 10px;
+    padding: 15px;
   }
 
   .card {
-    width: 100%;
-    max-width: 180px;
-    height: auto;
-    min-height: 70px;
-    font-size: 14px;
-    padding: 12px;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
+    height: 100px;
+    font-size: 12px;
+  }
+  
+  /* Center the FlipTimer modal on all small screens */
+  .flip-timer-modal {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 320px;
+  }
+}
+
+/* For Small Mobile Devices (<= 480px) */
+@media (max-width: 480px) {
+  .shop-header {
+    flex-direction: column; /* Stack header items */
+    gap: 15px;
+  }
+
+  .grid-container {
+    grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns for better tap targets */
+  }
+  
+  .card {
+    height: 90px;
   }
 
   .neumorphic-button {
-    font-size: 14px;
-    padding: 10px 16px;
-  }
-
-  .win-box h2 {
-    font-size: 18px;
-    padding: 10px;
-  }
-
-  .home-wrapper {
-    top: auto;
-    bottom: 10px;
-    left: 10px;
-    position: fixed;
-  }
-
-  #timerContainer {
-    width: 95%;
-  }
-
-  select.neumorphic-button {
-    font-size: 14px;
-    padding: 6px 10px;
+    flex-basis: 45%; /* Ensure mode buttons form a neat 2xN grid */
+    font-size: 0.8rem;
+    padding: 10px 5px;
   }
 }

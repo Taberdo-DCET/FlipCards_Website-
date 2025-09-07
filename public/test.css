@@ -662,78 +662,101 @@ body {
   color: #ccc;
 }
 
-@media (max-width: 426px) {
-.card-container {
-  background: #171717;
-  margin-top: 150px;
-  padding: 30px;
-  width: 90%;
-  max-width: 350px;
-  min-height: 350px;
-  border-radius: 20px;
-  box-shadow:
-    inset 8px 8px 15px #0f0f0f,
-    inset -8px -8px 15px #1f1f1f,
-    8px 8px 15px #0f0f0f,
-    -8px -8px 15px #1f1f1f;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-    .definition-text {
-    font-size: 16px;
-    line-height: 1.4;
-    padding: 5px;
-    word-break: break-word;
+/* === Responsive Media Queries (Improved) === */
+
+/* For Tablets (<= 1024px) */
+@media (max-width: 1024px) {
+  .page-title {
+    font-size: 1.8rem;
   }
 
-  .input-area {
-    flex-direction: column;
+  .button-container {
+    flex-wrap: wrap; /* Allow mode buttons to wrap if needed */
+  }
+}
+
+/* For Mobile Devices (<= 768px) */
+@media (max-width: 768px) {
+  .test-main-container {
+    padding: 20px 15px;
+  }
+
+  .meta-info,
+  .title-row {
+    flex-direction: column; /* Stack meta info and title sections */
+    text-align: center;
     gap: 10px;
   }
 
-  .input-area input {
-    width: 90%;
-    font-size: 15px;
+  .meta-border {
+    display: none; /* Hide divider when stacked */
   }
 
+  .page-title {
+    font-size: 1.6rem;
+  }
+
+  .definition-text {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  .input-area {
+    flex-direction: column; /* Stack the input field and submit button */
+    align-items: center;
+    gap: 15px;
+  }
+
+  .input-area input,
   .input-area button {
-    width: 100%;
-    font-size: 15px;
-    padding: 12px;
+    width: 95%; /* Make input and button take up most of the width */
+    box-sizing: border-box;
   }
 
-  .title-bar h1 {
-    font-size: 20px;
-    padding: 10px 20px;
-    text-align: center;
+  .mistake-header {
+    flex-direction: column; /* Stack the title and buttons in the mistakes section */
+    align-items: flex-start;
+  }
+
+  /* Center the FlipTimer modal on all small screens */
+  .flip-timer-modal {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 320px;
+  }
+}
+
+/* For Small Mobile Devices (<= 480px) */
+@media (max-width: 480px) {
+  .shop-header {
+    flex-direction: column; /* Stack header items */
+    gap: 15px;
+  }
+  
+  .card-container {
+    /* Removes the large, unwanted gap from your original CSS */
+    margin-top: 20px; 
+    padding: 20px;
+    min-height: auto; /* Allow height to be flexible */
   }
 
   .button-container {
     gap: 10px;
-    flex-wrap: wrap;
-    margin: 10px 0 20px;
   }
 
   .neumorphic-button {
-    padding: 10px 18px;
-    font-size: 0.9rem;
+    flex-basis: 45%; /* Ensure buttons form a neat 2xN grid */
+    padding: 10px 5px;
+    font-size: 0.8rem;
   }
-
-  .dot-tracker-wrapper {
-    margin-bottom: 15px;
-  }
-}
-
-@media (max-width: 768px) {
-  .definition-text {
-    font-size: 17px !important;
-    padding: 10px 16px !important;
-    text-align: center;
-    line-height: 1.5;
-    word-break: break-word;
-    white-space: normal;
-    overflow-wrap: break-word;
+  
+  .mistake-header div:last-child {
+    display: flex;
+    flex-direction: column; /* Stack the mistake review buttons */
+    width: 100%;
+    gap: 10px;
   }
 }
 

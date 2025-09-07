@@ -476,85 +476,103 @@ body {
 #breakCounter{
   font-family: 'Qilkabold' !important;
 }
-@media (max-width: 426px) {
+/* === Responsive Media Queries (Improved) === */
+
+/* For Tablets (<= 1024px) */
+@media (max-width: 1024px) {
+  .page-title {
+    font-size: 1.8rem;
+  }
+  
   .definition-box {
-    font-size: 16px !important;
-    padding: 16px !important;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-    line-height: 1.4;
-    text-align: center;
-  }
-
-  #learnDefinition {
-    font-size: 1rem;
-    word-break: break-word;
-    white-space: normal;
-    overflow-wrap: break-word;
-  }
-
-  .choices-container {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .neumorphic-button {
-    font-size: 14px;
-    padding: 10px 14px;
-  }
-
-  .card-set-title {
-    font-size: 24px;
-    padding: 0 10px;
+    height: 220px; /* Slightly shorter for tablet screens */
   }
 }
 
+/* For Mobile Devices (<= 768px) */
 @media (max-width: 768px) {
-  .definition-box {
-    font-size: 18px !important;
-    padding: 20px !important;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    white-space: normal;
-    line-height: 1.5;
-    text-align: center;
+  .learn-main-container {
+    padding: 20px 15px;
   }
 
-  #learnDefinition {
+  .meta-info,
+  .title-row {
+    flex-direction: column; /* Stack meta info and title sections */
+    text-align: center;
+    gap: 10px;
+  }
+
+  .meta-border {
+    display: none; /* Hide divider when stacked */
+  }
+
+  .page-title { /* Corrected selector from .card-set-title */
+    font-size: 1.6rem;
+  }
+
+  .button-container {
+    flex-wrap: wrap; /* Allow mode buttons to wrap */
+  }
+
+  .definition-box {
+    min-height: 180px; /* Use min-height for flexibility */
+    height: auto;
     font-size: 1.1rem;
-    word-break: break-word;
+    line-height: 1.5;
+    word-break: break-word; /* Ensure text wraps correctly */
     white-space: normal;
-    overflow-wrap: break-word;
   }
 
   .choices-container {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .neumorphic-button {
-    font-size: 15px;
-    padding: 10px 16px;
-  }
-
-  .card-set-title {
-    font-size: 26px;
-    padding: 0 10px;
+    grid-template-columns: 1fr; /* Switch to a single column for choices */
+    gap: 15px;
   }
 
   .nav-btn {
     width: 60px;
     height: 60px;
   }
-
-  .card-counter {
-    font-size: 1.1rem;
-    margin-top: 15px;
-  }
-
-  .progress-wrapper {
-    max-width: 90%;
+  
+  /* Center the FlipTimer modal on all small screens */
+  .flip-timer-modal {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 320px;
   }
 }
 
+/* For Small Mobile Devices (<= 480px) */
+@media (max-width: 480px) {
+  .shop-header {
+    flex-direction: column; /* Stack header items */
+    gap: 15px;
+  }
+  
+  .definition-box {
+    min-height: 150px;
+    padding: 15px;
+    font-size: 1rem;
+  }
+  
+  .choices-container {
+    gap: 12px;
+  }
+
+  .choice {
+    padding: 15px;
+    font-size: 0.9rem;
+  }
+  
+  .neumorphic-button {
+    flex-basis: 45%; /* Ensure buttons form a neat 2xN grid */
+    font-size: 0.8rem;
+    padding: 10px 5px;
+  }
+  
+  .nav-btn {
+    width: 50px;
+    height: 50px;
+  }
+}
