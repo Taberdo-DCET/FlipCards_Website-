@@ -56,12 +56,23 @@
 </div>
 
         <div class="button-container">
-            <button class="neumorphic-button active">Flashcard</button>
-            <button class="neumorphic-button" onclick="goToTest()">Test</button>
-            <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
-            <button class="neumorphic-button" onclick="goToMatch()">Match</button>
-            <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
-        </div>
+    <button class="neumorphic-button active" onclick="navigateToMode('flashcard.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Flashcard</button>
+    <button class="neumorphic-button" onclick="navigateToMode('test.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="m10.4 12.6-2.8 2.8"></path><path d="m10.4 15.4-2.8-2.8"></path><path d="M12 18h6"></path></svg>
+
+Test</button>
+    <button id="blitzButton" class="neumorphic-button" onclick="navigateToMode('blitz.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+</svg>
+    Blitz
+    <img src="new.png" alt="New Feature" class="new-icon">
+</button>
+    <button class="neumorphic-button" onclick="navigateToMode('learn.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.232 5.232a3 3 0 0 1 0 4.242L12 12.728l-3.232-3.232a3 3 0 0 1 0-4.242a3 3 0 0 1 4.242 0z"></path><path d="M12 12.728 8.768 9.496a3 3 0 0 1 0 4.242L12 17.228l3.232-3.232a3 3 0 0 1 0-4.242z"></path></svg>
+
+Learn</button>
+    <button class="neumorphic-button" onclick="navigateToMode('match.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M10 7V5.5a1.5 1.5 0 0 1 3 0V7"></path><path d="M14 17v1.5a1.5 1.5 0 0 1-3 0V17"></path><path d="M7 10H5.5a1.5 1.5 0 0 0 0 3H7"></path><path d="M17 14h1.5a1.5 1.5 0 0 0 0-3H17"></path></svg>
+Match</button>
+    <button class="neumorphic-button" onclick="navigateToMode('defidrop.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="m19 12-7-7"></path></svg>DefiDrop</button>
+</div>
 
         <div class="flashcard-container">
             <div class="flashcard">
@@ -750,11 +761,8 @@ exitReviewBtn.addEventListener('click', () => {
   localStorage.setItem("currentIndex", currentIndex);
   window.location.href = modeUrl;
 }
-
-  window.goToTest = function() { navigateToMode("test.html"); }
-  window.goToMatch = function() { navigateToMode("match.html"); }
-  window.goToDefidrop = function() { navigateToMode("defidrop.html"); }
-  window.goToLearn = function() { navigateToMode("learn.html"); }
+window.navigateToMode = navigateToMode;
+  
 </script>
 <script type="module">
   import { checkUserStatus } from './userstatuscheck.js';

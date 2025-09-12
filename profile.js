@@ -307,7 +307,7 @@ document.getElementById("firstUserProfile").style.display = roleArray.includes("
     usernameText.textContent = username;
     badgeSpan.innerHTML = "";
 if (roleArray.includes("plus")) {
-  badgeSpan.innerHTML += `<img src="plas.png" alt="plus" title="FlipCards+" class="plus-badge" />`;
+  badgeSpan.innerHTML += `<img src="plass.png" alt="plus" title="FlipCards+" class="plus-badge" />`;
 }
     if (roleArray.includes("verified")) {
       badgeSpan.innerHTML += `<img src="verified.svg" alt="verified" title="Verified" />`;

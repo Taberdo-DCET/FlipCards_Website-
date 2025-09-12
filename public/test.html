@@ -43,12 +43,19 @@
         </div>
   
 <div class="button-container">
-      <button class="neumorphic-button" onclick="goToFlashcard()">Flashcard</button>
-      <button class="neumorphic-button active" onclick="goToTest()">Test</button>
-      <button class="neumorphic-button" onclick="goToLearn()">Learn</button>
-      <button class="neumorphic-button" onclick="goToMatch()">Match</button>
-      <button class="neumorphic-button" onclick="goToDefidrop()">DefiDrop</button>
-    </div>
+    <button class="neumorphic-button" onclick="navigateToMode('flashcard.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Flashcard</button>
+    <button class="neumorphic-button active" onclick="navigateToMode('test.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="m10.4 12.6-2.8 2.8"></path><path d="m10.4 15.4-2.8-2.8"></path><path d="M12 18h6"></path></svg>Test</button>
+    <button id="blitzButton" class="neumorphic-button" onclick="navigateToMode('blitz.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+</svg>
+    Blitz
+    <img src="new.png" alt="New Feature" class="new-icon">
+</button>
+    <button class="neumorphic-button" onclick="navigateToMode('learn.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.232 5.232a3 3 0 0 1 0 4.242L12 12.728l-3.232-3.232a3 3 0 0 1 0-4.242a3 3 0 0 1 4.242 0z"></path><path d="M12 12.728 8.768 9.496a3 3 0 0 1 0 4.242L12 17.228l3.232-3.232a3 3 0 0 1 0-4.242z"></path>
+</svg>Learn</button>
+    <button class="neumorphic-button" onclick="navigateToMode('match.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M10 7V5.5a1.5 1.5 0 0 1 3 0V7"></path><path d="M14 17v1.5a1.5 1.5 0 0 1-3 0V17"></path><path d="M7 10H5.5a1.5 1.5 0 0 0 0 3H7"></path><path d="M17 14h1.5a1.5 1.5 0 0 0 0-3H17"></path></svg>Match</button>
+    <button class="neumorphic-button" onclick="navigateToMode('defidrop.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="m19 12-7-7"></path></svg>DefiDrop</button>
+</div>
 
   <div class="card-container">
     <div class="definition-text" id="definition">
@@ -66,9 +73,7 @@
     <button class="neumorphic-button" onclick="closeCustomAlert()">Okay!</button>
   </div>
 </div>
-<div class="dot-tracker-wrapper">
-  <div class="dot-tracker" id="dotTracker"></div>
-</div>
+<div id="progressTracker" class="progress-tracker"></div>
 <div id="flipTimerModal" class="flip-timer-modal hidden">
   <div class="flip-timer-header">
     <span class="flip-timer-title">🕒 FlipTimer</span>
@@ -169,6 +174,7 @@
     doc,
     getDoc,
     updateDoc,
+    setDoc,
     arrayUnion,
     arrayRemove
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
@@ -243,7 +249,12 @@
       document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set.</h2>";
     }
   });
-
+// --- ADD THIS ENTIRE FUNCTION ---
+  async function navigateToMode(modeUrl) {
+    // This function will handle navigating to other game modes.
+    // We can add logic here later if needed, e.g., to save progress.
+    window.location.href = modeUrl;
+  }
   async function populatePageInfo(setData) {
     document.getElementById("setTitle").textContent = setData.title || "Untitled Set";
     document.getElementById("descriptionBox").textContent = setData.description || "No description provided.";
@@ -350,28 +361,63 @@
   function closeCustomAlert() { alertBox.style.display = "none"; }
 
   async function reviewMistakes() {
+    console.log("1. 'reviewMistakes' button clicked."); // Log when the function starts
     liveMistakeTracking = true;
     const list = document.getElementById("mistakeList");
     const user = auth.currentUser;
-    if (!user) { list.innerHTML = "<p style='color: gray;'>Click Review/Reveal Mistakes to view Progress!.</p>"; return; }
+
+    if (!user) {
+      console.error("Error: User is not logged in."); // Log error if no user
+      list.innerHTML = "<p style='color: gray;'>You must be logged in to see mistakes.</p>";
+      return;
+    }
+
     const title = currentReviewingSet.title || "Untitled Set";
+    console.log("2. Fetching mistakes for set titled:", title); // Log the set title being queried
+
     const docRef = doc(db, "mistakes", user.uid);
-    const snap = await getDoc(docRef);
-    const mistakeSet = snap.exists() ? snap.data().sets?.[title] || [] : [];
-    if (mistakeSet.length === 0) { list.innerHTML = "<p style='color: gray;'>No mistakes so far!</p>"; return; }
-    const counts = {};
-    mistakeSet.forEach(card => {
-      const key = card.term;
-      if (!counts[key]) counts[key] = { ...card, count: 1 };
-      else counts[key].count += 1;
-    });
-    list.innerHTML = Object.values(counts).map(card => `
-      <div class="mistake-item">
-        <div class="term">${card.term} <span style="font-size:12px; color:goldenrod;">mistakes: ${card.count}</span></div>
-        <div class="definition"><strong>Correct:</strong> ${card.definition}</div>
-        <div class="definition"><strong>Your answer:</strong> ${card.userAnswer || 'N/A'}</div>
-      </div>
-    `).join('');
+    
+    try {
+      const snap = await getDoc(docRef);
+      console.log("3. Firebase document snapshot received:", snap); // Log the raw snapshot from Firebase
+
+      if (!snap.exists()) {
+        console.warn("Warning: Mistakes document does not exist for this user."); // Warn if the document is missing
+        list.innerHTML = "<p style='color: gray;'>No mistakes document found.</p>";
+        return;
+      }
+
+      const allSets = snap.data().sets || {};
+      const mistakeSet = allSets[title] || [];
+      console.log("4. Extracted mistakes for this specific set:", mistakeSet); // Log the array of mistakes for the current set
+
+      if (mistakeSet.length === 0) {
+        console.log("5. No mistakes found for this set. Displaying default message."); // Log when the mistake list is empty
+        list.innerHTML = "<p style='color: gray;'>No mistakes so far!</p>";
+        return;
+      }
+      
+      console.log("6. Processing and counting mistakes...");
+      const counts = {};
+      mistakeSet.forEach(card => {
+        const key = card.term;
+        if (!counts[key]) counts[key] = { ...card, count: 1 };
+        else counts[key].count += 1;
+      });
+      console.log("7. Processed mistakes with counts:", counts); // Log the final grouped/counted mistakes object
+      
+      console.log("8. Rendering HTML to display the mistakes.");
+      list.innerHTML = Object.values(counts).map(card => `
+        <div class="mistake-item">
+          <div class="term">${card.term} <span style="font-size:12px; color:goldenrod;">mistakes: ${card.count}</span></div>
+          <div class="definition"><strong>Correct:</strong> ${card.definition}</div>
+          <div class="definition"><strong>Your answer:</strong> ${card.userAnswer || 'N/A'}</div>
+        </div>
+      `).join('');
+
+    } catch (error) {
+      console.error("An error occurred while fetching or processing mistakes:", error); // Catch and log any unexpected errors
+    }
   }
 
   async function retryMistakes() {
@@ -404,19 +450,18 @@
   }
 
   function setupDotTracker(total) {
-    const container = document.getElementById("dotTracker");
-    container.innerHTML = "";
-    for (let i = 0; i < total; i++) {
-      const dot = document.createElement("div");
-      dot.classList.add("dot");
-      container.appendChild(dot);
-    }
+    // This function now just calls the update function to show the initial state.
+    updateDotTracker(currentIndex, total);
   }
 
   function updateDotTracker(currentIndex, total) {
-    const container = document.getElementById("dotTracker");
-    const dots = container.querySelectorAll(".dot");
-    dots.forEach((dot, i) => dot.classList.toggle("active", i === currentIndex));
+    const container = document.getElementById("progressTracker");
+    if (total > 0 && container) {
+      // Sets the text to show the current card number and the total.
+      container.textContent = `${currentIndex + 1} / ${total}`;
+    } else if (container) {
+      container.textContent = ""; // Clear text if no cards
+    }
   }
 
   termInput.addEventListener("keypress", e => { if (e.key === "Enter") { e.preventDefault(); submitAnswer(); } });
@@ -428,10 +473,7 @@
   window.retryMistakes = retryMistakes;
   window.goBackToNormal = goBackToNormal;
   window.clearAllMistakes = clearAllMistakes;
-  window.goToFlashcard = () => { window.location.href = "flashcard.html"; };
-  window.goToLearn = () => { window.location.href = "learn.html"; };
-  window.goToMatch = () => { window.location.href = "match.html"; };
-  window.goToDefidrop = () => { window.location.href = "defidrop.html"; };
+  window.navigateToMode = navigateToMode;
 </script>
 <script type="module" src="xpTracker.js"></script>
 

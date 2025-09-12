@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blitz | FlipCards</title>
+    <link rel="stylesheet" href="blitz.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <header class="shop-header">
+        <div class="header-left">
+            <a href="lobby.html#Folderr" class="back-button">← Back to Folders</a>
+            <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
+        </div>
+        <h2 class="shop-title">FlipCards.</h2>
+    </header>
+
+    <main class="blitz-main-container">
+        <div class="meta-info">
+    <div class="meta-item">
+        <span>Category:</span>
+        <strong id="cardCategory">General</strong>
+    </div>
+    <div class="meta-border"></div>
+    <div class="meta-item">
+        <span>Creator:</span>
+        <strong id="cardCreator">N/A</strong>
+    </div>
+</div>
+
+<div class="set-details">
+    <div class="title-row">
+        <div class="title-and-label">
+            <span class="title-label">Title:</span>
+            <h1 class="page-title" id="setTitle"></h1>
+        </div>
+    </div>
+    <div class="description-container">
+        <div class="description-box" id="descriptionBox">Loading description...</div>
+    </div>
+</div>
+        <div class="button-container">
+            <button class="neumorphic-button" onclick="location.href='flashcard.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Flashcard</button>
+            <button class="neumorphic-button" onclick="location.href='test.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="m10.4 12.6-2.8 2.8"></path><path d="m10.4 15.4-2.8-2.8"></path><path d="M12 18h6"></path></svg>Test</button>
+            <button id="blitzButton" class="neumorphic-button active"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+</svg>
+    Blitz
+    <img src="new.png" alt="New Feature" class="new-icon">
+</button>
+            <button class="neumorphic-button" onclick="location.href='learn.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.232 5.232a3 3 0 0 1 0 4.242L12 12.728l-3.232-3.232a3 3 0 0 1 0-4.242a3 3 0 0 1 4.242 0z"></path><path d="M12 12.728 8.768 9.496a3 3 0 0 1 0 4.242L12 17.228l3.232-3.232a3 3 0 0 1 0-4.242z"></path>
+</svg>Learn</button>
+            <button class="neumorphic-button" onclick="location.href='match.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M10 7V5.5a1.5 1.5 0 0 1 3 0V7"></path><path d="M14 17v1.5a1.5 1.5 0 0 1-3 0V17"></path><path d="M7 10H5.5a1.5 1.5 0 0 0 0 3H7"></path><path d="M17 14h1.5a1.5 1.5 0 0 0 0-3H17"></path></svg>Match</button>
+            <button class="neumorphic-button" onclick="location.href='defidrop.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="m19 12-7-7"></path></svg>DefiDrop</button>
+        </div>
+
+<div id="startScreen" class="custom-modal">
+    <div class="modal-content success">
+        <div class="modal-message">
+            <h2 style="margin-top: 0; font-size: 2rem;">Blitz Mode</h2>
+            <p>A term and a definition will appear. Decide if they match correctly. Answer as quickly as you can!</p>
+        </div>
+        <div class="modal-buttons">
+            <!-- This button's text is changed to "Loading..." initially -->
+<button id="startGameBtn" class="neumorphic-button" disabled>Loading...</button>
+        </div>
+    </div>
+</div>
+
+        <div id="gameContainer" class="blitz-container hidden">
+            <div class="top-bar">
+    <div id="timer" class="timer-display">00:00</div>
+    <button id="retryBtn" class="icon-btn" title="Restart Game">
+        <i class="fas fa-sync-alt"></i>
+    </button>
+</div>
+            <div class="blitz-content">
+                <div id="blitzStatement">
+                    </div>
+            </div>
+            <div class="blitz-buttons">
+    <button id="trueBtn" class="blitz-btn true-btn"><i class="fas fa-check"></i> True</button>
+    <button id="falseBtn" class="blitz-btn false-btn"><i class="fas fa-times"></i> False</button>
+</div>
+        </div>
+        
+        <div id="resultsScreen" class="custom-modal hidden">
+            <div class="modal-content success"> <div class="modal-message">
+                    <h2 style="margin-top: 0; font-size: 2rem;">Game Over!</h2>
+                    <p id="finalScore" style="font-size: 1.2rem; margin-bottom: 8px;"></p>
+                    <p id="timeTaken" style="font-size: 1.2rem; margin: 0;"></p>
+                </div>
+                <div class="modal-buttons">
+                    <button id="playAgainBtn" class="neumorphic-button">Play Again</button>
+                    <a href="lobby.html#Folderr" class="neumorphic-button">Back to Folders</a>
+                </div>
+            </div>
+        </div>
+        
+        <div id="progressTracker" class="progress-tracker"></div>
+    </main>
+
+    <script type="module">
+    import { db, auth } from './firebaseinit.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+    // --- DOM Elements ---
+    const startScreen = document.getElementById('startScreen');
+    const gameContainer = document.getElementById('gameContainer');
+    const resultsScreen = document.getElementById('resultsScreen');
+    const startGameBtn = document.getElementById('startGameBtn');
+    const playAgainBtn = document.getElementById('playAgainBtn');
+    const trueBtn = document.getElementById('trueBtn');
+    const falseBtn = document.getElementById('falseBtn');
+    const blitzStatement = document.getElementById('blitzStatement');
+    const progressTracker = document.getElementById('progressTracker');
+    const timerDisplay = document.getElementById('timer');
+    const finalScore = document.getElementById('finalScore');
+    const timeTaken = document.getElementById('timeTaken');
+    const retryBtn = document.getElementById('retryBtn');
+    
+    // --- Game State Variables ---
+    let originalFlashcards = [];
+    let questions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let timerInterval;
+    let startTime;
+
+    // ▼▼▼ NEW HELPER FUNCTION TO CHECK FOR IMAGES ▼▼▼
+    function isImageUrl(text) {
+        return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com");
+    }
+
+    // --- Main Logic ---
+    onAuthStateChanged(auth, async (user) => {
+         if (user && !user.isAnonymous) {
+            const upgradeBtn = document.getElementById('upgradeBtn');
+            const userRolesRef = doc(db, "approved_emails", user.email);
+            const userRolesSnap = await getDoc(userRolesRef);
+
+            if (userRolesSnap.exists()) {
+                const roles = userRolesSnap.data().role.toLowerCase();
+                if (!roles.includes('plus') && !roles.includes('verified')) {
+                    upgradeBtn.style.display = 'inline-block';
+                }
+            }
+        }
+        const reviewingSetId = localStorage.getItem("reviewingSetId");
+        const collectionName = localStorage.getItem("reviewingSetCollection");
+
+        if (!reviewingSetId || !collectionName) {
+            document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error: No set ID found. Please go back and select a set.</h2>";
+            return;
+        }
+
+        try {
+            const setRef = doc(db, collectionName, reviewingSetId);
+            const docSnap = await getDoc(setRef);
+
+            if (docSnap.exists()) {
+                const setData = docSnap.data();
+                originalFlashcards = docSnap.data().flashcards || [];
+                populatePageInfo(setData);
+                if (originalFlashcards.length < 2) {
+                     document.querySelector('.blitz-main-container').innerHTML = `<h2 style='color:white; text-align:center;'>Blitz mode requires at least 2 cards in a set.</h2>`;
+                     return;
+                }
+                startScreen.style.display = 'flex';
+                startGameBtn.disabled = false;
+                startGameBtn.textContent = "Start Game";
+            } else {
+                 document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
+            }
+        } catch (error) {
+            console.error("Error loading set:", error);
+             document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set data.</h2>";
+        }
+    });
+
+    function generateQuestions() {
+        questions = originalFlashcards.map((card, index) => {
+            const isTrueQuestion = Math.random() > 0.5;
+            if (isTrueQuestion) {
+                return { term: card.term, definition: card.definition, correct: true };
+            } else {
+                let randomIndex;
+                do {
+                    randomIndex = Math.floor(Math.random() * originalFlashcards.length);
+                } while (randomIndex === index);
+                return { term: card.term, definition: originalFlashcards[randomIndex].definition, correct: false };
+            }
+        });
+        questions.sort(() => Math.random() - 0.5);
+    }
+
+    function startGame() {
+        clearInterval(timerInterval);
+        generateQuestions();
+
+        currentIndex = 0;
+        score = 0;
+        startScreen.classList.add('hidden');
+        resultsScreen.classList.add('hidden');
+        gameContainer.classList.remove('hidden');
+        
+        startTime = Date.now();
+        timerInterval = setInterval(updateTimer, 1000);
+        
+        displayQuestion(); 
+    }
+
+    // ▼▼▼ UPDATED DISPLAYQUESTION FUNCTION ▼▼▼
+    function displayQuestion() {
+        if (!questions[currentIndex]) {
+            endGame(); 
+            return; 
+        }
+
+        const q = questions[currentIndex];
+
+        // Check if term is an image and create the correct HTML
+        const termContent = isImageUrl(q.term)
+            ? `<img src="${q.term}" alt="Term Image" class="blitz-image">`
+            : `<p class="term">${q.term}</p>`;
+
+        // Check if definition is an image and create the correct HTML
+        const defContent = isImageUrl(q.definition)
+            ? `<img src="${q.definition}" alt="Definition Image" class="blitz-image">`
+            : `<p class="def"><strong>${q.definition}</strong></p>`;
+
+        blitzStatement.innerHTML = `
+            <div class="blitz-question-part">
+                <span class="blitz-label">Term:</span>
+                ${termContent}
+            </div>
+            <div class="blitz-question-part">
+                <span class="blitz-label">Definition:</span>
+                ${defContent}
+            </div>
+        `;
+        progressTracker.textContent = `${currentIndex + 1} / ${questions.length}`;
+    }
+    // ▲▲▲ END OF UPDATED FUNCTION ▲▲▲
+
+    function checkAnswer(userChoice) {
+        trueBtn.disabled = true;
+        falseBtn.disabled = true;
+
+        const isCorrect = userChoice === questions[currentIndex].correct;
+        const animationClass = isCorrect ? 'slide-correct' : 'slide-incorrect';
+        const bodyFlashClass = isCorrect ? 'correct-flash' : 'incorrect-flash';
+
+        if (isCorrect) {
+            score++;
+        }
+        
+        document.body.classList.add(bodyFlashClass);
+        gameContainer.classList.add(animationClass);
+        
+        setTimeout(() => {
+            document.body.classList.remove(bodyFlashClass);
+        }, 300);
+
+        setTimeout(() => {
+            gameContainer.classList.remove(animationClass);
+            currentIndex++;
+
+            if (currentIndex >= questions.length) {
+                endGame();
+            } else {
+                displayQuestion();
+            }
+
+            trueBtn.disabled = false;
+            falseBtn.disabled = false;
+        }, 600);
+    }
+
+    function endGame() {
+        clearInterval(timerInterval);
+        const totalTime = Date.now() - startTime;
+
+        gameContainer.classList.add('hidden');
+        resultsScreen.classList.remove('hidden');
+        progressTracker.textContent = '';
+        
+        finalScore.textContent = `Score: ${score} / ${questions.length}`;
+        timeTaken.textContent = `Time: ${formatTime(totalTime)}`;
+    }
+    
+    function updateTimer() {
+        const elapsedTime = Date.now() - startTime;
+        timerDisplay.textContent = formatTime(elapsedTime);
+    }
+
+    function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${minutes}:${seconds}`;
+    }
+
+    function populatePageInfo(setData) {
+        document.getElementById("setTitle").textContent = setData.title || "Untitled Set";
+        document.getElementById("descriptionBox").textContent = setData.description || "No description provided.";
+        document.getElementById("cardCategory").textContent = setData.category || "General";
+        
+        const creatorEmail = setData.creatorEmail || setData.user;
+        if (creatorEmail) {
+            const usernameRef = doc(db, "usernames", creatorEmail);
+            getDoc(usernameRef).then(usernameSnap => {
+                if (usernameSnap.exists() && usernameSnap.data().username) {
+                    document.getElementById("cardCreator").textContent = usernameSnap.data().username;
+                } else {
+                    document.getElementById("cardCreator").textContent = creatorEmail.split('@')[0];
+                }
+            });
+        } else {
+            document.getElementById("cardCreator").textContent = "N/A";
+        }
+    }
+
+    // --- Event Listeners ---
+    startGameBtn.addEventListener('click', startGame);
+    playAgainBtn.addEventListener('click', startGame);
+    retryBtn.addEventListener('click', startGame);
+    trueBtn.addEventListener('click', () => checkAnswer(true));
+    falseBtn.addEventListener('click', () => checkAnswer(false));
+</script>
+<script src="protect.js"></script>
+</body>
+</html>

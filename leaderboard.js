@@ -72,10 +72,22 @@ async function getDefiDropCount(email) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const leaderboardBtn = document.getElementById("leaderboardsBtn");
-  const leaderboardModal = document.getElementById("leaderboardModal");
-  const dots = document.querySelector(".leaderboard-dots");
-  const achievementsModal = document.getElementById("achievementsModal");
-  const profileBtn = document.getElementById("openAchievementsFromProfile");
+const leaderboardSidenav = document.getElementById("leaderboardSidenav");
+const leaderboardBackdrop = document.getElementById("leaderboardBackdrop");
+const closeBtn = document.getElementById("closeLeaderboardBtn");
+const leaderboardMenuBtn = document.getElementById("leaderboardMenuBtn");
+const achievementsModal = document.getElementById("achievementsModal");
+const profileBtn = document.getElementById("openAchievementsFromProfile");
+function openSidenav() {
+  leaderboardSidenav.classList.add("open");
+  leaderboardBackdrop.classList.remove("hidden");
+  loadLeaderboards();
+}
+
+function closeSidenav() {
+  leaderboardSidenav.classList.remove("open");
+  leaderboardBackdrop.classList.add("hidden");
+}
 
   // Populate achievements modal
   async function populateAchievements(email, title = "🏅 Achievements") {
@@ -172,68 +184,29 @@ console.log("Quibbl Wins for", email, "→", quibblWins);
   }
 
   // Leaderboard modal
-  if (leaderboardBtn && leaderboardModal) {
-    leaderboardBtn.addEventListener("click", () => {
-      leaderboardModal.classList.remove("hidden");
-      loadLeaderboards();
-    });
+  leaderboardBtn?.addEventListener("click", openSidenav);
+closeBtn?.addEventListener("click", closeSidenav);
+leaderboardBackdrop?.addEventListener("click", closeSidenav);
+leaderboardMenuBtn?.addEventListener("click", () => {
+  // First, close the leaderboard sidenav
+  closeSidenav();
 
-    leaderboardModal.addEventListener("click", (e) => {
-      if (e.target === leaderboardModal) {
-        leaderboardModal.classList.add("hidden");
-      }
-    });
-  }
+  // After a short delay, open the achievements modal
+  setTimeout(() => {
+    achievementsModal.classList.remove("hidden");
+    // Trigger the pop-in animation
+    const box = achievementsModal.querySelector('.achievements-box');
+    box.classList.remove('animate-expand');
+    void box.offsetWidth;
+    box.classList.add('animate-expand');
 
-  // Achievements from 3 dots
-  if (dots && achievementsModal) {
-    dots.addEventListener("click", async () => {
-      // Hide leaderboard to avoid overlap
-      leaderboardModal?.classList.add("hidden");
-
-      achievementsModal.classList.remove("hidden");
-      achievementsModal.style.zIndex = "10000"; // ensure top visibility
-      const box = achievementsModal.querySelector('.achievements-box');
-      box.classList.remove('animate-expand');
-      void box.offsetWidth;
-      box.classList.add('animate-expand');
-      achievementsModal.querySelectorAll('.fade-content').forEach(el => {
-  el.style.opacity = "1";
+    // Populate it with the current user's data
+    populateAchievements(auth.currentUser?.email, "🏅 Your Achievements");
+  }, 250); // Delay matches the sidenav's closing animation time
 });
 
-
-      const title = document.getElementById("achievementsTitle");
-      const cardLabel = document.getElementById("flashcardCountLabel");
-      const defidropLabel = document.getElementById("defidropCountLabel");
-
-      if (title) title.textContent = "🏅 Your Achievements";
-      cardLabel.textContent = "Loading flashcards...";
-      defidropLabel.textContent = "Loading DefiDrop...";
-
-      const user = auth.currentUser;
-      if (!user) {
-        cardLabel.textContent = "Please log in to see your achievements.";
-        defidropLabel.textContent = "";
-        return;
-      }
-
-      try {
-        const [cardCount, defidropCount] = await Promise.all([
-          getFlashcardCount(user.email),
-          getDefiDropCount(user.email)
-        ]);
-
-        cardLabel.textContent =
-          cardCount > 0 ? `Total Created Flashcards: ${cardCount}` : "No flashcards created yet.";
-        defidropLabel.textContent =
-          defidropCount > 0 ? `${defidropCount} DefiDrop Correct` : "No DefiDrop records yet.";
-      } catch (err) {
-        console.error("Error loading achievements via 3 dots:", err);
-        cardLabel.textContent = "Error loading data.";
-        defidropLabel.textContent = "";
-      }
-    });
-  }
+  // Achievements from 3 dots
+  
     // Refresh leaderboard data right when page finishes loading
   loadLeaderboards();
 
@@ -416,7 +389,7 @@ function generateRow(u, i, medals, valueLabel, valueKey) {
         <span style="color: ${color}; background: transparent; cursor: pointer;">
           ${u.display}
           ${/* ▼▼▼ ADD THIS LINE ▼▼▼ */''}
-          ${u.role?.includes("plus") ? `<img src="plas.png" title="FlipCards+" class="role-badge2 rol plus-badge">` : ""}
+          ${u.role?.includes("plus") ? `<img src="plass.png" title="FlipCards+" class="role-badge2 rol plus-badge">` : ""}
           ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol">` : ""}
           ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol">` : ""}
         </span>

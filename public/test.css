@@ -212,7 +212,7 @@ body {
   margin-bottom: 40px;
 }
 .neumorphic-button {
-  flex: 1;
+  flex: 1; /* Makes all buttons equal width */
   background: #171717;
   border: 1px solid black;
   padding: 12px 20px;
@@ -223,16 +223,42 @@ body {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   font-family: 'Satoshi', sans-serif;
+
+  /* ▼▼▼ ADD THESE LINES ▼▼▼ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  /* ▲▲▲ END OF ADDED LINES ▲▲▲ */
+}
+.neumorphic-button svg {
+  color: #ffcf00;
+}
+.neumorphic-button.active svg {
+  color: #000000;
 }
 .neumorphic-button:hover {
   box-shadow: inset 3px 3px 8px #0e0e0e, inset -3px -3px 8px #202020;
   border: 1px solid white;
 }
 .neumorphic-button.active {
-  background-color: #3d3d3d;
-  border: 1px solid white;
+  background-color: #ffcf00;
+  border: 2px solid rgb(47, 47, 47);
+  color: #171717;
+}
+#blitzButton {
+  display: flex;         /* Aligns text and image in a row */
+  align-items: center;   /* Vertically centers the items */
+  justify-content: center; /* Horizontally centers the items */
+  gap: 8px;              /* Adds a small space between text and icon */
+  position: relative;    /* Needed for positioning if you want more control */
 }
 
+/* Style the icon itself */
+.new-icon {
+  width: 38px;           /* Adjust the width of the icon as needed */
+  height: auto;          /* Maintains the aspect ratio */
+}
 /* --- Test Mode Card --- */
 .card-container {
   background: #171717;
@@ -295,17 +321,14 @@ body {
   border: 1px solid white;
 }
 
-/* --- Dot Tracker --- */
-.dot-tracker-wrapper {
-  display: flex;
-  justify-content: center;
+/* --- Progress Tracker --- */
+.progress-tracker {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ccc;
   margin: 25px auto 30px auto;
-  overflow: hidden;
-  max-width: 250px;
 }
-.dot-tracker { display: flex; gap: 10px; transition: transform 0.3s ease; }
-.dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; background-color: transparent; }
-.dot.active { background-color: rgb(255, 225, 0); }
 
 /* --- Mistakes Section --- */
 .mistake-review {

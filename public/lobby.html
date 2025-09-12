@@ -34,11 +34,11 @@
                         </a>
                     </li>
                                                <li class="get-started-container">
-  <button class="getstarted" id="getStartedBtn">
+  <button class="getstarted js-get-started-btn">
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
   <span>Get Started</span>
 </button>
-  <div id="getStartedModal" class="get-started-modal hidden">
+  <div class="get-started-dropdown hidden">
     <!-- The two buttons now live inside this modal -->
     <a href="addcard.html" class="lobby-action-btn">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -88,11 +88,11 @@
                         </a>
                     </li>            
                     <li class="get-started-container">
-  <button class="getstarted" id="getStartedBtn">
+  <button class="getstarted js-get-started-btn">
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
   <span>Get Started</span>
 </button>
-  <div id="getStartedModal" class="get-started-modal hidden">
+  <div class="get-started-dropdown hidden">
     <!-- The two buttons now live inside this modal -->
     <a href="addcard.html" class="lobby-action-btn">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -314,8 +314,36 @@
 
     </section>
     <section class="folder-section" id="Folderr">
-  <h2 class="features-title" style="color: white;">Flashcard Folders</h2>
-<!-- New Button Container -->
+<div class="folder-header" id="folderHeader">
+    <h2 class="features-title" style="color: white;">Flashcard Folders</h2>
+    <div class="search-container" id="searchContainer">
+        <button id="search-toggle-btn" class="search-toggle-btn">
+    <svg class="icon-search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+</button>
+        <div class="search-controls">
+            <input id="folderSearch" type="text" class="neumorphic-search" placeholder="Search folders...">
+        </div>
+    </div>
+</div>
+
+<div class="folder-filter-container">
+    <div class="neumorphic-select-wrapper">
+        <select id="folderFilter" class="neumorphic-select">
+            <option value="your" selected>Your Flashcard Sets</option>
+            <option value="public">Public Flashcard Sets</option>
+            <option value="liked">Liked FlashCard Sets</option>
+        </select>
+        <span class="chevron">&#x25BE;</span>
+    </div>
+</div>
+
 <div class="lobby-actions-row">
   <a href="addcard.html" class="lobby-action-btn">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -327,28 +355,12 @@
   </a>
 </div>
 <div class="lobby-actions-row2">
-<button class="quibbl-btn hover-switch" onclick="location.href='Quibbl.html'">
-  Quibbl
-  <img src="new.png" alt="New" class="quibbl-new-icon">
-</button>
-
-                      <button id="geminiBtn" class="quibbl-btn"> ParseCards
-                          
-                      </button>
-                   </div>
-
-  <div style="margin: 20px auto; max-width: 300px; margin-bottom: 60px;">
-    <input id="folderSearch" type="text" class="neumorphic-search" placeholder="Search folders, Category...Emails or Users...">
-<div class="neumorphic-select-wrapper">
-  <select id="folderFilter" class="neumorphic-select">
-    <option value="your" selected>Your Flashcard Sets</option>
-    <option value="public">Public Flashcard Sets</option>
-    <option value="liked">❤️ Liked FlashCard Sets</option>
-  </select>
-  <span class="chevron">&#x25BE;</span>
+    <button class="quibbl-btn hover-switch" onclick="location.href='Quibbl.html'">
+      Quibbl
+      <img src="new.png" alt="New" class="quibbl-new-icon">
+    </button>
+    <button id="geminiBtn" class="quibbl-btn"> ParseCards</button>
 </div>
-
-  </div>
   <div class="folder-grid">
     
   </div>
@@ -484,7 +496,7 @@
     <span class="close-profile-modal">✖</span>
   </div>
     <div class="cover-photo-container">
-  <img src="defaultcover.jpg" id="coverPreview" alt="Cover" />
+  <img src="" id="coverPreview" alt="Cover" />
   <label for="coverInput" class="edit-cover">📷</label>
   <input type="file" id="coverInput" accept="image/*" hidden />
 </div>
@@ -535,11 +547,13 @@
         <h2>🎉 Welcome to FlipCards!</h2>
         <p>We're excited to share new updates with you:</p>
         <ul style="text-align: left; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update: 09/07/25</li>
-          <li>New Feature in Flashcard Mode: Monitor Your Performance!</li>
-          <span class="sub-announcement">➥ Flip the "Monitor performance" switch on your flashcard screen. Your navigation buttons will turn into faces!</span>
-          <span class="sub-announcement">➥😕 Sad Face: Click this if you're having trouble with a card. We'll automatically save it to a special review list for you!</span>
-          <span class="sub-announcement">➥ 😊 Happy Face: Click this when you know the card. This removes it from your review list if it was there before.</span>
+          <li>📅 New features in this Update: 09/13/25</li>
+          <li>📢 NEW REVIEW MODE!⚡</li>
+          <li>Get ready to test your knowledge at lightning speed with our brand new game: Blitz!</li>
+          <span class="sub-announcement">➥ A term and a definition will appear on screen.</span>
+          <span class="sub-announcement">➥ Decide if the pair is a True match or a False mismatch.</span>
+          <span class="sub-announcement">➥ Get instant feedback and see your final score and time at the end.</span>
+          <li>The "Try Again" feature is now fully operational. ✅</li>
           <li>👀 Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes</li>
           <br>
@@ -547,48 +561,52 @@
         </ul>
       </div>
       <div class="welcome-button-footer">
-        <button id="dismissWelcome" class="neumorphic-button">Okay</button>
+        <button id="dismissWelcome" class="neumorphic-button">Let's Go!</button>
       </div>
     </div>
 
   </div>
 </div>
-<div id="leaderboardModal" class="custom-modal hidden">
+<!-- =============================== -->
+<!-- ▼▼▼ NEW LEADERBOARD SIDENAV ▼▼▼ -->
+<!-- =============================== -->
+<div id="leaderboardBackdrop" class="leaderboard-backdrop hidden"></div>
+<div id="leaderboardSidenav" class="leaderboard-sidenav">
   <div class="leaderboard-box">
     <div class="leaderboard-header">
-     <span class="leaderboard-title" style="display: flex; align-items: center; gap: 10px;">
-  <img src="gemm.png" alt="Leaderboards" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 6px;">
-  Leaderboards
-  <span id="leaderboardCountdown" style="font-size: 14px; color: #ffcf00; font-family: 'Satoshi'; margin-left: 12px; background: transparent;">Loading...</span>
-</span>
+  <span class="leaderboard-title" style="display: flex; align-items: center; gap: 10px;">
+    <img src="gemm.png" alt="Leaderboards" style="width: 24px; height: 24px;">
+    Leaderboards
+  </span>
 
-
-      <span class="leaderboard-dots">⋯</span>
+  <div class="leaderboard-header-actions">
+    <button id="leaderboardMenuBtn" class="leaderboard-menu-btn" title="Achievements">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+    </button>
+    <button id="closeLeaderboardBtn" class="leaderboard-close-btn">&times;</button>
+  </div>
+  </div>
+    <div class="leaderboard-countdown-container">
+      <span id="leaderboardCountdown">Loading...</span>
     </div>
 
     <div class="leaderboard-section">
       <div class="section-title">Top 10 Highest Levels 🎖️</div>
-      <ul id="levelLeaderboard" class="leaderboard-list">
-        
-        <!-- Dynamically populate via JS -->
-      </ul>
+      <ul id="levelLeaderboard" class="leaderboard-list"></ul>
     </div>
 
     <div class="leaderboard-section">
       <div class="section-title">Top 10 DefiDrop Records 🔥</div>
-      <ul id="defidropLeaderboard" class="leaderboard-list">
-        <!-- Dynamically populate via JS -->
-      </ul>
+      <ul id="defidropLeaderboard" class="leaderboard-list"></ul>
     </div>
-    <div class="leaderboard-section">
-  <div class="section-title">Top 10 Highest Stars Earned in Quibbl <img src="quibblstar.png" alt="Star" style="width: 18px; height: 18px; margin-right: 4px; margin-top: 5px;  border: none;"></div>
-  <ul id="quibblLeaderboard" class="leaderboard-list">
-    <!-- Dynamically populated via JS -->
-  </ul> 
-</div>
 
+    <div class="leaderboard-section">
+      <div class="section-title">Top 10 Highest Stars Earned in Quibbl <img src="quibblstar.png" alt="Star" class="quibbl-star-icon"></div>
+      <ul id="quibblLeaderboard" class="leaderboard-list"></ul>
+    </div>
   </div>
 </div>
+<!-- ▲▲▲ END OF NEW SIDENAV ▲▲▲ -->
 <div id="achievementsModal" class="custom-modal hidden">
   <div class="achievements-box">
     <div class="achievements-header">
@@ -729,18 +747,29 @@
     </div>
   </div>
 </div>
-<div id="tutorialModal" class="custom-modal hidden">
-  <div class="tutorial-content">
-    <button class="tutorial-nav prev" onclick="changeTutorialSlide(-1)">❮</button>
-
-    <div class="tutorial-slide" id="tutorialSlideContainer">
-      <!-- JS will populate slides -->
+<div id="tutorialModal" class="tutorial-backdrop hidden">
+  <div class="tutorial-modal">
+    <div class="tutorial-header">
+      <div id="tutorialProgressBar" class="tutorial-progress-bar"></div>
+      <button class="tutorial-close" onclick="closeTutorial()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
     </div>
 
-    <button class="tutorial-nav next" onclick="changeTutorialSlide(1)">❯</button>
+    <div id="tutorialSlideContent" class="tutorial-slide">
+      </div>
+
+    <div class="tutorial-footer">
+      <button id="tutorialPrevBtn" class="tutorial-nav-btn" onclick="changeTutorialSlide(-1)">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <span>Prev</span>
+      </button>
+      <button id="tutorialNextBtn" class="tutorial-nav-btn" onclick="changeTutorialSlide(1)">
+        <span>Next</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </div>
   </div>
-  <div class="tutorial-dots" id="tutorialDots"></div>
-  <button class="tutorial-close" onclick="closeTutorial()">✖</button>
 </div>
 
 <div id="parsecardsModal" class="glass-modal hidden">
@@ -1202,20 +1231,49 @@ onSnapshot(docRef, (docSnap) => {
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const getStartedBtn = document.getElementById('getStartedBtn');
-    const getStartedModal = document.getElementById('getStartedModal');
+    // Select ALL buttons with the new class
+    const getStartedButtons = document.querySelectorAll('.js-get-started-btn');
 
-    // Toggles the modal's visibility when the button is clicked
-    getStartedBtn.addEventListener('click', (event) => {
-      event.stopPropagation(); // Prevents the window click listener from firing immediately
-      getStartedModal.classList.toggle('hidden');
+    getStartedButtons.forEach(button => {
+      button.addEventListener('click', (event) => {
+        // Stop the click from bubbling up to the window
+        event.stopPropagation();
+        
+        // Find the specific modal that belongs to this button
+        const container = button.closest('.get-started-container');
+        const modal = container.querySelector('.get-started-dropdown');
+
+        // This is a safety check in case the modal doesn't exist
+        if (!modal) return;
+
+        // Check if the current modal is already open
+        const isAlreadyOpen = !modal.classList.contains('hidden');
+
+        // First, close ALL other open dropdowns on the page
+        document.querySelectorAll('.get-started-dropdown').forEach(otherModal => {
+          otherModal.classList.add('hidden');
+        });
+        
+        // If the modal was not already open, open it.
+        // This logic prevents the button from re-opening the modal in the same click.
+        if (!isAlreadyOpen) {
+          modal.classList.remove('hidden');
+        }
+      });
     });
 
-    // Hides the modal if you click anywhere else on the page
+    // Global click listener to close any open modal when clicking outside
     window.addEventListener('click', (event) => {
-      if (!getStartedModal.classList.contains('hidden') && !getStartedBtn.contains(event.target)) {
-        getStartedModal.classList.add('hidden');
+      const openModal = document.querySelector('.get-started-dropdown:not(.hidden)');
+      // If a modal is open and the click was not inside it, hide it
+      if (openModal && !openModal.contains(event.target)) {
+        openModal.classList.add('hidden');
       }
+    });
+
+    // Prevent clicks inside any modal from closing it
+    document.querySelectorAll('.get-started-dropdown').forEach(modal => {
+      modal.addEventListener('click', event => event.stopPropagation());
     });
   });
 </script>
@@ -1229,6 +1287,26 @@ onSnapshot(docRef, (docSnap) => {
       toggleBtn.classList.toggle("open");
     });
   });
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchToggleBtn = document.getElementById('search-toggle-btn');
+    const folderHeader = document.getElementById('folderHeader');
+    const folderSearchInput = document.getElementById('folderSearch');
+
+    searchToggleBtn.addEventListener('click', () => {
+        // Toggle the active class on the main header container
+        folderHeader.classList.toggle('search-active');
+
+        // If the search bar is now active, focus the input field
+        if (folderHeader.classList.contains('search-active')) {
+            // A short delay allows the transition to start before focusing
+            setTimeout(() => {
+                folderSearchInput.focus();
+            }, 100);
+        }
+    });
+});
 </script>
 <script type="module" src="invitationListener.js"></script>
 <script type="module" src="multiplayer.js"></script>

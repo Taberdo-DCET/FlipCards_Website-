@@ -113,7 +113,7 @@ body {
   margin-bottom: 40px;
 }
 .neumorphic-button {
-  flex: 1;
+  flex: 1; /* Makes all buttons equal width */
   background: #171717;
   border: 1px solid black;
   padding: 12px 20px;
@@ -124,16 +124,42 @@ body {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   font-family: 'Satoshi', sans-serif;
+
+  /* ▼▼▼ ADD THESE LINES ▼▼▼ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  /* ▲▲▲ END OF ADDED LINES ▲▲▲ */
+}
+.neumorphic-button svg {
+  color: #ffcf00;
+}
+.neumorphic-button.active svg {
+  color: #000000;
 }
 .neumorphic-button:hover {
   box-shadow: inset 3px 3px 8px #0e0e0e, inset -3px -3px 8px #202020;
   border: 1px solid white;
 }
 .neumorphic-button.active {
-  background-color: #3d3d3d;
-  border: 1px solid white;
+  background-color: #ffcf00;
+  border: 2px solid rgb(47, 47, 47);
+  color: #171717;
+}
+#blitzButton {
+  display: flex;         /* Aligns text and image in a row */
+  align-items: center;   /* Vertically centers the items */
+  justify-content: center; /* Horizontally centers the items */
+  gap: 8px;              /* Adds a small space between text and icon */
+  position: relative;    /* Needed for positioning if you want more control */
 }
 
+/* Style the icon itself */
+.new-icon {
+  width: 38px;           /* Adjust the width of the icon as needed */
+  height: auto;          /* Maintains the aspect ratio */
+}
 /* --- Learn Mode Content --- */
 .definition-row {
   position: relative;
@@ -182,9 +208,10 @@ body {
   place-items: center;
 }
 .choice:hover {
-  background: #1d1d1d;
-  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
-  border: 1px solid white;
+  background: #ffcf00;
+  box-shadow: none;
+  border: 2px solid rgb(255, 255, 255);
+  color: #171717;
 }
 .choice.disabled { pointer-events: none; }
 
@@ -196,13 +223,7 @@ body {
   align-items: center;
   gap: 30px;
 }
-.nav-btn {
-  width: 70px;
-  height: 70px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.nav-btn:hover { transform: scale(1.1); }
+
 .card-counter {
   font-size: 1.2rem;
   font-family: sans-serif;
@@ -477,7 +498,26 @@ body {
   font-family: 'Qilkabold' !important;
 }
 /* === Responsive Media Queries (Improved) === */
+.nav-btn {
+  font-size: 24px;
+  color: #ccc;
+  background-color: #171717;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 6px 6px 12px #0e0e0e, -6px -6px 12px #202020;
+}
 
+.nav-btn:hover {
+  background-color: #ffcf00;
+  color: #171717;
+  transform: scale(1.1);
+}
 /* For Tablets (<= 1024px) */
 @media (max-width: 1024px) {
   .page-title {
@@ -528,10 +568,7 @@ body {
     gap: 15px;
   }
 
-  .nav-btn {
-    width: 60px;
-    height: 60px;
-  }
+
   
   /* Center the FlipTimer modal on all small screens */
   .flip-timer-modal {
@@ -571,8 +608,5 @@ body {
     padding: 10px 5px;
   }
   
-  .nav-btn {
-    width: 50px;
-    height: 50px;
-  }
+
 }

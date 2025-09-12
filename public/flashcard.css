@@ -267,7 +267,22 @@ input:checked + .slider:before {
 .description-container {
   margin-bottom: 30px;
 }
+/* --- Style for the "New" Icon on the Blitz Button --- */
 
+/* Target the specific Blitz button using its ID */
+#blitzButton {
+  display: flex;         /* Aligns text and image in a row */
+  align-items: center;   /* Vertically centers the items */
+  justify-content: center; /* Horizontally centers the items */
+  gap: 8px;              /* Adds a small space between text and icon */
+  position: relative;    /* Needed for positioning if you want more control */
+}
+
+/* Style the icon itself */
+.new-icon {
+  width: 38px;           /* Adjust the width of the icon as needed */
+  height: auto;          /* Maintains the aspect ratio */
+}
 /* Updated style for the description box */
 .description-box {
   background-color: #222;
@@ -333,14 +348,28 @@ input:checked + .slider:before {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   font-family: 'Satoshi', sans-serif;
+
+  /* ▼▼▼ ADD THESE LINES ▼▼▼ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  /* ▲▲▲ END OF ADDED LINES ▲▲▲ */
+}
+.neumorphic-button svg {
+  color: #ffcf00;
+}
+.neumorphic-button.active svg {
+  color: #000000;
 }
 .neumorphic-button:hover {
   box-shadow: inset 3px 3px 8px #0e0e0e, inset -3px -3px 8px #202020;
   border: 1px solid white;
 }
 .neumorphic-button.active {
-  background-color: #3d3d3d;
-  border: 1px solid white;
+  background-color: #ffcf00;
+  border: 2px solid rgb(47, 47, 47);
+  color: #171717;
 }
 
 /* --- Flashcard --- */

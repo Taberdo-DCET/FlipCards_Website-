@@ -1063,7 +1063,7 @@ previewTopbar.appendChild(previewCloseBtn);
 
 const previewBody = document.createElement('div');
 previewBody.style.cssText = `
-  display:grid; grid-template-rows:auto 1fr; gap:14px;
+  display:flex; flex-direction:column; gap:30px;
   padding:14px 16px; height:100%;
 `;
 
@@ -1644,7 +1644,8 @@ const previewEditorWrap = document.createElement('div');
 previewEditorWrap.id = 'notePreviewEditorWrap';
 previewEditorWrap.style.cssText = `
   position: relative;   /* anchor for the overlay canvas */
-  height: 100%;
+  flex: 1; /* Make it grow to fill space */
+  min-height: 0; /* Important for scrolling inside flex */
   transform-origin: top left;   /* so scale() zooms from the top-left corner */
 `;
 

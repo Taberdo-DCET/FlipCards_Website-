@@ -79,10 +79,10 @@ header {
 }
 body {
     background-color: #171717;
-    font-family: 'Accasia', sans-serif;
+    font-family: 'Satoshi', sans-serif;
 }
 .TTitle {
-    font-family: 'Accasia', sans-serif;
+    font-family: 'Satoshi', sans-serif;
     color: white;
     font-size: 25px;
     transform: translateY(-3px);
@@ -217,7 +217,7 @@ ul {
 
   align-items: center;
   display: flex;
- font-family: 'Accasia', sans-serif;
+ font-family: 'Satoshi', sans-serif;
  color: white;
  margin-right: 10px;
  gap: 5px;
@@ -226,7 +226,7 @@ ul {
 }
 .rayt {
   padding-bottom: 20px;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 .rights {
@@ -234,7 +234,7 @@ ul {
   font-size: 9px;
   text-align: center;
   justify-content: end;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .group-8 {
   width: 44px;
@@ -488,7 +488,7 @@ span {
   appearance: none;
   background-color: #1e1e1e;
   color: #ffffff;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   border: 1px solid #555;
   border-radius: 10px;
   padding: 10px 12px;
@@ -588,7 +588,7 @@ span {
   background: #ffffff;
   border-radius: 20px;
   padding: 30px 20px;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   color: #333;
   box-shadow:
     8px 8px 20px rgba(0, 0, 0, 0.05),
@@ -783,7 +783,7 @@ span {
   justify-content: center;
   gap: 30px;
   margin-top: 30px;
-  margin-left: 40px;
+  
 }
 
 .folder-card {
@@ -793,7 +793,7 @@ span {
   padding: 20px 25px;
   width: 260px;
   text-align: center;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   color: white;
   box-shadow:
     8px 8px 20px #111,
@@ -877,7 +877,7 @@ span {
 }
 
 .review-btn:hover {
-  background-color: #a3a3a3;
+  background-color: #ffcf00;
 }
 .folder-date {
   font-size: 13px;
@@ -931,7 +931,7 @@ span {
   margin-bottom: 20px;
   font-size: 20px;
   text-align: center;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .gemini-modal-title2 {
   margin-bottom: 20px;
@@ -995,7 +995,7 @@ span {
   color: white;
   max-width: 400px;
   text-align: center;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   border: 1px solid black;
 }
 
@@ -1022,7 +1022,7 @@ span {
   color: #fff;
   cursor: pointer;
   transition: 0.2s;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .neumorphic-button2 {
   padding: 10px 20px;
@@ -1033,7 +1033,7 @@ span {
   color: #000000;
   cursor: pointer;
   transition: 0.2s;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .neumorphic-button2:hover {
   background: #171717;
@@ -1100,7 +1100,7 @@ span {
   background: #222;
   padding: 12px;
   cursor: move;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 14px;
   text-align: center;
   border-radius: 16px 16px 0 0;
@@ -1618,7 +1618,7 @@ span {
 .playlist-btn {
   min-width: 320px;
   text-align: center;
-  font-family: 'Accasia';
+  font-family: 'Satoshi';
 }
 .like-count {
   font-size: 17px;
@@ -1944,7 +1944,7 @@ span {
   padding: 12px 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 14px;
   z-index: 9999;
   max-width: 90%;
@@ -2035,7 +2035,7 @@ span {
   border-radius: 20px;
   padding-bottom: 30px;
   color: white;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   width: 300px;
   border: 1px solid white;
   overflow: hidden;
@@ -2108,7 +2108,7 @@ span {
   border-radius: 8px;
   padding: 2px 8px;
   cursor: pointer;
-  font-family: 'Accasia';
+  font-family: 'Satoshi';
   z-index: 999999999 !important;
   position: relative;
 }
@@ -2205,7 +2205,7 @@ span {
 }
 .plus-badge {
   /* Add your custom styles here */
-  width: 39px !important;
+  width: 26px !important;
   height: 26px !important;
   border-radius: 0 !important;
 }
@@ -2279,7 +2279,7 @@ span {
 }
 
 .general-title {
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 2rem;
   color: #111;
   margin-top: -40px;
@@ -2304,7 +2304,7 @@ span {
   max-width: 400px;
   border: 1px solid white;
   margin: auto;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   color: #333;
   box-shadow:
     8px 8px 20px rgba(0, 0, 0, 0.05),
@@ -2328,7 +2328,7 @@ span {
   padding: 12px 16px;
   border-radius: 12px;
   border: none;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 15px;
   box-shadow:
     inset 4px 4px 8px #d9d9d9,
@@ -2341,7 +2341,7 @@ span {
   color: white;
   border: none;
   border-radius: 12px;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   cursor: pointer;
   box-shadow:
     6px 6px 12px #bfbfbf,
@@ -2357,7 +2357,7 @@ span {
   color: hsl(0, 0%, 100%);
   border-radius: 20px;
   padding: 30px;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   text-align: center;
   box-shadow: 8px 8px 16px rgba(0,0,0,0.1), -8px -8px 16px rgba(255,255,255,0.8);
   max-width: 400px;
@@ -2468,7 +2468,7 @@ span {
   position: fixed;
   inset: 0;
   z-index: 4000;
-  font-family: 'Accasia';
+  font-family: 'Satoshi';
 }
 
 .tutorial-content {
@@ -2483,6 +2483,7 @@ span {
   color: white;
   text-align: center;
   box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f;
+  font-family: 'Satoshi' !important;
 }
 
 .tutorial-slide {
@@ -2534,26 +2535,7 @@ span {
   font-size: 14px;
   cursor: pointer;
 }
-#leaderboardModal.custom-modal {
-  z-index: 9999;
-  background-color: rgba(0,0,0,0.8);
-}
 
-.leaderboard-box {
-  background: #171717;
-  padding: 30px;
-  border-radius: 28px;
-  width: 90%;
-  max-width: 520px;
-  box-shadow:
-    inset 8px 8px 16px #101010,
-    inset -8px -8px 16px #1f1f1f,
-    12px 12px 24px rgba(0, 0, 0, 0.7),
-    -8px -8px 20px rgba(255, 255, 255, 0.015);
-  font-family: 'Satoshi', sans-serif;
-  color: white;
-  position: relative;
-}
 
 .leaderboard-header {
   display: flex;
@@ -2683,7 +2665,7 @@ font-family: 'Satoshi', sans-serif;
   width: 100%;
   padding: 12px 16px;
   font-size: 15px;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   background: #171717;
   color: white;
   border: none;
@@ -3738,7 +3720,7 @@ box-shadow: none !important;
 .tutorial-text-content {
   color: white;
   text-align: center;
-  font-family: 'Accasia';
+  font-family: 'Satoshi' !important;
 }
 
 .tutorial-text-content h3 {
@@ -7242,6 +7224,7 @@ margin-top: -10px;
   justify-content: center;
   gap: 12px;
   width: 220px; /* Fixed width for both buttons */
+  box-sizing: border-box; /* Ensures padding is included in the width */
   padding: 14px 20px;
   font-family: 'Satoshi', sans-serif;
   font-size: 16px;
@@ -7547,9 +7530,467 @@ color: #ffcf00 !important;
   text-align: center;
   padding: 0 15px; /* Adds padding on mobile */
 }
+/* --- New Folder Search Animation Styles --- */
+
+/* Main container for the title and search icon/bar */
+.folder-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-bottom: 10px; 
+  margin-top: 10px;
+  min-height: 50px;
+  gap: 20px; /* Adds a small, controlled space between title and icon */
+}
+
+/* The title itself - adding a transition for the slide effect */
+.folder-section .features-title {
+  padding-top: 0;
+  margin-bottom: 0;
+  transition: transform 0.4s ease-in-out;
+}
+
+/* Wrapper for the search icon and the expandable controls */
+.search-container {
+  display: flex;
+  align-items: center;
+  margin-top: 35px;
+  /* position: absolute; and right: 15px; are removed */
+}
+
+/* The search icon button */
+.search-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Update the button to be a container for the absolute-positioned icons */
+.search-toggle-btn {
+  position: relative; /* This is crucial for positioning the icons inside */
+  width: 40px;      /* Fixed size to prevent layout shift */
+  height: 40px;
+}
+
+/* Style for BOTH icons to stack on top of each other */
+.search-toggle-btn .icon-search,
+.search-toggle-btn .icon-close {
+  stroke: #ffffff;
+  transition: all 0.3s ease-in-out;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Perfectly center the icons */
+}
+
+/* Initially, hide the 'X' icon and make it slightly smaller and rotated */
+.search-toggle-btn .icon-close {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6) rotate(-90deg);
+}
+
+/* When the search is active, hide the search icon */
+.folder-header.search-active .search-toggle-btn .icon-search {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6) rotate(90deg);
+}
+
+/* When the search is active, show the 'X' icon */
+.folder-header.search-active .search-toggle-btn .icon-close {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1) rotate(0deg);
+}
+
+/* Keep the existing hover effect */
+.search-toggle-btn:hover svg {
+  stroke: #ffcf00;
+}
+.search-toggle-btn:hover svg {
+  stroke: #ffcf00;
+}
+
+/* This holds ONLY the search input now */
+.search-controls {
+  display: flex;
+  align-items: center;
+}
+
+/* INITIAL HIDDEN STATE for JUST the search bar */
+#folderSearch {
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  margin-left: 0;
+  border: none;
+  pointer-events: none;
+  transition: all 0.4s ease-in-out;
+}
+
+/* --- ACTIVE/EXPANDED STATE --- */
+
+/* When the header is active, slide the title to the left */
 
 
+/* When the search is active, reveal ONLY the search bar */
+.folder-header.search-active #folderSearch {
+  width: 280px; /* Made the search bar wider */
+  opacity: 1;
+  padding: 12px 16px;
+  margin-left: 10px;
+  pointer-events: auto;
+}
 
+/* --- New container style for the standalone filter --- */
+.folder-filter-container {
+  margin: 15px auto;
+  max-width: 300px; /* Centers the dropdown */
+}
+
+/* Reset margin that was previously on the select wrapper */
+.neumorphic-select-wrapper {
+  margin-top: 0;
+  margin-left: 0; /* Ensures it centers correctly */
+}
+/* ======================================= */
+/* ▼▼▼ MODERN TUTORIAL MODAL STYLES (v2) ▼▼▼ */
+/* ======================================= */
+
+.tutorial-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tutorial-modal {
+  width: min(90vw, 550px);
+  background: #1e1e1e;
+  color: white;
+  border-radius: 20px;
+  border: 1px solid #333;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Satoshi', sans-serif;
+  animation: tutorialPopIn 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes tutorialPopIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.tutorial-header {
+  position: relative;
+  padding: 12px;
+}
+
+.tutorial-progress-bar {
+  height: 6px;
+  background-color: #ffcf00;
+  border-radius: 3px;
+  width: 0%; /* Initial width */
+  transition: width 0.4s ease-in-out;
+}
+
+.tutorial-close {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.2s ease;
+}
+
+.tutorial-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: rotate(90deg);
+}
+
+.tutorial-slide {
+  padding: 10px 30px 30px;
+  text-align: center;
+  min-height: 350px;
+}
+
+/* Slide transition animations */
+.tutorial-slide.slide-out-left { animation: slideOutLeft 0.3s ease forwards; }
+.tutorial-slide.slide-in-right { animation: slideInRight 0.3s ease forwards; }
+.tutorial-slide.slide-out-right { animation: slideOutRight 0.3s ease forwards; }
+.tutorial-slide.slide-in-left { animation: slideInLeft 0.3s ease forwards; }
+
+@keyframes slideOutLeft { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-50px); opacity: 0; } }
+@keyframes slideInRight { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(50px); opacity: 0; } }
+@keyframes slideInLeft { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+
+.tutorial-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.tutorial-slide h3 {
+  font-size: 24px;
+  margin: 0 0 12px 0;
+  font-family: 'Satoshi', sans-serif;
+}
+
+.tutorial-slide p {
+  font-size: 15px;
+  color: #ccc;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tutorial-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  background-color: #171717;
+  border-top: 1px solid #333;
+}
+
+.tutorial-nav-btn {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tutorial-nav-btn:hover {
+  background-color: #333;
+  border-color: #555;
+}
+
+.tutorial-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tutorial-nav-btn#tutorialNextBtn {
+  background-color: #ffcf00;
+  border-color: #ffcf00;
+  color: #111;
+}
+
+.tutorial-nav-btn#tutorialNextBtn:hover {
+  background-color: #ffe04d;
+}
+/* Add this new rule for the tutorial images */
+.tutorial-img {
+  width: 100%;
+  max-height: 200px; /* Controls the maximum image height */
+  border-radius: 12px;
+  margin-bottom: 20px;
+  object-fit: contain; /* Ensures the whole image is visible without distortion */
+  background-color: #111;
+}
+.tutorial-nav-btn span {
+  background: none;
+  color: white;
+}
+/* Add these new rules for the tutorial icons */
+.tutorial-title-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px; /* Space between icon and title */
+  margin-bottom: 12px;
+}
+
+.tutorial-title-wrapper svg {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0; /* Prevents the icon from shrinking */
+  stroke: #ffcf00; /* Icon color */
+}
+
+.tutorial-title-wrapper h3 {
+  margin: 0; /* Remove default margin from h3 */
+}
+/* =================================== */
+/* ▼▼▼ LEADERBOARD SIDENAV STYLES ▼▼▼ */
+/* =================================== */
+
+/* Backdrop for when the sidenav is open */
+.leaderboard-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 2999; /* Below the sidenav */
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.leaderboard-backdrop:not(.hidden) {
+  opacity: 1;
+}
+
+/* The sidenav panel itself */
+.leaderboard-sidenav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(90vw, 480px); /* Responsive width */
+  height: 100%;
+  background-color: #171717;
+  z-index: 3000;
+  transform: translateX(100%); /* Start off-screen */
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  display: flex; /* Helps with internal layout */
+}
+.leaderboard-sidenav.open {
+  transform: translateX(0); /* Slide into view */
+}
+
+/* The main content box inside the sidenav */
+.leaderboard-box {
+  width: 100%;
+  padding: 25px;
+  font-family: 'Satoshi', sans-serif;
+  color: white;
+  overflow-y: auto; /* Allows content to scroll */
+  box-sizing: border-box;
+}
+
+/* Sidenav Header */
+.leaderboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.5rem;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #333;
+  margin-bottom: 15px;
+}
+
+/* New Close Button */
+.leaderboard-close-btn {
+  all: unset;
+  font-size: 28px;
+  color: #888;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: 8px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.leaderboard-close-btn:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Countdown Timer */
+.leaderboard-countdown-container {
+  text-align: center;
+  font-size: 14px;
+  color: #ffcf00;
+  background-color: rgba(255, 207, 0, 0.1);
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+#leaderboardCountdown {
+  background: none;
+  color: #ffcf00;
+}
+/* Leaderboard Section Styles (largely the same) */
+.leaderboard-section {
+  margin-bottom: 25px;
+}
+.section-title {
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quibbl-star-icon {
+  width: 18px;
+  height: 18px;
+  margin-top: -2px;
+}
+.leaderboard-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  font-size: 0.95rem;
+}
+.leaderboard-list li {
+  background: #1e1e1e;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+
+/* Custom Scrollbar for Sidenav */
+.leaderboard-box::-webkit-scrollbar {
+  width: 8px;
+}
+.leaderboard-box::-webkit-scrollbar-track {
+  background: #171717;
+}
+.leaderboard-box::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 4px;
+  border: 2px solid #171717;
+}
+.leaderboard-box::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+/* ▼▼▼ ADD THIS NEW CSS ▼▼▼ */
+.leaderboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between the two buttons */
+}
+
+.leaderboard-menu-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: #888;
+  transition: all 0.2s ease;
+}
+
+.leaderboard-menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+/* ▲▲▲ END OF NEW CSS ▲▲▲ */
 
 
 
@@ -7657,7 +8098,10 @@ color: #ffcf00 !important;
   height: min(94vh, 680px) !important;
 
 }
-
+.folder-header {
+  flex-wrap: wrap;
+  gap: 15px;
+}
 #notePreviewText {
   margin-bottom: 100px !important;
 }

@@ -49,30 +49,55 @@
       font-family: 'Satoshi', sans-serif !important;
     }
 
-    .neumorphic-button {
-    padding: 12px 20px;
-    background: #171717;
-    border-radius: 12px;
-    box-shadow: 8px 8px 16px #0f0f0f,
-                -8px -8px 16px #1f1f1f;
-    color: #ffffff;
-    border: 1px solid black;
-    cursor: pointer;
-    transition: 0.3s;
-    font-size: 16px;
-    font-family: 'Accasia', sans-serif;
+.neumorphic-button {
+  flex: 1; /* Makes all buttons equal width */
+  background: #171717;
+  border: 1px solid black;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 15px;
+  box-shadow: 6px 6px 12px #0e0e0e, -6px -6px 12px #202020;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-family: 'Satoshi', sans-serif;
+
+  /* ▼▼▼ ADD THESE LINES ▼▼▼ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  /* ▲▲▲ END OF ADDED LINES ▲▲▲ */
+}
+.neumorphic-button svg {
+  color: #ffcf00;
+}
+.neumorphic-button:hover svg {
+  color: #000000;
+}
+.neumorphic-button.active svg {
+  color: #000000;
 }
 
 .neumorphic-button.active,
 .neumorphic-button:hover {
-    background: #3d3d3d;
-    box-shadow: inset 4px 4px 8px #0f0f0f,
-                inset -4px -4px 8px #1f1f1f;
-
-    font-family: 'Accasia', sans-serif;
-    border: 1px solid rgb(255, 255, 255);
+    background-color: #ffcf00;
+  border: 2px solid rgb(47, 47, 47);
+  color: #171717;
+}
+#blitzButton {
+  display: flex;         /* Aligns text and image in a row */
+  align-items: center;   /* Vertically centers the items */
+  justify-content: center; /* Horizontally centers the items */
+  gap: 8px;              /* Adds a small space between text and icon */
+  position: relative;    /* Needed for positioning if you want more control */
 }
 
+/* Style the icon itself */
+.new-icon {
+  width: 38px;           /* Adjust the width of the icon as needed */
+  height: auto;          /* Maintains the aspect ratio */
+}
 .rectangle-container {
   background-color: #131313;
   border-radius: 16px;
@@ -468,7 +493,7 @@
   color: #fff;
   cursor: pointer;
   transition: 0.2s;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 
 .neumorphic-button2:hover {
