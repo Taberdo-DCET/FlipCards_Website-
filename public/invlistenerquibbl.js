@@ -76,7 +76,7 @@ function startCountdownAndRedirect(timeRemaining) {
     color: white;
     padding: 20px 40px;
     border-radius: 12px;
-    font-family: 'QilkaBold';
+    font-family: 'Satoshi';
     font-size: 24px;
     text-align: center;
     z-index: 9999;
@@ -162,7 +162,7 @@ rightContainer.innerHTML = `
     padding: 20px;
     background: transparent;
     border-radius: 10px;
-    font-family: 'QilkaBold';
+    font-family: 'Satoshi';
     font-size: 20px;
     color: #fff;
     height: calc(100% - 10px);
@@ -181,7 +181,7 @@ rightContainer.innerHTML = `
     <div class="timer-fill"></div>
   </div>
 `;
-
+document.getElementById("chatInputField")?.focus();
 const chatInput = document.getElementById("chatInputField");
   if (chatInput) {
     chatInput.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -199,6 +199,8 @@ if (!countdownFinished) {
 
   showNextDefinition();
 }
+// REPLACE your old showEndGameModal function with this new one:
+// REPLACE your old showEndGameModal function with this:
 async function showEndGameModal() {
   const gameRef = doc(db, "gamestartquibbl", currentLobbyHost);
   const snapshot = await getDoc(gameRef);
@@ -208,160 +210,90 @@ async function showEndGameModal() {
   const players = [...(data.players || [])];
   players.sort((a, b) => (b.correctScore || 0) - (a.correctScore || 0));
 
-  const currentEmail = auth.currentUser?.email || "";
-  const isHost = currentEmail === currentLobbyHost;
+  const isHost = auth.currentUser?.email === currentLobbyHost;
+  const topScore = players.length > 0 ? players[0].correctScore || 0 : 0;
+  const winners = players.filter(p => (p.correctScore || 0) === topScore);
+  const isDraw = winners.length > 1;
+
+  if (isHost) {
+    for (const winner of winners) {
+      const winnerRef = doc(db, "quibblwinner", winner.email);
+      await setDoc(winnerRef, { wins: increment(1) }, { merge: true });
+    }
+  }
+
+  const winnerAnnouncementHTML = `
+    <div class="winner-announcement">
+        <h3>${isDraw ? 'It\'s a Draw!' : '🏆 Winner 🏆'}</h3>
+        <div class="winner-info">
+            ${winners.map(winner => `
+                <div>
+                    <img src="${winner.avatar || 'Group-100.png'}" alt="winner avatar">
+                    <div class="winner-name">${winner.username || winner.email.split('@')[0]}</div>
+                </div>
+            `).join('')}
+        </div>
+    </div>
+  `;
+
+  const playerRowsHTML = await Promise.all(players.map(async (player) => {
+    const score = player.correctScore || 0;
+    const isWinner = score === topScore;
+    let earnedXP = isWinner ? (isDraw ? 400 : 500) : 200;
+    
+    if (player.email === auth.currentUser?.email) {
+      addXP(earnedXP); 
+    }
+
+    const username = player.username || player.email.split('@')[0];
+    
+    return `
+      <div class="endgame-player-row">
+        <div class="player-info">
+          <img src="${player.avatar || 'Group-100.png'}" alt="player avatar">
+          <span>${username}</span>
+        </div>
+        <div class="player-results">
+          <div class="player-score">${score} pts</div>
+          <div class="player-xp">+${earnedXP} XP</div>
+        </div>
+      </div>
+    `;
+  }));
 
   const modal = document.createElement("div");
   modal.className = "modal-backdrop";
   modal.style.display = "flex";
-
-// Get highest score
-const topScore = players.length > 0 ? players[0].correctScore || 0 : 0;
-
-// Count how many players have top score
-const topScorers = players.filter(p => (p.correctScore || 0) === topScore);
-
-// Determine if it's a draw
-const isDraw = topScorers.length > 1;
-// ✅ Record winners in Firestore (host only)
-if (auth.currentUser?.email === currentLobbyHost) {
-  for (const winner of topScorers) {
-    const winnerRef = doc(db, "quibblwinner", winner.email);
-    await setDoc(winnerRef, { wins: increment(1) }, { merge: true });
-  }
-}
-
-
-// 🏁 XP reward logic
-
-
-const playerRows = await Promise.all(players.map(async (player) => {
-  const score = player.correctScore || 0;
-  const isTop = score === topScore;
-  const label = isTop ? (isDraw ? "🤝 Draw" : "🏆 Winner") : "";
-
-  // 🎁 XP Reward
-  if (player.email === auth.currentUser?.email) {
-    if (isTop && isDraw) {
-      addXP(400);
-    } else if (isTop) {
-      addXP(500);
-    } else {
-      addXP(200);
-    }
-  }
-
-  // Get username
-  let username = player.email;
-  try {
-    const userDoc = await getDoc(doc(db, "usernames", player.email));
-    if (userDoc.exists() && userDoc.data().username) {
-      username = userDoc.data().username;
-    }
-  } catch (err) {
-    console.warn("Failed to fetch username:", err);
-  }
-
-  // Get badges
-  let badges = "";
-  try {
-    const badgeDoc = await getDoc(doc(db, "approved_emails", player.email));
-    if (badgeDoc.exists()) {
-      const roles = (badgeDoc.data().role || "").toLowerCase();
-      if (roles.includes("verified")) {
-        badges += `<img src="verified.svg" class="badge-icon" title="Verified" alt="verified"> `;
-      }
-      if (roles.includes("first")) {
-        badges += `<img src="first.png" class="badge-icon" title="First" alt="first"> `;
-      }
-    }
-  } catch (err) {
-    console.warn("Failed to fetch badges:", err);
-  }
-
-  let earnedXP = score === 0 ? 10 : (isTop ? (isDraw ? 400 : 500) : 200);
-
-// Check if this player is verified
-let isVerified = false;
-try {
-  const badgeDoc = await getDoc(doc(db, "approved_emails", player.email));
-  if (badgeDoc.exists()) {
-    const roles = (badgeDoc.data().role || "").toLowerCase();
-    isVerified = roles.includes("verified");
-  }
-} catch (err) {
-  console.warn("Failed to check verification status:", err);
-}
-
-let bonusXP = 0;
-if (isVerified) {
-  bonusXP = Math.floor(earnedXP * 0.5);
-}
-
-
-return `
-  <div style="position:relative; display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#1f1f1f; border-radius:8px; margin-bottom:6px;">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <img src="${player.avatar || "Group-10.png"}" alt="avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid #ffcf00;">
-      <span style="display:flex; align-items:center; gap:5px;">${username} ${badges}</span>
-    </div>
-    <div style="font-weight:bold; color:#ffcf00;">${score} pts ${label}</div>
-
-   <div class="xp-float" style="
-  position:absolute;
-  right:12px;
-  top:-16px;
-  font-size:13px;
-  color:#ffcf00;
-  animation: floatXP 3.6s ease-out forwards;
-">
-  +${earnedXP}${bonusXP > 0 ? ` (+${bonusXP} verified bonus)` : ''} XP
-</div>
-${(isTop && isHost) ? `
-  <div class="star-float" style="
-    position: absolute;
-    left: 12px;
-    top: -16px;
-    font-size: 13px;
-    color: #ffc700;
-    animation: floatStar 3.6s ease-out forwards;
-    font-weight: bold;
-  ">
-    +1 ⭐ Star!
-  </div>
-` : ""}
-
-  </div>
-`;
-
-}));
-
-
-
-
   modal.innerHTML = `
-    <div class="modal-box" style="padding: 20px; max-width: 500px;">
-      <h2>Game Over</h2>
-      <div class="modal-body">
-        ${playerRows.join("")}
-
-      </div>
-      <div class="modal-footer" style="margin-top: 20px;">
-  ${isHost ? `
-    <button onclick="startGame()">Restart</button>
-    <button onclick="closeLobbyFromEndgame()" style="background:#ff4d4d; color:white;">Leave</button>
-  ` : `
-    <button onclick="leaveGameAfterMatch()" style="background:#ff4d4d; color:white;">Leave</button>
-  `}
-</div>
-
-
+    <div class="endgame-modal-box">
+        <div class="endgame-header">
+            <h2>Game Over</h2>
+        </div>
+        ${winnerAnnouncementHTML}
+        <div class="endgame-scoreboard">
+            ${playerRowsHTML.join("")}
+        </div>
+        <div class="endgame-footer">
+            ${isHost ? `
+                <button id="endgame-restart-btn" class="control-btn start-btn" onclick="startGame()">Restart</button>
+                <button id="endgame-leave-btn" class="control-btn leave-btn" onclick="leaveLobby()">Leave</button>
+            ` : `
+                <button id="endgame-leave-btn" class="control-btn leave-btn" onclick="leaveLobby()">Leave</button>
+            `}
+        </div>
     </div>
   `;
 
   document.body.appendChild(modal);
 }
+// REPLACE your old leaveGameAfterMatch function with this:
 window.leaveGameAfterMatch = async function () {
+  const leaveBtn = document.getElementById('endgame-leave-btn');
+  if (leaveBtn) {
+    leaveBtn.disabled = true;
+    leaveBtn.textContent = 'Leaving...';
+  }
+
   const host = localStorage.getItem("quibblHost");
   const userName = localStorage.getItem("username") || currentUserEmail;
 
@@ -399,7 +331,15 @@ window.leaveGameAfterMatch = async function () {
     showCustomAlert("Something went wrong while leaving.", 'error');
   }
 };
+
+// REPLACE your old closeLobbyFromEndgame function with this:
 window.closeLobbyFromEndgame = async function () {
+  const leaveBtn = document.getElementById('endgame-leave-btn');
+  if (leaveBtn) {
+    leaveBtn.disabled = true;
+    leaveBtn.textContent = 'Closing...';
+  }
+  
   const host = localStorage.getItem("quibblHost");
   if (!host || currentUserEmail !== host) return;
 
@@ -416,6 +356,12 @@ window.closeLobbyFromEndgame = async function () {
     } catch (err) {
       console.error("Error deleting lobby from endgame:", err);
       showCustomAlert("Failed to delete the lobby.", 'error');
+    }
+  } else {
+    // Re-enable the button if the user cancels
+    if (leaveBtn) {
+      leaveBtn.disabled = false;
+      leaveBtn.textContent = 'Leave';
     }
   }
 };
@@ -456,114 +402,97 @@ function listenForInvitations() {
 }
 
 // Check if the user is part of any lobby
+// REPLACE your old 'checkIfInLobby' function with this:
 async function checkIfInLobby() {
   const lobbiesSnapshot = await getDocs(collection(db, "quibbllobbies"));
   for (const lobbySnap of lobbiesSnapshot.docs) {
     const data = lobbySnap.data();
     if (data.players && data.players.some(p => p.email === currentUserEmail)) {
       currentLobbyHost = data.host;
-      toggleHostControls();
-
-
       lobbyDocRef = doc(db, "quibbllobbies", lobbySnap.id);
-      acceptedPlayers = data.players || [];
+      
+      onSnapshot(lobbyDocRef, (snapshot) => {
+        if (!snapshot.exists()) {
+          // ... (rest of your existing code inside this if-block)
+          return;
+        }
 
-      const currentPlayer = acceptedPlayers.find(p => p.email === currentUserEmail);
-      isUserReady = currentPlayer ? currentPlayer.ready : false;
+        const updatedData = snapshot.data();
+        acceptedPlayers = updatedData.players || [];
+        
+        // --- THIS IS THE CORE FIX ---
+        // It now calls both functions correctly.
+        if (typeof window.renderPlayerSlots === 'function') {
+            window.renderPlayerSlots(); // Updates the main modal for the host
+        }
+        renderGuestInvitePopup(); // Updates the mini pop-up for guests
+        // --- END OF FIX ---
+        
+        // ... (rest of your existing code inside the onSnapshot listener)
+        const currentPlayer = acceptedPlayers.find(p => p.email === currentUserEmail);
+        isUserReady = currentPlayer ? currentPlayer.ready : false;
 
-      if (currentUserEmail !== currentLobbyHost) {
-  renderPlayerSlots();
-}
-renderTopAvatars();
+        renderTopAvatars();
+        
+        // (The rest of your code from the original onSnapshot function continues here)
+        const newRestartToken = updatedData.restartToken;
+        const lastRestartToken = parseInt(localStorage.getItem("lastRestartToken") || "0", 10);
 
-onSnapshot(lobbyDocRef, (snapshot) => {
-  if (!snapshot.exists()) {
-    acceptedPlayers = [];
-    const modal = document.querySelector('.invite-popup');
-    if (modal) modal.remove();
-    showCustomAlert("The lobby was closed by the host.", 'error');
-    localStorage.removeItem("quibblHost");
-    localStorage.removeItem("reviewingSet");
-    localStorage.removeItem("countdownFinished");
-    window.location.reload();
-    return;
-  }
+        if (newRestartToken && newRestartToken > lastRestartToken) {
+          localStorage.setItem("lastRestartToken", newRestartToken);
+          localStorage.setItem("countdownFinished", "false");
+          localStorage.setItem("forceReload", "true");
+          setTimeout(() => window.location.reload(), 100);
+          return;
+        }
 
-  const updatedData = snapshot.data();
+        if (updatedData.lobbyClosed) {
+            showCustomAlert("The host has closed the lobby.", 'error');
+            localStorage.removeItem("quibblHost");
+            localStorage.removeItem("reviewingSet");
+            localStorage.removeItem("countdownFinished");
+            window.location.href = "quibbl.html";
+            return;
+        }
+        
+        currentLobbyHost = updatedData.host || currentLobbyHost;
+        const stillInLobby = acceptedPlayers.some(p => p.email === currentUserEmail);
+        if (!stillInLobby) {
+            showCustomAlert("You have been removed from the lobby by the host.", 'error');
+            localStorage.removeItem("quibblHost");
+            localStorage.removeItem("reviewingSet");
+            localStorage.removeItem("countdownFinished");
+            window.location.href = "quibbl.html";
+            return;
+        }
+        
+        listenForScores(currentLobbyHost);
+        toggleHostControls();
 
-  // ✅ Detect restart token
-  const newRestartToken = updatedData.restartToken;
-  const lastRestartToken = parseInt(localStorage.getItem("lastRestartToken") || "0", 10);
+        if (updatedData.selectedSet) {
+            const setData = updatedData.selectedSet;
+            if (updatedData.numCardsToDisplay) {
+              setData.numCardsToDisplay = updatedData.numCardsToDisplay;
+            }
+            window.latestSetData = setData;
+            updateQuibblTitle(setData.title || "Untitled Set");
+            updateRoundsDisplayFromSnapshot({ numCardsToDisplay: setData.numCardsToDisplay });
+        }
 
-  if (newRestartToken && newRestartToken > lastRestartToken) {
-    localStorage.setItem("lastRestartToken", newRestartToken);
-    localStorage.setItem("countdownFinished", "false");
-    localStorage.setItem("forceReload", "true");
+        if (updatedData.gameStartTime && !countdownStarted) {
+            countdownStarted = true;
+            const countdownStart = updatedData.gameStartTime - Date.now();
+            if (countdownStart > 0) {
+              startCountdownAndRedirect(countdownStart);
+            } else {
+              redirectToQuibbl();
+            }
+        }
+        
+        const updatedPlayer = acceptedPlayers.find(p => p.email === currentUserEmail);
+        isUserReady = updatedPlayer ? updatedPlayer.ready : false;
 
-    // Wait a brief moment to allow Firestore listeners to flush, then reload
-    setTimeout(() => window.location.reload(), 100);
-    return;
-  }
-
-
-
-  if (updatedData.lobbyClosed) {
-    showCustomAlert("The host has closed the lobby.", 'error');
-    localStorage.removeItem("quibblHost");
-    localStorage.removeItem("reviewingSet");
-    localStorage.removeItem("countdownFinished");
-    window.location.href = "quibbl.html";
-    return;
-  }
-
-  acceptedPlayers = updatedData.players || [];
-  currentLobbyHost = updatedData.host || currentLobbyHost;
-  // ✅ If this user is not in the list anymore (was kicked)
-const stillInLobby = acceptedPlayers.some(p => p.email === currentUserEmail);
-if (!stillInLobby) {
-  showCustomAlert("You have been removed from the lobby by the host.", 'error');
-  localStorage.removeItem("quibblHost");
-  localStorage.removeItem("reviewingSet");
-  localStorage.removeItem("countdownFinished");
-  window.location.href = "quibbl.html";
-  return;
-}
-
-  listenForScores(currentLobbyHost);
-  toggleHostControls();
-
-  if (updatedData.selectedSet) {
-    const setData = updatedData.selectedSet;
-    if (updatedData.numCardsToDisplay) {
-      setData.numCardsToDisplay = updatedData.numCardsToDisplay;
-    }
-    window.latestSetData = setData;
-    updateQuibblTitle(setData.title || "Untitled Set");
-    updateRoundsDisplayFromSnapshot({ numCardsToDisplay: setData.numCardsToDisplay });
-    const existing = document.querySelector('.invite-popup');
-    if (existing) existing.remove();
-    renderPlayerSlots();
-  }
-
-  if (updatedData.gameStartTime && !countdownStarted) {
-    countdownStarted = true;
-    const countdownStart = updatedData.gameStartTime - Date.now();
-    if (countdownStart > 0) {
-      startCountdownAndRedirect(countdownStart);
-    } else {
-      redirectToQuibbl();
-    }
-  }
-
-  const updatedPlayer = acceptedPlayers.find(p => p.email === currentUserEmail);
-  isUserReady = updatedPlayer ? updatedPlayer.ready : false;
-
-  if (currentUserEmail !== currentLobbyHost) {
-    renderPlayerSlots();
-  }
-  renderTopAvatars();
-});
-
+      });
       break;
     }
   }
@@ -588,7 +517,7 @@ async function getAvatarURL(email) {
     const avatarRef = ref(storage, `avatars/${email}`);
     return await getDownloadURL(avatarRef);
   } catch {
-    return "Group-10.png";
+    return "Group-100.png";
   }
 }
 
@@ -693,10 +622,12 @@ renderTopAvatars();
 }
 
 // Render player slots (mini modal)
-function renderPlayerSlots() {
+// invlistenerquibbl.js
+
+// REPLACE your old 'renderPlayerSlots' function in this file with this:
+function renderGuestInvitePopup() {
   // Prevent rendering if countdown has finished
   if (countdownFinished) {
-
     const existingModal = document.querySelector('.invite-popup');
     if (existingModal) existingModal.remove();
     return;
@@ -726,40 +657,40 @@ function renderPlayerSlots() {
       <img src="${player.avatar}"
            title="${player.email}"
            style="width:50px; height:50px; border-radius:50%;
-           border:2px solid ${player.ready ? 'green' : '#ffcf00'};
+           border:2px solid ${player.ready ? '#28a745' : '#ffcf00'};
            object-fit:cover;" />
     </div>
   `).join('');
 
     const reviewingSet = window.latestSetData || null;
 
-
+  // This is the new, redesigned innerHTML
   container.innerHTML = `
-    <div class="avatar-list" style="display:flex; justify-content:center; gap:10px; margin-bottom:10px;">
-      ${avatarsHTML}
+    <div class="invite-header">
+      <i class="fa-solid fa-users"></i>
+      <span>Quibbl Lobby</span>
     </div>
-    ${reviewingSet ? `
-    <div style="color: white; text-align: center; margin-bottom: 6px;">
-      <div style="font-size: 13px;">📚 Set: <span style="color:#ffcf00;">${reviewingSet.title}</span></div>
-      
-    </div>` : ''}
-    <div style="text-align:center; margin-top:10px;">
-      <button type="button" onclick="toggleUserReady()"
-        style="padding:8px 20px; background:#ffcf00; border:none; border-radius:8px;
-        cursor:pointer; font-family:'QilkaBold'; font-size:14px; margin-bottom:5px;">
-        ${isUserReady ? "Unready" : "I'm Ready"}
-      </button>
-      ${currentUserEmail !== currentLobbyHost ? `
-        <br/>
-        <button type="button" onclick="leaveLobby()" 
-          style="padding:6px 16px; background:#ff4d4d; border:none; border-radius:8px;
-          cursor:pointer; font-family:'QilkaBold'; font-size:14px; color:white; margin-top:5px;">
-          Leave Lobby
-        </button>` : ""}
+    <div class="invite-body" style="flex-direction: column; padding: 15px; align-items: center; text-align: center;">
+      <div class="avatar-list" style="margin-bottom: 15px;">
+        ${avatarsHTML}
+      </div>
+      ${reviewingSet ? `
+        <div style="font-size: 13px; color: #ccc;">
+          <i class="fa-solid fa-book"></i> Set: <span style="color:#ffcf00; font-weight: bold;">${reviewingSet.title}</span>
+        </div>` : '<div style="font-size: 13px; color: #888;">Host is selecting a set...</div>'
+      }
+    </div>
+        <div class="invite-buttons">
+        <button 
+            type="button" 
+            onclick="toggleUserReady()" 
+            class="invite-popup-btn ${isUserReady ? 'decline' : 'accept'}">
+            ${isUserReady ? "Unready" : "I'm Ready"}
+        </button>
     </div>
   `;
-
 }
+
 
 
 // Toggle user readiness
@@ -778,11 +709,27 @@ window.toggleUserReady = async function () {
   renderTopAvatars();
 };
 
-
-// Leave lobby
+// REPLACE your old leaveLobby function with this
 window.leaveLobby = async function () {
-  const host = localStorage.getItem("quibblHost");
+  localStorage.setItem('isLeavingLobby', 'true');
+  console.log("--- leaveLobby function initiated, 'isLeavingLobby' flag set ---");
+
+  let host = localStorage.getItem("quibblHost");
+  if (!host) {
+    console.error("Could not find host in localStorage. Forcing cleanup.");
+    localStorage.removeItem("quibblHost");
+    localStorage.removeItem('isLeavingLobby');
+    window.location.reload();
+    return;
+  }
+
   const isHost = currentUserEmail === host;
+  const btnToDisable = document.querySelector('.leave-btn') || document.getElementById('endgame-leave-btn') || document.getElementById('leave-lobby-btn');
+
+  if (btnToDisable) {
+    btnToDisable.disabled = true;
+    btnToDisable.textContent = isHost ? 'Closing...' : 'Leaving...';
+  }
 
   if (isHost) {
     const confirmed = await showConfirm("Are you sure you want to close the lobby? All players will be removed.");
@@ -790,134 +737,158 @@ window.leaveLobby = async function () {
       try {
         await deleteDoc(doc(db, "quibbllobbies", currentUserEmail));
         await deleteDoc(doc(db, "gamestartquibbl", currentUserEmail));
+      } catch (err) {
+        console.error("Error deleting lobby documents:", err);
+      } finally {
         localStorage.removeItem("quibblHost");
         localStorage.removeItem("reviewingSet");
         localStorage.removeItem("countdownFinished");
-        showCustomAlert("Lobby closed.", 'success');
+        localStorage.removeItem('isLeavingLobby');
         window.location.reload();
-      } catch (err) {
-        console.error("Error closing lobby:", err);
-        showCustomAlert("Failed to close lobby.", 'error');
       }
+    } else {
+      if (btnToDisable) {
+        btnToDisable.disabled = false;
+        btnToDisable.textContent = 'Leave Game';
+      }
+      localStorage.removeItem('isLeavingLobby');
     }
   } else {
-    try {
-      const lobbyRef = doc(db, "quibbllobbies", host);
-      const snapshot = await getDoc(lobbyRef);
-      const userName = localStorage.getItem("username") || currentUserEmail;
+    // --- FIX START: Guest logic now properly waits for confirmation ---
+    const confirmed = await showConfirm("Are you sure you want to leave the lobby?");
+    if (confirmed) {
+      try {
+        const lobbyRef = doc(db, "quibbllobbies", host);
+        const snapshot = await getDoc(lobbyRef);
 
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        const updatedPlayers = (data.players || []).filter(p => p.email !== currentUserEmail);
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          const userName = localStorage.getItem("username") || currentUserEmail;
+          const userEmailLower = currentUserEmail.toLowerCase();
+          
+          const updatedPlayers = (data.players || []).filter(p => (p.email ? p.email.toLowerCase() : '') !== userEmailLower);
+          const updatedChat = data.chat || [];
+          updatedChat.push({ user: "System", email: "system@quibbl", message: `${userName} left the lobby.`, isCorrect: false, timestamp: Date.now() });
 
-
-        const updatedChat = data.chat || [];
-
-        updatedChat.push({
-          user: "System",
-          email: "system@quibbl",
-          message: `${userName} left the lobby.`,
-          isCorrect: false,
-          timestamp: Date.now()
-        });
-
-        await setDoc(lobbyRef, {
-          players: updatedPlayers,
-          chat: updatedChat
-        }, { merge: true });
+          await setDoc(lobbyRef, { players: updatedPlayers, chat: updatedChat }, { merge: true });
+        }
+      } catch (err) {
+        console.error("An error occurred while updating Firestore:", err);
+      } finally {
+        localStorage.removeItem("quibblHost");
+        localStorage.removeItem("reviewingSet");
+        localStorage.removeItem("countdownFinished");
+        localStorage.removeItem('isLeavingLobby');
+        window.location.reload();
       }
-
-      localStorage.removeItem("quibblHost");
-      localStorage.removeItem("reviewingSet");
-      localStorage.removeItem("countdownFinished");
-
-      showCustomAlert("You have left the lobby.", 'success');
-      window.location.reload();
-    } catch (err) {
-      console.error("Failed to leave lobby:", err);
-      showCustomAlert("Error leaving lobby.", 'error');
+    } else {
+      // User clicked "Cancel"
+      if (btnToDisable) {
+        btnToDisable.disabled = false;
+        btnToDisable.textContent = 'Leave Game';
+      }
+      localStorage.removeItem('isLeavingLobby');
     }
+    // --- FIX END ---
   }
 };
 
 
 
 
-// Show invitation popup
-async function showInvitePopup(inviterEmail) {
-  const inviterName = await getInviterName(inviterEmail);
-  const inviterAvatar = await getAvatarURL(inviterEmail);
+// invlistenerquibbl.js
 
-  const modal = document.createElement("div");
-  modal.classList.add("invite-popup");
-  modal.innerHTML = `
-    <div class="invite-content">
-      <img src="${inviterAvatar}" alt="avatar"
-        style="width:40px; height:40px; border-radius:50%; border:2px solid #ffcf00; object-fit:cover; margin-right:10px;">
-      <span>${inviterName} invites you to join Quibbl</span>
-      <div class="invite-buttons">
-        <button type="button" id="acceptInvite" class="invite-btn accept">✔</button>
-        <button type="button" id="declineInvite" class="invite-btn decline">✖</button>
+async function showInvitePopup(inviterEmail) {
+    const inviterName = await getInviterName(inviterEmail);
+    const inviterAvatar = await getAvatarURL(inviterEmail);
+
+    // Remove any existing pop-up first to prevent duplicates
+    const existingPopup = document.querySelector('.invite-popup');
+    if (existingPopup) existingPopup.remove();
+
+    const modal = document.createElement("div");
+    modal.classList.add("invite-popup");
+    modal.innerHTML = `
+    <div class="invite-header">
+      <i class="fa-solid fa-gamepad"></i>
+      <span>Game Invite</span>
+    </div>
+    <div class="invite-body">
+      <img src="${inviterAvatar}" alt="inviter avatar">
+      <div class="invite-text">
+        <strong>${inviterName}</strong> has invited you to a game of Quibbl.
       </div>
+    </div>
+    <div class="invite-buttons">
+      <button type="button" id="declineInvite" class="control-btn decline">Decline</button>
+      <button type="button" id="acceptInvite" class="control-btn accept">Accept</button>
+    </div>
+    <div class="invite-timer-bar">
+        <div id="inviteTimerFill" class="invite-timer-fill"></div>
     </div>
   `;
 
-  addInviteStyles();
-  document.body.appendChild(modal);
+    document.body.appendChild(modal);
 
-  document.getElementById("acceptInvite").onclick = async () => {
-    await setDoc(doc(db, "invitations_quibbl", currentUserEmail), { invitedBy: null }, { merge: true });
+    // --- TIMER LOGIC START ---
+    let countdown = 10;
+    const timerFill = document.getElementById("inviteTimerFill");
 
-    if (!lobbyDocRef) {
-      lobbyDocRef = doc(db, "quibbllobbies", inviterEmail);
-    }
-localStorage.setItem("quibblHost", inviterEmail);
+    // This interval updates the visual width of the timer bar every 100ms
+    const timerInterval = setInterval(() => {
+        countdown -= 0.1;
+        if (timerFill) {
+            timerFill.style.width = `${(countdown / 10) * 100}%`;
+        }
+    }, 100);
 
-    let latestPlayers = [];
-    const latestSnapshot = await getDoc(lobbyDocRef);
-    if (latestSnapshot.exists()) {
-      latestPlayers = latestSnapshot.data().players || [];
-    }
+    // This timeout will automatically decline the invite after 10 seconds
+    const expirationTimeout = setTimeout(() => {
+        clearInterval(timerInterval); // Stop the visual timer
+        modal.remove();
+        // Silently decline the invite by clearing it from the database
+        setDoc(doc(db, "invitations_quibbl", currentUserEmail), { invitedBy: null }, { merge: true });
+    }, 10000);
+    // --- TIMER LOGIC END ---
 
-    const userAvatarURL = await getAvatarURL(currentUserEmail);
-    if (!latestPlayers.find(p => p.email === currentUserEmail)) {
-      latestPlayers.push({ email: currentUserEmail, avatar: userAvatarURL, ready: false });
-    }
 
-    await setDoc(lobbyDocRef, { players: latestPlayers }, { merge: true });
-acceptedPlayers = latestPlayers;
-createOrJoinLobby(inviterEmail, inviterEmail);
+    document.getElementById("acceptInvite").onclick = async () => {
+        // --- ADD THESE TWO LINES TO CLEAR TIMERS ---
+        clearTimeout(expirationTimeout);
+        clearInterval(timerInterval);
+        // --- END OF ADDITION ---
+        
+        await setDoc(doc(db, "invitations_quibbl", currentUserEmail), { invitedBy: null }, { merge: true });
 
-// ✅ Immediately fetch current selectedSet and render if it exists
-const lobbySnap = await getDoc(doc(db, "quibbllobbies", inviterEmail));
-if (lobbySnap.exists()) {
-  const lobbyData = lobbySnap.data();
-  if (lobbyData.selectedSet) {
-    const setData = lobbyData.selectedSet;
-    if (lobbyData.numCardsToDisplay) {
-      setData.numCardsToDisplay = lobbyData.numCardsToDisplay;
-    }
+        lobbyDocRef = doc(db, "quibbllobbies", inviterEmail);
+        localStorage.setItem("quibblHost", inviterEmail);
 
-    window.latestSetData = setData;
-    updateQuibblTitle(setData.title || "Untitled Set");
-    updateRoundsDisplayFromSnapshot({ numCardsToDisplay: setData.numCardsToDisplay });
-  }
-}
+        let latestPlayers = [];
+        const latestSnapshot = await getDoc(lobbyDocRef);
+        if (latestSnapshot.exists()) {
+            latestPlayers = latestSnapshot.data().players || [];
+        }
 
-if (currentUserEmail !== currentLobbyHost) {
-  renderPlayerSlots();
-}
-renderTopAvatars();
-window.location.reload();
+        const userAvatarURL = await getAvatarURL(currentUserEmail);
+        if (!latestPlayers.find(p => p.email === currentUserEmail)) {
+            latestPlayers.push({ email: currentUserEmail, avatar: userAvatarURL, ready: false, username: localStorage.getItem("username") });
+        }
 
-  };
+        await setDoc(lobbyDocRef, { players: latestPlayers }, { merge: true });
 
-  document.getElementById("declineInvite").onclick = async () => {
-    await setDoc(doc(db, "invitations_quibbl", currentUserEmail), { invitedBy: null }, { merge: true });
-    modal.remove();
-    showCustomAlert("You have declined the invitation.", 'success');
-    window.location.reload();
-  };
+        showCustomAlert("Joined lobby! The page will now reload.", 'success');
+        setTimeout(() => window.location.reload(), 2000);
+    };
+
+    document.getElementById("declineInvite").onclick = async () => {
+        // --- ADD THESE TWO LINES TO CLEAR TIMERS ---
+        clearTimeout(expirationTimeout);
+        clearInterval(timerInterval);
+        // --- END OF ADDITION ---
+        
+        await setDoc(doc(db, "invitations_quibbl", currentUserEmail), { invitedBy: null }, { merge: true });
+        modal.remove();
+    };
 }
 
 // Styles
@@ -932,7 +903,7 @@ function addInviteStyles() {
       right: -400px;
       background: #171717;
       color: white;
-      font-family: 'QilkaBold';
+      font-family: 'Satoshi';
       padding: 12px 16px;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
@@ -996,7 +967,7 @@ playersToShow.forEach((player, index) => {
   wrapper.style.margin = "0 4px";
 
   const img = document.createElement('img');
-  img.src = player.avatar || "Group-10.png";
+  img.src = player.avatar || "Group-100.png";
   if (player.left === true) {
   img.classList.add("player-left");
 }
@@ -1039,7 +1010,7 @@ playersToShow.forEach((player, index) => {
   // Fill remaining slots
   for (let i = playersToShow.length; i < maxAvatars; i++) {
     const img = document.createElement('img');
-    img.src = "Group-10.png";
+    img.src = "Group-100.png";
     img.alt = "Empty slot";
     avatarContainer.appendChild(img);
   }
@@ -1056,60 +1027,58 @@ function updateRoundsDisplayFromSnapshot(data) {
     displayEl.textContent = data.numCardsToDisplay || 0;
   }
 }
+// REPLACE the old listenForScores function with this new one
 function listenForScores(hostEmail) {
   const gameRef = doc(db, "gamestartquibbl", hostEmail);
   onSnapshot(gameRef, (snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.data();
-      const scoreDivs = document.querySelectorAll(".score-values span");
-      const players = data.players || [];
+    if (!snapshot.exists()) return;
 
+    const data = snapshot.data();
+    const players = data.players || [];
+    const scoreboardContainer = document.querySelector(".scoreboard-container");
+    if (!scoreboardContainer) return;
 
-const scoreNames = document.querySelectorAll(".score-names span");
-const scorePairs = document.querySelectorAll(".score-values > span");
-const combinedPlayers = data.players || [];
+    // Clear previous scores and rebuild
+    scoreboardContainer.innerHTML = "";
 
-scorePairs.forEach((pair, index) => {
-  const player = combinedPlayers[index];
-  if (!player) return;
+    // Create a score row for each player
+    players.forEach((player, index) => {
+      const isHost = player.email === currentLobbyHost;
+      const playerName = isHost ? "P1 (Host)" : `P${index + 1}`;
+      
+      const scoreRow = document.createElement("div");
+      scoreRow.className = "player-score-row";
+      if (player.left === true) {
+        scoreRow.style.opacity = "0.5";
+      }
 
-  const correctSpan = pair.querySelector(".correct");
-  const wrongSpan = pair.querySelector(".wrong");
+      scoreRow.innerHTML = `
+        <span class="player-name">${playerName}</span>
+        <div class="player-scores">
+          <span class="score-correct" title="Correct Answers">
+            <i class="fa-solid fa-check"></i> ${player.correctScore || 0}
+          </span>
+          <span class="score-wrong" title="Incorrect Answers">
+            <i class="fa-solid fa-xmark"></i> ${player.incorrectScore || 0}
+          </span>
+        </div>
+      `;
+      scoreboardContainer.appendChild(scoreRow);
+    });
 
-  if (correctSpan && wrongSpan) {
-    correctSpan.textContent = player.correctScore || 0;
-    wrongSpan.textContent = player.incorrectScore || 0;
-
-    if (scoreNames[index])
-      scoreNames[index].textContent =
-        player.email === currentLobbyHost ? "P1 (Host):" : `P${index + 1}:`;
-  }
-});
-
-// Fill remaining slots
-for (let i = combinedPlayers.length; i < 5; i++) {
-  if (scoreNames[i]) scoreNames[i].textContent = "No Player";
-  if (scorePairs[i]) {
-    const correctSpan = scorePairs[i].querySelector(".correct");
-    const wrongSpan = scorePairs[i].querySelector(".wrong");
-    if (correctSpan) correctSpan.textContent = "0";
-    if (wrongSpan) wrongSpan.textContent = "0";
-  }
-}
-
-
-// Fill remaining slots with "No Player"
-for (let i = combinedPlayers.length; i < 5; i++) {
-  if (scoreNames[i]) scoreNames[i].textContent = "No Player";
-  if (scoreSpans[i]) {
-    const correctSpan = scoreSpans[i].querySelector(".correct");
-    const wrongSpan = scoreSpans[i].querySelector(".wrong");
-    if (correctSpan) correctSpan.textContent = "0";
-    if (wrongSpan) wrongSpan.textContent = "0";
-  }
-}
-
-
+    // Fill remaining slots if less than 5 players
+    for (let i = players.length; i < 5; i++) {
+        const emptyRow = document.createElement("div");
+        emptyRow.className = "player-score-row";
+        emptyRow.style.opacity = "0.3";
+        emptyRow.innerHTML = `
+            <span class="player-name">No Player</span>
+            <div class="player-scores">
+                <span class="score-correct"><i class="fa-solid fa-check"></i> 0</span>
+                <span class="score-wrong"><i class="fa-solid fa-xmark"></i> 0</span>
+            </div>
+        `;
+        scoreboardContainer.appendChild(emptyRow);
     }
   });
 }

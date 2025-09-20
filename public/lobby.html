@@ -368,22 +368,27 @@
 
 </section>
 <section id="generalQuestions">
-  <div class="general-header">
-    <h2 class="general-title">General Questions</h2>
-
-    <button class="general-btn">
-      <img src="whiteplus.png" alt="Add Question">
+  <div class="gq-header">
+    <div class="gq-header-text">
+      <h2 class="gq-title">General Questions</h2>
+      <p class="gq-subtitle">Share a question, build collective answers!</p>
+    </div>
+    <button id="addQuestionBtn" class="gq-add-btn">
+      <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <span>Ask a Question</span>
     </button>
-    
-
   </div>
-  <div class="general-header" style="margin-top: -90px; margin-left: -100px;">Share a question, build collective answers!</div>
-<div style="display: flex; flex-direction: column; align-items: flex-start;">
-    <button id="refreshQuestions" class="neumorphic-button2" style="font-size: 13px; padding: 6px 14px; margin-bottom: 4px;">🔁 Refresh</button>
-    <span style="font-size: 11px; color: #666;">Not seeing your question/answer? Refresh it!</span>
-  </div>
-  <div class="questions-list"></div>
 
+  <div class="gq-controls">
+    <button id="refreshQuestions" class="gq-refresh-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+      <span>Refresh</span>
+    </button>
+    <span style="font-size: 11px; color: #666; background-color: transparent;">Not seeing your question/answer? Refresh it!</span>
+  </div>
+
+  <div id="questionsList" class="questions-list">
+    </div>
 </section>
 <section id="classFavorite" class="class-favorite">
   <div class="class-favorite-header container">
@@ -394,7 +399,7 @@
 
 
   </div>
-  <div class="class-favorite-body container">
+  <div class="class-favorite-body ">
     <!-- TODO: Populate this list dynamically with top creators -->
     <div class="class-favorite-list" aria-live="polite">
       <!-- Example creator card -->
@@ -547,13 +552,13 @@
         <h2>🎉 Welcome to FlipCards!</h2>
         <p>We're excited to share new updates with you:</p>
         <ul style="text-align: left; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update: 09/13/25</li>
-          <li>📢 NEW REVIEW MODE!⚡</li>
-          <li>Get ready to test your knowledge at lightning speed with our brand new game: Blitz!</li>
-          <span class="sub-announcement">➥ A term and a definition will appear on screen.</span>
-          <span class="sub-announcement">➥ Decide if the pair is a True match or a False mismatch.</span>
-          <span class="sub-announcement">➥ Get instant feedback and see your final score and time at the end.</span>
-          <li>The "Try Again" feature is now fully operational. ✅</li>
+          <li>📅 New features in this Update: 09/20/25</li>
+          <li>📢 Big News for Quibbl! 🚀</li>
+          <li>Turn your study sessions into a fun, real-time game with the new Quibbl mode! 🧠</li>
+          <span class="sub-announcement">➥ One person hosts, picks any flashcard set, and invites their study buddies to compete. 🤝 See who can guess the answers the fastest and make learning interactive. 🏆</span>
+          <span class="sub-announcement">➥ We've also given it a complete visual redesign for a more modern and user-friendly look. ✨</span>
+          <li>General Question Section Redesigned! ✨</li>
+          <span class="sub-announcement">➥ Finding answers is now easier than ever! We've given our general question section a complete makeover to be more user-friendly and easier to navigate. 🗺️</span>
           <li>👀 Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes</li>
           <br>
@@ -736,14 +741,21 @@
   </div>
 </div>
 <!-- Hidden form for adding question -->
-<div id="questionModal" class="custom-modal hidden">
-  <div class="modal-content2" style="background: white; border-radius: 20px; padding: 30px; max-width: 400px; width: 90%; box-shadow: 10px 10px 30px rgba(0,0,0,0.2); color: black; font-family: 'Accasia'; text-align: center;">
-    <h3 style="margin-bottom: 20px;">Ask a General Question</h3>
-    <input type="text" id="question-category" class="question-input" placeholder="Enter category" style="margin-bottom: 15px; width: 100%;">
-    <input type="text" id="question-input" class="question-input" placeholder="Type your question..." style="margin-bottom: 15px; width: 100%;">
-    <div style="display: flex; justify-content: center; gap: 12px;">
-      <button id="submit-question" class="question-submit">Submit</button>
-      <button id="cancel-question" class="question-submit" style="background: #aaa;">Cancel</button>
+<div id="gqModalBackdrop" class="gq-modal-backdrop hidden">
+  <div id="gqModal" class="gq-modal">
+    <div class="gq-modal-header">
+      <h3 class="gq-modal-title">Ask a General Question</h3>
+      <button id="closeGqModalBtn" class="gq-modal-close-btn">&times;</button>
+    </div>
+    <div class="gq-modal-body">
+      <input type="text" id="gqCategoryInput" class="gq-modal-input" placeholder="Enter category (e.g., Science, History)" required>
+      <textarea id="gqQuestionInput" class="gq-modal-input" placeholder="Type your question here..." required></textarea>
+    </div>
+    <div class="gq-modal-footer">
+      <button id="submitGqBtn" class="gq-modal-btn submit">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13 2 9l9 2 2 9 4-11z"></path></svg>
+        <span>Submit</span>
+      </button>
     </div>
   </div>
 </div>
@@ -832,6 +844,12 @@ For the best results, avoid using low-quality images.</p>
   <div class="custom-alert-content">
     <p id="customAlertMessage"></p>
     <button id="customAlertOkBtn" class="neumorphic-button">OK</button>
+  </div>
+</div>
+<div id="gqAlertModal" class="custom-alert-backdrop hidden">
+  <div id="gqAlertContent" class="custom-alert-content">
+    <p id="gqAlertMessage"></p>
+    <button id="gqAlertOkBtn" class="neumorphic-button">OK</button>
   </div>
 </div>
 <div id="inviteUsersModal" class="note-backdrop hidden">

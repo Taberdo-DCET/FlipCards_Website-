@@ -1,15 +1,15 @@
+/* --- FONT IMPORTS (Keep these) --- */
 @font-face {
   font-family: 'QilkaBold';
   src: url('Qilka-Bold.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
 }
+/* ... (keep all your other @font-face rules) ... */
 @font-face {
-  font-family: 'RC';
-  src: url('R&C-Demo.otf') format('truetype');
-  font-weight: normal;
+  font-family: 'Satoshi';
+  src: url('Satoshi-Black.ttf') format('truetype');
+  font-weight: 900 !important;
+  font-display: swap;
   font-style: normal;
-  
 }
 @font-face {
   font-family: 'Accasia';
@@ -17,323 +17,443 @@
   font-weight: normal;
   font-style: normal;
 }
-@font-face {
-  font-family: 'Satoshi';
-  src: 
-       
-       url('Satoshi-Black.ttf') format('truetype');
-  font-weight: 900 !important;
-  font-display: swap;
-  font-style: normal;
-}
+
+
+/* --- GENERAL STYLES --- */
 body {
-    background: #171717;
-    color: #fff;
+    background: #101010;
+    color: #e0e0e0;
     font-family: 'Satoshi', sans-serif;
+    margin: 0;
+    overflow: hidden; /* Prevent body scroll */
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* --- NEW GAME LAYOUT --- */
+.game-layout {
+    display: grid;
+    grid-template-columns: 380px 1fr 350px; /* Left Sidebar | Main Content | Right Sidebar */
+    height: 100vh;
+    grid-template-areas: "left main right";
+}
+.right-sidebar {
+    background: #171717;
+    border-left: 1px solid #2a2a2a;
+    padding: 20px;
+    display: flex; /* This is crucial for the chat wrapper */
+    flex-direction: column;
+}
+/* --- SIDEBAR STYLES --- */
+.sidebar {
+  grid-area: left;
+    background: #171717;
+    border-right: 1px solid #2a2a2a;
+    padding: 20px;
     display: flex;
     flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    padding: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2a2a2a;
 }
 
 .quibbl-title {
-    font-size: 2rem;
-    text-align: center;
-    margin-top: 20px;
+    font-size: 1.8rem;
+    margin: 0;
+    color: #ffcf00;
     font-family: 'Satoshi', sans-serif;
 }
 
-.bottom-containers {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    flex: 1;
-    margin: 20px 0;
+.home-btn {
+    font-size: 1.5rem;
+    color: #aaa;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.home-btn:hover {
+    color: #ffcf00;
 }
 
-.left-container, .right-container {
-    background: #171717;
-    box-shadow: inset 4px 4px 8px #0f0f0f,
-                inset -4px -4px 8px #1f1f1f;
-    border-radius: 10px;
-    padding: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.left-container {
-    flex: 1;
-}
-
-.right-container {
-    flex: 2;
-}
-
-.input-section {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.input-section input {
-    width: 400px;
-    height: 50px;
-    margin-top: 15px;
-    padding: 8px;
-    border: none;
-    border-radius: 10px;
-    background: #171717;
-    color: #fff;
+.sidebar-note {
+    font-size: 0.8rem;
+    color: #888;
     text-align: center;
-    box-shadow: inset 4px 4px 8px #0f0f0f,
-                inset -4px -4px 8px #1f1f1f;
+    margin: -5px 0 5px 0;
 }
 
-
-.submit-btn, .leave-btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 10px;
-    background: #171717;
-    color: #fff;
-    box-shadow: 4px 4px 8px #0f0f0f,
-                -4px -4px 8px #1f1f1f;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-family: 'Satoshi', sans-serif;
-}
-
-.submit-btn:hover, .leave-btn:hover {
-    box-shadow: inset 4px 4px 8px #0f0f0f,
-                inset -4px -4px 8px #1f1f1f;
-}
-
-
-.submit-btn, .leave-btn {
-    padding: 6px 12px; /* Reduced vertical padding */
-    border: none;
-    border-radius: 10px;
-    background: #171717;
-    color: #fff;
-    box-shadow: 4px 4px 8px #0f0f0f,
-                -4px -4px 8px #1f1f1f;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9rem;
-    height: 50px;
-    margin-top: 20px;
-}
-.leave-btn:hover{
-    background-color: #ff4d4d;
-    box-shadow: none;
-}
-
-.scoreboard-container {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 15px;
-    padding: 15px 0;
-    background: #171717;
-    border-radius: 10px;
-    box-shadow: inset 4px 4px 8px #0f0f0f,
-                inset -4px -4px 8px #1f1f1f;
-    margin-top: 9px;
+.lobby-controls {
     display: grid;
-    grid-template-rows: auto auto;
-    grid-template-columns: repeat(5, 1fr);
-    row-gap: 5px;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
-.score-names, .score-values {
-    display: contents; /* Let grid manage the layout */
-}
-
-.score-names span,
-.score-values span {
-    text-align: center;
+.control-btn {
+    padding: 12px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background: #1e1e1e;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 0.9rem;
     font-weight: bold;
-}
-
-.score-values .correct {
-    color: #00ff00;
-}
-
-.score-values .wrong {
-    color: #ff4d4d;
-}
-.top-controls {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    margin: 20px 0;
-    width: 100%;
+    gap: 8px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.control-btn:hover {
+    background-color: #2a2a2a;
+    border-color: #555;
+}
+.control-btn i {
+    font-size: 1rem;
+}
+.start-btn {
+    background-color: #006b00;
+    border-color: #008f00;
+}
+.start-btn:hover {
+    background-color: #00a000;
+}
+.leave-btn {
+    background-color: #9d2b2b;
+    border-color: #b93d3d;
+}
+.leave-btn:hover {
+    background-color: #c13131;
 }
 
 .avatar-container {
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 8px 12px;
-    background: #171717;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: #1f1f1f;
     border-radius: 10px;
-    box-shadow: inset 4px 4px 8px #0f0f0f,
-                inset -4px -4px 8px #1f1f1f;
-    gap: 10px;
+    border: 1px solid #2a2a2a;
 }
 
 .avatar-container img {
     width: 40px;
     height: 40px;
-    border-radius: 50%; /* Circular avatars */
+    border-radius: 50%;
     object-fit: cover;
-    border: 1px solid rgb(255, 255, 113);
 }
 
-
-.start-btn,
-.create-lobby-btn {
-    padding: 8px 16px;
-    border: none;
+/* --- NEW SCOREBOARD DESIGN --- */
+.scoreboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: #1f1f1f;
+    padding: 12px;
     border-radius: 10px;
+    border: 1px solid #2a2a2a;
+    max-height: 220px; /* Prevents it from growing too tall */
+    overflow-y: auto;   /* Adds a scrollbar if content overflows */
+    scrollbar-width: thin;
+    scrollbar-color: #ffcf00 #1e1e1e;
+}
+.player-score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
     background: #171717;
+    border-radius: 6px;
+}
+.player-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+.player-scores {
+    font-size: 0.9rem;
+    display: flex;
+    gap: 12px;
+}
+.score-correct {
+    color: #33ff99;
+}
+.score-wrong {
+    color: #ff4d4d;
+    display: none; /* Hide wrong scores as per original CSS */
+}
+
+/* --- CHAT AREA --- */
+.chat-wrapper {
+    flex-grow: 1; /* This makes it fill the available space */
+    display: flex;
+    flex-direction: column;
+    background: #1f1f1f;
+    border-radius: 10px;
+    border: 1px solid #2a2a2a;
+    overflow: hidden; 
+    min-height: 150px; /* Ensures the chat box doesn't get too small */
+}
+.scrollable-chat {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #ffcf00 #1e1e1e;
+}
+/* ... (keep your existing scrollbar webkit styles) ... */
+.chat-message {
+    padding: 6px 12px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    max-width: 95%;
+    word-wrap: break-word;
+}
+.chat-input-area {
+    display: flex;
+    border-top: 1px solid #2a2a2a;
+}
+#chatInputField {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
     color: #fff;
-    box-shadow: 4px 4px 8px #0f0f0f,
-                -4px -4px 8px #1f1f1f;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 14px;
     font-size: 1rem;
     font-family: 'Satoshi', sans-serif;
 }
-
-.start-btn:hover {
-  
-  background-color: #006b00 !important;
-  border: 1px solid white;
+#chatInputField:focus {
+    outline: none;
+    background: #252525;
+}
+.submit-btn {
+    background: #ffcf00;
+    border: none;
+    color: #171717;
+    font-size: 1.2rem;
+    padding: 0 18px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.submit-btn:hover {
+    background: #ffe866;
 }
 
-.create-lobby-btn:hover {
-    box-shadow: inset 4px 4px 8px #0f0f0f,
-                inset -4px -4px 8px #1f1f1f;
-}
-.home-btn {
-    width: 56px;
-    height: 56px;
-    margin-top: 9px;
+/* --- MAIN CONTENT STYLES --- */
+.main-content {
+  grid-area: main;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 .settings-containers {
+    width: 100%;
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin: 10px 0;
-    width: auto;
 }
-
-.rounds-container,
-.time-container {
-    padding: 8px 12px;
-    min-width: 120px;
-    text-align: center;
+.rounds-container {
     background: #171717;
+    border: 1px solid #2a2a2a;
+    padding: 10px 20px;
     border-radius: 8px;
-    box-shadow: inset 3px 3px 6px #0f0f0f,
-                inset -3px -3px 6px #1f1f1f;
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ccc;
+}
+#roundsDisplay {
+    color: #ffcf00;
+    font-size: 1.1rem;
 }
 
+.right-container {
+    flex-grow: 1;
+    width: 100%;
+    max-width: 1000px;
+    background: #171717;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative; /* For timer bar */
+    overflow: hidden;
+}
+
+.definition-slide {
+    font-size: 1.5rem;
+    text-align: center;
+}
+.definition-slide img {
+    max-height: 300px;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* --- MODAL STYLES --- */
 .modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(23, 23, 23, 0.6);
-  backdrop-filter: blur(10px);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+    display: flex; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
 }
-
+.modal-backdrop.hidden {
+    display: none !important;
+}
 .modal-box {
-  background: rgba(23, 23, 23, 0.8);
-  border: 1px solid #ffffff22;
-  border-radius: 16px;
-  padding: 24px 32px;
-  color: white;
-  font-family: 'Satoshi', sans-serif;
-  text-align: center;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
-  max-width: 700px;
-  max-height: 80vh;   /* Restrict height to viewport */
-  overflow-y: auto;    /* Enable vertical scroll */
-  animation: fadeIn 0.4s ease-out;
+    background: #1e1e1e;
+    color: #fff;
+    border-radius: 12px;
+    border: 1px solid #333;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
 }
-
-.modal-header, .modal-footer {
-  background: #171717;
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
-
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+}
 .modal-body {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  gap: 10px;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    gap: 15px;
 }
-
-.modal-box h2 {
-  margin-bottom: 16px;
-  font-size: 1.4rem;
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #333;
+    text-align: center;
 }
-
-.modal-box button {
-  background: #ffcf00;
-  color: black;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-family: 'Satoshi', sans-serif;
-  cursor: pointer;
-  transition: 0.2s;
+.modal-footer button {
+    padding: 10px 25px;
+    border-radius: 8px;
+    border: none;
+    background: #ffcf00;
+    color: #171717;
+    font-weight: bold;
+    cursor: pointer;
 }
-
-.modal-box button:hover {
-  background: #ffe866;
+.modal-footer .secondary-btn {
+    background-color: #444;
+    color: #fff;
 }
-.player-slots {
+.invite-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.invite-section h3 {
+    margin: 0 0 10px 0;
+}
+#userSearch {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #444;
+    background: #101010;
+    color: #fff;
+}
+.user-list-container {
+    flex: 1;
+    overflow-y: auto;
+    background: #101010;
+    border-radius: 8px;
+    padding: 5px;
+}
+.set-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+/* --- BADGE ICON STYLES --- */
+.badge-icon {
+  height: 1.2em; /* Sets the badge height relative to the text size */
+  width: auto;   /* Maintains the image's aspect ratio */
+  vertical-align: text-bottom; /* Aligns the badge nicely with the text */
+  margin-left: 4px; /* Adds a little space after the username */
+}
+/* --- NEW LOBBY MODAL STYLES --- */
+.avatar-list {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 10px;
 }
-
-.player-slots img {
+.player-slot {
+  position: relative;
+  text-align: center;
+}
+.player-slot-number {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #101010;
+  color: #aaa;
+  padding: 1px 8px;
+  font-size: 11px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+.player-slot-avatar {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border: 2px solid #ffcf00;
+  border: 3px solid #ffcf00;
   object-fit: cover;
-  transition: transform 0.2s;
 }
-
-.player-slots img:hover {
-  transform: scale(1.1);
+.player-slot-host-icon {
+  font-size: 16px;
+  margin-top: 2px;
 }
-
-.kick-overlay {
+.kick-btn {
   position: absolute;
   top: -5px;
   right: -5px;
-  background: red;
+  background: #d93030;
   color: white;
-  font-size: 14px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -341,515 +461,902 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
- font-family: 'Satoshi', sans-serif;
+  font-weight: bold;
+  border: 2px solid #1e1e1e;
   line-height: 1;
-  text-align: center;
 }
-
-.kick-overlay:hover {
-  background: darkred;
+.kick-btn:hover {
+  background: #ff4d4d;
 }
-#userList,
-#recentInvitesList {
-  flex: 1;
-  overflow-y: auto;
-  text-align: left;
-  max-height: 300px;
-  scrollbar-width: thin;
-  scrollbar-color: #ffcf00 #1e1e1e;
-}
-
-#userList::-webkit-scrollbar,
-#recentInvitesList::-webkit-scrollbar {
-  width: 8px;
-}
-
-#userList::-webkit-scrollbar-track,
-#recentInvitesList::-webkit-scrollbar-track {
-  background: #1e1e1e;
-  border-radius: 10px;
-}
-
-#userList::-webkit-scrollbar-thumb,
-#recentInvitesList::-webkit-scrollbar-thumb {
-  background-color: #ffcf00;
-  border-radius: 10px;
-  border: 2px solid #1e1e1e;
-}
-
-#userList::-webkit-scrollbar-thumb:hover,
-#recentInvitesList::-webkit-scrollbar-thumb:hover {
-  background-color: #ffe866;
-}
-.user-row {
+.player-controls {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: 10px 44px;
-  margin-bottom: 10px;
-  background: #171717;
-  border-radius: 12px;
-  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
-  border: 1px solid #222;
-  color: white;
-  font-family: 'Satoshi', sans-serif;
+  gap: 10px;
+  padding: 15px;
+  border-top: 1px solid #333;
 }
-
-.user-row .user-info {
+.player-controls .control-btn {
+  width: 80%;
+  max-width: 250px;
+  font-size: 1rem;
+}
+.player-controls .control-btn.secondary {
+  background-color: #3a3a3a;
+  border-color: #555;
+}
+.player-controls .control-btn.danger {
+  background-color: #9d2b2b;
+  border-color: #b93d3d;
+}
+.cards-to-display-wrapper {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  color: #ffcf00;
+  font-size: 0.9rem;
 }
-
-.user-row button {
-  background: #ffcf00;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
- font-family: 'Satoshi', sans-serif;
-  transition: 0.2s;
-}
-
-.user-row button:hover {
-  background: #ffe866;
-}
-
-.badge-icon {
-  width: 16px;
-  height: 16px;
-  margin-bottom: 5px;
-  vertical-align: middle;
-}
-
-.badge-icon:hover {
-  transform: scale(1.1);
-  transition: 0.2s ease-in-out;
-}
-/* Custom Scrollbar for Modal Box */
-.modal-box::-webkit-scrollbar {
-  width: 8px;
-}
-
-.modal-box::-webkit-scrollbar-track {
-  background: #1e1e1e;
-  border-radius: 10px;
-}
-
-.modal-box::-webkit-scrollbar-thumb {
-  background-color: #ffcf00;
-  border-radius: 10px;
-  border: 2px solid #1e1e1e;
-}
-
-.modal-box::-webkit-scrollbar-thumb:hover {
-  background-color: #ffe866;
-}
-
-/* For Firefox */
-.modal-box {
-  scrollbar-width: thin;
-  scrollbar-color: #ffcf00 #1e1e1e;
-}
-#setSelectionModal .modal-content {
-  overflow-y: auto;
-  max-height: 80vh;
-}
-#setSelectionModal .modal-content::-webkit-scrollbar {
-  width: 8px;
-}
-#setSelectionModal .modal-content::-webkit-scrollbar-thumb {
-  background: #ffcf00;
-  border-radius: 10px;
-}
-.hidden {
-  display: none !important;
-  visibility: hidden;
-  opacity: 0;
-}
-.custom-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 2000; /* Ensure it's above everything */
-}
-
-.custom-modal .modal-content {
-  background: #171717;
+#cardsToDisplay {
+  padding: 6px;
+  border-radius: 6px;
+  background-color: #101010;
   color: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  max-width: 700px;
-  width: 90%;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  border: 1px solid #444;
 }
+/* --- REDESIGNED MULTIPLAYER MODAL --- */
+#multiplayerModal .modal-box {
+    max-width: 900px; /* Wider modal */
+    width: 95%;
+    min-height: 550px;
+    padding: 0;
+    background: #101010; /* Darker background */
+    border: 1px solid #2a2a2a;
+}
+
+#multiplayerModal .modal-header {
+    background: #171717;
+}
+
+#multiplayerModal .modal-body {
+    flex-direction: column; /* Stack sections vertically */
+    flex-grow: 1;
+    padding: 15px;
+    gap: 20px;
+}
+
+#playerSlots {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.player-pods-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 10px;
+    min-height: 130px;
+}
+
+.player-pod {
+    background: #171717;
+    border-radius: 12px;
+    padding: 15px;
+    width: 120px;
+    text-align: center;
+    border: 1px solid #2a2a2a;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.player-pod-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ffcf00;
+    margin-bottom: 8px;
+}
+
+.player-pod-avatar.ready {
+    border-color: #28a745; /* Green border for ready players */
+}
+
+.player-pod-name {
+    font-size: 0.9rem;
+    color: #ccc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.host-crown {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2rem;
+}
+
+.kick-btn-pod {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #d93030;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid #101010;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 22px; /* Center the '×' */
+}
+
+.host-controls-container {
+    background: #171717;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #2a2a2a;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 15px;
+}
+
+.lobby-bottom-section {
+    display: flex;
+    gap: 20px;
+    flex-grow: 1;
+    min-height: 200px; /* Ensure it has some height */
+}
+
+.invite-panel {
+    background: #171717;
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+    flex: 1;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.invite-panel h3 {
+    margin: 0 0 10px 0;
+    text-align: center;
+    color: #ffcf00;
+    font-family: 'Satoshi';
+}
+
+#multiplayerModal .user-list-container {
+    background: #101010;
+}
+
+#multiplayerModal .user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+#multiplayerModal .user-row:hover {
+    background-color: #2a2a2a;
+}
+
+#multiplayerModal .user-row button {
+    background: #ffcf00;
+    color: #101010;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 28px;
+}
+/* --- DEFINITION TIMER BAR --- */
+.definition-timer-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background-color: #333; /* The track of the bar */
+    border-radius: 0 0 12px 12px; /* Match parent container's corners */
+    overflow: hidden;
+}
+
+.timer-fill {
+    height: 100%;
+    width: 100%;
+    background-color: #ffcf00; /* The yellow moving part of the bar */
+    animation: shrinkTimer 10s linear forwards;
+}
+
+@keyframes shrinkTimer {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+
+
+
+
+
+
+
+
+/* --- SET SELECTION MODAL DESIGN --- */
 .flashcard-set-card {
-  background: #171717;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
-  margin: 10px;
-  text-align: center;
-  color: #fff;
-  transition: transform 0.2s ease;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease-in-out;
+    min-height: 180px; /* Ensures a consistent card height */
 }
 
 .flashcard-set-card:hover {
-  transform: translateY(-3px);
-  border: 1px solid white;
+    transform: translateY(-5px);
+    border-color: #ffcf00;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .flashcard-title {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: #ffcf00;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 1.2rem;
+    color: #ffcf00;
+    margin: 0 0 10px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .flashcard-desc {
-  font-size: 0.9rem;
-  margin-bottom: 12px;
-  color: #bbb;
+    font-size: 0.9rem;
+    color: #aaa;
+    line-height: 1.5;
+    flex-grow: 1; /* Pushes the button to the bottom */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limits description to 3 lines */
+    -webkit-box-orient: vertical;
 }
 
 .select-set-btn {
-  background: #171717;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: #fff;
-  box-shadow: 4px 4px 8px #0f0f0f, -4px -4px 8px #1f1f1f;
-  cursor: pointer;
-  font-family: 'Satoshi', sans-serif;
-  transition: all 0.2s ease;
-}
-
-.select-set-btn:hover {
-  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
-}
-.close-profile-modal {
-    cursor: pointer;
-}
-.countdown-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #171717;
-  color: white;
-  padding: 20px 40px;
-  border-radius: 12px;
-  font-family: 'Satoshi', sans-serif;
-  font-size: 24px;
-  text-align: center;
-  z-index: 9999;
-}
-.definition-timer-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 6px;
-  background-color: #e0e0e0;
-  border-radius: 0 0 4px 4px;
-  overflow: hidden;
-}
-
-.definition-timer-bar .timer-fill {
-  width: 100%;
-  height: 100%;
-  background-color: #ffcf00;
-  animation: shrinkBar 10s linear forwards;
-}
-
-
-@keyframes shrinkBar {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0%;
-  }
-}
-.right-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  padding: 16px;
-}
-.definition-slide img {
-  max-height: 200px; /* You can increase or decrease this */
-  object-fit: contain;
-}
-#chatContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-.scrollable-chat {
-  max-height: 300px;
-  width: 100%;
-  overflow-y: auto;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  scrollbar-width: thin;
-  scrollbar-color: #ffcf00 #1e1e1e;
-}
-
-.scrollable-chat::-webkit-scrollbar {
-  width: 8px;
-}
-
-.scrollable-chat::-webkit-scrollbar-track {
-  background: #1e1e1e;
-  border-radius: 10px;
-}
-
-.scrollable-chat::-webkit-scrollbar-thumb {
-  background-color: #ffcf00;
-  border-radius: 10px;
-  border: 2px solid #1e1e1e;
-}
-
-.scrollable-chat::-webkit-scrollbar-thumb:hover {
-  background-color: #ffe866;
-}
-.rounds-container p{
-  font-family: 'Accasia', sans-serif !important;
-}
-#roundsDisplay{
-  font-family: 'Satoshi' !important;
-}
-#chatContainer > div {
-  max-width: 100%;
-  padding: 6px 10px;
-  background: #1f1f1f;
-  border-radius: 8px;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  white-space: normal;
-  word-break: break-word;       /* ✅ Important for breaking long words */
-}
-
-#chatContainer > div {
-  max-width: 100%;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
-}
-@keyframes slideInChat {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.chat-message {
-  animation: slideInChat 0.3s ease-out;
-}
-.score-values span .wrong {
-  display: none;
-}
-.score-values span .correct::after {
-  content: "";
-}
-.player-left {
-  opacity: 0.35 !important;
-  filter: grayscale(100%);
-}
-.chat-message.system {
-  font-style: italic;
-  color: #ccc;
-}
-@keyframes floatXP {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  30% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-}
-@keyframes floatStar {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-50px);
-    opacity: 0;
-  }
-}
-/* PASTE THIS CODE AT THE END OF Quibbl.css */
-
-.custom-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(23, 23, 23, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.custom-modal .modal-content {
-  background-color: #171717;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 8px 8px 16px #0f0f0f, -8px -8px 16px #1f1f1f;
-  color: white;
-  max-width: 400px;
-  text-align: center;
-  font-family: 'Satoshi', sans-serif;
-  border: 1px solid rgb(0, 0, 0);
-  border-top: 4px solid #555;
-  transition: border-top-color 0.3s ease;
-}
-
-.custom-modal .modal-content.success {
-  border-top-color: #22c55e;
-}
-
-.custom-modal .modal-content.error {
-  border-top-color: #ef4444;
-}
-
-.custom-modal .modal-message {
-  font-size: 1.1rem;
-  margin-bottom: 20px;
-}
-
-.custom-modal .modal-buttons {
-  display: flex;
-  justify-content: center;
-}
-
-.neumorphic-button {
-  padding: 10px 20px;
-  background: #171717;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 6px 6px 12px #0f0f0f, -6px -6px 12px #1f1f1f;
-  color: #fff;
-  cursor: pointer;
-  transition: 0.2s;
-  border: 1px solid rgb(0, 0, 0);
-  font-family: 'Satoshi', sans-serif;
-}
-
-.neumorphic-button:hover {
-  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
-  border: 1px solid rgb(255, 255, 255);
-}
-/* PASTE THIS CODE AT THE END OF Quibbl.css */
-
-/* Style for the confirmation buttons */
-.custom-modal .modal-buttons {
-  gap: 20px;
-}
-
-/* Make the confirm button red on hover */
-#confirmBtn:hover {
-    background-color: #c13131;
-    border-color: #ff8f8f;
-    color: #fff;
-}
-
-
-
-@media (max-width: 768px) {
-  .top-controls {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .bottom-containers {
-    flex-direction: column;
-  }
-
-  .left-container,
-  .right-container {
-    width: 100%;
-    min-height: 200px;
-  }
-
-  .input-section {
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .input-section input {
-    width: 90%;
-    font-size: 1rem;
-  }
-
-  .scoreboard-container {
-    grid-template-columns: repeat(5, 3fr);
+    margin-top: 15px; /* Pushes button away from text */
     padding: 10px;
-    gap: 10px;
-  }
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    background: #333;
+    color: #fff;
+    font-weight: bold;
+    font-family: 'Satoshi', sans-serif;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+#customConfirmModal {
+  z-index: 100000 !important;
+}
+.select-set-btn:hover {
+    background: #ffcf00;
+    color: #101010;
+}
+/* --- CUSTOM ALERT MODAL DESIGN --- */
+#customAlertModal .modal-box {
+    background: #222;
+    border: 1px solid #111;
+    border-top: 5px solid #888; /* Default border color */
+    padding: 25px 30px;
+    text-align: center;
+    transition: border-top-color 0.3s ease;
+}
 
-  .home-btn {
-    margin-top: 6px;
+/* Style for success messages (green) */
+#customAlertModal .modal-box.success {
+    border-top-color: #28a745;
+}
+#customAlertModal .modal-box.success #customAlertMessage::before {
+    content: '\f058'; /* Font Awesome check-circle icon */
+    color: #28a745;
+}
+
+/* Style for error messages (red) */
+#customAlertModal .modal-box.error {
+    border-top-color: #dc3545;
+}
+#customAlertModal .modal-box.error #customAlertMessage::before {
+    content: '\f071'; /* Font Awesome exclamation-triangle icon */
+    color: #dc3545;
+}
+
+#customAlertMessage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    gap: 12px;
+}
+
+/* Base style for the icon */
+#customAlertMessage::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+#customAlertOkBtn {
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 10px 35px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+#customAlertOkBtn:hover {
+    background: #444;
+    border-color: #777;
+}
+/* --- CHAT MESSAGE STYLES --- */
+.chat-message.own-message {
+    background-color: #3a3a5a; /* A different color for your own messages */
+    align-self: flex-end; /* Aligns your messages to the right */
+    text-align: right;
+}
+
+.chat-message.correct-answer {
+    background-color: #28a745;
+    color: #fff;
+    font-weight: bold;
+}
+
+.chat-message.system-message {
+    background: none;
+    color: #aaa;
+    font-size: 0.85rem;
+    text-align: center;
+    align-self: center;
+    width: 100%;
+}
+/* --- ENDGAME MODAL REDESIGN --- */
+.endgame-modal-box {
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    width: 95%;
+    max-width: 550px;
+    padding: 0;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.endgame-header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.endgame-header h2 {
+    margin: 0;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 1.8rem;
+    color: #ffcf00;
+}
+
+.winner-announcement {
+    padding: 20px;
+    text-align: center;
+    background: #171717;
+}
+
+.winner-announcement h3 {
+    margin: 0 0 15px 0;
+    font-size: 1rem;
+    color: #aaa;
+}
+
+.winner-info img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid #ffcf00;
+    margin-bottom: 10px;
+}
+
+.winner-info .winner-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.endgame-scoreboard {
+    padding: 10px 20px;
+    max-height: 250px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #ffcf00 #1e1e1e;
+}
+
+.endgame-player-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #2a2a2a;
+}
+.endgame-player-row:last-child {
+    border-bottom: none;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.player-info img {
     width: 40px;
     height: 40px;
-  }
-
-  .submit-btn,
-  .leave-btn {
-    width: 90%;
-  }
-
-  .start-btn,
-  .create-lobby-btn {
-    width: 90%;
-  }
-}
-@media (min-width: 1200px) {
-  .input-section input {
-    width: 500px;
-    font-size: 1.1rem;
-  }
-
-  .bottom-containers {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .scoreboard-container {
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  .submit-btn,
-  .leave-btn,
-  .start-btn,
-  .create-lobby-btn {
-    font-size: 1.1rem;
-    padding: 10px 20px;
-  }
+    border-radius: 50%;
 }
 
+.player-results {
+    text-align: right;
+}
+
+.player-score {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffcf00;
+}
+
+.player-xp {
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+.endgame-footer {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    border-top: 1px solid #2a2a2a;
+}
+/* --- REDESIGNED HOST CONTROLS --- */
+.host-controls-container {
+    background: #171717;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #2a2a2a;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Creates the two-column layout */
+    align-items: center;
+    gap: 20px;
+}
+
+.host-main-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.host-main-actions .control-btn {
+    width: 100%; /* Make buttons fill their container */
+    padding: 12px;
+    font-size: 1rem;
+}
+
+.host-secondary-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    border-left: 1px solid #2a2a2a; /* Adds a separator line */
+    padding-left: 20px;
+}
+
+.cards-to-display-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffcf00;
+    font-size: 1rem;
+    background: #222;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+#cardsToDisplay {
+    padding: 8px;
+    border-radius: 6px;
+    background-color: #101010;
+    color: #fff;
+    border: 1px solid #444;
+    font-size: 1rem;
+}
+
+.host-secondary-actions .control-btn.danger {
+    width: 80%; /* Make the close button slightly smaller */
+    background: transparent;
+    border: 1px solid #9d2b2b;
+    color: #ff8a8a;
+}
+
+.host-secondary-actions .control-btn.danger:hover {
+    background: #9d2b2b;
+    color: #fff;
+}
+/* --- CORRECTED MODAL SCROLLBAR STYLES --- */
+#multiplayerModal .modal-box {
+    overflow-y: auto; /* Makes the entire modal box scrollable */
+    scrollbar-width: thin;
+    scrollbar-color: #ffcf00 #171717;
+}
+
+#multiplayerModal .modal-body {
+    padding: 20px;
+    /* overflow-y: auto; <-- REMOVED FROM HERE */
+    display: flex;
+    gap: 15px;
+}
+
+/* For Webkit-based browsers (Chrome, Safari, Edge) */
+#multiplayerModal .modal-box::-webkit-scrollbar,
+.user-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+#multiplayerModal .modal-box::-webkit-scrollbar-track,
+.user-list-container::-webkit-scrollbar-track {
+    background: #171717;
+    border-radius: 10px;
+}
+
+#multiplayerModal .modal-box::-webkit-scrollbar-thumb,
+.user-list-container::-webkit-scrollbar-thumb {
+    background-color: #ffcf00;
+    border-radius: 10px;
+    border: 2px solid #171717;
+}
+
+#multiplayerModal .modal-box::-webkit-scrollbar-thumb:hover,
+.user-list-container::-webkit-scrollbar-thumb:hover {
+    background-color: #ffe866;
+}
+
+/* For Firefox (on the user list container) */
+.user-list-container {
+    scrollbar-width: thin;
+    scrollbar-color: #ffcf00 #171717;
+}
+/* --- REDESIGNED INVITE POPUP --- */
+.invite-popup {
+    position: fixed;
+    bottom: 20px;
+    right: -450px; /* Start off-screen */
+    width: 400px;
+    background: #1e1e1e;
+    color: white;
+    font-family: 'Satoshi', sans-serif;
+    border-radius: 12px;
+    border-top: 4px solid #ffcf00;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    z-index: 10000;
+    overflow: hidden;
+    animation: slideInInvite 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes slideInInvite {
+    from { right: -450px; opacity: 0; }
+    to { right: 20px; opacity: 1; }
+}
+
+.invite-header {
+    padding: 10px 15px;
+    background: #2a2a2a;
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.invite-body {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 15px;
+}
+
+.invite-body img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #ffcf00;
+}
+
+.invite-text strong {
+    color: #ffcf00;
+}
+
+/* Quibbl.css */
+
+.invite-buttons {
+    display: grid;
+    /* This will default to a single column if there is only one button */
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+}
+
+/* Quibbl.css */
+
+/* This is the new base style for ALL buttons in the popup */
+.invite-popup-btn, 
+.invite-buttons .control-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 0;
+    border-top: 1px solid #2a2a2a;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+/* This targets both old and new buttons for consistent coloring */
+.invite-popup-btn.accept,
+.invite-buttons .control-btn.accept {
+    background-color: #28a745;
+}
+.invite-popup-btn.accept:hover,
+.invite-buttons .control-btn.accept:hover {
+    background-color: #32c453;
+}
+
+.invite-popup-btn.decline,
+.invite-buttons .control-btn.decline {
+    background-color: #9d2b2b;
+}
+.invite-popup-btn.decline:hover,
+.invite-buttons .control-btn.decline:hover {
+    background-color: #c13131;
+}
+
+/* This handles the border between the original accept/decline buttons */
+.invite-buttons .control-btn.decline {
+    border-left: 1px solid #2a2a2a;
+}
+/* --- CUSTOM CONFIRM MODAL DESIGN --- */
+#customConfirmModal .modal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+/* Use the .control-btn as a base for consistent button sizing and font */
+#customConfirmModal .control-btn {
+    min-width: 120px; /* Gives the buttons a nice uniform width */
+}
+
+/* Style for the secondary 'Cancel' button */
+.control-btn.secondary-btn {
+    background-color: #3a3a3a;
+    border-color: #555;
+}
+.control-btn.secondary-btn:hover {
+    background-color: #4a4a4a;
+    border-color: #666;
+}
+
+/* Style for the primary 'Confirm' button */
+.control-btn.confirm-btn {
+    background-color: #b93d3d; /* Using the red 'danger' color for confirmation of risky actions */
+    border-color: #d9534f;
+}
+.control-btn.confirm-btn:hover {
+    background-color: #c9302c;
+}
+/* Quibbl.css */
+
+/* --- HELP ICON & MODAL --- */
+#help-icon-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 1.6rem;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+    padding: 0 15px;
+}
+#help-icon-btn:hover {
+    color: #ffcf00;
+    transform: scale(1.1);
+}
+
+#gameHelpModal .modal-body {
+    line-height: 1.6;
+    color: #ccc;
+}
+#gameHelpModal h3 {
+    color: #ffcf00;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+    margin: 10px 0 5px 0;
+    width: 100%;
+}
+#gameHelpModal ul, #gameHelpModal ol {
+    padding-left: 25px;
+    margin: 5px 0;
+    width: 100%;
+}
+#gameHelpModal li {
+    margin-bottom: 8px;
+}
+#gameHelpModal p {
+    margin: 5px 0;
+}
+/* Quibbl.css */
+
+/* --- HELP MODAL SCROLLBAR --- */
+#gameHelpModal .modal-body {
+    max-height: 60vh; /* Limits the height to enable scrolling */
+    overflow-y: auto; /* Shows a scrollbar only when needed */
+    padding-right: 15px; /* Adds space for the scrollbar */
+
+    /* For Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #ffcf00 #171717;
+}
+
+/* For Webkit Browsers (Chrome, Safari, Edge) */
+#gameHelpModal .modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+#gameHelpModal .modal-body::-webkit-scrollbar-track {
+    background: #171717;
+    border-radius: 10px;
+}
+
+#gameHelpModal .modal-body::-webkit-scrollbar-thumb {
+    background-color: #ffcf00;
+    border-radius: 10px;
+    border: 2px solid #1e1e1e; /* Match modal body background */
+}
+
+#gameHelpModal .modal-body::-webkit-scrollbar-thumb:hover {
+    background-color: #ffe866;
+}
+/* Quibbl.css */
+
+/* --- INVITE POPUP TIMER --- */
+.invite-timer-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background-color: #333; /* The track of the bar */
+}
+
+.invite-timer-fill {
+    height: 100%;
+    width: 100%;
+    background-color: #ffcf00; /* The yellow moving part */
+    transition: width 0.1s linear; /* Smooths the countdown animation */
+}
+
+#select-set-btn {
+    /* Prevents long set titles from breaking the button layout */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    /* Allows a flex item to shrink and enables text-overflow */
+    min-width: 0; 
+    
+    /* Add some padding for better spacing */
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 1024px) {
+    .game-layout {
+        grid-template-columns: 320px 1fr; /* Smaller sidebar */
+    }
+}
+
+@media (max-width: 1024px) {
+    /* Adjusts for tablets */
+    .game-layout {
+        grid-template-columns: 320px 1fr 300px; 
+    }
+}
+
+/* Quibbl.css */
+
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto; /* Enable body scroll on mobile */
+    }
+
+    .game-layout {
+        /* Redefine the grid layout for mobile */
+        grid-template-columns: 1fr 1fr; /* Two equal columns */
+        grid-template-rows: auto auto; /* Two rows that size to their content */
+        grid-template-areas:
+            "main main"  /* The main content spans both columns on the first row */
+            "left right"; /* The sidebars sit side-by-side on the second row */
+        height: auto;
+        overflow-y: visible;
+    }
+
+    /* Adjust borders for the new layout */
+    .main-content {
+        min-height: 40vh;
+        border-bottom: 1px solid #2a2a2a;
+        padding: 15px;
+    }
+
+    .sidebar {
+        border-right: 1px solid #2a2a2a; /* Adds a line between the two sidebars */
+        border-bottom: none; /* Remove the old bottom border */
+        min-height: 50vh;
+        padding: 15px;
+    }
+
+    .right-sidebar {
+      grid-area: right; 
+        border-left: none; /* Remove the old border */
+        border-bottom: none;
+        min-height: 50vh;
+        padding: 15px;
+    }
+
+    /* Keep the fix for the sidebar's internal scrolling */
+    .sidebar-content {
+        flex-grow: 0;
+        overflow-y: visible;
+    }
+
+    .sidebar-footer {
+        border-top: 1px solid #2a2a2a;
+        margin-top: 15px;
+    }
+
+    /* ADD THIS NEW RULE */
+    .scoreboard-container {
+        max-height: 100px; /* Make the scoreboard shorter on smaller screens */
+        overflow-y: auto;  /* Ensure it's scrollable if content overflows */
+    }
+    .sidebar-header {
+      max-height: 90px;
+    }
+    .quibbl-title {
+      font-size: 16px;
+    }
+}
+
+/* --- Keep all existing Modal, Animation, and other utility styles --- */
+/* (e.g., .modal-backdrop, @keyframes, .player-left, etc.) */

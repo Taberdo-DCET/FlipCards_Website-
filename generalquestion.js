@@ -15,14 +15,56 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+// in generalquestion.js
 
-const modal = document.getElementById('questionModal');
-const openBtn = document.querySelector('.general-btn');
-const submitBtn = document.getElementById('submit-question');
-const cancelBtn = document.getElementById('cancel-question');
-const categoryInput = document.getElementById('question-category');
-const questionInput = document.getElementById('question-input');
+// ▼▼▼ ADD THIS NEW FUNCTION ▼▼▼
+function showAlert(message, isSuccess = true) {
+  const modal = document.getElementById('gqAlertModal');
+  const content = document.getElementById('gqAlertContent');
+  const msg = document.getElementById('gqAlertMessage');
+  const okBtn = document.getElementById('gqAlertOkBtn');
 
+  msg.textContent = message;
+  content.className = 'custom-alert-content'; // Reset classes
+  content.classList.add(isSuccess ? 'success' : 'error');
+
+  modal.classList.remove('hidden');
+  okBtn.onclick = () => modal.classList.add('hidden');
+}
+// in generalquestion.js
+
+// ▼▼▼ ADD THIS NEW FUNCTION ▼▼▼
+function showAnswerConfirm(message) {
+   console.log('%c showAnswerConfirm function was executed!', 'color: cyan; font-weight: bold;');
+  return new Promise((resolve) => {
+    const modal = document.getElementById('customConfirmModal');
+    const msg = document.getElementById('confirmMessage');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    msg.textContent = message;
+    modal.classList.remove('hidden');
+
+    confirmBtn.onclick = () => {
+      modal.classList.add('hidden');
+      resolve(true); // User confirmed
+    };
+
+    cancelBtn.onclick = () => {
+      modal.classList.add('hidden');
+      resolve(false); // User canceled
+    };
+  });
+}
+// ▲▲▲ END OF NEW FUNCTION ▲▲▲
+// ▲▲▲ END OF NEW FUNCTION ▲▲▲
+const modalBackdrop = document.getElementById('gqModalBackdrop');
+const openBtn = document.getElementById('addQuestionBtn');
+const submitBtn = document.getElementById('submitGqBtn');
+const closeBtn = document.getElementById('closeGqModalBtn');
+const categoryInput = document.getElementById('gqCategoryInput');
+const questionInput = document.getElementById('gqQuestionInput');
+let unsubscribeAnswers = null;
 let currentUser = null;
 const adminEmails = [
   "taberdoraphael189@gmail.com",
@@ -32,28 +74,47 @@ const adminEmails = [
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Refresh button logic
+  // NEW: Logic to handle scrolling after refresh
+  if (sessionStorage.getItem('scrollToGQ') === 'true') {
+    const gqSection = document.getElementById('generalQuestions');
+    if (gqSection) {
+      // Scrolls the section into view smoothly
+      gqSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    // Clean up the flag so it doesn't scroll again on a manual refresh
+    sessionStorage.removeItem('scrollToGQ');
+  }
+
+  // UPDATED: Refresh button logic
   const refreshBtn = document.getElementById("refreshQuestions");
   if (refreshBtn) {
     refreshBtn.addEventListener("click", () => {
+      // Set the flag before reloading the page
+      sessionStorage.setItem('scrollToGQ', 'true');
       location.reload();
     });
   }
 
-  // Auth and load questions
+  // Auth and load questions (existing code)
   onAuthStateChanged(auth, user => {
-  currentUser = user;
-  loadQuestions();
+    currentUser = user;
+    loadQuestions();
+  });
 });
 
-});
 
-
-openBtn.addEventListener('click', () => modal.classList.remove('hidden'));
-cancelBtn.addEventListener('click', () => {
-  modal.classList.add('hidden');
+function closeGqModal() {
+  modalBackdrop.classList.add('hidden');
   categoryInput.value = '';
   questionInput.value = '';
+}
+
+openBtn.addEventListener('click', () => modalBackdrop.classList.remove('hidden'));
+closeBtn.addEventListener('click', closeGqModal);
+modalBackdrop.addEventListener('click', (event) => {
+    if (event.target === modalBackdrop) {
+        closeGqModal();
+    }
 });
 
 submitBtn.addEventListener('click', async () => {
@@ -75,8 +136,8 @@ const userXPSnap = await getDoc(userXPRef);
 const currentXP = userXPSnap.exists() ? (userXPSnap.data().xp || 0) : 0;
 await setDoc(userXPRef, { xp: currentXP + 100 }, { merge: true });
 
-    alert("✅ Question submitted!");
-    modal.classList.add('hidden');
+    showAlert("✅ Question submitted successfully!");
+    modalBackdrop.classList.add('hidden');
     categoryInput.value = '';
     questionInput.value = '';
     loadQuestions();
@@ -91,559 +152,404 @@ async function loadQuestions() {
   if (!container) return;
   const isGuest = currentUser?.isAnonymous === true;
 
+  container.innerHTML = ""; // Clear existing content
 
-  container.innerHTML = "";
+  // These container styles are fine to keep here as they setup the flex container
   Object.assign(container.style, {
     display: "flex",
     flexWrap: "nowrap",
     overflowX: "auto",
-    gap: "8px",
+    gap: "16px",
     padding: "10px",
     marginTop: "20px",
     scrollBehavior: "smooth"
   });
 
- 
+  const snapshot = await getDocs(collectionGroup(db, "questions"));
 
-const snapshot = await getDocs(collectionGroup(db, "questions"));
-
-
-  snapshot.forEach(docSnap => {
+  snapshot.forEach((docSnap, index) => { // <-- Add the index here
     const data = docSnap.data();
 
+    // --- Card Structure ---
     const card = document.createElement("div");
-    Object.assign(card.style, {
-      minWidth: "260px",
-      maxWidth: "280px",
-      flex: "0 0 auto",
-      padding: "16px",
-      borderRadius: "18px",
-      background: "#fff",
-      boxShadow: `
-        6px 6px 16px rgba(0, 0, 0, 0.05),
-        -6px -6px 16px rgba(218, 217, 217, 0.8),
-        inset 1px 1px 2px rgba(0, 0, 0, 0.03),
-        inset -1px -1px 2px rgba(255, 255, 255, 0.6)
-      `,
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      gap: "10px",
-      fontFamily: "Satoshi, sans-serif"
-      
-    });
+    card.className = 'gq-card'; // Main card class
 
-    const categoryRow = document.createElement("div");
-    categoryRow.style.display = "flex";
-    categoryRow.style.justifyContent = "space-between";
-
+    // Header
+    const header = document.createElement("div");
+    header.className = 'gq-card-header';
     const categoryEl = document.createElement("div");
-    categoryEl.textContent = `Category: ${data.category || "General"}`;
-    Object.assign(categoryEl.style, {
-      fontSize: "12px",
-      color: "#666",
-      fontWeight: "bold",
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      maxWidth: "180px",
-      fontFamily: "Satoshi, sans-serif"
-    });
-
+    categoryEl.className = 'gq-card-category';
+    categoryEl.textContent = data.category || "General";
+    
+    const headerActions = document.createElement("div");
+    headerActions.className = 'gq-card-header-actions';
     const expandBtn = document.createElement("button");
+    expandBtn.className = 'gq-card-btn gq-expand-btn';
     expandBtn.textContent = "Expand";
-    Object.assign(expandBtn.style, {
-      fontSize: "11px",
-      padding: "4px 8px",
-      borderRadius: "8px",
-      border: "none",
-      background: "#eee",
-      cursor: "pointer",
-      fontFamily: "Satoshi, sans-serif"
-    });
     expandBtn.addEventListener("click", () => showExpandedCard(data));
+    headerActions.appendChild(expandBtn);
 
-    categoryRow.appendChild(categoryEl);
-    categoryRow.appendChild(expandBtn);
-    if (currentUser.email === data.email || adminEmails.includes(currentUser.email)) {
-  const deleteBtn = document.createElement("button");
-  deleteBtn.textContent = "Delete";
-  Object.assign(deleteBtn.style, {
-    fontSize: "11px",
-    padding: "4px 8px",
-    borderRadius: "8px",
-    border: "none",
-    background: "#f88",
-    cursor: "pointer",
-    marginLeft: "5px",
-    fontFamily: "Satoshi, sans-serif"
-  });
-
-  deleteBtn.onclick = async () => {
-    const confirmed = confirm("Are you sure you want to delete this question and all its answers?");
-    if (!confirmed) return;
-
-    try {
-      // 1. Delete all related answers
-      const answersQuery = query(
-        collection(db, "general_answers"),
-        where("question", "==", data.question),
-        where("questionBy", "==", data.email)
-      );
-      const answerSnapshots = await getDocs(answersQuery);
-      for (const answerDoc of answerSnapshots.docs) {
-        await deleteDoc(doc(db, "general_answers", answerDoc.id));
-      }
-
-      // 2. Delete the question
-      await deleteDoc(doc(db, "general_questions", data.email, "questions", docSnap.id));
-
-      // 3. Remove 100 XP from the question owner
-      const userXPRef = doc(db, "approved_emails", data.email);
-      const userXPSnap = await getDoc(userXPRef);
-      if (userXPSnap.exists()) {
-        const currentXP = userXPSnap.data().xp || 0;
-        await setDoc(userXPRef, { xp: Math.max(0, currentXP - 100) }, { merge: true });
-      }
-
-      alert("✅ Question deleted.");
-      loadQuestions(); // refresh the UI
-    } catch (err) {
-      console.error("Failed to delete question:", err);
-      alert("❌ Could not delete question.");
+    if (currentUser && (currentUser.email === data.email || adminEmails.includes(currentUser.email))) {
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = 'gq-card-btn gq-delete-btn';
+      deleteBtn.textContent = "Delete";
+      deleteBtn.onclick = async () => { /* Delete logic remains the same */
+        const confirmed = showAnswerConfirm("Are you sure you want to delete this question and all its answers?");
+        if (!confirmed) return;
+        try {
+          const answersQuery = query(collection(db, "general_answers"), where("question", "==", data.question), where("questionBy", "==", data.email));
+          const answerSnapshots = await getDocs(answersQuery);
+          for (const answerDoc of answerSnapshots.docs) {
+            await deleteDoc(doc(db, "general_answers", answerDoc.id));
+          }
+          await deleteDoc(doc(db, "general_questions", data.email, "questions", docSnap.id));
+          const userXPRef = doc(db, "approved_emails", data.email);
+          const userXPSnap = await getDoc(userXPRef);
+          if (userXPSnap.exists()) {
+            const currentXP = userXPSnap.data().xp || 0;
+            await setDoc(userXPRef, { xp: Math.max(0, currentXP - 100) }, { merge: true });
+          }
+          showAlert("✅ The question has been deleted.");
+          loadQuestions();
+        } catch (err) {
+          console.error("Failed to delete question:", err);
+          alert("❌ Could not delete question.");
+        }
+      };
+      headerActions.appendChild(deleteBtn);
     }
-  };
+    header.appendChild(categoryEl);
+    header.appendChild(headerActions);
 
-  categoryRow.appendChild(deleteBtn);
-}
-
-
-    const questionEl = document.createElement("div");
-    questionEl.textContent = `📌 ${data.question}`;
-    Object.assign(questionEl.style, {
-      fontSize: "14px",
-      color: "#333",
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis"
-    });
-
+    // Body
+    const body = document.createElement("div");
+    body.className = 'gq-card-body';
+    const questionEl = document.createElement("p");
+    questionEl.className = 'gq-card-question';
+    questionEl.textContent = data.question;
     const submittedBy = document.createElement("div");
+    submittedBy.className = 'gq-card-author';
     submittedBy.textContent = `by ${data.email}`;
-    Object.assign(submittedBy.style, {
-      fontSize: "11px",
-      color: "#999"
-    });
+    body.appendChild(questionEl);
+    body.appendChild(submittedBy);
 
-    const inputRow = document.createElement("div");
-    Object.assign(inputRow.style, {
-      display: "flex",
-      gap: "6px"
-    });
-
+    // Footer
+    const footer = document.createElement("div");
+    footer.className = 'gq-card-footer';
     const answerInput = document.createElement("input");
+    answerInput.className = 'gq-card-input';
     answerInput.type = "text";
     answerInput.placeholder = "Your answer...";
-    Object.assign(answerInput.style, {
-      flex: "1",
-      padding: "8px 10px",
-      borderRadius: "12px",
-      border: "none",
-      fontFamily: "Satoshi, sans-serif",
-      fontSize: "13px",
-      boxShadow: "inset 3px 3px 6px #d9d9d9, inset -3px -3px 6px #ffffff"
-    });
-
+    
     const answerBtn = document.createElement("button");
-answerBtn.textContent = "Submit";
-Object.assign(answerBtn.style, {
-  background: "#111",
-  color: "#fff",
-  border: "none",
-  padding: "6px 12px",
-  borderRadius: "10px",
-  cursor: "pointer",
-  fontFamily: "Satoshi, sans-serif",
-  fontSize: "13px"
-});
+    answerBtn.className = 'gq-card-btn gq-submit-btn';
+    answerBtn.textContent = "Submit";
 
-if (isGuest) {
-  answerBtn.disabled = true;
-  answerBtn.style.opacity = "0.5";
-  answerBtn.style.cursor = "not-allowed";
-  answerBtn.title = "Guests cannot submit answers. Please log in.";
-}
-
-
-
-if (!isGuest) {
-  answerBtn.addEventListener("click", async () => {
-    const answer = answerInput.value.trim();
-    if (!answer || !currentUser) return;
-
-    try {
-      await addDoc(collection(db, "general_answers"), {
-        answer,
-        question: data.question,
-        questionBy: data.email,
-        answeredBy: currentUser.email,
-        username: currentUser.displayName || "Anonymous",
-        timestamp: serverTimestamp()
+    if (isGuest) {
+      answerInput.disabled = true;
+      answerBtn.disabled = true;
+      answerInput.placeholder = "Log in to answer";
+    } else {
+      answerBtn.addEventListener("click", async () => { /* Submit logic remains the same */
+        const answer = answerInput.value.trim();
+        if (!answer || !currentUser) return;
+        try {
+          await addDoc(collection(db, "general_answers"), { answer, question: data.question, questionBy: data.email, answeredBy: currentUser.email, username: currentUser.displayName || "Anonymous", timestamp: serverTimestamp() });
+          answerInput.value = "";
+          showAlert("✅ Your answer has been submitted!");
+        } catch (err) {
+          console.error("Failed to submit answer:", err);
+          alert("❌ Could not save your answer.");
+        }
       });
-
-      answerInput.value = "";
-      alert("✅ Answer submitted!");
-    } catch (err) {
-      console.error("Failed to submit answer:", err);
-      alert("❌ Could not save your answer.");
     }
-  });
-}
- else {
-  // Disable button for guests
-  answerBtn.disabled = true;
-  answerBtn.style.opacity = "0.5";
-  answerBtn.style.cursor = "not-allowed";
-  answerBtn.title = "Guests cannot submit answers. Please log in.";
-}
-
-
 
     const seeAnswersBtn = document.createElement("button");
+    seeAnswersBtn.className = 'gq-card-btn gq-see-answers-btn';
     seeAnswersBtn.textContent = "See All Answers";
-    Object.assign(seeAnswersBtn.style, {
-      marginTop: "8px",
-      padding: "5px 12px",
-      fontSize: "12px",
-      borderRadius: "10px",
-      border: "none",
-      background: "#eee",
-      fontFamily: "Satoshi, sans-serif",
-      cursor: "pointer"
-    });
-    seeAnswersBtn.addEventListener("click", () => showAnswersModal(data.question));
+    seeAnswersBtn.addEventListener("click", () => showAnswersModal(data.question, data.email));
 
-    const contentWrapper = document.createElement("div");
-    contentWrapper.style.flex = "1";
-    contentWrapper.appendChild(categoryRow);
-    contentWrapper.appendChild(questionEl);
-    contentWrapper.appendChild(submittedBy);
+    footer.appendChild(answerInput);
+    footer.appendChild(answerBtn);
+    footer.appendChild(seeAnswersBtn);
 
-    card.appendChild(contentWrapper);
-    card.appendChild(inputRow);
-    card.appendChild(answerInput);
-    card.appendChild(answerBtn);
-    card.appendChild(seeAnswersBtn);
-    container.appendChild(card);
+    // Assemble Card
+    card.appendChild(header);
+    card.appendChild(body);
+    card.appendChild(footer);
+    // This is the updated code with the animation trigger
+container.appendChild(card);
+
+// Stagger the animation for each card
+setTimeout(() => {
+  card.classList.add('is-visible');
+}, index * 100); // 100ms delay between each card's animation
   });
 }
 
 // Show all answers modal
-function showAnswersModal(questionText) {
+// in generalquestion.js
+
+// in generalquestion.js
+
+async function showAnswersModal(questionText, questionBy) {
   const overlay = document.createElement("div");
-  Object.assign(overlay.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "100vw",
-    height: "100vh",
-    background: "rgba(0,0,0,0.6)",
-    zIndex: "9999",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center"
-  });
+  overlay.className = "gq-answers-backdrop";
 
   const modal = document.createElement("div");
-  Object.assign(modal.style, {
-    background: "#fff",
-    borderRadius: "20px",
-    padding: "30px",
-    width: "90%",
-    maxWidth: "600px",
-    maxHeight: "80vh",
-    overflowY: "auto",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-    fontFamily: "Satoshi, sans-serif"
-  });
+  modal.className = "gq-answers-modal";
 
-  const title = document.createElement("h3");
-  title.innerHTML = `<span style="font-weight: bold;">Answers for:</span><br><span style="word-break: break-word;">${questionText}</span>`;
+  // --- Header ---
+  const header = document.createElement("div");
+  header.className = "gq-answers-header";
+  
+  const title = document.createElement("div");
+  title.className = "gq-answers-title";
+  title.innerHTML = `Answers for: <strong>${questionText}</strong>`;
+  
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "gq-answers-close-btn";
+  closeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+  closeBtn.onclick = () => document.body.removeChild(overlay);
+  
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  
+  // --- Body ---
+  const body = document.createElement("div");
+  body.className = "gq-answers-body";
+  
+  modal.appendChild(header);
+  modal.appendChild(body);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
 
-  modal.appendChild(title);
+  // --- Firebase Logic ---
+  const answersQuery = query(collection(db, "general_answers"), where("question", "==", questionText), where("questionBy", "==", questionBy));
+  onSnapshot(answersQuery, async (snapshot) => {
+    body.innerHTML = ''; // Clear previous answers on update
+    
+    // ▼▼▼ KEY CHANGE IS HERE ▼▼▼
+    // Fetch all user data in one go to avoid multiple reads in a loop
+    const userEmails = snapshot.docs.map(doc => doc.data().answeredBy);
 
-  const answersQuery = query(collection(db, "general_answers"), where("question", "==", questionText));
-  onSnapshot(answersQuery, snapshot => {
-    modal.querySelectorAll(".answer-card").forEach(e => e.remove());
+    // Fetch from BOTH collections simultaneously
+    const [userApprovedDocs, usernameDocs] = await Promise.all([
+        Promise.all(userEmails.map(email => getDoc(doc(db, "approved_emails", email)))),
+        Promise.all(userEmails.map(email => getDoc(doc(db, "usernames", email))))
+    ]);
 
-    snapshot.forEach(docSnap => {
+    // Merge the data from both collections into a single map
+    const userDataMap = new Map();
+    userEmails.forEach((email, index) => {
+        const approvedData = userApprovedDocs[index]?.exists() ? userApprovedDocs[index].data() : {};
+        const usernameData = usernameDocs[index]?.exists() ? usernameDocs[index].data() : {};
+        
+        // Combine data, with 'usernames' collection taking priority for the username field
+        userDataMap.set(email, {
+            ...approvedData,
+            ...usernameData
+        });
+    });
+    // ▲▲▲ END OF KEY CHANGE ▲▲▲
+
+    snapshot.docs.forEach(docSnap => {
       const answerData = docSnap.data();
+      const userData = userDataMap.get(answerData.answeredBy) || {};
+
       const answerCard = document.createElement("div");
-      answerCard.className = "answer-card";
-      Object.assign(answerCard.style, {
-        background: "#fff",
-        borderRadius: "16px",
-        padding: "16px",
-        marginBottom: "12px",
-        boxShadow: `
-          6px 6px 14px rgba(0,0,0,0.05),
-          -6px -6px 14px rgba(218,218,218,0.8),
-          inset 1px 1px 2px rgba(0,0,0,0.03),
-          inset -1px -1px 2px rgba(255,255,255,0.6)
-        `
-      });
+      answerCard.className = "answer-card-modern";
 
-      const name = document.createElement("div");
-      const usernameRef = doc(db, "usernames", answerData.answeredBy);
-getDoc(usernameRef).then((usernameSnap) => {
-  name.textContent = usernameSnap.exists() ? usernameSnap.data().username : "Anonymous";
-});
+      // User Info
+      const userInfo = document.createElement("div");
+      userInfo.className = "answer-user-info";
+      
+      const avatar = document.createElement("img");
+      avatar.className = "answer-user-avatar";
+      avatar.src = userData.avatarUrl || 'Group-10.png'; // Default avatar
 
-      name.style.fontWeight = "bold";
-      name.style.fontSize = "14px";
+      const userDetails = document.createElement("div");
+      userDetails.className = "answer-user-details";
+      const userName = document.createElement("span");
+      userName.className = "answer-user-name";
+      // This line now works correctly because userDataMap contains the username
+      userName.textContent = userData.username || "Anonymous";
+      const userEmail = document.createElement("div");
+      userEmail.textContent = answerData.answeredBy;
 
-      const email = document.createElement("div");
-      email.textContent = answerData.answeredBy;
-      email.style.fontSize = "11px";
-      email.style.color = "#777";
+      userDetails.appendChild(userName);
+      userDetails.appendChild(userEmail);
+      userInfo.appendChild(avatar);
+      userInfo.appendChild(userDetails);
+      
+      // Answer Text
+      const answerTextEl = document.createElement("p");
+      answerTextEl.className = "answer-text";
+      answerTextEl.textContent = answerData.answer;
+      
+      // Footer
+      const footer = document.createElement("div");
+      footer.className = "answer-footer";
+      
+      const verifiedByAdmin = document.createElement("div");
+      verifiedByAdmin.className = "verified-by-admin";
+      verifiedByAdmin.style.display = 'none'; // Hide by default
 
-      const answer = document.createElement("p");
-answer.innerHTML = `<strong>Answer:</strong> ${answerData.answer}`;
-Object.assign(answer.style, {
-  margin: "10px 0",
-  wordWrap: "break-word",
-  overflowWrap: "break-word",
-  whiteSpace: "pre-wrap"
-});
+      const answerActions = document.createElement("div");
+      answerActions.className = "answer-actions";
 
-
-      const likeRow = document.createElement("div");
-      likeRow.style.display = "flex";
-      likeRow.style.justifyContent = "flex-end";
-      likeRow.style.alignItems = "center";
-      likeRow.style.gap = "6px";
+      const likeContainer = document.createElement("div");
+      likeContainer.className = "like-container";
+      
+      const likeBtn = document.createElement("button");
+      likeBtn.className = "answer-icon-btn like-btn";
+      const likeIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
+      likeBtn.innerHTML = likeIconSVG;
 
       const likeCount = document.createElement("span");
+      likeCount.id = "likeCount";
       likeCount.textContent = "0";
+      
+      likeContainer.appendChild(likeBtn);
+      likeContainer.appendChild(likeCount);
+      answerActions.appendChild(likeContainer);
+      
+      // Assemble card
+      footer.appendChild(verifiedByAdmin);
+      footer.appendChild(answerActions);
+      answerCard.appendChild(userInfo);
+      answerCard.appendChild(answerTextEl);
+      answerCard.appendChild(footer);
+      body.appendChild(answerCard);
 
-      const likeImg = document.createElement("img");
-      likeImg.src = "notlikedd.png";
-      likeImg.style.width = "20px";
-      likeImg.style.cursor = "pointer";
-
-      const likeRef = doc(db, "general_answers", docSnap.id, "likes", currentUser.email);
+      // Like logic
       const likesCollection = collection(db, "general_answers", docSnap.id, "likes");
-
-      onSnapshot(likesCollection, snap => {
+      onSnapshot(likesCollection, (snap) => {
         likeCount.textContent = snap.size.toString();
+        const isAdminLiked = snap.docs.some(doc => adminEmails.includes(doc.id));
+        if (isAdminLiked) {
+          verifiedByAdmin.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Verified by Admin`;
+          verifiedByAdmin.style.display = 'flex';
+        } else {
+          verifiedByAdmin.style.display = 'none';
+        }
       });
-      // Check if any admin liked this answer
-// Check if any admin liked this answer
-onSnapshot(likesCollection, snap => {
-  likeCount.textContent = snap.size.toString();
-
-  // Remove previous verified label if any
-  const old = likeRow.querySelector('.verified-text');
-  if (old) old.remove();
-
-  const likedByAdmin = snap.docs.some(doc => adminEmails.includes(doc.id));
-  if (likedByAdmin) {
-    const verifiedText = document.createElement("div");
-    verifiedText.textContent = "Liked and Verified by an Admin/Co Admin/Moderator";
-    verifiedText.className = "verified-text";
-    Object.assign(verifiedText.style, {
-      fontSize: "11px",
-      color: "#4CAF50",
-      marginRight: "auto"
-    });
-    likeRow.insertBefore(verifiedText, likeCount);
-  }
-});
-
-
-
+      
+      const likeRef = doc(db, "general_answers", docSnap.id, "likes", currentUser.email);
       getDoc(likeRef).then(docSnap => {
-        likeImg.src = docSnap.exists() ? "liked.png" : "notlikedd.png";
+        if(docSnap.exists()){
+            likeBtn.classList.add("liked");
+        }
       });
 
-      likeImg.onclick = async () => {
-  const docSnap = await getDoc(likeRef);
-  const answerOwnerRef = doc(db, "approved_emails", answerData.answeredBy);
-  const answerOwnerSnap = await getDoc(answerOwnerRef);
-  let xp = answerOwnerSnap.exists() ? (answerOwnerSnap.data().xp || 0) : 0;
+      likeBtn.onclick = async () => {
+        const docSnap = await getDoc(likeRef);
+        const answerOwnerRef = doc(db, "approved_emails", answerData.answeredBy);
+        const answerOwnerSnap = await getDoc(answerOwnerRef);
+        let xp = answerOwnerSnap.exists() ? (answerOwnerSnap.data().xp || 0) : 0;
 
-  if (docSnap.exists()) {
-    // 💥 Unlike: remove like and deduct XP
-    await deleteDoc(likeRef);
-    likeImg.src = "notlikedd.png";
+        if (docSnap.exists()) {
+          await deleteDoc(likeRef);
+          likeBtn.classList.remove("liked");
+          xp = Math.max(0, xp - 300);
+          await setDoc(answerOwnerRef, { xp }, { merge: true });
+        } else {
+          await setDoc(likeRef, { liked: true });
+          likeBtn.classList.add("liked");
+          xp += 300;
+          await setDoc(answerOwnerRef, { xp }, { merge: true });
+        }
+      };
 
-    xp = Math.max(0, xp - 300); // prevent negative XP
-    await setDoc(answerOwnerRef, { xp }, { merge: true });
-  } else {
-    // 💥 Like: add like and award XP
-    await setDoc(likeRef, { liked: true });
-    likeImg.src = "liked.png";
-
-    xp += 300;
-    await setDoc(answerOwnerRef, { xp }, { merge: true });
-  }
-};
-
-
-
-      likeRow.appendChild(likeCount);
-      likeRow.appendChild(likeImg);
-
-      answerCard.appendChild(name);
-      answerCard.appendChild(email);
-      answerCard.appendChild(answer);
-      answerCard.appendChild(likeRow);
+      // Delete logic
+      // Delete logic
 if (currentUser.email === answerData.answeredBy || adminEmails.includes(currentUser.email)) {
   const deleteBtn = document.createElement("button");
-  deleteBtn.textContent = "Delete";
-  Object.assign(deleteBtn.style, {
-    background: "#f44",
-    color: "#fff",
-    border: "none",
-    padding: "6px 10px",
-    borderRadius: "8px",
-    fontSize: "12px",
-    cursor: "pointer",
-    marginTop: "6px",
-    alignSelf: "flex-start",
-    fontFamily: "Satoshi, sans-serif"
-  });
-
-  deleteBtn.addEventListener("click", async () => {
-    const confirmed = confirm("Are you sure you want to delete this answer?");
+  deleteBtn.className = "answer-icon-btn gq-answer-delete-btn";
+  deleteBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+  deleteBtn.onclick = async () => {
+     console.log('%c Answer delete button clicked! Firing from generalquestion.js', 'color: lightgreen; font-weight: bold;');
+    // Replaced confirm() with your custom showConfirm() modal
+    const confirmed = await showAnswerConfirm("Are you sure you want to delete this answer?");
     if (!confirmed) return;
 
     try {
-      // 1. Delete the answer
       await deleteDoc(doc(db, "general_answers", docSnap.id));
-
-      // 2. Deduct 100 XP from the answerer (if you reward answers with +100)
       const xpRef = doc(db, "approved_emails", answerData.answeredBy);
       const xpSnap = await getDoc(xpRef);
       if (xpSnap.exists()) {
         const xpData = xpSnap.data();
-        const xp = Math.max(0, (xpData.xp || 0) - 0);
+        const xp = Math.max(0, (xpData.xp || 0) - 100);
         await setDoc(xpRef, { xp }, { merge: true });
       }
-
-      alert("✅ Answer deleted.");
+      // Replaced alert() with your custom showAlert() modal
+      showAlert("✅ Answer deleted successfully.");
     } catch (err) {
       console.error("Failed to delete answer:", err);
-      alert("❌ Could not delete answer.");
+      // Replaced alert() with your custom showAlert() modal (for errors)
+      showAlert("❌ Could not delete the answer.", false);
     }
-  });
-
-  answerCard.appendChild(deleteBtn);
+  };
+  answerActions.appendChild(deleteBtn);
+  console.log(`Attaching correct delete handler for answer ID: ${docSnap.id}`);
 }
-
-      modal.appendChild(answerCard);
     });
   });
-
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "Close";
-  Object.assign(closeBtn.style, {
-    marginTop: "20px",
-    padding: "8px 14px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#111",
-    color: "white",
-    cursor: "pointer",
-    fontFamily: "Satoshi, sans-serif"
-  });
-  closeBtn.addEventListener("click", () => document.body.removeChild(overlay));
-
-  modal.appendChild(closeBtn);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
 }
+// This is the new function to use instead
 function showExpandedCard(data) {
+  // 1. Create the backdrop and modal elements
   const overlay = document.createElement("div");
-  Object.assign(overlay.style, {
-    position: "fixed",
-    top: "0",
-    left: "0",
-    width: "100vw",
-    height: "100vh",
-    background: "rgba(0, 0, 0, 0.6)",
-    zIndex: "1000",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    fontFamily: "Satoshi, sans-serif"
-  });
+  overlay.className = "gq-expanded-backdrop";
 
   const modalCard = document.createElement("div");
-  Object.assign(modalCard.style, {
-    background: "#fff",
-    borderRadius: "20px",
-    padding: "30px",
-    maxWidth: "90%",
-    width: "500px",
-    maxHeight: "90vh",
-    overflowY: "auto",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
-    fontFamily: "Satoshi, sans-serif",
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-    wordWrap: "break-word",
-    overflowWrap: "break-word",
-    fontFamily: "Satoshi, sans-serif"
-  });
+  modalCard.className = "gq-expanded-modal";
 
-  const category = document.createElement("h3");
-  category.textContent = `Category: ${data.category || "General"}`;
-  Object.assign(category.style, {
-    fontSize: "16px",
-    color: "#666",
-    margin: "0",
-    fontFamily: "Satoshi, sans-serif"
-  });
+  // 2. Create the header
+  const header = document.createElement("div");
+  header.className = "gq-expanded-header";
 
-  const question = document.createElement("p");
-  question.textContent = data.question;
-  Object.assign(question.style, {
-    fontSize: "18px",
-    color: "#111",
-    whiteSpace: "pre-wrap"
-  });
-
-  const byline = document.createElement("p");
-  byline.textContent = `Submitted by: ${data.email}`;
-  Object.assign(byline.style, {
-    fontSize: "12px",
-    color: "#aaa"
-  });
+  const category = document.createElement("div");
+  category.className = "gq-expanded-category";
+  category.textContent = data.category || "General";
 
   const closeBtn = document.createElement("button");
-  closeBtn.textContent = "Close";
-  Object.assign(closeBtn.style, {
-    alignSelf: "flex-end",
-    marginTop: "10px",
-    padding: "8px 14px",
-    border: "none",
-    borderRadius: "10px",
-    background: "#111",
-    color: "white",
-    cursor: "pointer",
-    fontFamily: "Satoshi, sans-serif"
-  });
-  closeBtn.addEventListener("click", () => {
-    document.body.removeChild(overlay);
-  });
+  closeBtn.className = "gq-expanded-close-btn";
+  closeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+  
+  header.appendChild(category);
+  header.appendChild(closeBtn);
 
-  modalCard.appendChild(category);
-  modalCard.appendChild(question);
-  modalCard.appendChild(byline);
-  modalCard.appendChild(closeBtn);
+  // 3. Create the body
+  const body = document.createElement("div");
+  body.className = "gq-expanded-body";
 
+  const question = document.createElement("p");
+  question.className = "gq-expanded-question";
+  question.textContent = data.question;
+  
+  body.appendChild(question);
+
+  // 4. Create the footer
+  const footer = document.createElement("div");
+  footer.className = "gq-expanded-footer";
+  footer.textContent = `Submitted by: ${data.email}`;
+
+  // 5. Assemble the modal
+  modalCard.appendChild(header);
+  modalCard.appendChild(body);
+  modalCard.appendChild(footer);
   overlay.appendChild(modalCard);
+
+  // 6. Add close functionality
+  const closeModal = () => document.body.removeChild(overlay);
+  closeBtn.onclick = closeModal;
+  overlay.onclick = (event) => {
+    if (event.target === overlay) {
+      closeModal();
+    }
+  };
+
+  // 7. Add to the page
   document.body.appendChild(overlay);
 }

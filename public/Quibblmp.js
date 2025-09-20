@@ -29,6 +29,25 @@ let isUserReady = false;
 let lobbyDocRef = null;
 let currentLobbyHost = null;
 let lastRenderedTimestamp = 0;
+
+async function handleCreateLobby() {
+    if (!currentUserEmail) return;
+    currentLobbyHost = currentUserEmail;
+    localStorage.setItem("quibblHost", currentUserEmail);
+    lobbyDocRef = doc(db, "quibbllobbies", currentUserEmail);
+
+    const avatarURL = await getAvatarURL(currentUserEmail);
+    const hostPlayerData = { email: currentUserEmail, avatar: avatarURL, ready: false, username: localStorage.getItem("username") };
+
+    // This is the key: Create the lobby document with the host already inside.
+    await setDoc(lobbyDocRef, {
+        host: currentLobbyHost,
+        players: [hostPlayerData]
+    });
+
+    // Now, attach the real-time listener which will render the UI.
+    createOrJoinLobby(currentUserEmail);
+}
 // PASTE THE NEW FUNCTION RIGHT HERE
 function showCustomAlert(message, type = 'default') {
   const alertModal = document.getElementById("customAlertModal");
@@ -77,6 +96,19 @@ function showConfirm(message) {
     };
   });
 }
+window.openHelpModal = function() {
+    const modal = document.getElementById('gameHelpModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+    }
+}
+
+window.closeHelpModal = function() {
+    const modal = document.getElementById('gameHelpModal');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
 // --- AUTH STATE ---
 auth.onAuthStateChanged((user) => {
   if (user) {
@@ -121,33 +153,26 @@ if (savedSet && savedSet.numCardsToDisplay) updateRoundsDisplay();
 
 
 // --- OPEN MODAL ---
+// REPLACE your existing createLobbyBtn listener with this:
 if (createLobbyBtn) {
   createLobbyBtn.addEventListener("click", async () => {
-    if (createLobbyBtn.textContent === "Create Lobby") {
-  currentLobbyHost = currentUserEmail;
-  localStorage.setItem("quibblHost", currentUserEmail); // ✅ SAVE HOST LOCALLY
-  lobbyDocRef = null;
-  acceptedPlayers = [];
-  await setupCurrentUserInLobby();
-}
- else {
-      // Configure existing lobby
-      if (!lobbyDocRef) {
-        await checkExistingLobby();
-      }
+    // Only create a new lobby if the button says so.
+    if (createLobbyBtn.textContent.includes("Create")) {
+      await handleCreateLobby();
     }
+
+    // Show the modal regardless.
+    multiplayerModal.classList.remove("hidden");
+
+    // Now, load the player lists for inviting.
     loadUsers();
     loadRecentInvites();
-    multiplayerModal.style.display = "flex";
-    renderPlayerSlots();
-    renderTopAvatars();
-    updateStartButtonState();
   });
 }
 
 // --- CLOSE MODAL ---
 window.closeMultiplayerModal = function () {
-  multiplayerModal.style.display = "none";
+  multiplayerModal.classList.add("hidden");
   if (createLobbyBtn) createLobbyBtn.textContent = "Configure Lobby";
 };
 
@@ -157,7 +182,7 @@ async function getAvatarURL(email) {
     const avatarRef = ref(storage, `avatars/${email}`);
     return await getDownloadURL(avatarRef);
   } catch {
-    return "Group-10.png";
+    return "Group-100.png";
   }
 }
 
@@ -186,172 +211,61 @@ async function getUserBadge(email) {
 }
 
 // --- SETUP USER IN LOBBY ---
-async function setupCurrentUserInLobby() {
-  if (!currentUserEmail) return;
-  const avatarURL = await getAvatarURL(currentUserEmail);
 
-  if (currentUserEmail === currentLobbyHost || !currentLobbyHost) {
-    if (!acceptedPlayers.find(player => player.email === currentUserEmail)) {
-      acceptedPlayers.unshift({ email: currentUserEmail, avatar: avatarURL, ready: false });
-    }
-    if (currentUserEmail === currentLobbyHost && currentLobbyHost) {
-  const lobbyRef = doc(db, "quibbllobbies", currentLobbyHost);
-  await setDoc(lobbyRef, {
-    players: acceptedPlayers,
-    host: currentLobbyHost
-  }, { merge: true });
-}
-
-  }
-
-  if (!currentLobbyHost) {
-    const lobbiesSnapshot = await getDocs(collection(db, "quibbllobbies"));
-    let existingLobby = null;
-    lobbiesSnapshot.forEach(docSnap => {
-      const data = docSnap.data();
-      if (data.players && data.players.some(p => p.email === currentUserEmail)) {
-        existingLobby = { id: docSnap.id, host: data.host };
-      }
-    });
-
-    if (existingLobby) {
-      currentLobbyHost = existingLobby.host;
-      lobbyDocRef = doc(db, "quibbllobbies", existingLobby.id);
-
-      onSnapshot(lobbyDocRef, (snapshot) => {
-        if (snapshot.exists()) {
-          acceptedPlayers = snapshot.data().players || [];
-          const currentPlayer = acceptedPlayers.find(p => p.email === currentUserEmail);
-          isUserReady = currentPlayer ? currentPlayer.ready : false;
-          renderPlayerSlots();
-          renderTopAvatars();
-          updateStartButtonState();
-        }
-      });
-      return;
-    }
-    currentLobbyHost = currentUserEmail;
-  }
-  renderPlayerSlots();
-  renderTopAvatars();
-  updateStartButtonState();
-
-  if (currentUserEmail === currentLobbyHost) {
-    createOrJoinLobby(currentUserEmail); // Use email as doc ID
-  }
-}
 
 // --- CREATE OR JOIN LOBBY ---
+// REPLACE your existing createOrJoinLobby function with this:
 async function createOrJoinLobby(lobbyId = currentUserEmail) {
   lobbyDocRef = doc(db, "quibbllobbies", lobbyId);
 
-  const snapshot = await getDoc(lobbyDocRef);
-  if (!snapshot.exists() && currentUserEmail === currentLobbyHost) {
-    await setDoc(lobbyDocRef, {
-      host: currentLobbyHost,
-      players: acceptedPlayers
-    });
-  }
-
+  // This listener is now the single source of truth for UI updates.
   onSnapshot(lobbyDocRef, (snapshot) => {
     if (snapshot.exists()) {
       const data = snapshot.data();
       
-      
-      listenForScores(currentLobbyHost); // ✅ Real-time scores update
-
+      // (The rest of your existing onSnapshot logic goes here)
+      // For example:
       const chatContainer = document.getElementById("chatContainer");
-if (chatContainer) {
-  (async () => {
-    let chatArray = data.chat || [];
+      if (chatContainer) {
+          const chatData = data.chat || [];
+          // A simple check to avoid re-rendering the exact same chat log
+          if (JSON.stringify(chatContainer.dataset.lastChat) !== JSON.stringify(chatData)) {
+              chatContainer.innerHTML = ""; // Clear old messages
+              chatData.forEach(msg => {
+                  const msgDiv = document.createElement("div");
+                  msgDiv.classList.add("chat-message");
 
-    // Sort by timestamp (oldest to newest)
-    chatArray.sort((a, b) => {
-      const t1 = a.timestamp?.seconds || a.timestamp || 0;
-      const t2 = b.timestamp?.seconds || b.timestamp || 0;
-      return t1 - t2;
-    });
-
-    // Cache and state to avoid re-rendering old messages
-    const badgeCache = window._chatBadgeCache || {};
-    window._chatBadgeCache = badgeCache;
-    window.lastRenderedTimestamp = window.lastRenderedTimestamp || 0;
-
-    for (const chat of chatArray) {
-      const timestamp = chat.timestamp?.seconds || chat.timestamp || 0;
-      if (timestamp <= window.lastRenderedTimestamp) continue;
-
-      const div = document.createElement("div");
-div.classList.add("chat-message");
-
-      div.style.margin = "5px 0";
-      div.style.fontFamily = "QilkaBold";
-      div.style.color = chat.isCorrect ? "#28a745" : "#fff";
-
-      let badges = "";
-      if (badgeCache[chat.email]) {
-  badges = badgeCache[chat.email];
-} else {
-  try {
-    if (chat.email === "system@quibbl") {
-      // ✅ Force verified badge for System
-      badges = `<img src="verified.svg" class="badge-icon" alt="verified" title="Verified"> `;
-    } else {
-      const approvedDoc = await getDoc(doc(db, "approved_emails", chat.email));
-      if (approvedDoc.exists()) {
-        const roleString = approvedDoc.data().role || "";
-        const roleArray = roleString.split(',').map(r => r.trim().toLowerCase());
-
-        if (roleArray.includes("verified")) {
-          badges += `<img src="verified.svg" class="badge-icon" alt="verified" title="Verified"> `;
-        }
-        if (roleArray.includes("first")) {
-          badges += `<img src="first.png" class="badge-icon" alt="first" title="First User"> `;
-        }
+                  let userName = msg.user;
+                  if (msg.email === currentUserEmail) {
+                      userName = "You";
+                      msgDiv.classList.add("own-message");
+                  }
+                  
+                  if (msg.user === "System") {
+                      msgDiv.classList.add("system-message");
+                      msgDiv.innerHTML = `<em>${msg.message}</em>`;
+                  } else if (msg.isCorrect) {
+                      msgDiv.classList.add("correct-answer");
+                      msgDiv.innerHTML = `<strong>${userName}:</strong> ${msg.message} ✔️`;
+                  } else {
+                      msgDiv.innerHTML = `<strong>${userName}:</strong> ${msg.message}`;
+                  }
+                  chatContainer.appendChild(msgDiv);
+              });
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+              chatContainer.dataset.lastChat = JSON.stringify(chatData);
+          }
       }
-    }
-  } catch (e) {
-    console.error("Failed to fetch badges:", e);
-  }
-  badgeCache[chat.email] = badges;
-}
-
-
-      div.innerHTML = chat.isCorrect
-        ? `${chat.user}${badges} got the correct answer! 🎉`
-        : `${chat.user}${badges}: ${chat.message}`;
-
-      chatContainer.appendChild(div);
-      window.lastRenderedTimestamp = timestamp;
-    }
-
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-  })();
-}
-
-
 
       acceptedPlayers = data.players || [];
       currentLobbyHost = data.host || currentLobbyHost;
       const currentPlayer = acceptedPlayers.find(p => p.email === currentUserEmail);
       isUserReady = currentPlayer ? currentPlayer.ready : false;
+
+      // This call will now always have the correct player data.
       renderPlayerSlots();
       renderTopAvatars();
       updateStartButtonState();
-    } else {
-      if (currentUserEmail === currentLobbyHost) {
-        const hostPlayer = acceptedPlayers.find(p => p.email === currentLobbyHost);
-        acceptedPlayers = hostPlayer ? [hostPlayer] : [];
-        renderPlayerSlots();
-        renderTopAvatars();
-        updateStartButtonState();
-      } else {
-        showCustomAlert("The lobby was closed by the host.", 'error');
-        acceptedPlayers = [];
-        renderPlayerSlots();
-        renderTopAvatars();
-        updateStartButtonState();
-      }
     }
   });
 }
@@ -578,11 +492,7 @@ async function loadRecentInvites() {
 }
 
 // --- FLASHCARD SET MODAL ---
-window.openSetModal = async function () {
-  if (!setSelectionModal) return;
-  setSelectionModal.classList.remove("hidden");
-  await loadFlashcardSets();
-};
+
 
 window.closeSetModal = function () {
   if (!setSelectionModal) return;
@@ -674,6 +584,7 @@ window.populateCardsDropdown = function(totalCards) {
     dropdown.innerHTML += `<option value="${totalCards}">${totalCards} cards</option>`;
   }
 };
+// REPLACE your old saveCardsToDisplay function with this:
 window.saveCardsToDisplay = async function() {
   const dropdown = document.getElementById("cardsToDisplay");
   if (!dropdown || !dropdown.value) return;
@@ -687,17 +598,15 @@ window.saveCardsToDisplay = async function() {
 
   reviewingSet.numCardsToDisplay = numCards;
   localStorage.setItem("reviewingSet", JSON.stringify(reviewingSet));
-updateRoundsDisplay();
-document.getElementById("selectedCardsCount").textContent = numCards;
-populateCardsDropdown(reviewingSet.flashcards.length || 0);
-
-// Refresh invite buttons if modal is open
-if (multiplayerModal?.style.display === "flex") {
-  loadUsers();
-  loadRecentInvites();
-}
-
-
+  updateRoundsDisplay();
+  document.getElementById("selectedCardsCount").textContent = numCards;
+  
+  // This is the corrected part:
+  // It now correctly checks if the modal is visible by looking for the 'hidden' class.
+  if (multiplayerModal && !multiplayerModal.classList.contains("hidden")) {
+    loadUsers();
+    loadRecentInvites();
+  }
 };
 function updateRoundsDisplay() {
   const roundsDisplay = document.getElementById("roundsDisplay");
@@ -714,102 +623,126 @@ if (selectedCardsEl) selectedCardsEl.textContent = reviewingSet.numCardsToDispla
 
 
 
-// --- RENDER PLAYER SLOTS ---
+// Quibblmp.js
+
+// REPLACE your existing 'renderPlayerSlots' function with this:
 window.renderPlayerSlots = function () {
-  playerSlotsContainer.innerHTML = "";
-  acceptedPlayers.sort((a, b) => (a.email === currentLobbyHost ? -1 : b.email === currentLobbyHost ? 1 : 0));
+    if (!playerSlotsContainer) return;
 
-  const totalPlayers = acceptedPlayers.length;
-  const maxPlayers = 5;
+    const isHost = currentUserEmail === currentLobbyHost;
 
-  const avatarsHTML = acceptedPlayers.map((player, index) => {
-    const isHost = player.email === currentLobbyHost;
-    const isNewest = index === totalPlayers - 1;
-    return `
-  <div style="position:relative; display:inline-block; text-align:center; margin:0 5px;">
-    <div style="position:absolute; top:-20px; left:50%; transform:translateX(-50%);
-      background:#171717; color:#fff; padding:2px 8px; font-size:12px; border-radius:12px;">
-      ${index + 1}/${maxPlayers}
-    </div>
-    <img src="${player.avatar}" 
-         title="${player.email}"
-         style="width:50px; height:50px; border-radius:50%; border:2px solid ${player.ready ? 'green' : '#ffcf00'}; object-fit:cover;" />
-    ${isHost ? `<div style="font-size:14px; color:#ffcf00; margin-top:4px;">👑</div>` : ""}
-    ${player.email !== currentUserEmail && currentUserEmail === currentLobbyHost ? `
-      <span class="kick-overlay" onclick="kickPlayer('${player.email}')"
-            style="position:absolute; top:-5px; right:-5px; background:red; color:white;
-            font-size:10px; width:20px; height:20px; border-radius:50%; display:flex;
-            align-items:center; justify-content:center; cursor:pointer; font-family:'QilkaBold'; line-height:1;">
-        X
-      </span>
-    ` : ''}
-  </div>
-`;
+    const playerPodsHTML = acceptedPlayers.map((player) => {
+        const p_isHost = player.email === currentLobbyHost;
+        const displayName = player.username || player.email.split('@')[0];
+        return `
+            <div class="player-pod">
+                ${p_isHost ? '<span class="host-crown">👑</span>' : ''}
+                ${!p_isHost && isHost ? `<span class="kick-btn-pod" data-kick-email="${player.email}">×</span>` : ''}
+                <img src="${player.avatar}" title="${player.email}" class="player-pod-avatar ${player.ready ? 'ready' : ''}" />
+                <div class="player-pod-name">${displayName}</div>
+            </div>
+        `;
+    }).join('');
 
-  }).join('');
+    let controlsHTML = '';
+    if (currentUserEmail) {
+        if (isHost) {
+            // --- CHANGE IS HERE ---
+            const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet") || "null");
+            let selectSetButtonText = "Select Set";
+            let buttonHoverTitle = "Select a Flashcard Set";
 
-  playerSlotsContainer.innerHTML = `
-    <div class="avatar-list" style="display:flex; justify-content:center; gap:10px; margin-bottom:10px;">
-      ${avatarsHTML}
-    </div>
-  `;
+            if (reviewingSet && reviewingSet.title) {
+                selectSetButtonText = `Chosen Set: ${reviewingSet.title}`;
+                buttonHoverTitle = reviewingSet.title; // The hover title shows the full name
+            }
+            // --- END OF CHANGE ---
 
-  if (currentUserEmail) {
-    playerSlotsContainer.innerHTML += `
-      <div style="text-align:center; margin-top:10px;">
-        <button onclick="${currentUserEmail === currentLobbyHost ? 'hostToggleReady()' : 'toggleUserReady()'}"
-          style="padding:8px 20px; background:#ffcf00; border:none; border-radius:8px;
-          cursor:pointer; font-family:'QilkaBold'; font-size:14px; margin-bottom:5px;">
-          ${isUserReady ? "Unready" : "I'm Ready"}
-        </button>
-        <br/>
-        ${currentUserEmail === currentLobbyHost
-          ? `<button onclick="closeLobby()" 
-            style="padding:6px 16px; background:#ff4d4d; border:none; border-radius:8px;
-            cursor:pointer; font-family:'QilkaBold'; font-size:14px; color:white;">
-            Close Lobby
-          </button>`
-          : `<button onclick="leaveLobby()" 
-            style="padding:6px 16px; background:#ff4d4d; border:none; border-radius:8px;
-            cursor:pointer; font-family:'QilkaBold'; font-size:14px; color:white;">
-            Leave Lobby
-          </button>`
+            controlsHTML = `
+                <div class="host-controls-container">
+                    <div class="host-main-actions">
+                        <button id="ready-btn" class="control-btn">${isUserReady ? "Unready" : "I'm Ready"}</button>
+                        <button id="select-set-btn" class="control-btn secondary" title="${buttonHoverTitle}">${selectSetButtonText}</button>
+                    </div>
+                    <div class="host-secondary-actions">
+                        <div class="cards-to-display-wrapper">
+                            <label for="cardsToDisplay">Cards:</label>
+                            <select id="cardsToDisplay" ${localStorage.getItem("reviewingSet") ? "" : "disabled"}>
+                                <option value="">...</option>
+                            </select>
+                            <span>(<span id="selectedCardsCount">0</span>)</span>
+                        </div>
+                        <button id="close-lobby-btn" class="control-btn danger">Close Lobby</button>
+                    </div>
+                </div>
+            `;
+        } else {
+             controlsHTML = `
+                <div class="host-controls-container">
+                     <button id="ready-btn" class="control-btn">${isUserReady ? "Unready" : "I'm Ready"}</button>
+                     <button id="leave-lobby-btn" class="control-btn danger">Leave Lobby</button>
+                </div>
+            `;
         }
-        <br/>
-        ${currentUserEmail === currentLobbyHost ? `
-  <button onclick="openSetModal()" class="neumorphic-button2" style="margin-top:8px;">
-    ${localStorage.getItem("reviewingSet") ? "Change Flashcard Set" : "Select a Flashcard Set"}
-  </button>
-` : ""}
+    }
 
-        ${currentUserEmail === currentLobbyHost ? `
-  <br/>
-  <label for="cardsToDisplay" style="display:block; margin-top:8px; color:#ffcf00;">
-    Number of Cards to Show
-  </label>
-  <select id="cardsToDisplay" onchange="saveCardsToDisplay()" style="padding:6px; border-radius:6px; margin-top:4px;" 
-  ${localStorage.getItem("reviewingSet") ? "" : "disabled"}>
-  <option value="">Select...</option>
-</select>
-
-` : ""}
-${currentUserEmail === currentLobbyHost ? `
-  <div style="margin-top: 8px; color: white;">
-    Selected: <span id="selectedCardsCount">0</span> cards
-  </div>
-` : ""}
-
-      </div>
+    playerSlotsContainer.innerHTML = `
+        <div class="player-pods-container">${playerPodsHTML}</div>
+        ${controlsHTML}
     `;
-  }
-  updateRoundsDisplay();
-const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet") || "null");
-if (reviewingSet && reviewingSet.flashcards) {
-  populateCardsDropdown(reviewingSet.flashcards.length);
-}
 
+    const selectSetBtn = document.getElementById('select-set-btn');
+    if (selectSetBtn) {
+        selectSetBtn.addEventListener('click', window.openSetModal);
+    }
+    const readyBtn = document.getElementById('ready-btn');
+    if (readyBtn) {
+        const readyFunction = isHost ? window.hostToggleReady : window.toggleUserReady;
+        readyBtn.addEventListener('click', readyFunction);
+    }
+    const closeLobbyBtn = document.getElementById('close-lobby-btn');
+    if (closeLobbyBtn) {
+        closeLobbyBtn.addEventListener('click', window.closeLobby);
+    }
+    const leaveLobbyBtn = document.getElementById('leave-lobby-btn');
+    if (leaveLobbyBtn) {
+        leaveLobbyBtn.addEventListener('click', window.leaveLobby);
+    }
+    const cardsDropdown = document.getElementById('cardsToDisplay');
+    if(cardsDropdown){
+        cardsDropdown.addEventListener('change', window.saveCardsToDisplay);
+    }
+    document.querySelectorAll('.kick-btn-pod').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const emailToKick = e.target.getAttribute('data-kick-email');
+            if (emailToKick) window.kickPlayer(emailToKick);
+        });
+    });
+    
+    updateRoundsDisplay();
+    const reviewingSet = JSON.parse(localStorage.getItem("reviewingSet") || "null");
+    if (reviewingSet && reviewingSet.flashcards) {
+        populateCardsDropdown(reviewingSet.flashcards.length);
+    }
 };
 
+// REPLACE your 'openSetModal' function in this file with this one:
+window.openSetModal = async function () {
+  console.log("🖱️ 'Select Set' button clicked! Running openSetModal function.");
+  
+  const setSelectionModal = document.getElementById("setSelectionModal"); // Re-get it just to be safe
+  console.log("Checking for setSelectionModal element:", setSelectionModal);
+
+  if (!setSelectionModal) {
+    console.error("❌ Critical Error: setSelectionModal element not found in HTML!");
+    return;
+  }
+  
+  setSelectionModal.classList.remove("hidden");
+  console.log("✅ Removed 'hidden' class. Modal should be visible now.");
+  
+  await loadFlashcardSets();
+};
 function renderTopAvatars() {
   const avatarContainer = document.querySelector('.avatar-container');
   if (!avatarContainer) return;
@@ -827,7 +760,7 @@ playersToShow.forEach((player, index) => {
   wrapper.style.margin = "0 4px";
 
   const img = document.createElement('img');
-  img.src = player.avatar || "Group-10.png";
+  img.src = player.avatar || "Group-100.png";
   if (player.left === true) {
   img.classList.add("player-left");
 }
@@ -869,7 +802,7 @@ playersToShow.forEach((player, index) => {
 
   for (let i = playersToShow.length; i < maxAvatars; i++) {
     const img = document.createElement('img');
-    img.src = "Group-10.png";
+    img.src = "Group-100.png";
     img.alt = "Empty slot";
     avatarContainer.appendChild(img);
   }
@@ -954,86 +887,7 @@ window.hostToggleReady = async function () {
 };
 
 // --- LEAVE LOBBY ---
-window.leaveLobby = async function () {
-  const host = localStorage.getItem("quibblHost");
-  const isHost = currentUserEmail === host;
 
-  if (isHost) {
-    if (isHost) {
-  if (confirm("Are you sure you want to close the lobby? All players will be removed.")) {
-    try {
-      const chatRef = doc(db, "quibbllobbies", currentUserEmail);
-      const snapshot = await getDoc(chatRef);
-      const chat = snapshot.exists() && snapshot.data().chat ? snapshot.data().chat : [];
-
-      chat.push({
-        user: "System",
-        email: "system@quibbl",
-        message: `Host has left the lobby. Returning in 5 seconds...`,
-        isCorrect: false,
-        timestamp: Date.now()
-      });
-
-      await setDoc(chatRef, {
-        chat: chat,
-        lobbyClosed: true
-      }, { merge: true });
-
-      localStorage.removeItem("quibblHost");
-      localStorage.removeItem("reviewingSet");
-      localStorage.removeItem("countdownFinished");
-
-      setTimeout(() => {
-        window.location.href = "quibbl.html";
-      }, 5000);
-
-    } catch (err) {
-      console.error("Error closing lobby:", err);
-      alert("Failed to close lobby.");
-    }
-  }
-}
-
-  } else {
-    try {
-      const lobbyRef = doc(db, "quibbllobbies", host);
-      const snapshot = await getDoc(lobbyRef);
-      const userName = localStorage.getItem("username") || currentUserEmail;
-
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        const updatedPlayers = (data.players || []).map(p =>
-  p.email === currentUserEmail ? { ...p, left: true } : p
-);
-
-        const updatedChat = data.chat || [];
-
-        updatedChat.push({
-          user: "System",
-          email: "system@quibbl",
-          message: `${userName} left the lobby.`,
-          isCorrect: false,
-          timestamp: Date.now()
-        });
-
-        await setDoc(lobbyRef, {
-          players: updatedPlayers,
-          chat: updatedChat
-        }, { merge: true });
-      }
-
-      localStorage.removeItem("quibblHost");
-      localStorage.removeItem("reviewingSet");
-      localStorage.removeItem("countdownFinished");
-
-     showCustomAlert("You have left the lobby.", 'success');
-      window.location.reload();
-    } catch (err) {
-      console.error("Failed to leave lobby:", err);
-      showCustomAlert("Error leaving lobby.", 'error');
-    }
-  }
-};
 
 
 
@@ -1049,6 +903,7 @@ window.closeLobby = async function () {
       await deleteDoc(lobbyDocRef);
       showCustomAlert("Lobby closed.", 'success');
       localStorage.removeItem("reviewingSet");
+      localStorage.removeItem("quibblHost"); // <-- ADD THIS LINE
 
       window.location.reload();
     } else {
@@ -1116,7 +971,7 @@ function startCountdown(timeRemaining) {
     color: white;
     padding: 20px 40px;
     border-radius: 12px;
-    font-family: 'QilkaBold';
+    font-family: 'Satoshi';
     font-size: 24px;
     text-align: center;
     z-index: 9999;
@@ -1236,16 +1091,23 @@ await setDoc(gameRef, {
 
 
 
- if (host) {
+if (host) {
   try {
     const lobbyChatRef = doc(db, "quibbllobbies", host);
     const lobbySnap = await getDoc(lobbyChatRef);
     const currentChat = lobbySnap.exists() && lobbySnap.data().chat ? lobbySnap.data().chat : [];
 
+    // --- CENSORING LOGIC ---
+    let messageToSave = message;
+    if (isCorrect) {
+      messageToSave = `${username} got the correct answer!`;
+    }
+    // --- END OF LOGIC ---
+
     currentChat.push({
       user: username,
       email: currentUserEmail,
-      message,
+      message: messageToSave, // Use the new, potentially censored message
       isCorrect,
       timestamp: Date.now()
     });

@@ -241,29 +241,43 @@ for (const [email, likes] of top) {
 
     // Render cards with a top-right ▼ toggle and a hidden slide panel
     listEl.innerHTML = items.map(({ email, name, likes, badge, sets, avatarUrl }) => {
-      const initials = initialsFromName(name);
-      const avatarHTML = avatarUrl
-        ? `<img class="cf-avatar" src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" style="${AVATAR_STYLE}">`
-        : `<span class="cf-avatar-fallback" aria-hidden="true" style="${AVATAR_FALLBACK_STYLE}">${escapeHtml(initials)}</span>`;
-      const safeId = toSafeId(email);
-      return `
-      <div class="class-favorite-card">
-        <div class="cf-top">
-          <div class="creator-name" style="display:flex; align-items:center; gap:6px;">
-            ${avatarHTML}
-            <span class="cf-name" style="background: transparent; color: white;">${escapeHtml(name)}</span>
-            ${badge ? `<img class="role-badge" src="${escapeHtml(badge.src)}" alt="${escapeHtml(badge.alt)}">` : ""}
-          </div>
-          <button class="cf-toggle" data-email="${escapeHtml(email)}" aria-expanded="false" title="Show public sets">▼</button>
+  const initials = initialsFromName(name);
+  const avatarHTML = avatarUrl
+    ? `<img class="cf-avatar" src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}">`
+    : `<span class="cf-avatar-fallback" aria-hidden="true">${escapeHtml(initials)}</span>`;
+  const safeId = toSafeId(email);
+  return `
+  <div class="class-favorite-card">
+    <div class="cf-top">
+      <div class="cf-creator-info">
+        ${avatarHTML}
+        <div class="cf-creator-details">
+          <span class="cf-name">${escapeHtml(name)}</span>
+          ${badge ? `<img class="role-badge22" src="${escapeHtml(badge.src)}" alt="${escapeHtml(badge.alt)}">` : ""}
         </div>
-        <div class="creator-meta">
-          ${Number(likes).toLocaleString()} ❤️ Total Likes | ${Number(sets).toLocaleString()} Public Flashcard Sets Created
+      </div>
+
+      <div class="cf-creator-stats">
+        <div class="cf-stat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          <span>${Number(likes).toLocaleString()}</span>
         </div>
-        <div class="cf-sets" id="sets-${escapeHtml(safeId)}" hidden>
-          <div class="cf-sets-inner">Loading…</div>
+        <div class="cf-stat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          <span>${Number(sets).toLocaleString()}</span>
         </div>
-      </div>`;
-    }).join("");
+      </div>
+      
+      <button class="cf-toggle" data-email="${escapeHtml(email)}" aria-expanded="false" title="Show public sets">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+    </div>
+
+    <div class="cf-sets" id="sets-${escapeHtml(safeId)}" hidden>
+      <div class="cf-sets-inner">Loading…</div>
+    </div>
+  </div>`;
+}).join("");
 
     // Delegated click handler for the ▼ toggle
     if (!listEl._cfBound) {
