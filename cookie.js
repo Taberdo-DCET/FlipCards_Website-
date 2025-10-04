@@ -18,7 +18,7 @@ function acceptCookies() {
 
 window.onload = () => {
   if (!getCookie("adsenseConsent")) {
-    document.getElementById("cookieBanner").style.display = "block";
+    document.getElementById("cookieBanner").style.display = "flex";
   } else {
     loadAdSenseScript();
   }

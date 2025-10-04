@@ -858,6 +858,87 @@ label {
   margin-top: -50px; /* Pulls it closer to the title */
   margin-bottom: 50px; /* Adds space above the plan cards */
 }
+/* ======================================= */
+/* ▼▼▼ MODERN COOKIE BANNER STYLES ▼▼▼ */
+/* ======================================= */
+
+/* The main banner container */
+#cookieBanner {
+  display: none;
+  /* Positioning */
+  position: fixed;
+  bottom: 20px; /* Floats above the bottom edge */
+  left: 50%;
+  transform: translateX(-50%); /* Perfectly centers the banner */
+  width: auto; /* Width will be determined by content */
+  max-width: 90%; /* Ensures it looks good on mobile */
+  z-index: 10000;
+  
+  /* Modern "Frosted Glass" Look */
+  background: rgba(42, 42, 42, 0.75); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* This creates the blur effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari compatibility */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle edge highlight */
+  
+  /* Layout & Spacing */
+  
+  align-items: center;
+  gap: 20px;
+  padding: 12px 20px;
+  border-radius: 12px; /* Rounded corners */
+  
+  /* Text & Shadow */
+  color: #f0f0f0;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+
+  /* Entrance Animation */
+  animation: slideUpFadeIn 0.5s ease-out forwards;
+}
+
+/* The "Accept" button */
+#cookieBanner button {
+  /* Reset and Style */
+  all: unset;
+  box-sizing: border-box;
+  padding: 8px 18px;
+  background-color: #ffcf00; /* Main yellow accent */
+  color: #111;
+  
+  /* Shape & Font */
+  border-radius: 999px; /* Pill shape */
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Satoshi', sans-serif;
+
+  /* Other */
+  cursor: pointer;
+  white-space: nowrap; /* Prevents the text from wrapping */
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+#cookieBanner button:hover {
+  background-color: #ffffff; /* Brighter hover state */
+  transform: scale(1.05); /* Slight pop effect */
+}
+
+/* Keyframes for the entrance animation */
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+
+
+
+
 
 /* === Responsive Media Queries === */
 /* For Tablets & Smaller Devices (<= 1024px) */

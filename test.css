@@ -684,7 +684,36 @@ body {
   font-size: 14px;
   color: #ccc;
 }
+/* ======================================= */
+/* ▼▼▼ CUSTOM SCROLLBAR FOR DEFINITION BOX ▼▼▼ */
+/* ======================================= */
 
+/* --- For WebKit browsers (Chrome, Safari, Edge) --- */
+.definition-text::-webkit-scrollbar {
+  width: 10px;
+}
+
+.definition-text::-webkit-scrollbar-track {
+  background: #141414; /* Darker background for the track */
+  border-radius: 10px;
+  box-shadow: inset 4px 4px 6px #0f0f0f, inset -4px -4px 6px #1f1f1f;
+}
+
+.definition-text::-webkit-scrollbar-thumb {
+  background: #2a2a2a; /* Slightly lighter for the draggable part */
+  border-radius: 10px;
+  border: 2px solid #141414; /* Creates a padding effect */
+}
+
+.definition-text::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+/* --- For Firefox --- */
+.definition-text {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a #141414; /* thumb color track color */
+}
 /* === Responsive Media Queries (Improved) === */
 
 /* For Tablets (<= 1024px) */

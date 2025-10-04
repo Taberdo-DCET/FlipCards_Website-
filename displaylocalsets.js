@@ -15,6 +15,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/fi
 
 const searchInput = document.getElementById("folderSearch");
 const filterSelect = document.getElementById("folderFilter");
+const sortSelect = document.getElementById("folderSort");
 const container = document.querySelector(".folder-grid");
 
 let likedKeys = new Set();
@@ -213,6 +214,7 @@ async function renderFilteredFolders(user) {
 
   const keyword = searchInput?.value.toLowerCase() || "";
   const type = filterSelect?.value || "your";
+  const sortBy = sortSelect?.value || "newest"; // Get the sort value
   const existingKeys = new Set();
   let allSets = [];
 
@@ -220,7 +222,6 @@ async function renderFilteredFolders(user) {
     const q = query(collection(db, "local_sets"), where("user", "==", user.email));
     const snapshot = await getDocs(q);
     allSets = snapshot.docs.map(doc => ({ ...doc.data(), _id: doc.id }));
-    allSets.sort((a, b) => Date.parse(b.createdOn) - Date.parse(a.createdOn));
   } else if (type === "public") {
     const q = query(collection(db, "flashcard_sets"), where("public", "==", true));
     const snapshot = await getDocs(q);
@@ -238,19 +239,26 @@ async function renderFilteredFolders(user) {
     }
   }
 
-  // Filter by search keyword
- // Filter by search keyword
-allSets = allSets.filter(set => {
-  const title = set.title?.toLowerCase() || "";
-  const desc = set.description?.toLowerCase() || "";
-  const email = set.user?.toLowerCase() || "";
-  const category = set.category?.toLowerCase() || "general"; // added category search
+  // ▼▼▼ NEW SORTING LOGIC ▼▼▼
+  allSets.sort((a, b) => {
+    const dateA = Date.parse(a.createdOn || a.createdAt || 0);
+    const dateB = Date.parse(b.createdOn || b.createdAt || 0);
+    return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+  });
+  // ▲▲▲ END OF NEW LOGIC ▲▲▲
 
-  return title.includes(keyword) ||
-         desc.includes(keyword) ||
-         email.includes(keyword) ||
-         category.includes(keyword); // allow matching by category
-});
+  // Filter by search keyword
+  allSets = allSets.filter(set => {
+    const title = set.title?.toLowerCase() || "";
+    const desc = set.description?.toLowerCase() || "";
+    const email = set.user?.toLowerCase() || "";
+    const category = set.category?.toLowerCase() || "general";
+
+    return title.includes(keyword) ||
+           desc.includes(keyword) ||
+           email.includes(keyword) ||
+           category.includes(keyword);
+  });
 
 
   const startIdx = (currentPage - 1) * setsPerPage;
@@ -315,7 +323,15 @@ function renderPaginationControls(totalSets) {
     }
   };
 
+  const pageIndicator = document.createElement("span");
+  pageIndicator.textContent = `${currentPage} / ${totalPages}`;
+  pageIndicator.style.color = "#fff";
+  pageIndicator.style.fontFamily = "'Satoshi', sans-serif";
+  pageIndicator.style.alignSelf = "center";
+  pageIndicator.style.backgroundColor = "transparent";
+
   pagination.appendChild(prevBtn);
+  pagination.appendChild(pageIndicator);
   pagination.appendChild(nextBtn);
 }
 
@@ -451,5 +467,9 @@ searchInput?.addEventListener("input", () => {
 });
 filterSelect?.addEventListener("change", () => {
   currentPage = 1; // Reset to the first page
+  renderFilteredFolders(auth.currentUser);
+});
+sortSelect?.addEventListener("change", () => {
+  currentPage = 1; // Reset to the first page on sort
   renderFilteredFolders(auth.currentUser);
 });

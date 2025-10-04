@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinpoint | FlipCards</title>
+    <link rel="stylesheet" href="Pinpoint.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+    <header class="shop-header">
+        <div class="header-left">
+    <a href="lobby.html" id="backToFoldersBtn" class="back-button">← Back to Lobby</a>
+    <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
+</div>
+        <div id="header-actions" class="header-center"></div>
+        <div class="header-right">
+            <h2 class="shop-title">FlipCards.</h2>
+        </div>
+    </header>
+
+    <!-- The main view for displaying content -->
+    <main id="displayView" class="pinpoint-main-container">
+        <div class="title-with-help">
+            <button id="helpBtn" class="help-icon-button" title="How to Play">
+        <i class="fa-solid fa-question"></i>
+    </button>
+    <h1 class="page-title">Pinpoint</h1>
+    
+</div>
+<div id="displayDescriptionContainer" class="description-display-box"></div>
+        <p class="page-description">Create and review image-based quizzes by pinning labels to different parts of a picture.</p>
+        <div class="main-actions">
+    <button id="openSideNavBtn" class="neumorphic-button">
+        <i class="fa-solid fa-layer-group"></i>
+        Pinpoint Sets
+    </button>
+    <button id="openCreationViewBtn" class="neumorphic-button">
+        <i class="fa-solid fa-plus"></i>
+        Create New Pinpoint Set
+    </button>
+</div>
+        <div class="display-panel-wrapper">
+            <!-- 1. Choices Container (now on the left) -->
+            <div id="choicesContainer">
+                 <div class="placeholder-content">
+                    <i class="fa-solid fa-tags placeholder-icon"></i>
+                    <p class="placeholder-text">Labels for the selected set will be shown here.</p>
+                </div>
+            </div>
+            
+            <!-- 2. Photo Container (now in the middle) -->
+            <div id="photoContainer">
+                <div class="placeholder-content">
+                    <i class="fa-solid fa-clone placeholder-icon"></i>
+                    <p class="placeholder-text">Your created Pinpoint sets will appear here.</p>
+                </div>
+            </div>
+
+            
+            <!-- 3. Answer Container with a placeholder -->
+            <div id="answerContainer">
+                <div class="placeholder-content">
+                    <i class="fa-solid fa-pen-to-square placeholder-icon"></i>
+                    <p class="placeholder-text">Select a set to begin answering.</p>
+                </div>
+            </div>
+        </div>
+        
+    </main>
+
+    <!-- The full-screen creation view with a new two-panel layout -->
+    <div id="creationView" class="creation-container hidden">
+        <div class="creation-main">
+            <!-- Left Panel (70%) for Image -->
+            <div class="left-panel">
+                <h2 class="creation-title">Create New Pinpoint Set</h2>
+                <div class="upload-actions-wrapper">
+    <button id="addCoverBtn" class="icon-btn" title="Toggle Image Cover" disabled>
+       <i class="fa-solid fa-object-group"></i>
+    </button>
+    <div class="upload-btn-wrapper">
+        <button id="uploadImageBtn" class="neumorphic-button">
+            <i class="fa-solid fa-upload"></i> Upload Image
+        </button>
+    </div>
+</div>
+                <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
+               <div id="imagePreviewContainer">
+    <!-- The resizable box will be added here by JavaScript -->
+</div>
+            </div>
+            <!-- Right Panel (30%) for Labels -->
+            <div class="right-panel">
+                <div class="choices-section">
+                    <!-- ADD THIS BLOCK -->
+<div class="set-details-inputs">
+    <h3>Set Details</h3>
+    <input type="text" id="setTitleInput" class="details-input" placeholder="Enter set title...">
+    <textarea id="setDescriptionInput" class="details-input" placeholder="Enter set description..."></textarea>
+</div>
+                    <h3>Labels</h3>
+                    <div class="input-wrapper">
+                        <input type="text" id="choiceInput" placeholder="Enter a label name...">
+                    </div>
+                    <!-- Redesigned "Add Label" button -->
+                    <button id="addChoiceBtn" class="add-label-btn">
+                        <i class="fa-solid fa-plus"></i> Add Label
+                    </button>
+                    <div id="addedChoicesList">
+                        <!-- List of added labels appears here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Sidenav for displaying Pinpoint Sets -->
+<div id="setsSidenav" class="sidenav">
+    <div class="sidenav-header">
+        <div class="header-top-row">
+            <h3>Your Pinpoint Sets</h3>
+            <a href="javascript:void(0)" class="closebtn" id="closeSideNavBtn">&times;</a>
+        </div>
+        <div class="sidenav-search">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="setSearchInput" placeholder="Search sets...">
+        </div>
+    </div>
+    
+    <div id="sidenav-set-list" class="sidenav-body">
+        <p>Loading sets...</p>
+    </div>
+</div>
+<div id="helpModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-compass-drafting"></i> How Pinpoint Works</h3>
+            <button id="closeHelpModalBtn" class="modal-close-btn">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <h4 style="color: #ffcf00; margin-bottom: 10px; margin-top: 5px;">Playing a Set</h4>
+            <p>
+                <strong>1. Load a Set:</strong> Click "Pinpoint Sets" to open the side menu. You can use the search bar to find a specific set by its title. Click a set to load it.
+            </p>
+            <p>
+                <strong>2. Identify & Answer:</strong> Look at the numbered pins on the image and match them to the items in the "Choices" list. The choices are shuffled for a challenge! Type your answers into the corresponding numbered fields.
+            </p>
+            <p>
+                <strong>3. Check Score:</strong> After filling all answers, click "Check Answers" to see your score in a pop-up modal.
+
+            </p>
+
+            <h4 style="color: #ffcf00; margin-bottom: 10px; margin-top: 25px;">Creating & Editing a Set</h4>
+            <p>
+                <strong>1. Upload Image:</strong> Start by clicking "Upload Image". This will enable the other creation tools.
+            </p>
+            <p>
+                <strong>2. Add Details & Labels:</strong> Fill in the "Set Title" and "Set Description". Type a term into the "Enter a label..." field and click "Add Label" to create a numbered pin on the image.
+            </p>
+            <p>
+                <strong>3. Position Pins:</strong> Drag and drop each numbered pin to the correct location on your image.
+            </p>
+            <p>
+                <strong>4. Add Cover Boxes (Optional):</strong> Click the <i class="fa-solid fa-object-group"></i> button to spawn a white box. You can create multiple boxes, and each can be dragged, resized, and deleted to cover parts of the image. The numbered pins will always appear on top of these boxes.
+            </p>
+             <p>
+                <strong>5. Save Your Set:</strong> Click "Save Set" or "Update Set" in the header. You can find, play, edit, or delete your sets in the "Pinpoint Sets" menu.
+            </p>
+        </div>
+    </div>
+</div>
+<!-- ADD THIS BLOCK -->
+<!-- Endgame Results Modal -->
+<div id="resultsModal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 class="results-title"><i class="fa-solid fa-trophy"></i> Quiz Complete!</h3>
+        <p class="score-display">Your Score</p>
+        <p class="score-text">
+            <span id="scoreText">0</span> / <span id="totalText">0</span>
+        </p>
+        <button id="tryAgainBtn" class="add-label-btn">
+            <i class="fa-solid fa-arrows-rotate"></i> Try Again
+        </button>
+    </div>
+</div>
+<!-- Custom Alert Modal -->
+<!-- Custom Alert Modal -->
+<div id="alertModal" class="modal-overlay">
+    <div class="modal-box alert-box">
+        <h3 id="alertTitle">
+            <i id="alertIcon" class="fa-solid"></i> <!-- Icon will be set by JS -->
+            <span id="alertTitleText"></span>
+        </h3>
+        <p id="alertMessage"></p>
+        <button id="alertOkBtn" class="confirm-btn">OK</button>
+    </div>
+</div>
+<!-- ADD THIS BLOCK -->
+<!-- Confirmation Modal for Deleting -->
+<div id="confirmModal" class="modal-overlay confirm-modal">
+    <div class="modal-box confirm-box">
+        <h3 id="confirmTitle" style="color: #ef4444;">Confirm Deletion</h3>
+        <p id="confirmMessage"></p>
+        <div class="modal-buttons confirm-buttons">
+            <button id="confirmCancelBtn" class="confirm-btn cancel">Cancel</button>
+            <button id="confirmDeleteBtn" class="confirm-btn delete">Delete</button>
+        </div>
+    </div>
+</div>
+    <!-- Firebase SDKs -->
+<!-- ADD THIS NEW SCRIPT TAG -->
+<script type="module" src="Pinpoint.js"></script>
+<script src="protect.js"></script>
+<script type="module" src="presence.js"></script>
+</body>
+</html>

@@ -216,36 +216,75 @@
     }
 
     // ▼▼▼ UPDATED DISPLAYQUESTION FUNCTION ▼▼▼
-    function displayQuestion() {
-        if (!questions[currentIndex]) {
-            endGame(); 
-            return; 
-        }
-
-        const q = questions[currentIndex];
-
-        // Check if term is an image and create the correct HTML
-        const termContent = isImageUrl(q.term)
-            ? `<img src="${q.term}" alt="Term Image" class="blitz-image">`
-            : `<p class="term">${q.term}</p>`;
-
-        // Check if definition is an image and create the correct HTML
-        const defContent = isImageUrl(q.definition)
-            ? `<img src="${q.definition}" alt="Definition Image" class="blitz-image">`
-            : `<p class="def"><strong>${q.definition}</strong></p>`;
-
-        blitzStatement.innerHTML = `
-            <div class="blitz-question-part">
-                <span class="blitz-label">Term:</span>
-                ${termContent}
-            </div>
-            <div class="blitz-question-part">
-                <span class="blitz-label">Definition:</span>
-                ${defContent}
-            </div>
-        `;
-        progressTracker.textContent = `${currentIndex + 1} / ${questions.length}`;
+// --- NEW: Helper function to adjust font size ---
+    function adjustFontSize(element, elementType = 'element') {
+    if (!element || element.tagName === 'IMG') {
+        console.log(`AdjustFontSize: Skipped for non-existent or IMG element (${elementType}).`);
+        return;
     }
+
+    console.log(`--- Adjusting Font Size for: ${elementType} ---`);
+    element.style.fontSize = ''; // Reset to CSS default
+
+    const computedStyle = window.getComputedStyle(element);
+    const initialSizeRem = parseFloat(computedStyle.fontSize) / 16; // Convert px to rem
+    console.log(`Initial default font size: ${initialSizeRem.toFixed(2)}rem`);
+    console.log(`Overflow check: scrollHeight(${element.scrollHeight}) > clientHeight(${element.clientHeight}) OR scrollWidth(${element.scrollWidth}) > clientWidth(${element.clientWidth})`);
+
+    if (element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth) {
+        console.log("%cOverflow detected. Starting font size reduction loop.", "color: orange;");
+        let currentSize = initialSizeRem;
+
+        while ((element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth) && currentSize > 0.5) {
+            currentSize -= 0.1;
+            element.style.fontSize = `${currentSize}rem`;
+            console.log(`  -> Trying size: ${currentSize.toFixed(1)}rem`);
+        }
+        console.log(`%cLoop finished. Final font size: ${currentSize.toFixed(1)}rem`, "color: lightgreen;");
+    } else {
+        console.log("No overflow detected. Font size remains at default.");
+    }
+    console.log(`-------------------------------------------`);
+}
+
+    // ▼▼▼ UPDATED DISPLAYQUESTION FUNCTION ▼▼▼
+    function displayQuestion() {
+    if (!questions[currentIndex]) {
+        endGame(); 
+        return; 
+    }
+
+    const q = questions[currentIndex];
+
+    const termContent = isImageUrl(q.term)
+        ? `<img src="${q.term}" alt="Term Image" class="blitz-image">`
+        : `<p class="term">${q.term}</p>`;
+
+    const defContent = isImageUrl(q.definition)
+        ? `<img src="${q.definition}" alt="Definition Image" class="blitz-image">`
+        : `<p class="def"><strong>${q.definition}</strong></p>`;
+
+    blitzStatement.innerHTML = `
+        <div class="blitz-question-part">
+            <span class="blitz-label">Term:</span>
+            ${termContent}
+        </div>
+        <div class="blitz-question-part">
+            <span class="blitz-label">Definition:</span>
+            ${defContent}
+        </div>
+    `;
+    progressTracker.textContent = `${currentIndex + 1} / ${questions.length}`;
+
+    // --- Adjust font sizes with logging ---
+// Use setTimeout to allow the browser to render the content first
+        // Adjust font sizes now that content is set
+        const termElement = blitzStatement.querySelector('.term');
+        const defElement = blitzStatement.querySelector('.def strong');
+
+        adjustFontSize(termElement, 'Term');
+        adjustFontSize(defElement, 'Definition');
+}
     // ▲▲▲ END OF UPDATED FUNCTION ▲▲▲
 
     function checkAnswer(userChoice) {
@@ -334,5 +373,6 @@
     falseBtn.addEventListener('click', () => checkAnswer(false));
 </script>
 <script src="protect.js"></script>
+<script type="module" src="presence.js"></script>
 </body>
 </html>

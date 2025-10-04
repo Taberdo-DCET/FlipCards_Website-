@@ -123,23 +123,35 @@ function clearForm() {
 }
 
 // This new function replaces the one you just deleted
-function showCustomAlert(message, type = 'default') { // type can be 'success' or 'error'
-  const alertModal = document.getElementById("createAlertModal");
-  const alertContent = alertModal.querySelector('.modal-content');
-  const alertMessage = document.getElementById("createAlertMessage");
+function showCustomAlert(message, type = 'default') {
+  return new Promise((resolve) => {
+    const alertModal = document.getElementById("createAlertModal");
+    const alertContent = alertModal.querySelector('.modal-content');
+    const alertMessage = document.getElementById("createAlertMessage");
+    const closeBtn = document.getElementById("closeCreateAlert");
 
-  // Always clear previous color classes
-  alertContent.classList.remove('success', 'error');
+    // Clear previous color classes
+    alertContent.classList.remove('success', 'error');
 
-  // Add the correct class based on the type
-  if (type === 'success') {
-    alertContent.classList.add('success');
-  } else if (type === 'error') {
-    alertContent.classList.add('error');
-  }
+    // Add the correct class based on the type
+    if (type === 'success') {
+      alertContent.classList.add('success');
+    } else if (type === 'error') {
+      alertContent.classList.add('error');
+    }
 
-  alertMessage.textContent = message;
-  alertModal.classList.remove("hidden");
+    alertMessage.textContent = message;
+    alertModal.classList.remove("hidden");
+
+    // This handler will be called only once when the button is clicked
+    const closeHandler = () => {
+      alertModal.classList.add("hidden");
+      closeBtn.removeEventListener('click', closeHandler); // Clean up the listener
+      resolve(); // This is the key part that tells the 'await' to continue
+    };
+
+    closeBtn.addEventListener('click', closeHandler);
+  });
 }
 
 async function getFlashcardData() {
@@ -219,98 +231,104 @@ async function checkPublicLimit(user, currentTitle, currentCreatedOn) {
 }
 
 async function saveFlashcardSet(isPracticeAfter = false) {
-  const { data, error } = await getFlashcardData();
-  if (error) return showCustomAlert(error, 'error');
+    const { data, error } = await getFlashcardData();
+    if (error) return showCustomAlert(error, 'error');
 
-  const user = auth.currentUser;
-  const sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
+    // --- NEW: Change button text to "Creating..." ---
+    createBtn.textContent = "Creating...";
+    createBtn.disabled = true;
+    practiceBtn.disabled = true;
 
-  if (isEditMode) {
-    const updated = sets.map(set =>
-      set.title === originalTitle && set.createdOn === originalCreatedOn ? data : set
-    );
-    localStorage.setItem("flashcardSets", JSON.stringify(updated));
+    const user = auth.currentUser;
+    const sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
 
-    if (user) {
-      const q = query(
-        collection(db, "local_sets"),
-        where("user", "==", user.email),
-        where("title", "==", originalTitle),
-        where("createdOn", "==", originalCreatedOn)
-      );
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        await updateDoc(snap.docs[0].ref, { ...data, user: user.email });
-      }
+    try {
+        if (isEditMode) {
+            // ... (existing edit mode logic remains the same)
+            const updated = sets.map(set =>
+                set.title === originalTitle && set.createdOn === originalCreatedOn ? data : set
+            );
+            localStorage.setItem("flashcardSets", JSON.stringify(updated));
 
-      const pubQ = query(
-        collection(db, "flashcard_sets"),
-        where("user", "==", user.email),
-        where("title", "==", originalTitle),
-        where("createdOn", "==", originalCreatedOn)
-      );
-      const pubSnap = await getDocs(pubQ);
+            if (user) {
+                const q = query(
+                    collection(db, "local_sets"),
+                    where("user", "==", user.email),
+                    where("title", "==", originalTitle),
+                    where("createdOn", "==", originalCreatedOn)
+                );
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    await updateDoc(snap.docs[0].ref, { ...data, user: user.email });
+                }
 
-      const wasPublic = !pubSnap.empty;
-      const isNowPublic = data.public;
+                const pubQ = query(
+                    collection(db, "flashcard_sets"),
+                    where("user", "==", user.email),
+                    where("title", "==", originalTitle),
+                    where("createdOn", "==", originalCreatedOn)
+                );
+                const pubSnap = await getDocs(pubQ);
+                const wasPublic = !pubSnap.empty;
+                const isNowPublic = data.public;
 
-      if (wasPublic && !isNowPublic) {
-        for (const docSnap of pubSnap.docs) {
-          await deleteDoc(doc(db, "flashcard_sets", docSnap.id));
+                if (wasPublic && !isNowPublic) {
+                    for (const docSnap of pubSnap.docs) {
+                        await deleteDoc(doc(db, "flashcard_sets", docSnap.id));
+                    }
+                } else if (!wasPublic && isNowPublic) {
+                    const docId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
+                    await setDoc(doc(db, "flashcard_sets", docId), { ...data, user: user.email });
+                } else if (wasPublic && isNowPublic) {
+                    await updateDoc(pubSnap.docs[0].ref, { ...data, user: user.email });
+                }
+            }
+        } else {
+            // --- Logic for creating a new set ---
+            sets.push(data);
+            localStorage.setItem("flashcardSets", JSON.stringify(sets));
+
+            if (user) {
+                const setId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
+                await setDoc(doc(db, "local_sets", setId), { ...data, user: user.email });
+                const totalToAdd = data.flashcards.length;
+                if (data.public) {
+                    const canPublish = await checkPublicLimit(user, data.title, data.createdOn);
+                    if (!canPublish) {
+                        // --- NEW: Reset button if publishing fails ---
+                        createBtn.textContent = "Create";
+                        createBtn.disabled = false;
+                        practiceBtn.disabled = false;
+                        return;
+                    }
+                    const publicId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
+                    await setDoc(doc(db, "flashcard_sets", publicId), { ...data, user: user.email });
+                }
+                const userStatsRef = doc(db, "user_card_stats", user.email);
+                await setDoc(userStatsRef, { totalCards: increment(totalToAdd) }, { merge: true });
+            }
+            if (typeof addXP === "function") addXP(20);
         }
-      } else if (!wasPublic && isNowPublic) {
-        const docId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
-        await setDoc(doc(db, "flashcard_sets", docId), { ...data, user: user.email });
-      } else if (wasPublic && isNowPublic) {
-        await updateDoc(pubSnap.docs[0].ref, { ...data, user: user.email });
-      }
+
+        // --- NEW: Redirect after success ---
+        await showCustomAlert(isEditMode ? "✔️ Flashcard set updated." : `✔️ Flashcard set saved.${data.public ? " Public version created too." : ""}`, 'success');
+        
+        if (isPracticeAfter) {
+            localStorage.setItem("reviewingSet", JSON.stringify(data));
+            window.location.href = "flashcard.html";
+        } else {
+            // Redirect to lobby instead of clearing the form
+            window.location.href = "lobby.html#Folderr";
+        }
+
+    } catch (err) {
+        console.error("Error saving set:", err);
+        showCustomAlert("❌ Failed to save set.", 'error');
+        // --- NEW: Reset button text on error ---
+        createBtn.textContent = isEditMode ? "Update" : "Create";
+        createBtn.disabled = false;
+        practiceBtn.disabled = false;
     }
-
-    showCustomAlert("✔️ Flashcard set updated.", 'success');
-  } else {
-    sets.push(data);
-    localStorage.setItem("flashcardSets", JSON.stringify(sets));
-
-    if (user) {
-  const setId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
-  await setDoc(doc(db, "local_sets", setId), {
-    ...data,
-    user: user.email
-  });
-
-  const totalToAdd = data.flashcards.length;
-
-if (data.public) {
-  const canPublish = await checkPublicLimit(user, data.title, data.createdOn);
-  if (!canPublish) return;
-
-  const publicId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
-  await setDoc(doc(db, "flashcard_sets", publicId), {
-    ...data,
-    user: user.email
-  });
-}
-
-
-  // ✅ Increment totalCards instead of replacing it
-  const userStatsRef = doc(db, "user_card_stats", user.email);
-  await setDoc(userStatsRef, {
-    totalCards: increment(totalToAdd)
-  }, { merge: true });
-}
-
-
-    showCustomAlert(`✔️ Flashcard set saved.${data.public ? " Public version created too." : ""}`, 'success');
-    if (typeof addXP === "function") addXP(20); // Give 20 XP for creating a set
-
-  }
-
-  if (isPracticeAfter) {
-    localStorage.setItem("reviewingSet", JSON.stringify(data));
-    window.location.href = "flashcard.html";
-  } else {
-    clearForm();
-  }
 }
 
 createBtn.addEventListener("click", () => saveFlashcardSet(false));

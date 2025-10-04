@@ -312,21 +312,63 @@ const exitReviewBtn = document.getElementById('exitReviewBtn');
   });
 
   // --- Helper Functions ---
+// --- Helper Functions ---
   function isImageUrl(text) { return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com"); }
+
+  // --- NEW: Helper function to adjust font size ---
+ function getRequiredFontSize(element, checkHorizontal = false) {
+    element.style.fontSize = '2rem'; // Reset font size to the default from CSS
+    let currentSize = 2;
+
+    if (checkHorizontal) {
+        while (element.scrollWidth > element.clientWidth && currentSize > 0.5) {
+            currentSize -= 0.1;
+            element.style.fontSize = `${currentSize}rem`;
+        }
+    } else {
+        while (element.scrollHeight > element.clientHeight && currentSize > 0.5) {
+            currentSize -= 0.1;
+            element.style.fontSize = `${currentSize}rem`;
+        }
+    }
+    return currentSize; // Return the calculated size
+  }
+
   function updateCard(index) {
     card.style.transition = "none";
     card.classList.remove("flipped");
     const cardData = flashcards[index];
     if (!cardData) return;
-    if (!reverseMode) {
-      front.textContent = cardData.term;
-      if (isImageUrl(cardData.definition)) { back.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />`; } else { back.textContent = cardData.definition; }
+
+    // Temporarily set content for both sides to calculate sizes
+    front.textContent = cardData.term;
+    if (isImageUrl(cardData.definition)) {
+      back.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />`;
     } else {
-      if (isImageUrl(cardData.definition)) { front.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />`; } else { front.textContent = cardData.definition; }
+      back.textContent = cardData.definition;
+    }
+    
+    // Calculate the required font size for both term and definition
+    const termFontSize = getRequiredFontSize(front, true);
+    const defFontSize = isImageUrl(cardData.definition) ? 2 : getRequiredFontSize(back, false);
+    
+    // Use the smaller of the two font sizes for both sides
+    const finalSize = Math.min(termFontSize, defFontSize);
+    front.style.fontSize = `${finalSize}rem`;
+    back.style.fontSize = `${finalSize}rem`;
+
+    // Now, set the final content based on reverse mode
+    if (reverseMode) {
+      if (isImageUrl(cardData.definition)) {
+        front.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />`;
+      } else {
+        front.textContent = cardData.definition;
+      }
       back.textContent = cardData.term;
     }
+    // If not reverse mode, the content is already correct from our calculation step.
+
     counter.textContent = `${index + 1} / ${flashcards.length}`;
-    
     setTimeout(() => { card.style.transition = "transform 0.3s"; }, 10);
   }
 function showFeedback(type) {

@@ -277,6 +277,10 @@ body.incorrect-flash { background-color: #82000b; }
 .blitz-question-part {
   width: 100%;
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden; /* Add this line */
 }
 
 .blitz-label {
@@ -442,7 +446,42 @@ body.incorrect-flash { background-color: #82000b; }
   background-color: #111;
   margin-top: 5px;
 }
+/* ======================================= */
+/* ▼▼▼ BLITZ DEFINITION SCROLLBAR STYLES ▼▼▼ */
+/* ======================================= */
 
+#blitzStatement .def {
+    max-height: 120px; /* Adjust this value to control when scrolling starts */
+    overflow-y: auto;
+    padding-right: 10px; /* Prevents text from hiding under the scrollbar */
+}
+
+/* --- For WebKit browsers (Chrome, Safari, Edge) --- */
+#blitzStatement .def::-webkit-scrollbar {
+  width: 10px;
+}
+
+#blitzStatement .def::-webkit-scrollbar-track {
+  background: #141414;
+  border-radius: 10px;
+  box-shadow: inset 4px 4px 6px #0f0f0f, inset -4px -4px 6px #1f1f1f;
+}
+
+#blitzStatement .def::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 10px;
+  border: 2px solid #141414;
+}
+
+#blitzStatement .def::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+/* --- For Firefox --- */
+#blitzStatement .def {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a #141414;
+}
 
 
 

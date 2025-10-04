@@ -5,6 +5,15 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/lobby.html",
+        "destination": "/lobby",
+        "type": 301
+      }
     ]
   },
   "functions": [
