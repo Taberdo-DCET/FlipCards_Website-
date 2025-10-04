@@ -3750,37 +3750,6 @@ box-shadow: none !important;
   max-width: 90%;
   margin: 0 auto;
 }
-#cookieBanner {
-  position: fixed;
-  bottom: 20px; /* adds spacing from bottom */
-  left: 50%;
-  transform: translateX(70%);
-  width: 40% !important;
-  background: #171717;
-  color: white;
-  padding: 15px;
-  z-index: 10000;
-  text-align: center;
-  font-family: 'Satoshi', sans-serif;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.4);
-  border-radius: 8px;
-}
-
-#cookieBanner button {
-  margin-left: 0px !important;
-  padding: 8px 8px !important;
-  background: #ffc400 !important;
-  color: #171717;
-  font-weight: bold;
-  border: none;
-  border-radius: 4px;
-  font-family: 'Satoshi', sans-serif;
-  cursor: pointer;
-}
-
-#cookieBanner button:hover {
-  background: #ffffff !important;
-}
 #typingText {
     
     font-family: 'Satoshi', sans-serif !important;
@@ -9134,7 +9103,7 @@ color: #ffcf00 !important;
   all: unset;
   box-sizing: border-box;
   padding: 8px 18px;
-  background-color: #ffcf00; /* Main yellow accent */
+  background-color: #ffcf00 !important; /* Main yellow accent */
   color: #111;
   
   /* Shape & Font */

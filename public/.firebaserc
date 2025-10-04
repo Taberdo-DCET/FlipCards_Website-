@@ -2,6 +2,14 @@
   "projects": {
     "default": "flipcards-7adab"
   },
-  "targets": {},
+  "targets": {
+    "flipcards-7adab": {
+      "hosting": {
+        "live": [
+          "flipcards-7adab"
+        ]
+      }
+    }
+  },
   "etags": {}
 }
