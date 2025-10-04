@@ -1,0 +1,575 @@
+:root {
+  --background-primary: #1a1a1a;
+  --background-secondary: #2c2c2c;
+  --background-tertiary: #3a3a3a;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --accent-primary: #ffcf00;
+  --accent-secondary: #ffcf00;
+  --border-color: #444444;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: 
+       
+       url('Satoshi-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-display: swap;
+  font-style: normal;
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Satoshi', sans-serif; /* UPDATED FONT */
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  width: 320px;
+  background-color: var(--background-primary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  height: 100vh; /* Ensure sidebar takes full height */
+}
+.sidebar-content-scrollable {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent-secondary);
+}
+
+.sidebar-header .user-info {
+    overflow: hidden;
+}
+
+.sidebar-header .username {
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.sidebar-header .email {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.search-bar {
+  padding: 15px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  font-family: 'Satoshi', sans-serif; /* UPDATED FONT */
+}
+
+.friends-section, .users-section {
+    padding: 0 15px 15px;
+}
+
+.section-title {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0; /* Remove the extra horizontal padding */
+}
+
+.user {
+  display: flex;
+  align-items: center;
+  /* gap: 12px; */ /* REMOVED */
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 5px;
+}
+
+.user:hover {
+  background-color: var(--background-secondary);
+}
+
+.user.active-user {
+    background-color: var(--accent-primary);
+}
+
+.user img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.user .user-details {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.user .username {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden; /* Add this */
+}
+.username-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user .email {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.user .dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-secondary);
+    border-radius: 50%;
+    margin-left: auto;
+}
+
+
+
+.sidebar-footer {
+    padding: 15px;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto; /* Pushes the footer to the bottom */
+}
+
+.home-button {
+    display: block;
+    padding: 10px;
+    background-color: var(--background-secondary);
+    border: none;
+    border-radius: 8px;
+    color: var(--text-primary);
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+.home-button:hover {
+    background-color: var(--background-tertiary);
+}
+.home-button svg {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+}
+
+
+/* --- Chat Area --- */
+.chat-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-secondary);
+}
+
+.chat-navbar {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.chat-navbar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message-wrapper {
+    display: flex;
+    max-width: 75%;
+}
+
+.message-wrapper.sent {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+.message-wrapper.received {
+    align-self: flex-start;
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 18px;
+  line-height: 1.5;
+  overflow-wrap: break-word; /* This is the modern standard */
+  word-break: break-all;     /* This handles very long unbroken strings */
+}
+
+.message.sent {
+    background-color: var(--accent-primary);
+    color: rgb(0, 0, 0);
+    border-bottom-right-radius: 4px;
+}
+.message.received {
+    background-color: var(--background-tertiary);
+    border-bottom-left-radius: 4px;
+}
+
+.message-meta {
+    font-size: 0.75em;
+    color: var(--text-primary); /* CHANGED to white */
+    margin-top: 5px;
+    display: flex;             /* ADDED for alignment */
+    justify-content: flex-end; /* ADDED for alignment */
+    align-items: center;       /* ADDED for alignment */
+    gap: 5px;                  /* ADDED for spacing */
+}
+/* --- Seen Indicator --- */
+
+
+.seen-indicator svg {
+    width: 14px;
+    height: 14px;
+}
+.input-area {
+  padding: 15px 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+}
+
+.input-area input {
+  flex-grow: 1;
+  padding: 12px 15px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-tertiary);
+  color: var(--text-primary);
+  font-family: 'Satoshi', sans-serif; /* UPDATED FONT */
+}
+
+.input-area button {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.input-area button:hover {
+    background-color: var(--background-tertiary);
+    color: var(--text-primary);
+}
+
+.input-area button#sendBtn {
+    background-color: var(--accent-primary);
+    color: white;
+}
+#sendBtn svg {
+    width: 16px;
+    height: 16px;
+}
+.input-area button#sendBtn:hover {
+    opacity: 0.9;
+}
+
+#emojiPicker {
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
+    background: var(--background-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+}
+
+#emojiPicker button {
+    font-size: 20px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--background-secondary);
+}
+::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+.badge {
+    width: 16px !important;
+    height: 16px !important;
+    vertical-align: middle; /* This helps align the badge nicely with the username text */
+    flex-shrink: 0; /* Add this line */
+}
+/* --- Collapsible Section Styles --- */
+.collapsible-section {
+    padding: 0 15px 10px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px 0;
+}
+
+.section-header .section-title {
+    margin: 0;
+}
+
+.dropdown-arrow {
+    transition: transform 0.3s ease;
+}
+
+.dropdown-arrow.rotate {
+    transform: rotate(90deg);
+}
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.collapsible-content.open {
+    max-height: 250px; /* Adjust as needed */
+    overflow-y: auto;
+}
+/* Add this new rule to give the All Users list more height */
+.user-list.collapsible-content.open {
+    max-height: 400px; /* Or any height you want */
+}
+/* --- 3-Dot Menu & Friend Actions --- */
+.user {
+    position: relative; /* Needed for positioning the menu */
+}
+
+.dots-menu-btn {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    margin-right: 4px; /* Reduced the gap */
+}
+
+/* Add this new rule for the avatar right after the one above */
+.user img {
+    margin-right: 12px; /* Creates space between avatar and text */
+}
+
+.dots-menu-btn:hover {
+    background-color: var(--background-tertiary);
+}
+
+.dots-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    left: 40px; /* Position next to the button */
+    top: 0;
+    background-color: var(--background-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 5px;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.dots-menu.show {
+    display: block; /* Show the menu */
+}
+
+.friend-action-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Satoshi', sans-serif !important;
+}
+
+.friend-action-btn:hover {
+    background-color: var(--accent-primary);
+}
+/* --- Disappearing Message Indicator --- */
+/* --- Status Indicators --- */
+.disappearing-indicator, .seen-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1em; /* This makes it the same size as the timestamp */
+    color: var(--text-primary); /* Ensures it is white */
+}
+
+.disappearing-indicator svg {
+    width: 12px;
+    height: 12px;
+}
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.unread-count {
+    display: none; /* Hidden by default */
+    background-color: var(--accent-primary);
+    color: #000000;
+    font-size: 0.7em;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    line-height: 20px; /* Vertically centers the number */
+    text-align: center;
+    user-select: none;
+}
+
+.unread-count.show {
+    display: block; /* Show when there are unread messages */
+}
+.user.unread {
+    border: 2px solid var(--accent-primary);
+}
+.chat-navbar {
+    position: relative;
+    justify-content: space-between;
+}
+
+.navbar-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-menu-btn {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+}
+.navbar-menu-btn:hover {
+    background-color: var(--background-tertiary);
+}
+
+.navbar-menu {
+    display: none;
+    position: absolute;
+    right: 15px;
+    top: 55px;
+    background-color: var(--background-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 5px;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.navbar-menu.show {
+    display: block;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .user-list {
+        max-height: 200px;
+    }
+}

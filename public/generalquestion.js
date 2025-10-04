@@ -94,7 +94,46 @@ document.addEventListener('DOMContentLoaded', () => {
       location.reload();
     });
   }
+// --- GQ Search Bar Logic ---
+  const gqSearchContainer = document.getElementById('gqSearchContainer');
+  const gqSearchBtn = document.getElementById('gqSearchBtn');
+  const gqSearchInput = document.getElementById('gqSearchInput');
 
+  if (gqSearchBtn) {
+    gqSearchBtn.addEventListener('click', () => {
+      gqSearchContainer.classList.toggle('active');
+      if (gqSearchContainer.classList.contains('active')) {
+        gqSearchInput.focus();
+      } else {
+        gqSearchInput.value = ''; // Clear search on close
+        filterQuestions(''); // Show all questions again
+      }
+    });
+  }
+  
+  if (gqSearchInput) {
+    gqSearchInput.addEventListener('input', () => {
+      filterQuestions(gqSearchInput.value);
+    });
+  }
+
+  function filterQuestions(searchTerm) {
+    const term = searchTerm.toLowerCase();
+    const allQuestions = document.querySelectorAll('.gq-card');
+
+    allQuestions.forEach(card => {
+      const questionText = card.querySelector('.gq-card-question')?.textContent.toLowerCase() || '';
+      const categoryText = card.querySelector('.gq-card-category')?.textContent.toLowerCase() || '';
+      
+      const isMatch = questionText.includes(term) || categoryText.includes(term);
+      
+      if (isMatch) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
   // Auth and load questions (existing code)
   onAuthStateChanged(auth, user => {
     currentUser = user;

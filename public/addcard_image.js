@@ -53,86 +53,119 @@ function showCustomAlert(message, type = 'default') {
 const editMode = window.location.search.includes("edit=true");
 const editingSet = editMode ? JSON.parse(localStorage.getItem("editingFlashcardSet")) : null;
 
+// Find and replace your entire createCard function
 function createCard(index) {
   const card = document.createElement("div");
   card.className = "flashcard";
 
-card.innerHTML = `
-  <div class="flashcard-header">
-    <span>${index + 1}</span>
-    <div class="card-buttons">
-      <button class="add-btn" title="Add Card">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-      </button>
-      <button class="delete-btn" title="Delete Card">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-      </button>
+  // ▼▼▼ MODIFIED BLOCK: Added the new Paste button ▼▼▼
+  card.innerHTML = `
+    <div class="flashcard-header">
+      <span>${index + 1}</span>
+      <div class="card-buttons">
+        <button class="add-btn" title="Add Card">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <button class="delete-btn" title="Delete Card">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </button>
+      </div>
     </div>
-  </div>
-  <div class="flashcard-body">
-    <div class="input-group">
-      <label>Term</label>
-      <input type="text" class="input term" placeholder="e.g., Mitochondria" />
+    <div class="flashcard-body">
+      <div class="input-group">
+        <label>Term</label>
+        <input type="text" class="input term" placeholder="e.g., Mitochondria" />
+      </div>
+      <div class="input-group">
+        <label>Definition (Image)</label>
+        <div class="image-definition-controls">
+          <input type="file" class="imageDefinition" accept="image/*" style="display: none;" />
+          <button type="button" class="image-upload-button">Choose Image</button>
+          <button type="button" class="view-preview-button">View Preview</button>
+          <button type="button" class="paste-image-button">Paste Image</button> <svg class="upload-success-icon hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="image-preview-box hidden">No image selected.</div>
+      </div>
     </div>
-    <div class="input-group">
-      <label>Definition (Image)</label>
-      <div class="image-definition-controls">
-  <input type="file" class="imageDefinition" accept="image/*" style="display: none;" />
-  <button type="button" class="image-upload-button">Choose Image</button>
-  <button type="button" class="view-preview-button">View Preview</button>
-  <svg class="upload-success-icon hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-</div>
-      <div class="image-preview-box hidden">No image selected.</div>
-    </div>
-  </div>
-`;
+  `;
+  // ▲▲▲ END OF MODIFIED BLOCK ▲▲▲
 
-  // image selection
-const fileInput = card.querySelector(".imageDefinition");
-const previewBox = card.querySelector(".image-preview-box");
-const viewPreviewBtn = card.querySelector(".view-preview-button");
-const successIcon = card.querySelector(".upload-success-icon"); // Add this line
+  const fileInput = card.querySelector(".imageDefinition");
+  const previewBox = card.querySelector(".image-preview-box");
+  const viewPreviewBtn = card.querySelector(".view-preview-button");
+  const successIcon = card.querySelector(".upload-success-icon");
+  const pasteBtn = card.querySelector(".paste-image-button"); // NEW: Get the paste button
 
-card.querySelector(".image-upload-button").addEventListener("click", () => fileInput.click());
+  card.querySelector(".image-upload-button").addEventListener("click", () => fileInput.click());
 
-// Add this listener to toggle the preview's visibility
-viewPreviewBtn.addEventListener("click", () => {
-  // Toggle the preview's visibility
-  previewBox.classList.toggle("hidden");
+  viewPreviewBtn.addEventListener("click", () => {
+    previewBox.classList.toggle("hidden");
+    viewPreviewBtn.textContent = previewBox.classList.contains("hidden") ? "View Preview" : "Close Preview";
+  });
 
-  // Check if the preview is now hidden and update the button text
-  if (previewBox.classList.contains("hidden")) {
-    viewPreviewBtn.textContent = "View Preview";
-  } else {
-    viewPreviewBtn.textContent = "Close Preview";
+  // ▼▼▼ NEW FUNCTION: Handles displaying a file (from upload or paste) ▼▼▼
+  function displayImageFile(file) {
+    if (file && file.type.startsWith('image/')) {
+      imageFiles[index] = file;
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      img.style.maxWidth = "200px";
+      img.style.marginTop = "10px";
+      previewBox.innerHTML = "";
+      previewBox.appendChild(img);
+      successIcon.classList.remove("hidden");
+      
+      // Flash animation on the preview box
+      previewBox.classList.add('paste-success');
+      setTimeout(() => previewBox.classList.remove('paste-success'), 600);
+    } else {
+      console.warn("Pasted item was not a valid image file.");
+    }
   }
-});
+  // ▲▲▲ END OF NEW FUNCTION ▲▲▲
 
+  // ▼▼▼ NEW EVENT LISTENER for the Paste button ▼▼▼
+  pasteBtn.addEventListener("click", async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      for (const item of clipboardItems) {
+        for (const type of item.types) {
+          if (type.startsWith("image/")) {
+            const blob = await item.getType(type);
+            // Create a File object to mimic a file selection
+            const file = new File([blob], "pasted-image.png", { type: blob.type });
+            displayImageFile(file);
+            return; // Stop after the first image is found
+          }
+        }
+      }
+      showCustomAlert("No image found in your clipboard.", 'error');
+    } catch (err) {
+      console.error("Error reading clipboard:", err);
+      showCustomAlert("Could not access clipboard. Please check browser permissions.", 'error');
+    }
+  });
+  // ▲▲▲ END OF NEW EVENT LISTENER ▲▲▲
+
+  // ▼▼▼ MODIFIED: The file input now uses the new display function ▼▼▼
   fileInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  imageFiles[index] = file || null;
-  if (file) {
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-    img.style.maxWidth = "200px";
-    img.style.marginTop = "10px";
-    previewBox.innerHTML = "";
-    previewBox.appendChild(img);
-    successIcon.classList.remove("hidden"); // Show the checkmark
-  } else {
-    previewBox.innerHTML = "No image selected.";
-    successIcon.classList.add("hidden"); // Hide the checkmark
-  }
-});
+    const file = e.target.files[0];
+    if (file) {
+      displayImageFile(file);
+    } else {
+      imageFiles[index] = null;
+      previewBox.innerHTML = "No image selected.";
+      successIcon.classList.add("hidden");
+    }
+  });
+  // ▲▲▲ END OF MODIFICATION ▲▲▲
 
-  // Add card logic
   card.querySelector(".add-btn").addEventListener("click", () => {
     const newCard = createCard(cardsContainer.children.length);
     cardsContainer.appendChild(newCard);
     updateCardNumbers();
   });
 
-  // Delete card logic
   card.querySelector(".delete-btn").addEventListener("click", () => {
     if (cardsContainer.children.length > 1) {
       cardsContainer.removeChild(card);
@@ -190,12 +223,22 @@ createBtn.addEventListener("click", async () => {
   const category = document.getElementById("categorySelect")?.value || "";
 
   const terms = Array.from(cardsContainer.querySelectorAll(".term")).map(input => input.value.trim());
-  const files = [...cardsContainer.querySelectorAll(".imageDefinition")].map(input => input.files[0]);
+// REPLACEMENT BLOCK 1
+const files = imageFiles; // Use the correct array that holds pasted images
 
-  if (!title || terms.some(term => !term)) {
-    showCustomAlert("Please fill in title and terms.", 'error');
+if (!title || terms.some(term => !term)) {
+  showCustomAlert("Please fill in title and terms.", 'error');
+  return;
+}
+
+// This new validation loop correctly checks the imageFiles array
+for (let i = 0; i < terms.length; i++) {
+  // If we are NOT in edit mode and a file is missing for a card, show an error.
+  if (!editMode && !files[i]) {
+    showCustomAlert(`Please upload or paste an image for card ${i + 1}.`, 'error');
     return;
   }
+}
 
   // ✅ Require category regardless of public/private
   if (!category) {
@@ -217,23 +260,26 @@ createBtn.addEventListener("click", async () => {
     try {
       const flashcards = [];
 
-      for (let i = 0; i < terms.length; i++) {
-        if (files[i]) {
-          const timestamp = Date.now();
-          const path = `definitions/${user.uid}/${timestamp}_${files[i].name}`;
-          const imageRef = ref(storage, path);
-          await uploadBytes(imageRef, files[i]);
-          const url = await getDownloadURL(imageRef);
-          flashcards.push({ term: terms[i], definition: url });
-        } else if (editMode && editingSet.flashcards[i]) {
-          flashcards.push({ term: terms[i], definition: editingSet.flashcards[i].definition });
-        } else {
-          showCustomAlert(`Please upload image for card ${i + 1}`, 'error');
-          createBtn.disabled = false;
-          createBtn.textContent = editMode ? "Update Flashcard Set" : "Create Flashcard Set";
-          return;
-        }
-      }
+      // REPLACEMENT BLOCK 2
+for (let i = 0; i < terms.length; i++) {
+  const file = imageFiles[i]; // Use the correct array
+
+  if (file) { // If a file exists (from upload OR paste)
+    const timestamp = Date.now();
+    // Use a consistent name for pasted files
+    const fileName = file.name === 'pasted-image.png' ? `${timestamp}_pasted.png` : `${timestamp}_${file.name}`;
+    const path = `definitions/${user.uid}/${fileName}`;
+    const imageRef = ref(storage, path);
+    await uploadBytes(imageRef, file);
+    const url = await getDownloadURL(imageRef);
+    flashcards.push({ term: terms[i], definition: url });
+  } else if (editMode && editingSet.flashcards[i] && editingSet.flashcards[i].definition) {
+    // If in edit mode and an existing image URL is present
+    flashcards.push({ term: terms[i], definition: editingSet.flashcards[i].definition });
+  }
+  // The 'else' case for missing images is no longer needed here
+  // because the first replacement block already handles that validation.
+}
 
 const flashcardSet = {
   title,

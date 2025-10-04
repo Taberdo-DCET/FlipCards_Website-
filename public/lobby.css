@@ -789,7 +789,8 @@ span {
 .folder-card {
   background: #1e1e1e;
   border-radius: 20px;
-  border: 1px solid black;
+  border: 3px solid black;
+  border-top: 5px solid rgb(0, 0, 0);
   padding: 20px 25px;
   width: 260px;
   text-align: center;
@@ -804,8 +805,8 @@ span {
 }
 
 .folder-card:hover {
-  transform: translateY(-6px);
-  border: 1px solid rgb(255, 255, 255);
+  
+  border-top: 5px solid #ffcf00;
 }
 
 .folder-header {
@@ -890,6 +891,7 @@ span {
     inset -1px -1px 2px rgba(255, 255, 255, 0.05);
   font-family: sans-serif;
   letter-spacing: 0.5px;
+  font-family: 'satoshi', sans-serif;
 }
 .gemini-modal-backdrop {
   display: none;
@@ -961,6 +963,10 @@ span {
   gap: 12px;
   max-height: 300px;
   overflow-y: auto;
+  font-family: 'Satoshi', sans-serif;
+  justify-content: center; /* Centers vertically if content is short */
+  align-items: center;     /* Centers horizontally */
+  text-align: center;   
 }
 .gemini-flashcards .card {
   background: #222;
@@ -2673,7 +2679,7 @@ font-family: 'Satoshi', sans-serif;
 
 .neumorphic-select {
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px 32px 12px 16px; /* Increased right padding to make space for the arrow */
   font-size: 15px;
   font-family: 'Satoshi', sans-serif;
   background: #171717;
@@ -4322,11 +4328,13 @@ box-shadow: none !important;
   white-space: nowrap;
   font-family: 'Satoshi', sans-serif;
   margin-bottom: -3px;
+  border: 1px solid white;
 }
 .folder-category:hover {
-  background: #171717; /* gray background */
-  color: #fff;
+  background: none; /* gray background */
+  color: #ffcf00;
   cursor: pointer;
+  border: 1px solid #ffcf00;
 }
 .modal-content2 {
    font-family: 'Satoshi', sans-serif !important;
@@ -8744,13 +8752,419 @@ color: #ffcf00 !important;
 .gq-answers-body::-webkit-scrollbar-thumb:hover {
   background: #ccc;
 }
+/* ======================================= */
+/* ▼▼▼ NEW GQ SEARCH BAR STYLES        ▼▼▼ */
+/* ======================================= */
 
+.gq-header {
+  max-width: 800px;
+  margin: 0 auto 30px auto;
+  display: flex;
+  flex-direction: column; /* Stacks items vertically */
+  align-items: center;     /* Centers items horizontally */
+  gap: 20px;
+}
 
+.gq-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Space between the 'Add' button and search icon */
+}
 
+.gq-search-container {
+  display: flex;
+  align-items: center;
+}
 
+.gq-search-input {
+  width: 0;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  transition: all 0.4s ease-in-out;
+  pointer-events: none;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 15px;
+  background-color: #fff;
+  border-radius: 10px;
+}
 
+.gq-search-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  position: relative; /* For stacking icons */
+  flex-shrink: 0; /* Prevent button from shrinking */
+}
 
+.gq-search-btn svg {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  stroke: #333;
+  transition: all 0.3s ease-in-out;
+}
 
+.gq-search-btn .icon-close {
+  opacity: 0;
+  transform: scale(0.6) rotate(-90deg);
+}
+
+/* --- ACTIVE STATE --- */
+.gq-search-container.active .gq-search-input {
+  width: 250px;
+  opacity: 1;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  margin-right: -44px; /* Pull the button back over the input */
+  padding-right: 50px; /* Make space for the button */
+  pointer-events: auto;
+}
+
+.gq-search-container.active .gq-search-btn .icon-search {
+  opacity: 0;
+  transform: scale(0.6) rotate(90deg);
+}
+
+.gq-search-container.active .gq-search-btn .icon-close {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+/* ======================================= */
+/* ▼▼▼ FOLDER SORTING DROPDOWN STYLES ▼▼▼ */
+/* ======================================= */
+
+/* New parent container to hold both dropdowns */
+.folder-controls-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  margin: 25px auto 15px auto;
+  flex-wrap: wrap; /* Allows wrapping on small screens */
+}
+
+/* Reset margin on the original container so it aligns correctly */
+.folder-filter-container {
+  margin: 0;
+}
+
+/* Give the new container a max-width */
+.folder-sort-container {
+  max-width: 220px;
+}
+/* Container for the new Add/Parse buttons */
+.parse-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Container for the list of selected files */
+.file-list-container {
+  min-height: 50px;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #333;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 20px;
+  /* Custom scrollbar for the file list */
+  scrollbar-width: thin;
+  scrollbar-color: #444 #1a1a1a;
+}
+.file-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+.file-list-container::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+.file-list-container::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 4px;
+}
+
+/* Individual file item in the list */
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background-color: #222;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #ddd;
+  margin-bottom: 5px;
+  animation: fadeIn 0.3s ease;
+}
+.file-item:last-child {
+  margin-bottom: 0;
+}
+
+/* File name span */
+.file-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+  background: none;
+  color: white;
+  font-family: 'Satoshi', sans-serif;
+}
+
+/* Remove file button (the 'X') */
+.remove-file-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #3c1a1a;
+  color: #ffb8b8;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  font-weight: bold;
+  line-height: 1;
+}
+.remove-file-btn:hover {
+  background-color: #ff4d4d;
+  color: #fff;
+  transform: scale(1.1);
+}
+/* ======================================= */
+/* ▼▼▼ MODERN ADD FILES BUTTON STYLES ▼▼▼ */
+/* ======================================= */
+
+.modern-add-button {
+  all: unset; /* Reset default button styles */
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  width: auto; /* Or set a fixed width if you prefer */
+  
+  font-family: 'Satoshi', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  
+  color: #e0e0e0;
+  background: linear-gradient(145deg, #2a2a2a, #1e1e1e);
+  border: 1px solid #333;
+  border-radius: 12px;
+  
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+.modern-add-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(145deg, #333, #222);
+  border-color: #555;
+  color: #fff;
+}
+
+.modern-add-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.modern-add-button svg {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s ease;
+}
+
+.modern-add-button:hover svg {
+  transform: scale(1.1);
+}
+
+.modern-add-button span {
+  background: none;
+  color: inherit; /* Inherits color from the button */
+}
+/* ======================================= */
+/* ▼▼▼ MODERN PARSE CARDS BUTTON STYLES ▼▼▼ */
+/* ======================================= */
+
+.modern-parse-button {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 20px;
+  
+  font-family: 'Satoshi', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  
+  color: #111;
+  background: #ffcf00;
+  border-radius: 12px;
+  
+  cursor: pointer;
+  position: relative; /* Needed for the spinner overlay */
+  overflow: hidden; /* Keeps spinner within button bounds */
+  transition: all 0.2s ease-in-out;
+}
+.modern-parse-button span {
+  background: none;
+}
+.modern-parse-button:hover {
+  background: #ffe04d;
+  box-shadow: 0 4px 15px rgba(255, 207, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+/* --- Spinner Styles --- */
+.modern-parse-button .spinner {
+  display: none; /* Hidden by default */
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 0, 0, 0.2);
+  border-top-color: #111;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* The "Parsing..." state */
+.modern-parse-button.parsing {
+  pointer-events: none; /* Disable clicks while parsing */
+  background: #e0b400;
+}
+
+.modern-parse-button.parsing span {
+  opacity: 0; /* Hide the "Parse Cards" text */
+}
+
+.modern-parse-button.parsing .spinner {
+  display: block;
+  position: absolute; /* Center the spinner inside the button */
+  top: 50%;
+  left: 50%;
+  margin-top: -10px;
+  margin-left: -10px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* ======================================= */
+/* ▼▼▼ WELCOME MODAL SCROLLBAR STYLES ▼▼▼ */
+/* ======================================= */
+
+/* Styles the scrollbar thumb for the welcome modal */
+.welcome-scroll-content::-webkit-scrollbar-thumb {
+  background: #ffcf00; /* Main yellow color */
+  border-radius: 10px;
+  box-shadow:
+    inset 2px 2px 4px rgba(0,0,0,0.4), /* Inner shadow for depth */
+    inset -2px -2px 4px rgba(255,255,255,0.2);
+}
+
+/* Changes the color slightly on hover for a nice effect */
+.welcome-scroll-content::-webkit-scrollbar-thumb:hover {
+  background: #ffe04d; /* A lighter yellow on hover */
+}
+
+/* This rule is for Firefox browsers */
+.welcome-scroll-content {
+  scrollbar-width: thin;
+  scrollbar-color: #ffcf00 #141414; /* thumb and track color */
+}
+/* ======================================= */
+/* ▼▼▼ MODERN COOKIE BANNER STYLES ▼▼▼ */
+/* ======================================= */
+
+/* The main banner container */
+#cookieBanner {
+  display: none;
+  /* Positioning */
+  position: fixed;
+  bottom: 20px; /* Floats above the bottom edge */
+  left: 50%;
+  transform: translateX(-50%); /* Perfectly centers the banner */
+  width: auto; /* Width will be determined by content */
+  max-width: 90%; /* Ensures it looks good on mobile */
+  z-index: 10000;
+  
+  /* Modern "Frosted Glass" Look */
+  background: rgba(42, 42, 42, 0.75); /* Semi-transparent background */
+  backdrop-filter: blur(10px); /* This creates the blur effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari compatibility */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle edge highlight */
+  
+  /* Layout & Spacing */
+
+  align-items: center;
+  gap: 20px;
+  padding: 12px 20px;
+  border-radius: 12px; /* Rounded corners */
+  
+  /* Text & Shadow */
+  color: #f0f0f0;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+
+  /* Entrance Animation */
+  animation: slideUpFadeIn 0.5s ease-out forwards;
+}
+
+/* The "Accept" button */
+#cookieBanner button {
+  /* Reset and Style */
+  all: unset;
+  box-sizing: border-box;
+  padding: 8px 18px;
+  background-color: #ffcf00; /* Main yellow accent */
+  color: #111;
+  
+  /* Shape & Font */
+  border-radius: 999px; /* Pill shape */
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Satoshi', sans-serif;
+
+  /* Other */
+  cursor: pointer;
+  white-space: nowrap; /* Prevents the text from wrapping */
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+#cookieBanner button:hover {
+  background-color: #ffffff; /* Brighter hover state */
+  transform: scale(1.05); /* Slight pop effect */
+}
+
+/* Keyframes for the entrance animation */
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
 
 
 

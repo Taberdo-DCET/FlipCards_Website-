@@ -133,8 +133,21 @@
   How to properly use ParseCards
 </button>
 
-    <div class="gemini-dropzone" id="geminiDropZone">📂 Click to upload .jpg files</div>
-    <input type="file" id="geminiFileInput" accept=".jpg,.jpeg" style="display: none;" />
+    <!-- New Buttons, File List, and hidden file input -->
+<div class="parse-controls">
+    <button id="addFilesBtn" class="modern-add-button">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+    <span>Add Files</span>
+</button>
+    <button id="parseCardsBtn" class="modern-parse-button hidden">
+    <span>Parse Cards</span>
+    <div class="spinner"></div>
+</button>
+</div>
+<div id="fileListContainer" class="file-list-container">
+    <!-- Selected files will be listed here -->
+</div>
+<input type="file" id="geminiFileInput" accept=".jpg,.jpeg" style="display: none;" multiple />
     <span class="gemini-modal-title2">Note: FlipCard's JPG Auto Parser can make mistakes.<span class="gemini-modal-title2">More Accurate on JPG files with Less Complex Design. Please Follow the Rules on How to Use it.</span></span>
     <div class="gemini-flashcards" id="geminiFlashcards"></div>
     <a href="addcard.html" id="gotoAddcardBtn" style="display: none;">
@@ -333,14 +346,26 @@
     </div>
 </div>
 
-<div class="folder-filter-container">
-    <div class="neumorphic-select-wrapper">
-        <select id="folderFilter" class="neumorphic-select">
-            <option value="your" selected>Your Flashcard Sets</option>
-            <option value="public">Public Flashcard Sets</option>
-            <option value="liked">Liked FlashCard Sets</option>
-        </select>
-        <span class="chevron">&#x25BE;</span>
+<div class="folder-controls-container">
+    <div class="folder-filter-container">
+        <div class="neumorphic-select-wrapper">
+            <select id="folderFilter" class="neumorphic-select">
+                <option value="your" selected>Your Flashcard Sets</option>
+                <option value="public">Public Flashcard Sets</option>
+                <option value="liked">Liked FlashCard Sets</option>
+            </select>
+            <span class="chevron">&#x25BE;</span>
+        </div>
+    </div>
+    
+    <div class="folder-sort-container">
+        <div class="neumorphic-select-wrapper">
+            <select id="folderSort" class="neumorphic-select">
+                <option value="newest" selected>Sort by Newest</option>
+                <option value="oldest">Sort by Oldest</option>
+            </select>
+            <span class="chevron">&#x25BE;</span>
+        </div>
     </div>
 </div>
 
@@ -359,6 +384,10 @@
       Quibbl
       <img src="new.png" alt="New" class="quibbl-new-icon">
     </button>
+    <button class="quibbl-btn" onclick="location.href='Pinpoint.html'">
+        Pinpoint
+        <img src="new.png" alt="New" class="quibbl-new-icon">
+    </button>
     <button id="geminiBtn" class="quibbl-btn"> ParseCards</button>
 </div>
   <div class="folder-grid">
@@ -368,15 +397,25 @@
 
 </section>
 <section id="generalQuestions">
-  <div class="gq-header">
+<div class="gq-header">
     <div class="gq-header-text">
       <h2 class="gq-title">General Questions</h2>
       <p class="gq-subtitle">Share a question, build collective answers!</p>
     </div>
-    <button id="addQuestionBtn" class="gq-add-btn">
-      <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-      <span>Ask a Question</span>
-    </button>
+    <div class="gq-header-actions">
+        <button id="addQuestionBtn" class="gq-add-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>Ask a Question</span>
+        </button>
+
+        <div id="gqSearchContainer" class="gq-search-container">
+            <input type="text" id="gqSearchInput" class="gq-search-input" placeholder="Search questions or categories...">
+            <button id="gqSearchBtn" class="gq-search-btn">
+                <svg class="icon-search" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
   </div>
 
   <div class="gq-controls">
@@ -552,13 +591,26 @@
         <h2>🎉 Welcome to FlipCards!</h2>
         <p>We're excited to share new updates with you:</p>
         <ul style="text-align: left; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update: 09/20/25</li>
-          <li>📢 Big News for Quibbl! 🚀</li>
-          <li>Turn your study sessions into a fun, real-time game with the new Quibbl mode! 🧠</li>
-          <span class="sub-announcement">➥ One person hosts, picks any flashcard set, and invites their study buddies to compete. 🤝 See who can guess the answers the fastest and make learning interactive. 🏆</span>
-          <span class="sub-announcement">➥ We've also given it a complete visual redesign for a more modern and user-friendly look. ✨</span>
-          <li>General Question Section Redesigned! ✨</li>
-          <span class="sub-announcement">➥ Finding answers is now easier than ever! We've given our general question section a complete makeover to be more user-friendly and easier to navigate. 🗺️</span>
+          <li>📅 New features in this Update: 10/04/25</li>
+          <br>
+          <li>📢 ParseCards Just Got a Major Upgrade!</li>
+          <li>Tired of uploading one slide at a time? We heard you! You can now select MULTIPLE JPG files at once and convert them into flashcards in a single go. </li>
+          <br>
+          <li>📋 Paste an Image from Your Clipboard</li>
+          <span class="sub-announcement">➥ If you have an image copied, you can now click this button to add it directly as a definition, saving you the step of having to upload a file. Give it a try.</span>
+          <br>
+          <li>📢 Introducing Pinpoint: A New Visual Study Mode</li>
+          <span class="sub-announcement">➥ We are pleased to introduce Pinpoint, an advanced, image-based study mode designed to enhance learning for visual and spatial topics. 🗺️</span>
+          <span class="sub-announcement">➥ Pinpoint allows creators to upload an image, place numbered labels on specific areas, and optionally obscure parts of the image with cover boxes. 📍 </span>
+          <span class="sub-announcement">➥ Reviewers can then test their knowledge by matching the shuffled terms to the corresponding numbers on the image, providing an interactive and effective way to master complex diagrams and illustrations. 🧠 </span>
+          <span class="sub-announcement">➥ This mode is ideal for students in fields like anatomy, geography, engineering, and more.</span>
+          <br>
+          <li>💬 Announcing a Redesigned Chat Interface</li>
+          <span class="sub-announcement">➥ As part of our commitment to continuous improvement, we have rolled out a comprehensive redesign of the chat UI. </span>
+          <br>
+          <li>We've Added New Navigation Shortcuts for Enhanced Accessibility</li>
+          <span class="sub-announcement">➥ These additions provide more direct access to your flashcard sets and other key areas. 🗺️ </span>
+          <br>
           <li>👀 Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes</li>
           <br>
@@ -805,7 +857,7 @@ For the best results, avoid using low-quality images.</p>
 
 </div>
 
-<div id="cookieBanner" style="position:fixed; bottom:0; left:0; width:100%; background:#222; color:white; padding:15px; display:none; z-index:10000; text-align:center; font-family:Arial, sans-serif;">
+<div id="cookieBanner">
   This website uses cookies to improve your experience and display personalized ads.
   <button onclick="acceptCookies()" style="margin-left:10px; padding:6px 12px; background:#ffb988; color:black; border:none; border-radius:4px; cursor:pointer;">Accept</button>
 </div>
