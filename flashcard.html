@@ -102,6 +102,9 @@ Match</button>
         <i class="fa-solid fa-chevron-right"></i>
     </div>
     <div id="card-counter" class="card-counter">1 / 10</div>
+<div class="nav-btn" id="shuffleBtn" title="Shuffle Cards">
+        <i class="fa-solid fa-shuffle"></i>
+    </div>
 
 
 </div>
@@ -233,6 +236,7 @@ const exitReviewBtn = document.getElementById('exitReviewBtn');
   const backToFoldersBtn = document.getElementById("backToFoldersBtn");
   const feedbackText = document.getElementById('feedbackText');
   const reviewCounter = document.getElementById('reviewCounter');
+const shuffleBtn = document.getElementById('shuffleBtn');
 
   onAuthStateChanged(auth, async (user) => {
     if (user && !user.isAnonymous) {
@@ -333,7 +337,18 @@ const exitReviewBtn = document.getElementById('exitReviewBtn');
     }
     return currentSize; // Return the calculated size
   }
-
+function shuffleFlashcards() {
+  for (let i = flashcards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+  }
+  // Reset to the first card and update the display
+  currentIndex = 0;
+  updateCard(currentIndex);
+  
+  // Show a confirmation alert
+  showCustomAlert("The deck has been shuffled!");
+}
   function updateCard(index) {
     card.style.transition = "none";
     card.classList.remove("flipped");
@@ -391,7 +406,14 @@ function showFeedback(type) {
   // --- Event Listeners ---
 reverseToggle.addEventListener("change", (event) => { reverseMode = event.target.checked; updateCard(currentIndex); });
 card.addEventListener("click", () => { card.classList.toggle("flipped"); });
-
+shuffleBtn.addEventListener("click", () => {
+    // Prevent shuffling while in a "My Review Session"
+    if (performanceToggle.disabled) {
+        showCustomAlert("You cannot shuffle cards during a review session.");
+        return;
+    }
+    shuffleFlashcards();
+});
 // --- Helper function to advance to the next card ---
 function handleNextCard() {
     if (currentIndex < flashcards.length - 1) {

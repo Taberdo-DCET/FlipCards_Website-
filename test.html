@@ -360,7 +360,10 @@
     alertBox.style.display = "flex";
   }
 
-  function closeCustomAlert() { alertBox.style.display = "none"; }
+  function closeCustomAlert() { 
+  alertBox.style.display = "none"; 
+  termInput.focus(); // Add this line to refocus the input field
+}
 
   async function reviewMistakes() {
     console.log("1. 'reviewMistakes' button clicked."); // Log when the function starts
@@ -467,6 +470,16 @@
   }
 
   termInput.addEventListener("keypress", e => { if (e.key === "Enter") { e.preventDefault(); submitAnswer(); } });
+  document.addEventListener('keydown', function(event) {
+  // Checks if the alert is visible and the Enter key was pressed
+  if (alertBox.style.display === 'flex' && event.key === 'Enter') {
+    // Prevents any default browser action for the Enter key
+    event.preventDefault(); 
+    
+    // Calls our updated function to close the alert and refocus
+    closeCustomAlert(); 
+  }
+});
 
   // Make functions available to HTML onclick attributes
   window.submitAnswer = submitAnswer;

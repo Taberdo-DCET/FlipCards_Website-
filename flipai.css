@@ -1,0 +1,514 @@
+/* --- Fonts and Body (from Pinpoint.css) --- */
+/* Note: Using a common font as 'Satoshi' is a local file. */
+@font-face {
+  font-family: 'Satoshi';
+  src: url('Satoshi-Black.ttf') format('truetype');
+}
+
+body {
+    background-color: #171717;
+    font-family: 'Satoshi', sans-serif; /* Fallback font */
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- General Helper Class --- */
+.hidden {
+    display: none !important;
+}
+
+/* --- Header (from Pinpoint.css) --- */
+.shop-header {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    padding: 15px 5%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    z-index: 10;
+    background-color: #171717;
+    border-bottom: 1px solid #333;
+}
+
+.header-left { display: flex; justify-content: flex-start; }
+.header-center { display: flex; justify-content: center; }
+.header-right { display: flex; justify-content: flex-end; }
+
+.back-button {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+}
+.back-button:hover { background-color: white; color: black; }
+
+.shop-title { margin: 0; font-size: 28px; font-weight: 700; }
+
+/* --- Main Content --- */
+.main-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    margin: 0 0 15px 0;
+    color: #ffcf00;
+    font-weight: 700;
+}
+
+.page-description {
+    font-size: 1.1rem;
+    color: #aaa;
+    margin-bottom: 40px;
+    line-height: 1.6;
+}
+
+/* --- File Upload & Action Buttons --- */
+.action-buttons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.modern-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 1.0rem;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-decoration: none;
+}
+
+.modern-button:hover {
+    background-color: white;
+    color: #ffcf00;
+}
+
+.modern-button i {
+    color: #ffcf00; /* Yellow icon for Upload button */
+}
+
+/* Specific icon color for the "Add Set" button */
+#addSetBtn i {
+    color: #00ff99;
+}
+
+
+/* --- Loader Animation --- */
+/* --- Loader Animation --- */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #aaa;
+}
+.loader {
+    border: 5px solid #333;
+    border-top: 5px solid #ffcf00;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- Usage Tracker --- */
+.usage-tracker {
+    margin: 40px auto 0 auto;
+    max-width: 500px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    border-radius: 15px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: #ccc;
+}
+
+#usageCount {
+    font-weight: 700;
+}
+
+#resetTimer {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+/* --- Flashcard Display --- */
+/* --- Flashcard Display --- */
+#flashcardsContainer {
+    margin-top: 40px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 1px solid #333;
+    border-radius: 15px;
+    padding: 25px;
+    background-color: #1a1a1a;
+    min-height: 200px; /* Fixed height placeholder */
+    justify-content: center; /* Center content (like loader) vertically */
+}
+
+.flashcard {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-left: 4px solid #ffcf00;
+    border-radius: 10px;
+    padding: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.flashcard .term {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffcf00;
+    margin-bottom: 10px;
+}
+
+.flashcard .definition {
+    font-size: 1rem;
+    color: #ccc;
+    line-height: 1.6;
+}
+
+/* --- Custom Alert Modal (from Pinpoint.css) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-box {
+    background: #1e1e1e;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.95);
+    transition: transform 0.3s ease-in-out;
+    text-align: center;
+    padding: 30px 40px;
+}
+
+.modal-overlay.visible .modal-box {
+    transform: scale(1);
+}
+
+.alert-box.success { border-top: 4px solid #2a5c34; }
+.alert-box.error { border-top: 4px solid #ef4444; }
+
+#alertTitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+}
+.alert-box.success #alertTitle { color: #5cb85c; }
+.alert-box.error #alertTitle { color: #ef4444; }
+
+#alertMessage { margin: 0 0 25px 0; color: #ccc; line-height: 1.5; }
+
+.confirm-btn {
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    background-color: #444;
+    color: #fff;
+    transition: background-color 0.2s ease;
+}
+.confirm-btn:hover { background-color: #555; }
+#addSetBtn i {
+    color: #ffcf00;
+}
+#addSetBtn:hover {
+    border: 1px solid #ffcf00;
+}
+/* Title and Beta Logo Alignment */
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+.title-container .page-title {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #ffcf00;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.beta-logo {
+    height: 22px;
+    margin-top: 0px; /* slight adjustment for vertical alignment */
+}
+html, body { height: 100%; }
+body {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+/* Let main area grow so footer sits at the bottom */
+.main-container { flex: 1 0 auto; }
+
+/* Footer styles */
+.site-footer {
+  border-top: 1px solid #333;
+  background: #171717;
+  padding: 16px 5%;
+  text-align: center;
+  color: #aaa;
+  font-size: 0.95rem;
+}
+.site-footer p { margin: 0; line-height: 1.5; }
+/* --- Upgrade Button & Note Styles --- */
+.upgrade-button {
+  background-color: #ffcf00;
+  color: #171717;
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border: 2px solid #ffcf00;
+  margin-left: 15px; /* Adds space between buttons */
+}
+
+.upgrade-button:hover {
+  background-color: #171717;
+  color: #ffcf00;
+}
+
+.upgrade-note {
+    display: block; /* Makes it a block element */
+    margin: 15px auto 0 auto; /* Adds space above and centers it */
+    color: #ffcf00;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.upgrade-note:hover {
+    opacity: 0.8;
+}
+/* --- Usage Info Icon --- */
+.usage-info-icon {
+    color: #aaa;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.usage-info-icon:hover {
+    color: #ffcf00;
+}
+
+/* Adjust usage tracker for the icon */
+.usage-tracker {
+    justify-content: center; /* Center all items */
+    gap: 15px; /* Add space between items */
+}
+
+
+/* --- Info Modal Styles --- */
+.info-modal-box {
+    text-align: left;
+    padding: 25px 35px;
+    border-top: 4px solid #ffcf00;
+}
+
+.info-modal-box h3 {
+    text-align: center;
+    font-size: 1.6rem;
+    margin: 0 0 15px 0;
+    color: #ffcf00;
+}
+
+.info-modal-box .modal-content {
+    margin-bottom: 25px;
+    color: #ccc;
+    line-height: 1.7;
+}
+
+.info-modal-box ul {
+    padding-left: 20px;
+    margin-top: 15px;
+}
+
+.info-modal-box li {
+    margin-bottom: 12px;
+}
+
+.info-modal-box strong {
+    color: #fff;
+    font-weight: 700;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===========================
+   Responsive tweaks
+   =========================== */
+
+/* Small screens (phones ≤ 600px) */
+@media (max-width: 600px) {
+  /* --- Header --- */
+  .shop-header {
+    grid-template-columns: 1fr; /* Stack header elements */
+    gap: 10px;
+    padding: 15px;
+  }
+  .header-left, .header-right {
+    justify-content: center; /* Center the stacked header items */
+  }
+
+  /* --- Main Content --- */
+  .main-container {
+    padding: 20px 15px; /* Reduce side padding */
+  }
+
+  /* --- Title + beta badge --- */
+  .title-container {
+    gap: 8px;
+  }
+  .title-container .page-title {
+    font-size: 1.9rem;   /* down from 2.5rem */
+  }
+  .beta-logo {
+    height: 18px;        /* scale badge with title */
+    margin-top: 2px;     /* slight optical alignment */
+  }
+
+  /* --- Action Buttons --- */
+  .action-buttons-container {
+    flex-direction: column; /* Stack buttons vertically */
+    width: 100%;
+  }
+  .modern-button {
+    width: 90%; /* Make buttons wide and easy to tap */
+    max-width: 350px;
+  }
+
+  /* --- Usage Tracker --- */
+  .usage-tracker {
+    flex-direction: column; /* Stack tracker info vertically */
+    gap: 10px;
+    padding: 15px;
+  }
+
+  /* --- Flashcard Display --- */
+  #flashcardsContainer {
+    padding: 20px 15px;
+  }
+  .flashcard {
+    padding: 15px;
+  }
+  .flashcard .term {
+    font-size: 1.1rem; /* Make text slightly smaller */
+  }
+  .flashcard .definition {
+    font-size: 0.95rem;
+  }
+  
+  /* --- Modals --- */
+  .modal-box {
+    padding: 30px 25px; /* Adjust padding on small screens */
+  }
+}
+
+/* Large screens / desktops (≥ 1200px) */
+@media (min-width: 1200px) {
+  /* Wider reading column */
+  .main-container {
+    max-width: 1100px;   /* was 900px */
+  }
+
+  /* Title + beta badge scale up */
+  .title-container .page-title {
+    font-size: 3rem;     /* up from 2.5rem */
+  }
+  .beta-logo {
+    height: 26px;        /* keep badge proportional */
+    margin-top: 4px;
+  }
+}

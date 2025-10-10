@@ -714,6 +714,13 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a #141414; /* thumb color track color */
 }
+/* Correction for Centering the Alert Button */
+.custom-alert-box .neumorphic-button {
+  display: inline-block;  /* Allows the button to be centered like text */
+  flex: none;             /* Removes the problematic flex-grow property */
+  width: auto;            /* Lets the button size to its content */
+  padding: 12px 40px;     /* Adjust padding for a good size */
+}
 /* === Responsive Media Queries (Improved) === */
 
 /* For Tablets (<= 1024px) */

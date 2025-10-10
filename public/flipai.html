@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlipCards | FlipCards AI</title>
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="flipai.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
+    <!-- Link to Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="shop-header">
+        <div class="header-left">
+            <a href="lobby.html" class="back-button">← Back to Lobby</a>
+            <a href="shop.html" id="upgradeBtn" class="upgrade-button hidden">Upgrade your Plan</a>
+        </div>
+        <div class="header-center"></div>
+        <div class="header-right">
+            <h2 class="shop-title">FlipCards.</h2>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <!-- Main Content -->
+<main class="main-container">
+    <div class="title-container">
+    <h1 class="page-title">FlipCards AI</h1>
+    <img src="beta.png" alt="Beta Logo" class="beta-logo">
+</div>
+    <p class="page-description">
+        Instantly turn your PDF documents into a complete set of flashcards. Upload your file to get started.
+    </p>
+
+    <!-- File Upload Section -->
+    <div class="action-buttons-container">
+        <input type="file" id="fileUploadInput" accept=".pdf" class="hidden">
+        <button id="uploadBtn" class="modern-button">
+            <i class="fa-solid fa-upload"></i>
+            Upload File
+        </button>
+        <button id="addSetBtn" class="modern-button hidden">
+            <i class="fa-solid fa-layer-group"></i>
+            Add this as Flashcard Set
+        </button>
+    </div>
+
+    <div id="usageTracker" class="usage-tracker hidden">
+        <i id="usageInfoBtn" class="fa-solid fa-circle-info usage-info-icon"></i>
+        <span id="usageCount"></span>
+        <span id="resetTimer"></span>
+    </div>
+
+    <a href="shop.html" id="upgradeNote" class="upgrade-note hidden">
+        Upgrade your plan to gain more usage
+    </a>
+
+    <!-- Loader -->
+    <!-- Flashcards Display -->
+    <div id="flashcardsContainer">
+        <!-- Loader will be injected here by JavaScript -->
+    </div>
+</main>
+<div id="infoModal" class="modal-overlay">
+        <div class="modal-box info-modal-box">
+            <h3>How Usage Works</h3>
+            <div class="modal-content">
+                <p>
+                    Your usage is based on the number of documents you successfully convert into flashcards each day. Here’s a detailed breakdown:
+                </p>
+                <ul>
+                    <li>
+                        <strong>The Counter:</strong> This shows your remaining uses for the current 24-hour period (e.g., <strong>8/10</strong>). The limit is determined by your account plan.
+                    </li>
+                    <li>
+                        <strong>The Timer:</strong> This countdown shows exactly when your usage limit will reset. The reset happens automatically every day at midnight Coordinated Universal Time (UTC).
+                    </li>
+                    <li>
+                        <strong>What Counts as a "Use":</strong> A "use" is only consumed when you upload a file and the AI successfully generates a set of flashcards from it. If an error occurs, your count will not be reduced.
+                    </li>
+                </ul>
+                 <p>
+                    Upgrading your plan is the best way to increase your daily generation limit.
+                </p>
+            </div>
+            <button id="infoModalCloseBtn" class="confirm-btn">Got it</button>
+        </div>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-box alert-box">
+            <h3 id="alertTitle">
+                <i id="alertIcon" class="fa-solid"></i>
+                <span id="alertTitleText"></span>
+            </h3>
+            <p id="alertMessage"></p>
+            <button id="alertOkBtn" class="confirm-btn">OK</button>
+        </div>
+    </div>
+<footer class="site-footer" aria-label="Attribution">
+  <p>Powered by the Gemini API. FlipCards AI is not affiliated with Google.</p>
+</footer>
+
+    <!-- Link to external JavaScript file -->
+    <script type="module" src="flipai.js"></script>
+    <script src="protect.js"></script>
+</body>
+</html>

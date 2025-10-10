@@ -854,13 +854,14 @@ span {
   letter-spacing: 1px;
   color: #ffffffcc;
   margin-bottom: 20px;
-  max-height: 3.6em; /* around 2 lines */
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-   font-family: 'Satoshi', sans-serif;
+  -webkit-line-clamp: 2; /* This is the key property to add */
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   word-break: break-word;
+  font-family: 'Satoshi', sans-serif;
 }
 
 
@@ -4299,12 +4300,7 @@ box-shadow: none !important;
   margin-bottom: -3px;
   border: 1px solid white;
 }
-.folder-category:hover {
-  background: none; /* gray background */
-  color: #ffcf00;
-  cursor: pointer;
-  border: 1px solid #ffcf00;
-}
+
 .modal-content2 {
    font-family: 'Satoshi', sans-serif !important;
 }
@@ -9134,7 +9130,34 @@ color: #ffcf00 !important;
     transform: translate(-50%, 0);
   }
 }
+/* ADD THIS NEW RULE */
+.folder-card:hover .folder-category {
+  background: none;
+  color: #ffcf00;
+  border: 1px solid #ffcf00;
+}
+/* CTA row for Suggestion + Try buttons */
+.cta-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 140px;
+  flex-wrap: wrap;
+}
 
+/* Match Suggestion button overrides for the new Try button */
+.try-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px;
+}
+.try-btn span {
+  background: none !important;
+  color: #000;               /* matches .upgrade-btn default text */
+}
+.try-btn:hover span {
+  color: #FFCF00;            /* matches hover color */
+}
 
 
 

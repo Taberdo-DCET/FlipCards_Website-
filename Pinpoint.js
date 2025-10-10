@@ -4,7 +4,7 @@ import { storage } from "./firebaseStorageInit.js";
 
 // Import the specific functions you need to use those services
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { collection, addDoc, serverTimestamp, getDocs, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { collection, addDoc, serverTimestamp, getDocs, doc, deleteDoc, updateDoc, getDoc, collectionGroup, query, where } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,19 +16,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const creationView = document.getElementById('creationView');
     const openCreationViewBtn = document.getElementById('openCreationViewBtn');
     const uploadImageBtn = document.getElementById('uploadImageBtn');
+    const pasteImageBtn = document.getElementById('pasteImageBtn'); 
     const imageUploadInput = document.getElementById('imageUploadInput');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const choiceInput = document.getElementById('choiceInput');
     const addChoiceBtn = document.getElementById('addChoiceBtn');
     const addedChoicesList = document.getElementById('addedChoicesList');
     const addCoverBtn = document.getElementById('addCoverBtn'); // Add this
+    const publicToggle = document.getElementById('publicToggle'); 
 
     const openSideNavBtn = document.getElementById('openSideNavBtn');
     const closeSideNavBtn = document.getElementById('closeSideNavBtn');
     const setsSidenav = document.getElementById('setsSidenav');
     const sidenavSetList = document.getElementById('sidenav-set-list');
-    const setSearchInput = document.getElementById('setSearchInput'); 
-    const setTitleInput = document.getElementById('setTitleInput');
+    // Pinpoint.js (After)
+const setSearchInput = document.getElementById('setSearchInput');
+const setFilterSelect = document.getElementById('setFilterSelect'); // ▼▼▼ ADD THIS LINE ▼▼▼
+const setTitleInput = document.getElementById('setTitleInput');
     const setDescriptionInput = document.getElementById('setDescriptionInput');
     // --- DOM Element References for Display View ---
     const photoContainer = document.getElementById('photoContainer');
@@ -81,6 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
     // --- Functions ---
+    function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
    const addButtonsToHeader = () => {
         const saveButtonText = isEditMode ? 'Update Set' : 'Save Set';
         headerActions.innerHTML = `
@@ -112,27 +123,26 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const resetCreationForm = () => {
-        labels = [];
-        imageFile = null;
-        isEditMode = false;
-        editingSet = null;
+    labels = [];
+    imageFile = null;
+    isEditMode = false;
+    editingSet = null;
+    publicToggle.checked = false; // ▼▼▼ ADD THIS LINE ▼▼▼
 
-        choiceInput.value = '';
-        addedChoicesList.innerHTML = '';
-        imagePreviewContainer.innerHTML = '';
-        imageUploadInput.value = '';
+    choiceInput.value = '';
+    addedChoicesList.innerHTML = '';
+    imagePreviewContainer.innerHTML = '';
+    imageUploadInput.value = '';
     setTitleInput.value = '';
     setDescriptionInput.value = '';
-    const existingCover = imagePreviewContainer.querySelector('.cover-box');
     coverBoxes = []; // Clear the array
-renderCoverBoxes(); // Clear the DOM
-    addCoverBtn.innerHTML = '<i class="fa-solid fa-object-group"></i>'; // Corrected icon
-    addCoverBtn.disabled = true; // Add this line
-   
+    renderCoverBoxes(); // Clear the DOM
+    addCoverBtn.disabled = true;
+
     console.log("Form reset, cover button disabled and cover hidden.");
 
     imagePreviewContainer.querySelectorAll('.pinpoint-marker').forEach(pin => pin.remove());
-    };
+};
         const resetDisplayView = () => {
         // Reset titles and descriptions
         pageTitle.textContent = 'Pinpoint';
@@ -447,70 +457,70 @@ const makeBoxInteractive = (box) => {
         renderLabelsAndPins(newLabel.id);
     };
 
-    const saveSetToFirebase = async () => {
-        if (!currentUser || !saveSetBtn) { return; }
+    // Pinpoint.js (After)
 
-        const title = setTitleInput.value.trim();
-        const description = setDescriptionInput.value.trim();
+const saveSetToFirebase = async () => {
+    if (!currentUser || !saveSetBtn) { return; }
 
-        if (!title || !imageFile || labels.length === 0) {
-            showCustomAlert('Incomplete', 'Please ensure you have a title, an image, and at least one label.');
-            return;
+    const title = setTitleInput.value.trim();
+    const description = setDescriptionInput.value.trim();
+
+    if (!title || !imageFile || labels.length === 0) {
+        showCustomAlert('Incomplete', 'Please ensure you have a title, an image, and at least one label.');
+        return;
+    }
+
+    saveSetBtn.disabled = true;
+    saveSetBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${isEditMode ? 'Updating...' : 'Saving...'}`;
+
+    try {
+        let imageUrl = isEditMode ? editingSet.imageUrl : '';
+
+        // Only upload a new image if the user has selected a new one
+        if (imageFile && imageFile.name !== 'existing') {
+            const filePath = `pinpoint_images/${currentUser.uid}/${Date.now()}_${imageFile.name}`;
+            const fileRef = ref(storage, filePath);
+            await uploadBytes(fileRef, imageFile);
+            imageUrl = await getDownloadURL(fileRef);
         }
 
-        saveSetBtn.disabled = true;
-        saveSetBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${isEditMode ? 'Updating...' : 'Saving...'}`;
+        // ▼▼▼ CHANGE #1: Read the state of the toggle switch ▼▼▼
+        const isPublic = publicToggle.checked;
 
-        try {
-            let imageUrl = isEditMode ? editingSet.imageUrl : '';
+        const setData = {
+            title: title,
+            description: description,
+            imageUrl: imageUrl,
+            labels: labels,
+            public: isPublic // ▼▼▼ CHANGE #2: Add the 'public' field to your data object ▼▼▼
+        };
 
-            // Only upload a new image if the user has selected a new one
-            if (imageFile && imageFile.name !== 'existing') {
-                const filePath = `pinpoint_images/${currentUser.uid}/${Date.now()}_${imageFile.name}`;
-                const fileRef = ref(storage, filePath);
-                await uploadBytes(fileRef, imageFile);
-                imageUrl = await getDownloadURL(fileRef);
-            }
-
-            const coverBoxElement = imagePreviewContainer.querySelector('.cover-box');
-            
-            const setData = {
-                title: title,
-                description: description,
-                imageUrl: imageUrl,
-                labels: labels,
-            };
-
-            
-            if (coverBoxElement) {
-                const image = imagePreviewContainer.querySelector('img');
-                // Save the entire array of cover boxes
-if (coverBoxes.length > 0) {
-    setData.coverBoxes = coverBoxes; // Note the 's' - it's plural now
-    console.log("Saving Cover Boxes Data:", coverBoxes);
-}
-            }
-
-            if (isEditMode) {
-                // Update existing document
-                const setRef = doc(db, 'pinpoint', currentUser.email, 'sets', editingSet.id);
-                await updateDoc(setRef, setData);
-                showCustomAlert('Success', 'Set updated successfully!', 'success');
-            } else {
-                // Create new document
-                setData.createdAt = serverTimestamp();
-                const setsCollectionRef = collection(db, 'pinpoint', currentUser.email, 'sets');
-                await addDoc(setsCollectionRef, setData);
-                showCustomAlert('Success', 'Set saved successfully!', 'success');
-            }
-
-            showDisplayView();
-
-        } catch (error) {
-            console.error("Error saving set: ", error);
-            alert(`Failed to save set. Error: ${error.message}`);
+        // Save the entire array of cover boxes if they exist
+        if (coverBoxes.length > 0) {
+            setData.coverBoxes = coverBoxes;
+            console.log("Saving Cover Boxes Data:", coverBoxes);
         }
-    };
+
+        if (isEditMode) {
+            // Update existing document
+            const setRef = doc(db, 'pinpoint', currentUser.email, 'sets', editingSet.id);
+            await updateDoc(setRef, setData);
+            showCustomAlert('Success', 'Set updated successfully!', 'success');
+        } else {
+            // Create new document
+            setData.createdAt = serverTimestamp();
+            const setsCollectionRef = collection(db, 'pinpoint', currentUser.email, 'sets');
+            await addDoc(setsCollectionRef, setData);
+            showCustomAlert('Success', 'Set saved successfully!', 'success');
+        }
+
+        showDisplayView();
+
+    } catch (error) {
+        console.error("Error saving set: ", error);
+        alert(`Failed to save set. Error: ${error.message}`);
+    }
+};
 const openSidenav = () => {
         setsSidenav.style.width = "400px";
         loadPinpointSets(); // Load sets every time the sidenav is opened
@@ -520,249 +530,257 @@ const openSidenav = () => {
         setsSidenav.style.width = "0";
     };
 
-    const loadPinpointSets = async (searchTerm = '') => {
-        if (!currentUser) {
-            sidenavSetList.innerHTML = "<p>Please log in to see your sets.</p>";
+// Pinpoint.js (After)
+const loadPinpointSets = async () => {
+    if (!currentUser) {
+        sidenavSetList.innerHTML = "<p>Please log in to see your sets.</p>";
+        return;
+    }
+
+    const searchTerm = setSearchInput.value.toLowerCase().trim();
+    const filterValue = setFilterSelect.value;
+    sidenavSetList.innerHTML = "<p>Loading sets...</p>";
+
+    let setsQuery;
+
+    try {
+        if (filterValue === 'my-sets') {
+            setsQuery = collection(db, 'pinpoint', currentUser.email, 'sets');
+        } else {
+            const setsCollectionGroup = collectionGroup(db, 'sets');
+            setsQuery = query(setsCollectionGroup, where('public', '==', true));
+        }
+
+        const querySnapshot = await getDocs(setsQuery);
+
+        let setsToShow = [];
+        for (const setDoc of querySnapshot.docs) {
+            const ownerEmail = setDoc.ref.parent.parent.id;
+            let ownerName = ownerEmail;
+            let ownerBadges = ''; // ▼▼▼ CHANGE #1: Initialize an empty string for badges ▼▼▼
+
+            // Fetch username and roles if it's a public set
+            if (filterValue === 'public-sets') {
+                // Get username
+                const usernameDoc = await getDoc(doc(db, "usernames", ownerEmail));
+                if (usernameDoc.exists() && usernameDoc.data().username) {
+                    ownerName = usernameDoc.data().username;
+                }
+
+                // ▼▼▼ CHANGE #2: Get roles and build the badge HTML ▼▼▼
+                const rolesDoc = await getDoc(doc(db, "approved_emails", ownerEmail));
+                if (rolesDoc.exists()) {
+                    const roleData = (rolesDoc.data().role || "").toLowerCase();
+                    if (roleData.includes('verified')) {
+                        ownerBadges += `<img src="verified.svg" class="owner-badge" alt="Verified">`;
+                    }
+                    if (roleData.includes('first')) {
+                        ownerBadges += `<img src="first.png" class="owner-badge" alt="First User">`;
+                    }
+                    if (roleData.includes('plus')) {
+                        ownerBadges += `<img src="plass.png" class="owner-badge" alt="Plus Member">`;
+                    }
+                }
+            }
+            // ▼▼▼ CHANGE #3: Add ownerBadges to the object being pushed ▼▼▼
+            setsToShow.push({ id: setDoc.id, owner: ownerEmail, ownerName: ownerName, ownerBadges: ownerBadges, ...setDoc.data() });
+        }
+
+        const filteredSets = setsToShow.filter(set => 
+    set.title.toLowerCase().includes(searchTerm) || 
+    (set.ownerName && set.ownerName.toLowerCase().includes(searchTerm))
+);
+
+        if (filteredSets.length === 0) {
+            const message = searchTerm ?
+                `No sets found matching "${searchTerm}".` :
+                (filterValue === 'my-sets' ? "You haven't created any sets yet." : "No public sets found.");
+            sidenavSetList.innerHTML = `<p>${message}</p>`;
             return;
         }
 
-        sidenavSetList.innerHTML = "<p>Loading sets...</p>";
-        const userEmail = currentUser.email;
-        const setsCollectionRef = collection(db, 'pinpoint', userEmail, 'sets');
-        
-        try {
-            const querySnapshot = await getDocs(setsCollectionRef);
-            if (querySnapshot.empty) {
-                sidenavSetList.innerHTML = "<p>You haven't created any sets yet.</p>";
-                return;
-            }
+        sidenavSetList.innerHTML = '';
 
-            sidenavSetList.innerHTML = ''; // Clear the list
-            let setsFound = 0;
-            const normalizedSearchTerm = searchTerm.toLowerCase().trim();
+        filteredSets.forEach((set, index) => {
+            const setElement = document.createElement('div');
+            setElement.className = 'sidenav-item';
+            setElement.style.animationDelay = `${index * 0.07}s`;
 
-            querySnapshot.forEach((docSnapshot) => {
-                const set = docSnapshot.data();
-                const setId = docSnapshot.id;
-                
-                if (set.title.toLowerCase().includes(normalizedSearchTerm)) {
-                    const setElement = document.createElement('div');
-                    setElement.className = 'sidenav-item';
-                    
-                    // ▼▼▼ ADD THIS LINE ▼▼▼
-                    setElement.style.animationDelay = `${setsFound * 0.07}s`;
+            const itemContent = document.createElement('div');
+            itemContent.className = 'sidenav-item-info';
+            
+            // ▼▼▼ CHANGE #4: Update the HTML to include the owner's name and their badges ▼▼▼
+            const ownerHtml = filterValue === 'public-sets' 
+                ? `<div class="sidenav-item-owner">by ${set.ownerName || 'Unknown'} ${set.ownerBadges || ''}</div>` 
+                : '';
 
-                    setsFound++;
-                    
-                    // Main content of the item
-                    const itemContent = document.createElement('div');
-                    itemContent.className = 'sidenav-item-info';
-                    itemContent.innerHTML = `
-                        <img src="${set.imageUrl}" alt="Set Thumbnail" class="sidenav-item-img">
-                        <div class="sidenav-item-text">
-                            <p class="sidenav-item-title">${set.title || 'Untitled Set'}</p>
-                        </div>
-                    `;
-                    itemContent.onclick = () => {
-                        displaySetInPlayMode(set);
-                        closeSidenav();
-                    };
-
-                    // Container for action buttons
-                    const itemActions = document.createElement('div');
-                    itemActions.className = 'sidenav-item-actions';
-
-                    // Edit Button
-                    const editBtn = document.createElement('button');
-                    editBtn.className = 'sidenav-action-btn edit-btn';
-                    editBtn.title = 'Edit Set';
-                    editBtn.innerHTML = '<i class="fa-solid fa-pencil"></i>';
-                    editBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        startEditMode(set, setId);
-                    };
-                    
-                    // Delete Button
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'sidenav-action-btn delete-btn';
-                    deleteBtn.title = 'Delete Set';
-                    deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-                    deleteBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        showConfirmModal(`Are you sure you want to permanently delete the set "${set.title}"?`, async () => {
-                            try {
-                                const setRef = doc(db, 'pinpoint', currentUser.email, 'sets', setId);
-                                await deleteDoc(setRef);
-                                loadPinpointSets(); 
-                            } catch (error) {
-                                console.error("Error deleting set: ", error);
-                                showCustomAlert('Deletion Failed', 'Could not delete the set.');
-                            }
-                        });
-                    };
-
-                    itemActions.appendChild(editBtn);
-                    itemActions.appendChild(deleteBtn);
-                    
-                    setElement.appendChild(itemContent);
-                    setElement.appendChild(itemActions);
-                    sidenavSetList.appendChild(setElement);
-                }
-            });
-
-            if (setsFound === 0 && querySnapshot.size > 0) {
-                sidenavSetList.innerHTML = `<p>No sets found matching "${searchTerm}".</p>`;
-            }
-        } catch (error) {
-            console.error("Error loading pinpoint sets: ", error);
-            sidenavSetList.innerHTML = "<p>Could not load sets.</p>";
-        }
-    };
-    const displaySetInPlayMode = (set) => {
-        currentSet = set;
-        // 1. Update Title and Description
-        pageTitle.textContent = set.title;
-        pageDescription.style.display = 'none'; // Hide the default description
-
-        if (set.description) {
-            displayDescriptionContainer.textContent = set.description;
-        } else {
-            displayDescriptionContainer.textContent = "No description provided.";
-        }
-        displayDescriptionContainer.style.display = 'block'; // Always show the container
-
-        // 2. Display Image and Pins
-        const img = new Image();
-        img.src = set.imageUrl;
-        photoContainer.innerHTML = ''; // Clear previous content
-        photoContainer.appendChild(img);
-
-        img.onload = () => {
-            const containerRect = photoContainer.getBoundingClientRect();
-            const imageRect = img.getBoundingClientRect();
-            const imageOffsetX = (containerRect.width - imageRect.width) / 2;
-            const imageOffsetY = (containerRect.height - imageRect.height) / 2;
-
-            // --- ADD THIS BLOCK TO RENDER THE COVER BOX ---
-            // RENDER MULTIPLE COVER BOXES
-if (set.coverBoxes && Array.isArray(set.coverBoxes)) {
-    set.coverBoxes.forEach(boxData => {
-        const coverBox = document.createElement('div');
-        coverBox.className = 'display-cover-box';
-        coverBox.style.left = `${imageOffsetX + (boxData.left / 100) * imageRect.width}px`;
-        coverBox.style.top = `${imageOffsetY + (boxData.top / 100) * imageRect.height}px`;
-        coverBox.style.width = `${(boxData.width / 100) * imageRect.width}px`;
-        coverBox.style.height = `${(boxData.height / 100) * imageRect.height}px`;
-        photoContainer.appendChild(coverBox);
-    });
-}
-
-            // --- CONSOLE LOGS FOR DEBUGGING ---
-            console.log(`--- DISPLAYING SET "${set.title}" ---`);
-            console.log(`Display Image size: W=${imageRect.width.toFixed(2)}, H=${imageRect.height.toFixed(2)}`);
-            // --- END CONSOLE LOGS ---
-
-            set.labels.forEach((label, index) => {
-                const pin = document.createElement('div');
-                pin.className = 'display-pin';
-                pin.textContent = index + 1;
-                pin.style.left = `${imageOffsetX + (label.x / 100) * imageRect.width}px`;
-                pin.style.top = `${imageOffsetY + (label.y / 100) * imageRect.height}px`;
-                photoContainer.appendChild(pin);
-
-                // --- CONSOLE LOGS FOR DEBUGGING ---
-                console.log(`Pin #${index + 1} LOADED relative to IMAGE:`);
-                console.log(`  - Loaded Percentage: X=${label.x.toFixed(2)}%, Y=${label.y.toFixed(2)}%`);
-                console.log(`  - Final Calculated Position (px): Left=${pin.style.left}, Top=${pin.style.top}`);
-                // --- END CONSOLE LOGS ---
-            });
-             console.log('------------------------------------');
-        };
-
-        // 3. Display Choices/Labels
-// 3. Display Choices/Labels in random order
-        choicesContainer.innerHTML = '<h3>Choices</h3>';
-        const choicesList = document.createElement('div');
-        choicesList.className = 'play-choices-list';
-
-        // Create a shuffled copy of the labels for display
-        const shuffledLabels = shuffleArray([...set.labels]);
-
-        shuffledLabels.forEach((label, index) => {
-            const choiceItem = document.createElement('div');
-            choiceItem.className = 'play-choice-item';
-
-            // Create a wrapper for the clickable label part
-            const labelWrapper = document.createElement('div');
-            labelWrapper.className = 'play-choice-label-wrapper';
-
-            const checkboxId = `choice-shuffled-${index}`;
-            labelWrapper.innerHTML = `
-                <input type="checkbox" id="${checkboxId}">
-                <span class="custom-checkbox">
-                    <i class="fa-solid fa-check"></i>
-                </span>
-                <label for="${checkboxId}">${label.text}</label>
+            itemContent.innerHTML = `
+                <img src="${set.imageUrl}" alt="Set Thumbnail" class="sidenav-item-img">
+                <div class="sidenav-item-text">
+                    <p class="sidenav-item-title">${set.title || 'Untitled Set'}</p>
+                    ${ownerHtml}
+                </div>
             `;
+            
+            itemContent.onclick = () => {
+                displaySetInPlayMode(set);
+                closeSidenav();
+            };
 
-            // Create the copy icon
-            const copyBtn = document.createElement('i');
-            copyBtn.className = 'fa-solid fa-copy copy-icon';
-            copyBtn.title = 'Copy Label';
+            const itemActions = document.createElement('div');
+            itemActions.className = 'sidenav-item-actions';
+            
+            if (filterValue === 'my-sets' && currentUser.email === set.owner) {
+                const editBtn = document.createElement('button');
+                editBtn.className = 'sidenav-action-btn edit-btn';
+                editBtn.title = 'Edit Set';
+                editBtn.innerHTML = '<i class="fa-solid fa-pencil"></i>';
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    startEditMode(set, set.id);
+                };
 
-            copyBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                
-                const textArea = document.createElement('textarea');
-                textArea.value = label.text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'sidenav-action-btn delete-btn';
+                deleteBtn.title = 'Delete Set';
+                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    showConfirmModal(`Are you sure you want to permanently delete the set "${set.title}"?`, async () => {
+                        try {
+                            const setRef = doc(db, 'pinpoint', set.owner, 'sets', set.id);
+                            await deleteDoc(setRef);
+                            loadPinpointSets();
+                        } catch (error) {
+                            console.error("Error deleting set: ", error);
+                            showCustomAlert('Deletion Failed', 'Could not delete the set.');
+                        }
+                    });
+                };
 
-                copyBtn.classList.remove('fa-copy');
-                copyBtn.classList.add('fa-check');
-                copyBtn.style.color = '#3a8a4d';
-                
-                setTimeout(() => {
-                    copyBtn.classList.remove('fa-check');
-                    copyBtn.classList.add('fa-copy');
-                    copyBtn.style.color = '';
-                }, 1500);
-            });
+                itemActions.appendChild(editBtn);
+                itemActions.appendChild(deleteBtn);
+            }
 
-            labelWrapper.addEventListener('click', (e) => {
-                if (e.target.tagName !== 'INPUT') {
-                    const checkbox = labelWrapper.querySelector('input[type="checkbox"]');
-                    checkbox.checked = !checkbox.checked;
-                }
-            });
-
-            choiceItem.appendChild(labelWrapper);
-            choiceItem.appendChild(copyBtn);
-            choicesList.appendChild(choiceItem);
+            setElement.appendChild(itemContent);
+            setElement.appendChild(itemActions);
+            sidenavSetList.appendChild(setElement);
         });
-        choicesContainer.appendChild(choicesList);
 
-        // 4. Create Answer Inputs and a new Submit Button
-        answerContainer.innerHTML = '<h3>Your Answers</h3>'; 
-        const answerWrapper = document.createElement('div');
-        answerWrapper.className = 'answer-wrapper';
-        set.labels.forEach((label, index) => {
-            const answerItem = document.createElement('div');
-            answerItem.className = 'answer-item';
-            answerItem.innerHTML = `<span class="answer-number">${index + 1}</span><input type="text" class="answer-field" placeholder="Enter label ${index + 1}">`;
-            answerWrapper.appendChild(answerItem);
-        });
-        answerContainer.appendChild(answerWrapper);
-        
-        const checkAnswersBtn = document.createElement('button');
-        checkAnswersBtn.id = 'checkAnswersBtn';
-        checkAnswersBtn.textContent = 'Check Answers';
-        
-        checkAnswersBtn.onclick = checkAnswers;
-        answerContainer.appendChild(checkAnswersBtn);
+    } catch (error) {
+        console.error("Error loading pinpoint sets: ", error);
+        sidenavSetList.innerHTML = "<p>Could not load sets. Check the developer console for an error message.</p>";
+    }
+};
+    // Pinpoint.js (After)
+
+const displaySetInPlayMode = (set) => {
+    currentSet = set;
+    // 1. Update Title and Description
+    pageTitle.textContent = set.title;
+    pageDescription.style.display = 'none'; // Hide the default description
+
+    if (set.description) {
+        displayDescriptionContainer.textContent = set.description;
+    } else {
+        displayDescriptionContainer.textContent = "No description provided.";
+    }
+    displayDescriptionContainer.style.display = 'block'; // Always show the container
+
+    // 2. Display Image
+    const img = new Image();
+    img.src = set.imageUrl;
+    photoContainer.innerHTML = ''; // Clear previous content
+    photoContainer.appendChild(img);
+
+    img.onload = () => {
+        // SLIGHT DELAY TO ALLOW FINAL RENDERING
+        setTimeout(() => repositionElements(set), 100); 
     };
+
+    // 3. Display Choices/Labels in random order
+    choicesContainer.innerHTML = '<h3>Choices</h3>';
+    const choicesList = document.createElement('div');
+    choicesList.className = 'play-choices-list';
+
+    // Create a shuffled copy of the labels for display
+    const shuffledLabels = shuffleArray([...set.labels]);
+
+    shuffledLabels.forEach((label, index) => {
+        const choiceItem = document.createElement('div');
+        choiceItem.className = 'play-choice-item';
+
+        // Create a wrapper for the clickable label part
+        const labelWrapper = document.createElement('div');
+        labelWrapper.className = 'play-choice-label-wrapper';
+
+        const checkboxId = `choice-shuffled-${index}`;
+        labelWrapper.innerHTML = `
+            <input type="checkbox" id="${checkboxId}">
+            <span class="custom-checkbox">
+                <i class="fa-solid fa-check"></i>
+            </span>
+            <label for="${checkboxId}">${label.text}</label>
+        `;
+
+        // Create the copy icon
+        const copyBtn = document.createElement('i');
+        copyBtn.className = 'fa-solid fa-copy copy-icon';
+        copyBtn.title = 'Copy Label';
+
+        copyBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            const textArea = document.createElement('textarea');
+            textArea.value = label.text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            copyBtn.classList.remove('fa-copy');
+            copyBtn.classList.add('fa-check');
+            copyBtn.style.color = '#3a8a4d';
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('fa-check');
+                copyBtn.classList.add('fa-copy');
+                copyBtn.style.color = '';
+            }, 1500);
+        });
+
+        labelWrapper.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                const checkbox = labelWrapper.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+            }
+        });
+
+        choiceItem.appendChild(labelWrapper);
+        choiceItem.appendChild(copyBtn);
+        choicesList.appendChild(choiceItem);
+    });
+    choicesContainer.appendChild(choicesList);
+
+    // 4. Create Answer Inputs and a new Submit Button
+    answerContainer.innerHTML = '<h3>Your Answers</h3>'; 
+    const answerWrapper = document.createElement('div');
+    answerWrapper.className = 'answer-wrapper';
+    set.labels.forEach((label, index) => {
+        const answerItem = document.createElement('div');
+        answerItem.className = 'answer-item';
+        answerItem.innerHTML = `<span class="answer-number">${index + 1}</span><input type="text" class="answer-field" placeholder="Enter label ${index + 1}">`;
+        answerWrapper.appendChild(answerItem);
+    });
+    answerContainer.appendChild(answerWrapper);
+    
+    const checkAnswersBtn = document.createElement('button');
+    checkAnswersBtn.id = 'checkAnswersBtn';
+    checkAnswersBtn.textContent = 'Check Answers';
+    
+    checkAnswersBtn.onclick = checkAnswers;
+    answerContainer.appendChild(checkAnswersBtn);
+};
     const showResultsModal = (score, total) => {
         const resultsModal = document.getElementById('resultsModal');
         const scoreText = document.getElementById('scoreText');
@@ -827,38 +845,34 @@ if (set.coverBoxes && Array.isArray(set.coverBoxes)) {
         confirmCancelBtn.onclick = close;
     };
     const startEditMode = (set, setId) => {
-        isEditMode = true;
-        editingSet = { ...set, id: setId }; // Store the set data and its ID
+    isEditMode = true;
+    editingSet = { ...set, id: setId }; // Store the set data and its ID
 
-        // Switch to the creation/edit view
-        resetDisplayView();
-        showCreationView();
-        closeSidenav();
+    // Switch to the creation/edit view
+    resetDisplayView();
+    showCreationView();
+    closeSidenav();
 
-        // Populate the form fields
-        setTitleInput.value = set.title;
-        setDescriptionInput.value = set.description;
-        
-        // Display the existing image
-        imagePreviewContainer.innerHTML = `<img src="${set.imageUrl}" alt="Image Preview">`;
-        
-        // IMPORTANT: Set the imageFile to a placeholder so the save function knows not to re-upload
-        imageFile = { name: 'existing' };
-    addCoverBtn.disabled = false; // Add this line
+    // Populate the form fields
+    setTitleInput.value = set.title;
+    setDescriptionInput.value = set.description;
+    publicToggle.checked = set.public || false; // ▼▼▼ ADD THIS LINE ▼▼▼
+    
+    // Display the existing image
+    imagePreviewContainer.innerHTML = `<img src="${set.imageUrl}" alt="Image Preview">`;
+    
+    // IMPORTANT: Set the imageFile to a placeholder so the save function knows not to re-upload
+    imageFile = { name: 'existing' };
+    addCoverBtn.disabled = false;
     console.log("Edit mode started, cover button enabled.");
 
     labels = JSON.parse(JSON.stringify(set.labels));
-     // --- ADD THIS BLOCK TO RE-CREATE THE COVER BOX IN EDIT MODE ---
-    // RE-CREATE MULTIPLE COVER BOXES IN EDIT MODE
-// RE-CREATE MULTIPLE COVER BOXES IN EDIT MODE
-if (set.coverBoxes && Array.isArray(set.coverBoxes)) {
-    // Load the saved boxes into the state array
-    coverBoxes = JSON.parse(JSON.stringify(set.coverBoxes));
-    // Render them
-    renderCoverBoxes();
-}
+    if (set.coverBoxes && Array.isArray(set.coverBoxes)) {
+        coverBoxes = JSON.parse(JSON.stringify(set.coverBoxes));
+        renderCoverBoxes();
+    }
     renderLabelsAndPins();
-    };
+};
 
     const checkAnswers = () => {
         if (!currentSet) return; // No set is loaded
@@ -901,6 +915,61 @@ if (set.coverBoxes && Array.isArray(set.coverBoxes)) {
         }
         return array;
     };
+    const repositionElements = (set) => {
+    if (!set) return;
+
+    // Clear existing pins and covers before redrawing
+    photoContainer.querySelectorAll('.display-pin, .display-cover-box').forEach(el => el.remove());
+
+    const img = photoContainer.querySelector('img');
+    if (!img) return;
+
+    const containerRect = photoContainer.getBoundingClientRect();
+    const imageRect = img.getBoundingClientRect();
+    const imageOffsetX = (containerRect.width - imageRect.width) / 2;
+    const imageOffsetY = (containerRect.height - imageRect.height) / 2;
+
+    console.log("--- REPOSITIONING ELEMENTS ---");
+    console.log(`Container Rect: W=${containerRect.width.toFixed(2)}, H=${containerRect.height.toFixed(2)}`);
+    console.log(`Image Rect: W=${imageRect.width.toFixed(2)}, H=${imageRect.height.toFixed(2)}`);
+    console.log(`Image Offset: X=${imageOffsetX.toFixed(2)}, Y=${imageOffsetY.toFixed(2)}`);
+
+    // Reposition Cover Boxes
+    if (set.coverBoxes && Array.isArray(set.coverBoxes)) {
+        set.coverBoxes.forEach(boxData => {
+            const coverBox = document.createElement('div');
+            coverBox.className = 'display-cover-box';
+            const leftPx = imageOffsetX + (boxData.left / 100) * imageRect.width;
+            const topPx = imageOffsetY + (boxData.top / 100) * imageRect.height;
+            const widthPx = (boxData.width / 100) * imageRect.width;
+            const heightPx = (boxData.height / 100) * imageRect.height;
+
+            coverBox.style.left = `${leftPx}px`;
+            coverBox.style.top = `${topPx}px`;
+            coverBox.style.width = `${widthPx}px`;
+            coverBox.style.height = `${heightPx}px`;
+            photoContainer.appendChild(coverBox);
+            
+            console.log(`Cover Box (ID: ${boxData.id}): Saved[${boxData.left.toFixed(2)}%, ${boxData.top.toFixed(2)}%] -> Calculated[${leftPx.toFixed(2)}px, ${topPx.toFixed(2)}px]`);
+        });
+    }
+
+    // Reposition Pins
+    set.labels.forEach((label, index) => {
+        const pin = document.createElement('div');
+        pin.className = 'display-pin';
+        pin.textContent = index + 1;
+        const leftPx = imageOffsetX + (label.x / 100) * imageRect.width;
+        const topPx = imageOffsetY + (label.y / 100) * imageRect.height;
+
+        pin.style.left = `${leftPx}px`;
+        pin.style.top = `${topPx}px`;
+        photoContainer.appendChild(pin);
+        
+        console.log(`Pin #${index + 1}: Saved[${label.x.toFixed(2)}%, ${label.y.toFixed(2)}%] -> Calculated[${leftPx.toFixed(2)}px, ${topPx.toFixed(2)}px]`);
+    });
+    console.log("--- REPOSITIONING COMPLETE ---");
+};
     // --- Event Listeners ---
     openCreationViewBtn.addEventListener('click', showCreationView);
 
@@ -952,7 +1021,51 @@ addCoverBtn.addEventListener('click', () => {
             closeHelpModal();
         }
     });
-    setSearchInput.addEventListener('input', () => {
-    loadPinpointSets(setSearchInput.value);
-});
+    setSearchInput.addEventListener('input', loadPinpointSets);
+setFilterSelect.addEventListener('change', loadPinpointSets);
+// --- Event Listeners ---
+// ... (your other event listeners)
+
+// ADD THIS NEW EVENT LISTENER AND FUNCTION
+const handlePasteImage = async () => {
+    try {
+        // Check for Clipboard API permission
+        const permission = await navigator.permissions.query({ name: 'clipboard-read' });
+        if (permission.state === 'denied') {
+            showCustomAlert('Permission Denied', 'Please allow clipboard access in your browser settings to use this feature.');
+            return;
+        }
+
+        // Read items from the clipboard
+        const clipboardItems = await navigator.clipboard.read();
+        for (const item of clipboardItems) {
+            // Find the first image item
+            const imageType = item.types.find(type => type.startsWith('image/'));
+            if (imageType) {
+                const blob = await item.getType(imageType);
+
+                // Convert the Blob to a File object
+                const pastedFile = new File([blob], `pasted-image-${Date.now()}.png`, { type: imageType });
+
+                // Use the existing logic to handle the file
+                imageFile = pastedFile;
+                displayImagePreview(pastedFile);
+                return; // Stop after pasting the first image
+            }
+        }
+        // If no image was found
+        showCustomAlert('No Image Found', 'Could not find a valid image in your clipboard.');
+    } catch (error) {
+        console.error('Error pasting image:', error);
+        showCustomAlert('Paste Error', 'Could not paste image. This feature may not be supported by your browser.');
+    }
+};
+
+pasteImageBtn.addEventListener('click', handlePasteImage);
+window.addEventListener('resize', debounce(() => {
+    // Only run if a set is loaded and the display view is visible
+    if (currentSet && !displayView.classList.contains('hidden')) {
+        repositionElements(currentSet);
+    }
+}, 250)); // 250ms delay after resizing stops
 });

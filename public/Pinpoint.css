@@ -282,10 +282,11 @@ body {
 /* New Modern Upload Button Styles */
 .upload-btn-wrapper {
     width: 100%;
-    max-width: 350px;
+   
 }
 
-#uploadImageBtn {
+#uploadImageBtn,
+#pasteImageBtn {
     width: 100%;
     background-color: #2a2a2a;
     color: #f0f0f0;
@@ -303,16 +304,19 @@ body {
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-#uploadImageBtn:hover {
+/* Apply the hover effect to both buttons */
+#uploadImageBtn:hover,
+#pasteImageBtn:hover {
     background-color: #333;
     border-color: #555;
     box-shadow: none; /* Ensure no shadow on hover */
 }
 
-#uploadImageBtn i {
+/* Style the icon for both buttons */
+#uploadImageBtn i,
+#pasteImageBtn i {
     color: #ffcf00;
 }
-
 
 
 .creation-title { margin: 0 0 10px 0; color: #ffcf00; font-size: 2.5rem; }
@@ -1268,14 +1272,22 @@ textarea.details-input {
     transform: translateY(0);
   }
 }
-/* New wrapper for both upload and cover buttons */
-.upload-actions-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    justify-content: center;
+
+
+.creation-controls-wrapper {
     width: 100%;
-    max-width: 450px; /* Adjust width to fit both buttons */
+    max-width: 650px;
+    display: flex;          /* Establishes the flex container */
+    align-items: center;    /* Vertically aligns all items in the middle */
+    justify-content: center;/* Horizontally centers the group of items */
+    gap: 15px;              /* Consistent spacing between items */
+}
+
+/* Make sure the main upload button wrapper is flexible */
+.upload-btn-wrapper {
+    flex-grow: 1; /* Allows this to take up remaining space */
+    display: flex;
+    gap: 15px;
 }
 
 /* Make the main upload button flexible */
@@ -1368,4 +1380,240 @@ textarea.details-input {
 
 .cover-box-delete-btn:hover {
     transform: scale(1.1);
+}
+/* Add this new rule */
+.upload-btn-wrapper {
+    flex-grow: 1;
+    display: flex; /* This is the key change */
+    gap: 15px;      /* Adds space between the buttons */
+}
+
+/* Also add this to make sure both buttons are equally sized */
+.upload-btn-wrapper .neumorphic-button {
+    flex: 1; /* Makes both buttons take up equal space */
+}
+/* Pinpoint.css */
+
+/* --- Public Toggle Switch Styles --- */
+.public-toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0; /* Prevents it from shrinking on smaller screens */
+}
+
+.toggle-label {
+    font-size: 14px;
+    color: #ccc;
+    cursor: pointer;
+    user-select: none; /* Prevents text selection on click */
+}
+
+/* The switch - a container for our slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider track */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    border: 1px solid #555;
+    transition: .4s;
+    border-radius: 28px;
+}
+
+/* The sliding knob */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+/* Style for the "ON" state */
+input:checked + .slider {
+    background-color: #ffcf00; /* Yellow when on */
+    border-color: #ffcf00;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+    background-color: #ffffff; /* Dark knob when on */
+}
+.sidenav-filter {
+    margin-top: 15px; /* Adds space below the search bar */
+}
+
+#setFilterSelect {
+    width: 100%;
+    padding: 10px 15px;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 1rem;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 10px;
+    color: white;
+    appearance: none; /* Removes default system appearance */
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: .65em auto;
+    cursor: pointer;
+}
+
+#setFilterSelect:focus {
+    outline: none;
+    border-color: #ffcf00;
+}
+/* Pinpoint.css (After) */
+/* This rule positions the owner name outside and to the right */
+.sidenav-item-actions .sidenav-item-owner {
+    font-size: 0.8rem;
+    color: #999;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+/* ▼▼▼ ADD THIS NEW RULE ▼▼▼ */
+/* This rule styles the owner name when it's under the title */
+.sidenav-item-text .sidenav-item-owner {
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 2px;
+    font-weight: normal;
+}
+/* Pinpoint.css */
+
+/* --- Sidenav Owner Name & Badges Styles --- */
+.sidenav-item-owner {
+    display: flex;       /* Use flexbox to align name and badges */
+    align-items: center; /* Vertically center the items */
+    gap: 4px;            /* Add a small space between items */
+    font-size: 0.8rem;
+    color: #999;
+    margin-top: 2px;
+    font-weight: normal;
+}
+
+.owner-badge {
+    height: 18px;        /* Set a consistent height for all badges */
+    width: auto;         /* Allow width to adjust automatically */
+    vertical-align: middle; /* Helps with alignment */
+}
+
+
+
+
+
+
+
+
+
+
+/* ======================================= */
+/* ▼▼▼ RESPONSIVE MEDIA QUERIES ▼▼▼ */
+/* ======================================= */
+
+/* --- For Smaller Screens (like tablets and phones) --- */
+@media (max-width: 1024px) {
+    
+    /* --- Main Display View --- */
+    .pinpoint-main-container {
+        padding: 20px; /* Reduce padding on smaller screens */
+    }
+
+    /* Stack the three main panels vertically */
+    .display-panel-wrapper {
+        flex-direction: column;
+        height: auto;
+    }
+
+    #photoContainer {
+        min-height: 350px; /* Reduce minimum height */
+    }
+
+    /* --- Creation View --- */
+    .creation-main {
+        flex-direction: column; /* Stack image and labels vertically */
+        overflow-y: auto; /* Allow the whole view to scroll */
+    }
+
+    .left-panel,
+    .right-panel {
+        width: 100%; /* Make both panels full-width */
+        height: auto;
+        padding: 20px;
+        border-left: none; /* Remove side border */
+        border-bottom: 1px solid #333; /* Add bottom border */
+    }
+
+    #imagePreviewContainer {
+        min-height: 40vh; /* Adjust height for vertical layout */
+    }
+
+    /* --- Header Adjustments --- */
+    .header-btn {
+        padding: 6px 14px;
+        font-size: 0.9rem;
+    }
+
+    .shop-title {
+        display: none; /* Hide "FlipCards." text to save space */
+    }
+}
+
+/* --- For Very Small Screens (like mobile phones) --- */
+@media (max-width: 600px) {
+    
+    /* --- Header --- */
+    .shop-header {
+        padding: 10px 15px;
+        grid-template-columns: 1fr auto; /* Two columns: left and right */
+    }
+
+    .header-center {
+        grid-column: 1 / -1; /* Make center buttons span full width */
+        order: 3; /* Move to the bottom row */
+        margin-top: 10px;
+    }
+
+    .back-button, .upgrade-button {
+        font-size: 14px;
+        padding: 6px 12px;
+    }
+
+    /* --- Main Content --- */
+    .page-title {
+        font-size: 2rem; /* Reduce title size */
+    }
+
+    /* Stack the "Pinpoint Sets" and "Create New" buttons */
+    .main-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
 }

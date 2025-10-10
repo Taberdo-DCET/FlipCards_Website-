@@ -78,14 +78,27 @@
             <!-- Left Panel (70%) for Image -->
             <div class="left-panel">
                 <h2 class="creation-title">Create New Pinpoint Set</h2>
-                <div class="upload-actions-wrapper">
+<div class="creation-controls-wrapper">
+    
+    
     <button id="addCoverBtn" class="icon-btn" title="Toggle Image Cover" disabled>
        <i class="fa-solid fa-object-group"></i>
     </button>
+
     <div class="upload-btn-wrapper">
         <button id="uploadImageBtn" class="neumorphic-button">
             <i class="fa-solid fa-upload"></i> Upload Image
         </button>
+         <button id="pasteImageBtn" class="neumorphic-button">
+            <i class="fa-solid fa-paste"></i> Paste Image
+        </button>
+    </div>
+    <div class="public-toggle-container">
+        <label class="switch">
+            <input type="checkbox" id="publicToggle">
+            <span class="slider"></span>
+        </label>
+        <label for="publicToggle" class="toggle-label">Make public</label>
     </div>
 </div>
                 <input type="file" id="imageUploadInput" accept="image/*" style="display: none;">
@@ -128,7 +141,13 @@
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
             <input type="text" id="setSearchInput" placeholder="Search sets...">
         </div>
-    </div>
+        <div class="sidenav-filter">
+            <select id="setFilterSelect">
+                <option value="my-sets" selected>My Pinpoint Sets</option>
+                <option value="public-sets">Public Pinpoint Sets</option>
+            </select>
+        </div>
+        </div>
     
     <div id="sidenav-set-list" class="sidenav-body">
         <p>Loading sets...</p>

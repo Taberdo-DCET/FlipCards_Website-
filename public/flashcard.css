@@ -450,12 +450,20 @@ input:checked + .slider:before {
   font-size: 1.2rem;
   font-family: sans-serif;
   min-width: 80px;
-}.nav-btn i {
+}
+/* flashcard.css (After) */
+.nav-btn i {
   position: relative;
   /* Adjust pixels to nudge the icon into perfect center */
   top: 1px;
   left: 2px;
 }
+
+/* ▼▼▼ ADD THIS NEW RULE ▼▼▼ */
+.nav-btn .fa-shuffle {
+  left: 0; /* Resets the horizontal nudge for this specific icon */
+}
+/* ▲▲▲ END OF NEW RULE ▲▲▲ */
 /* This rule centers the new face icons perfectly */
 .nav-btn .fa-face-frown,
 .nav-btn .fa-face-smile {
@@ -669,9 +677,21 @@ input:checked + .slider:before {
   border-top-color: #ffcf00;
 }
 
+/* flashcard.css (After) */
+
+/* Make the alert content box a flex container */
+#customAlertModal .custom-alert-content {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;    /* Center items horizontally */
+    justify-content: center;/* Center items vertically */
+    padding: 25px 30px 30px; /* Adjust padding for better spacing */
+}
+
+/* Style the button and its container */
 #customAlertModal .neumorphic-button {
     min-width: 100px;
-    margin-top: 20px;
+    margin-top: 20px; /* Space between the message and the button */
 }
 /* --- Exit Review Button --- */
 .exit-review-btn {

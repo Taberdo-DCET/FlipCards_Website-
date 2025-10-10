@@ -456,6 +456,15 @@ window.reviewSet = async function (key) {
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
+    const savedFilter = localStorage.getItem('folderFilterValue');
+const savedSort = localStorage.getItem('folderSortValue');
+
+if (filterSelect && savedFilter) {
+  filterSelect.value = savedFilter;
+}
+if (sortSelect && savedSort) {
+  sortSelect.value = savedSort;
+}
     await fetchUserLikes(user);
     renderFilteredFolders(user);
   }
@@ -466,10 +475,12 @@ searchInput?.addEventListener("input", () => {
   renderFilteredFolders(auth.currentUser);
 });
 filterSelect?.addEventListener("change", () => {
+  localStorage.setItem('folderFilterValue', filterSelect.value); // Save the selection
   currentPage = 1; // Reset to the first page
   renderFilteredFolders(auth.currentUser);
 });
 sortSelect?.addEventListener("change", () => {
+  localStorage.setItem('folderSortValue', sortSelect.value); // Save the selection
   currentPage = 1; // Reset to the first page on sort
   renderFilteredFolders(auth.currentUser);
 });
