@@ -416,15 +416,22 @@ body.incorrect-flash { background-color: #82000b; }
 .meta-border { width: 1px; height: 20px; background-color: #444; }
 
 .set-details {
-  max-width: 700px;
-  margin: 0 auto 30px auto;
+  max-width: 700px; /* This is the fixed maximum width */
+  width: 100%;      /* This tells it to take up all available space up to the max-width */
+  margin: 0 auto 30px auto; /* This centers the container */
   text-align: left;
 }
 .title-row {
   display: flex;
   align-items: center;
+  justify-content: center; /* Add this line */
   gap: 10px;
   margin-bottom: 15px;
+}
+.title-and-label {
+  display: flex;
+  align-items: baseline; /* Aligns the text along their baselines */
+  gap: 10px;
 }
 .title-label { font-size: 1.2rem; color: #aaa; }
 .page-title { font-size: 2.2rem; margin: 0; word-break: break-word; }
@@ -436,6 +443,7 @@ body.incorrect-flash { background-color: #82000b; }
   font-size: 15px;
   color: #ddd;
   line-height: 1.6;
+  
 }
 /* ▼▼▼ ADD THIS NEW RULE ▼▼▼ */
 .blitz-image {

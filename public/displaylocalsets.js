@@ -209,6 +209,7 @@ const setsPerPage = 8;
 
 async function renderFilteredFolders(user) {
   if (!container) return;
+  localStorage.removeItem("reviewingSet");
   showLoader(500);
   container.innerHTML = "";
 

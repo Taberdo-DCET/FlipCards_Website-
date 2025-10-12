@@ -9,6 +9,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
     <!-- Link to Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
+     crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Header -->
@@ -31,21 +33,28 @@
     <img src="beta.png" alt="Beta Logo" class="beta-logo">
 </div>
     <p class="page-description">
-        Instantly turn your PDF documents into a complete set of flashcards. Upload your file to get started.
-    </p>
+    Instantly turn your PDF and PowerPoint documents into a complete set of flashcards. Upload your file to get started.
+</p>
 
     <!-- File Upload Section -->
     <div class="action-buttons-container">
-        <input type="file" id="fileUploadInput" accept=".pdf" class="hidden">
-        <button id="uploadBtn" class="modern-button">
-            <i class="fa-solid fa-upload"></i>
-            Upload File
-        </button>
-        <button id="addSetBtn" class="modern-button hidden">
-            <i class="fa-solid fa-layer-group"></i>
-            Add this as Flashcard Set
-        </button>
-    </div>
+    <input type="file" id="fileUploadInput" accept=".pdf, .pptx" class="hidden">
+
+    <button id="uploadPdfBtn" class="modern-button">
+        <i class="fa-solid fa-file-pdf"></i>
+        Upload PDF
+    </button>
+
+    <button id="uploadPptxBtn" class="modern-button">
+        <i class="fa-solid fa-file-powerpoint"></i>
+        Upload PPTX
+    </button>
+
+    <button id="addSetBtn" class="modern-button hidden">
+        <i class="fa-solid fa-layer-group"></i>
+        Add this as Flashcard Set
+    </button>
+</div>
 
     <div id="usageTracker" class="usage-tracker hidden">
         <i id="usageInfoBtn" class="fa-solid fa-circle-info usage-info-icon"></i>

@@ -1,13 +1,20 @@
 {
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
+    "busboy": "^1.6.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
+    "firebase-admin": "^13.5.0",
+    "firebase-functions": "^6.5.0",
     "jszip": "^3.10.1",
+    "mammoth": "^1.11.0",
     "mongodb": "^6.17.0",
     "multer": "^2.0.1",
     "node-fetch": "^3.3.2",
-    "pptx-parser": "^1.1.7-beta.9",
+    "node-pptx-parser": "^1.0.1",
+    "pdf-parse": "^2.2.6",
     "pptx2json": "^0.0.10"
   },
   "scripts": {

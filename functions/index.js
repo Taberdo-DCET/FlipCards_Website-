@@ -6,63 +6,41 @@ const admin = require("firebase-admin");
 
 // Google Generative AI and file processing libraries
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-
 const pdf = require("pdf-parse");
+const officeParser = require("officeparser"); // 👈 Use officeparser
 const Busboy = require("busboy");
 const cors = require("cors")({ origin: true });
 
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 
-// Define a secret named GEMINI_API_KEY (value comes from Secret Manager)
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
 
 // ===== INITIALIZATION =====
-// Initialize Firebase Admin SDK to manage users
 admin.initializeApp();
 
-// Initialize the Gemini AI Client with the secure key from Firebase config
-
-
-
 // ===== CLOUD FUNCTIONS =====
-
-/**
- * An HTTP function to generate flashcards from an uploaded PDF.
- * Triggered by a POST request from your website.
- */
 exports.generateFlashcards = onRequest(
-  { region: "us-central1", timeoutSeconds: 300, memory: "512Mi", secrets: [GEMINI_API_KEY] },
+  { region: "us-central1", timeoutSeconds: 300, memory: "1Gi", secrets: [GEMINI_API_KEY] },
   async (req, res) => {
     cors(req, res, async () => {
       if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
 
       const ct = (req.headers["content-type"] || "").toLowerCase();
-
-      // Simple JSON ping
-      if (ct.includes("application/json")) {
-        return res.status(200).json({
-          ok: true,
-          note: "Use multipart/form-data with a 'file' field to upload a PDF."
-        });
-      }
-
-      // Require multipart for uploads
       if (!ct.includes("multipart/form-data")) {
         return res.status(400).json({ message: "Expected multipart/form-data with a 'file' field." });
       }
 
-      // -------- Gemini init via Secret Manager (v2) --------
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
       const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-
-
-      // -------- Your existing Busboy + PDF logic --------
       const busboy = Busboy({ headers: req.headers });
       let fileBuffer = null;
+      let fileMimeType = null;
 
-      busboy.on("file", (fieldname, file) => {
+      busboy.on("file", (fieldname, file, info) => {
+        const { mimeType } = info;
+        fileMimeType = mimeType;
         const chunks = [];
         file.on("data", (c) => chunks.push(c));
         file.on("end", () => { fileBuffer = Buffer.concat(chunks); });
@@ -76,32 +54,41 @@ exports.generateFlashcards = onRequest(
       busboy.on("finish", async () => {
         try {
           if (!fileBuffer) return res.status(400).json({ message: "No file uploaded." });
+          
+          let documentText = "";
+          const basePrompt = `You are an expert study assistant. Convert the provided content into a JSON array of flashcards. Each object must have "term" and "definition". Respond ONLY with raw JSON.`;
 
-          const data = await pdf(fileBuffer);
-          const documentText = data.text || "";
-          if (!documentText.trim()) {
-            return res.status(500).json({ message: "PDF parsed but no text found." });
+          switch (fileMimeType) {
+            case "application/pdf":
+              const pdfData = await pdf(fileBuffer);
+              documentText = pdfData.text || "";
+              break;
+
+            case "application/vnd.openxmlformats-officedocument.presentationml.presentation": // .pptx
+              // ✅ THIS IS THE FIX: Simpler parsing directly from the buffer
+              documentText = await officeParser.parseOfficeAsync(fileBuffer);
+              break;
+
+            default:
+              return res.status(400).json({ message: `Unsupported file type: ${fileMimeType}` });
           }
 
-          const prompt = `
-            You are an expert study assistant.
-            Convert the text below into a JSON array of flashcards.
-            Each object must have "term" and "definition".
-            Respond ONLY with raw JSON.
-            ---
-            ${documentText}
-          `;
+          if (!documentText.trim()) {
+            throw new Error("Parsed document but no text was found.");
+          }
 
-          const result = await model.generateContent(prompt);
+          const promptParts = [basePrompt, "---", documentText];
+          const result = await model.generateContent(promptParts);
           const aiText = result.response?.text?.() || "";
 
-          // Clean + parse
           let cleaned = aiText.replace(/```json/gi, "").replace(/```/g, "").trim();
-          const i1 = cleaned.indexOf("["); const i2 = cleaned.lastIndexOf("]");
+          const i1 = cleaned.indexOf("["); 
+          const i2 = cleaned.lastIndexOf("]");
           if (i1 !== -1 && i2 !== -1) cleaned = cleaned.slice(i1, i2 + 1);
 
           const flashcards = JSON.parse(cleaned);
           return res.status(200).json(flashcards);
+
         } catch (err) {
           console.error("Process error:", err);
           return res.status(500).json({ message: "Failed to generate flashcards.", error: String(err?.message || err) });

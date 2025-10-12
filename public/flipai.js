@@ -7,7 +7,8 @@ console.log("Firebase modules imported.");
 
 document.addEventListener("DOMContentLoaded", () => {
     // DOM Elements
-    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadPdfBtn = document.getElementById('uploadPdfBtn');
+const uploadPptxBtn = document.getElementById('uploadPptxBtn');
     const fileUploadInput = document.getElementById('fileUploadInput');
     const flashcardsContainer = document.getElementById('flashcardsContainer');
     const usageTracker = document.getElementById('usageTracker');
@@ -115,9 +116,19 @@ async function getUserRole() {
         }
     });
     // --- Main Functionality ---
-    uploadBtn.addEventListener('click', () => {
-        fileUploadInput.click();
-    });
+    // When the PDF button is clicked...
+uploadPdfBtn.addEventListener('click', () => {
+    // Set the file input to only accept PDFs
+    fileUploadInput.accept = '.pdf';
+    fileUploadInput.click(); // Open the file dialog
+});
+
+// When the PPTX button is clicked...
+uploadPptxBtn.addEventListener('click', () => {
+    // Set the file input to only accept PPTX files
+    fileUploadInput.accept = '.pptx';
+    fileUploadInput.click(); // Open the file dialog
+});
 
     fileUploadInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
@@ -130,67 +141,70 @@ async function getUserRole() {
     });
 
 async function processFile(file) {
-    const role = await getUserRole(); // Use await here
+    // 🪵 LOG 1: Log file details when processing starts.
+    console.log(`[CLIENT] Starting to process file: ${file.name}, Type: ${file.type}, Size: ${file.size} bytes`);
+
+    const role = await getUserRole(); 
     const maxUsage = USAGE_LIMITS[role] || 3;
     console.log(`Processing file. User role: '${role}', Max Usage: ${maxUsage}`);
-        const usageData = await getUsageData();
-        if (usageData.count >= maxUsage) {
-            showCustomAlert('Daily Limit Reached', `You have used all your generations for today. Your limit will reset.`);
-            return;
-        }
-        // 1. Clear previous results and show loader
-        flashcardsContainer.innerHTML = '';
-        // Show loader inside the container
-        flashcardsContainer.innerHTML = `
-            <div class="loader-container">
-                <div class="loader"></div>
-                <p>Loading, please don't turn off your device...</p>
-            </div>
-        `;
 
-        // We use FormData to easily send the file to our backend
-        const formData = new FormData();
-        formData.append('file', file);
-
-
-        try {
-            // 2. Send the file to YOUR backend server endpoint
-            //    This URL ('/generate-flashcards') is a placeholder. 
-            //    You will define this endpoint in your server code.
-            const response = await fetch('https://generateflashcards-zpanpdg2va-uc.a.run.app', {
-
-                method: 'POST',
-                body: formData, // Send the file
-            });
-
-            if (!response.ok) {
-                // If the server responded with an error (e.g., 400, 500)
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'An error occurred on the server.');
-            }
-
-            // 3. Get the real flashcard data from your backend's response
-            const flashcards = await response.json();
-            
-            if (flashcards && flashcards.length > 0) {
-                 await displayFlashcards(flashcards); // <-- Add await
-                 showCustomAlert('Success!', `${flashcards.length} flashcards were created.`, 'success');
-            } else {
-                throw new Error('No flashcards were generated.');
-            }
-
-        } catch (error) {
-            console.error('Error processing file:', error);
-            showCustomAlert('Processing Failed', error.message);
-        } finally {
-            // 4. Hide loader and reset input regardless of outcome
-            // If there's an error, the container might still show the loader. Clear it.
-            if (flashcardsContainer.querySelector('.loader-container')) {
-                flashcardsContainer.innerHTML = '';
-            }
-            fileUploadInput.value = '';
-        }
+    const usageData = await getUsageData();
+    if (usageData.count >= maxUsage) {
+        showCustomAlert('Daily Limit Reached', `You have used all your generations for today. Your limit will reset.`);
+        return;
     }
+
+    flashcardsContainer.innerHTML = `
+        <div class="loader-container">
+            <div class="loader"></div>
+            <p>Loading, please don't turn off your device...</p>
+        </div>
+    `;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const CLOUD_FUNCTION_URL = 'https://generateflashcards-zpanpdg2va-uc.a.run.app';
+
+    try {
+        // 🪵 LOG 2: Log right before sending the request.
+        console.log("[CLIENT] Sending file to Cloud Function at:", CLOUD_FUNCTION_URL);
+
+        const response = await fetch(CLOUD_FUNCTION_URL, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            // 🪵 LOG 3: Log the specific error from the server.
+            console.error("[CLIENT] Server responded with an error.", { 
+                status: response.status, 
+                body: errorData 
+            });
+            throw new Error(errorData.message || 'An error occurred on the server.');
+        }
+
+        const flashcards = await response.json();
+
+        if (flashcards && flashcards.length > 0) {
+             await displayFlashcards(flashcards); 
+             showCustomAlert('Success!', `${flashcards.length} flashcards were created.`, 'success');
+        } else {
+            throw new Error('No flashcards were generated.');
+        }
+
+    } catch (error) {
+        // 🪵 LOG 4: Log the final caught error.
+        console.error('[CLIENT] Detailed error in processFile:', error);
+        showCustomAlert('Processing Failed', error.message);
+    } finally {
+        if (flashcardsContainer.querySelector('.loader-container')) {
+            flashcardsContainer.innerHTML = '';
+        }
+        fileUploadInput.value = '';
+    }
+}
 
     
     async function displayFlashcards(flashcards) { // <-- Add async
