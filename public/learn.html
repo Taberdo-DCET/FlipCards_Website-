@@ -64,7 +64,15 @@
     <button class="neumorphic-button" onclick="navigateToMode('defidrop.html')"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="m19 12-7-7"></path>
 </svg>DefiDrop</button>
 </div>
-
+<div class="shortcut-bar">
+    <i class="fa-solid fa-keyboard"></i>
+    <span>Shortcuts: Press</span>
+    <kbd class="shortcut-key">Q</kbd>
+    <kbd class="shortcut-key">W</kbd>
+    <kbd class="shortcut-key">E</kbd>
+    <kbd class="shortcut-key">R</kbd>
+    <span>to select an answer.</span>
+</div>
 <div class="definition-row">
         <div class="definition-box" id="learnDefinition">
             Loading definition...
@@ -332,6 +340,32 @@ document.getElementById("prevBtn").addEventListener("click", () => {
         window.location.href = modeUrl;
     }
    window.navigateToMode = navigateToMode; // <<< --- ADD THIS LINE ---
+    document.addEventListener("keydown", (event) => {
+        // Do nothing if the user is typing in an input field
+        if (document.activeElement.tagName === "INPUT") return;
+        
+        const choices = document.querySelectorAll('.choice');
+        // Do nothing if there are no choices or if they are already disabled
+        if (choices.length === 0 || choices[0].classList.contains('disabled')) return;
+
+        // Prevent default browser actions for these keys
+        event.preventDefault();
+
+        switch (event.key.toLowerCase()) {
+          case 'q':
+            choices[0]?.click();
+            break;
+          case 'w':
+            choices[1]?.click();
+            break;
+          case 'e':
+            choices[2]?.click();
+            break;
+          case 'r':
+            choices[3]?.click();
+            break;
+        }
+      });
 </script>
 
 <script>

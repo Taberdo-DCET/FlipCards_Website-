@@ -57,7 +57,14 @@
             <button class="neumorphic-button" onclick="location.href='match.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M10 7V5.5a1.5 1.5 0 0 1 3 0V7"></path><path d="M14 17v1.5a1.5 1.5 0 0 1-3 0V17"></path><path d="M7 10H5.5a1.5 1.5 0 0 0 0 3H7"></path><path d="M17 14h1.5a1.5 1.5 0 0 0 0-3H17"></path></svg>Match</button>
             <button class="neumorphic-button" onclick="location.href='defidrop.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="m19 12-7-7"></path></svg>DefiDrop</button>
         </div>
-
+<div class="shortcut-bar">
+    <i class="fa-solid fa-keyboard"></i>
+    <span>Use </span>
+    <kbd class="shortcut-key">←</kbd>
+    <span> for False and </span>
+    <kbd class="shortcut-key">→</kbd>
+    <span> for True.</span>
+</div>
 <div id="startScreen" class="custom-modal">
     <div class="modal-content success">
         <div class="modal-message">
@@ -83,8 +90,8 @@
                     </div>
             </div>
             <div class="blitz-buttons">
-    <button id="trueBtn" class="blitz-btn true-btn"><i class="fas fa-check"></i> True</button>
     <button id="falseBtn" class="blitz-btn false-btn"><i class="fas fa-times"></i> False</button>
+    <button id="trueBtn" class="blitz-btn true-btn"><i class="fas fa-check"></i> True</button>
 </div>
         </div>
         
@@ -371,6 +378,18 @@
     retryBtn.addEventListener('click', startGame);
     trueBtn.addEventListener('click', () => checkAnswer(true));
     falseBtn.addEventListener('click', () => checkAnswer(false));
+      document.addEventListener('keydown', (event) => {
+    // Only trigger shortcuts if the game is active
+    if (!gameContainer.classList.contains('hidden')) {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault(); // Prevent browser from going back
+        falseBtn.click();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        trueBtn.click();
+      }
+    }
+  });
 </script>
 <script src="protect.js"></script>
 <script type="module" src="presence.js"></script>

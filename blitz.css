@@ -77,7 +77,7 @@ body.incorrect-flash { background-color: #82000b; }
 }
 
 /* --- Mode Buttons --- */
-.button-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; }
+.button-container { display: flex; justify-content: center; gap: 15px; margin: -10px auto 20px auto; }
 .neumorphic-button {
   flex: 1; /* Makes all buttons equal width */
   background: #171717;
@@ -490,7 +490,41 @@ body.incorrect-flash { background-color: #82000b; }
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a #141414;
 }
+/* --- Shortcut Info Bar --- */
+.shortcut-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  max-width: 600px;
+  margin: 0 auto 30px auto; /* Positions it below the mode buttons */
+  padding: 12px 20px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+  border-radius: 12px;
+  color: #ccc;
+  font-size: 0.95rem;
+  font-family: 'Satoshi', sans-serif;
+}
 
+/* Style the icon in the bar */
+.shortcut-bar i {
+  color: #ffcf00; /* Yellow accent color */
+  font-size: 1.1rem;
+}
+
+/* Style for the <kbd> element to look like a key */
+.shortcut-key {
+  background-color: #ddd;
+  color: #171717;
+  padding: 3px 9px;
+  border-radius: 5px;
+  border: 1px solid #999;
+  border-bottom: 3px solid #bbb;
+  font-family: 'Consolas', 'Menlo', monospace;
+  font-weight: bold;
+  font-size: 1.2rem; /* Make the arrow a bit bigger */
+}
 
 
 

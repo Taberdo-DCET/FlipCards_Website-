@@ -1053,7 +1053,20 @@ input:checked + .slider:before {
   font-weight: bold;
   font-size: 0.9rem;
 }
+/* --- Styles for Shortcut Bar Icons --- */
+.shortcut-performance .fa-face-frown {
+  color: #ffb8b8; /* Light red, matching the sad feedback */
+  font-size: 1.2rem;
+  vertical-align: middle;
+  margin-left: 4px;
+}
 
+.shortcut-performance .fa-face-smile {
+  color: #b8ffc3; /* Light green, matching the happy feedback */
+  font-size: 1.2rem;
+  vertical-align: middle;
+  margin-left: 4px;
+}
 
 /* === Responsive Media Queries (Improved) === */
 

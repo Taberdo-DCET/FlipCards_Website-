@@ -77,11 +77,8 @@ Match</button>
 </div>
 <div class="shortcut-bar">
     <i class="fa-solid fa-keyboard"></i>
-    <span>Shortcut: Press</span>
-    <kbd class="shortcut-key">Space</kbd>
-    <span>or</span>
-    <i class="fa-solid fa-computer-mouse"></i>
-    <span>click on the card to flip.</span>
+    <span class="shortcut-normal">Shortcut: Press <kbd class="shortcut-key">Space</kbd> or click on the card to flip.</span>
+    <span class="shortcut-performance hidden">Shortcuts: <kbd class="shortcut-key">←</kbd> <i class="fa-regular fa-face-frown"></i> | <kbd class="shortcut-key">→</kbd> <i class="fa-regular fa-face-smile"></i></span>
 </div>
         <div class="flashcard-container">
             <div class="flashcard">
@@ -244,6 +241,8 @@ const exitReviewBtn = document.getElementById('exitReviewBtn');
   const feedbackText = document.getElementById('feedbackText');
   const reviewCounter = document.getElementById('reviewCounter');
 const shuffleBtn = document.getElementById('shuffleBtn');
+const shortcutNormalText = document.querySelector('.shortcut-normal');
+const shortcutPerformanceText = document.querySelector('.shortcut-performance');
 
   onAuthStateChanged(auth, async (user) => {
     if (user && !user.isAnonymous) {
@@ -541,16 +540,18 @@ nextBtn.addEventListener('click', async () => {
 });
 
 document.addEventListener("keydown", (e) => {
-  // Check if the user is typing in an input field
-  if (document.activeElement.tagName !== "INPUT") {
-    if (e.key === "ArrowRight") {
-      nextBtn.click();
-    } else if (e.key === "ArrowLeft") {
-      prevBtn.click();
-    } else if (e.key === " ") { // Check for spacebar press
-      e.preventDefault(); // Prevent the page from scrolling down
-      card.classList.toggle("flipped"); // Flip the card
-    }
+  // Do nothing if the user is typing in an input field
+  if (document.activeElement.tagName === "INPUT") return;
+
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    nextBtn.click(); // Triggers "Next" or "Knew It"
+  } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    prevBtn.click(); // Triggers "Previous" or "Didn't Know"
+  } else if (e.key === " ") { // Check for spacebar press
+    e.preventDefault(); // Prevent the page from scrolling down
+    card.classList.toggle("flipped"); // Flip the card
   }
 });
 // --- New Performance Monitor Logic ---
@@ -564,11 +565,15 @@ performanceToggle.addEventListener('change', (event) => {
     if (isPerformanceMode) {
         prevIcon.className = 'fa-regular fa-face-frown';
         nextIcon.className = 'fa-regular fa-face-smile';
-        reviewCounter.classList.add('visible'); // --- THIS LINE IS NEW ---
+        reviewCounter.classList.add('visible');
+        shortcutNormalText.classList.add('hidden');
+        shortcutPerformanceText.classList.remove('hidden');
     } else {
         prevIcon.className = 'fa-solid fa-chevron-left';
         nextIcon.className = 'fa-solid fa-chevron-right';
-        reviewCounter.classList.remove('visible'); // --- THIS LINE IS NEW ---
+        reviewCounter.classList.remove('visible');
+        shortcutNormalText.classList.remove('hidden');
+        shortcutPerformanceText.classList.add('hidden');
     }
 });
 // --- Review Sidenav Logic ---
