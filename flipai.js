@@ -150,9 +150,16 @@ async function processFile(file) {
 
     const usageData = await getUsageData();
     if (usageData.count >= maxUsage) {
-        showCustomAlert('Daily Limit Reached', `You have used all your generations for today. Your limit will reset.`);
-        return;
+    // Check if the Offerwall API is ready
+    if (window.google && window.google.ads && window.google.ads.offerwall) {
+        // Show the Offerwall
+        window.google.ads.offerwall.show();
+    } else {
+        // Show a fallback alert if the API isn't available
+        showCustomAlert('Daily Limit Reached', 'You have used all your generations for today.');
     }
+    return; // Stop processing the file
+}
 
     flashcardsContainer.innerHTML = `
         <div class="loader-container">
