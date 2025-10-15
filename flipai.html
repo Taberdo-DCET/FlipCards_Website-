@@ -9,13 +9,14 @@
     <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
     <!-- Link to Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <script async src="https://fundingchoices.google.com/i/pub-4779578721359852?utm_source=adsense" nonce="..."></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
+     crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Header -->
     <header class="shop-header">
         <div class="header-left">
-            <a href="lobby.html" class="back-button">← Back to Lobby</a>
+            <a href="lobby.html" id="backToLobbyBtn" class="back-button">← Back to Lobby</a>
             <a href="shop.html" id="upgradeBtn" class="upgrade-button hidden">Upgrade your Plan</a>
         </div>
         <div class="header-center"></div>
@@ -28,16 +29,29 @@
     <!-- Main Content -->
 <main class="main-container">
     <div class="title-container">
-    <h1 class="page-title">FlipCards AI</h1>
+    <h1 class="page-title">
+    <svg class="ai-sparkle-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+         stroke-linecap="round" stroke-linejoin="round" style="margin-right:15px; vertical-align:middle;">
+      
+      <path class="sparkle-main" d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z"></path>
+      
+      <path class="sparkle-small s1" d="M4 4l2 2m0-2l-2 2"></path>
+      <path class="sparkle-small s2" d="M18 4l2 2m0-2l-2 2"></path>
+      <path class="sparkle-small s3" d="M4 18l2 2m0-2l-2 2"></path>
+      <path class="sparkle-small s4" d="M18 18l2 2m0-2l-2 2"></path>
+    </svg>
+    <span>FlipCards AI</span>
+</h1>
     <img src="beta.png" alt="Beta Logo" class="beta-logo">
 </div>
     <p class="page-description">
-    Instantly turn your PDF and PowerPoint documents into a complete set of flashcards. Upload your file to get started.
+    Instantly turn your PDF, PowerPoint, and Word documents into a complete set of flashcards. Upload your file to get started.
 </p>
 
     <!-- File Upload Section -->
     <div class="action-buttons-container">
-    <input type="file" id="fileUploadInput" accept=".pdf, .pptx" class="hidden">
+    <input type="file" id="fileUploadInput" accept=".pdf, .pptx, .docx" class="hidden">
 
     <button id="uploadPdfBtn" class="modern-button">
         <i class="fa-solid fa-file-pdf"></i>
@@ -47,6 +61,11 @@
     <button id="uploadPptxBtn" class="modern-button">
         <i class="fa-solid fa-file-powerpoint"></i>
         Upload PPTX
+    </button>
+
+    <button id="uploadDocxBtn" class="modern-button">
+        <i class="fa-solid fa-file-word"></i>
+        Upload DOCX
     </button>
 
     <button id="addSetBtn" class="modern-button hidden">
@@ -109,7 +128,7 @@
         </div>
     </div>
 <footer class="site-footer" aria-label="Attribution">
-  <p>Powered by the Gemini API. FlipCards AI is not affiliated with Google.</p>
+  <p>Powered by the Gemini AI API. FlipCards AI is not affiliated with Google.</p>
 </footer>
 
     <!-- Link to external JavaScript file -->

@@ -102,7 +102,7 @@ document.addEventListener("keydown", (e) => {
         betatester: "betatester.png",
         prepper: "prepper.png",
         test: "test.png",
-        plus: "plas.png", // Add this line
+        plus: "plass.png", // Add this line
         verified: "verified.svg",
         first: "first.png",
         hearted: "hearted.png",

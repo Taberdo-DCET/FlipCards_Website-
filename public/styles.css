@@ -67,28 +67,31 @@ header {
   font-size: 28px;
 }
 
-/* Neumorphic Button Style */
-/* Neumorphic Button Style */
+/* Modern Button Style */
 .login-btn-neumorphic {
   padding: 12px 24px;
-  background: #171717;
+  background-color: #ffcf00; /* Primary accent color */
+  color: #171717; /* Dark text for high contrast */
   border: none;
   border-radius: 10px;
-  color: #ffcf00; /* UPDATED COLOR */
   font-family: 'Satoshi', sans-serif;
   font-weight: bold;
   font-size: 16px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 4px 4px 8px #0f0f0f, -4px -4px 8px #1f1f1f;
+  /* Smoother transition for multiple properties */
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: none; /* Ensure no default shadow */
 }
 
 .login-btn-neumorphic:hover {
-  color: #ffffff;
+  background-color: #fff; /* Brighten on hover */
+  transform: translateY(-2px); /* Add a subtle lift effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Add depth on hover */
 }
 
 .login-btn-neumorphic:active {
-  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+  transform: translateY(0); /* Button presses down */
+  box-shadow: none; /* Remove shadow on click for a flat press effect */
 }
 
 /* Main Content Styles */
@@ -604,12 +607,14 @@ label {
 }
 /* === HERO TITLE CHECKMARK STYLES === */
 
+/* === HERO TITLE CHECKMARK STYLES (SMOOTHER ANIMATION) === */
+
 .hero-title-container {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 15px; /* Space between title and checkmark */
-  flex-wrap: nowrap; /* Allows items to wrap on smaller screens */
+  flex-wrap: nowrap; 
   margin-top: -40px;
 }
 
@@ -621,8 +626,9 @@ label {
   stroke: #fff;
   stroke-miterlimit: 10;
   box-shadow: inset 0px 0px 0px #3498db;
-  border-radius: 50%; /* Add this line */
-  animation: hero-fill 2.5s ease-in-out 1s infinite, hero-stroke 9.5s ease-in-out infinite;
+  border-radius: 50%;
+  /* New coordinated animation for filling the icon */
+  animation: fill-animation 4s ease-in-out infinite;
 }
 
 .hero-checkmark-circle {
@@ -632,29 +638,59 @@ label {
   stroke-miterlimit: 10;
   stroke: #3498db; /* Blue color */
   fill: none;
-  /* Looping animation for the circle stroke */
-  animation: hero-stroke 2.5s ease-in-out infinite;
+  /* New coordinated animation for drawing the circle */
+  animation: circle-animation 4s ease-in-out infinite;
 }
 
 .hero-checkmark-check {
   transform-origin: 50% 50%;
   stroke-dasharray: 48;
   stroke-dashoffset: 48;
-  /* Looping animation for the check stroke */
-  animation: hero-stroke 6s ease-in-out 5s infinite;
+  /* New coordinated animation for drawing the checkmark */
+  animation: check-animation 4s ease-in-out infinite;
 }
 
-/* --- New Keyframes for the looping animation --- */
-/* (Renamed to avoid conflict with the modal's animation) */
+/* --- New Keyframes for a smoother, coordinated looping animation --- */
 
-@keyframes hero-stroke {
-  50% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -166; } /* Draws and then un-draws */
+@keyframes circle-animation {
+  /* Step 1: Draw the circle */
+  0% {
+    stroke-dashoffset: 166;
+  }
+  25% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
-@keyframes hero-fill {
-  50% { box-shadow: inset 0px 0px 0px 30px #3498db; } /* Fills up */
-  100% { box-shadow: inset 0px 0px 0px 0px #3498db; } /* Empties out */
+@keyframes check-animation {
+  /* Step 2: Draw the checkmark after the circle is done */
+  0%, 25% {
+    stroke-dashoffset: 48;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fill-animation {
+  /* Step 3: Fill the circle after the check is drawn */
+  0%, 50% {
+    box-shadow: inset 0px 0px 0px 0px #3498db;
+  }
+  /* Hold the filled state */
+  75% {
+    box-shadow: inset 0px 0px 0px 30px #3498db;
+  }
+  /* Reset for the next loop */
+  90%, 100% {
+    box-shadow: inset 0px 0px 0px 0px #3498db;
+  }
 }
 /* Message Text Styling */
 .guest-modal-content #guestModalMessage {

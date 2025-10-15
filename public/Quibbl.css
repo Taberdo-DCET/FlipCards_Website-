@@ -263,6 +263,8 @@ body {
     width: 100%;
     display: flex;
     justify-content: center;
+    align-items: center;
+    padding: 0 20px;
 }
 .rounds-container {
     background: #171717;
@@ -320,6 +322,7 @@ body {
     z-index: 1000;
     justify-content: center;
     align-items: center;
+    animation: fadeIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 .modal-backdrop.hidden {
     display: none !important;
@@ -333,6 +336,7 @@ body {
     max-height: 90vh;
     display: flex;
     flex-direction: column;
+    animation: scaleUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 .modal-header {
     padding: 15px 20px;
@@ -1277,6 +1281,162 @@ body {
     padding-left: 15px;
     padding-right: 15px;
 }
+.top-controls-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#video-tutorial-btn {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    color: #ccc;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 0.9rem;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+#video-tutorial-btn:hover {
+    background-color: #3a3a3a;
+    border-color: #ffcf00;
+    color: #ffcf00;
+}
+
+/* --- VIDEO TUTORIAL MODAL --- */
+.video-modal-box {
+    width: 90%;
+    max-width: 1200px; /* Make it large */
+    height: 85vh; /* Use viewport height */
+}
+
+.video-modal-body {
+    flex-direction: row; /* Side-by-side layout */
+    padding: 0; /* Remove padding to make children fill space */
+    flex-grow: 1;
+    overflow: hidden; /* Prevent double scrollbars */
+}
+
+.video-modal-sidebar {
+    background-color: #171717;
+    flex: 0 0 280px; /* Fixed width for the sidebar */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-right: 1px solid #333;
+}
+
+.video-nav-btn {
+    width: 100%;
+    padding: 12px 15px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    color: #ccc;
+    font-family: 'Satoshi', sans-serif;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.video-nav-btn:hover {
+    background-color: #3a3a3a;
+    color: #fff;
+}
+
+.video-nav-btn.active {
+    background-color: #ffcf00;
+    color: #101010;
+    border-color: #ffcf00;
+    font-weight: bold;
+}
+
+.video-modal-content {
+    flex-grow: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+#video-title {
+    font-size: 1.8rem;
+    color: #ffcf00;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.video-container {
+    width: 100%;
+    aspect-ratio: 16 / 9; /* Maintain a 16:9 aspect ratio */
+    background: #000;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #888;
+    font-size: 1.2rem;
+    border: 1px solid #333;
+}
+/* --- VIDEO TUTORIAL MODAL SCROLLBAR --- */
+
+/* For Firefox */
+.video-modal-content {
+    scrollbar-width: thin;
+    scrollbar-color: #ffcf00 #171717;
+}
+
+/* For Webkit Browsers (Chrome, Safari, Edge) */
+.video-modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.video-modal-content::-webkit-scrollbar-track {
+    background: #171717;
+    border-radius: 10px;
+}
+
+.video-modal-content::-webkit-scrollbar-thumb {
+    background-color: #ffcf00;
+    border-radius: 10px;
+    border: 2px solid #1e1e1e; /* Match modal content background */
+}
+
+.video-modal-content::-webkit-scrollbar-thumb:hover {
+    background-color: #ffe866;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Keyframe for the modal box to scale up and fade in */
+@keyframes scaleUp {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+
+
+
+
+
 
 
 

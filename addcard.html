@@ -12,7 +12,7 @@
 </head>
 <body>
 <header class="main-header">
-  <a href="lobby.html#Folderr" class="back-btn">&larr; Back to Folders</a>
+  <button id="backToFoldersBtn" class="back-btn">&larr; Back to Folders</button>
   <div class="btn-row">
     <button class="btn create" id="mainActionBtn">Create Set</button>
     <button class="btn practice" id="mainActionBtnn">Create and Practice</button>
@@ -85,7 +85,29 @@
     </div>
   </div>
 </div>
-
+<div id="draftConfirmModal" class="custom-modal hidden">
+  <div class="modal-content">
+    <div class="modal-message">
+      You have unsaved changes. Do you want to save them as a draft?
+    </div>
+    <div class="modal-buttons" style="gap: 15px;">
+      <button id="saveDraftBtn" class="neumorphic-button">Save Draft</button>
+      <button id="discardDraftBtn" class="neumorphic-button">Discard</button>
+      <button id="cancelLeaveBtn" class="neumorphic-button">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="loadDraftModal" class="custom-modal hidden">
+  <div class="modal-content">
+    <div class="modal-message">
+      We found a saved draft. Would you like to load it?
+    </div>
+    <div class="modal-buttons" style="gap: 15px;">
+      <button id="loadDraftBtn" class="neumorphic-button">Load Draft</button>
+      <button id="discardSavedDraftBtn" class="neumorphic-button">Discard</button>
+    </div>
+  </div>
+</div>
   <script type="module" src="addcard.js"></script>
 
 <script>

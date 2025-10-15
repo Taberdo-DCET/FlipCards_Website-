@@ -57,13 +57,16 @@
             <button class="neumorphic-button" onclick="location.href='match.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M10 7V5.5a1.5 1.5 0 0 1 3 0V7"></path><path d="M14 17v1.5a1.5 1.5 0 0 1-3 0V17"></path><path d="M7 10H5.5a1.5 1.5 0 0 0 0 3H7"></path><path d="M17 14h1.5a1.5 1.5 0 0 0 0-3H17"></path></svg>Match</button>
             <button class="neumorphic-button" onclick="location.href='defidrop.html'"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"></path><path d="m19 12-7-7"></path></svg>DefiDrop</button>
         </div>
-<div class="shortcut-bar">
-    <i class="fa-solid fa-keyboard"></i>
-    <span>Use </span>
-    <kbd class="shortcut-key">←</kbd>
-    <span> for False and </span>
-    <kbd class="shortcut-key">→</kbd>
-    <span> for True.</span>
+<div class="info-bar-container">
+    <button id="howToBtn" class="info-icon-btn" title="How to Play">?</button>
+    <div class="shortcut-bar">
+        <i class="fa-solid fa-keyboard"></i>
+        <span>Use </span>
+        <kbd class="shortcut-key">←</kbd>
+        <span> for False and </span>
+        <kbd class="shortcut-key">→</kbd>
+        <span> for True.</span>
+    </div>
 </div>
 <div id="startScreen" class="custom-modal">
     <div class="modal-content success">
@@ -108,13 +111,49 @@
             </div>
         </div>
         
-        <div id="progressTracker" class="progress-tracker"></div>
+        <div class="progress-container">
+    <div class="save-progress-toggle">
+        <label for="saveProgressCheckbox">Save Progress</label>
+        <label class="switch">
+            <input type="checkbox" id="saveProgressCheckbox">
+            <span class="slider round"></span>
+        </label>
+    </div>
+    <div id="progressTracker" class="progress-tracker"></div>
+</div>
     </main>
-
+<div id="howToModal" class="custom-modal hidden">
+    <div class="modal-content success">
+        <div class="modal-message">
+            <div class="modal-header-sticky">
+                <h2 style="margin-top: 0; font-size: 2rem;">How to Play Blitz</h2>
+                <p style="text-align: left; font-size: 1rem; margin-bottom: 0;">
+                    Welcome to Blitz Mode! Here’s how it works:
+                </p>
+            </div>
+            <div class="modal-body-scrollable">
+                <div style="text-align: left; line-height: 1.6; font-size: 1rem;">
+                    <strong>1. The Goal:</strong> A term and a definition will appear. Your job is to decide if the definition correctly matches the term.
+                    <br><br>
+                    <strong>2. Answering:</strong> Use the "True" and "False" buttons, or use the <kbd class="shortcut-key">→</kbd> and <kbd class="shortcut-key">←</kbd> arrow keys for faster responses.
+                    <br><br>
+                    <strong>3. Scoring:</strong> Answer as many cards as you can. Your final score is based on the number of correct answers.
+                    <br><br>
+                    <strong>4. Timer:</strong> A timer will track how long it takes you to complete the set. Try to beat your best time!
+                    <br><br>
+                    <strong>5. Save Progress:</strong> Check the 'Save Progress' box below the game to save your session. If you leave and come back, you'll have the option to resume where you left off!
+                </div>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button id="closeHowToModalBtn" class="neumorphic-button">Got It!</button>
+        </div>
+    </div>
+</div>
     <script type="module">
     import { db, auth } from './firebaseinit.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { doc, getDoc, setDoc, updateDoc, deleteField, collection, addDoc, serverTimestamp, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
     // --- DOM Elements ---
     const startScreen = document.getElementById('startScreen');
@@ -130,6 +169,7 @@
     const finalScore = document.getElementById('finalScore');
     const timeTaken = document.getElementById('timeTaken');
     const retryBtn = document.getElementById('retryBtn');
+    const saveProgressCheckbox = document.getElementById('saveProgressCheckbox');
     
     // --- Game State Variables ---
     let originalFlashcards = [];
@@ -145,51 +185,96 @@
     }
 
     // --- Main Logic ---
-    onAuthStateChanged(auth, async (user) => {
-         if (user && !user.isAnonymous) {
-            const upgradeBtn = document.getElementById('upgradeBtn');
-            const userRolesRef = doc(db, "approved_emails", user.email);
-            const userRolesSnap = await getDoc(userRolesRef);
+    // blitz.html -> <script>
 
-            if (userRolesSnap.exists()) {
-                const roles = userRolesSnap.data().role.toLowerCase();
-                if (!roles.includes('plus') && !roles.includes('verified')) {
-                    upgradeBtn.style.display = 'inline-block';
-                }
+// ▼▼▼ REPLACE THE ENTIRE onAuthStateChanged FUNCTION WITH THIS ▼▼▼
+onAuthStateChanged(auth, async (user) => {
+    const reviewingSetId = localStorage.getItem("reviewingSetId");
+    const collectionName = localStorage.getItem("reviewingSetCollection");
+
+    if (user && !user.isAnonymous) {
+        const upgradeBtn = document.getElementById('upgradeBtn');
+        const userRolesRef = doc(db, "approved_emails", user.email);
+        const userRolesSnap = await getDoc(userRolesRef);
+
+        if (userRolesSnap.exists()) {
+            const roles = userRolesSnap.data().role.toLowerCase();
+            if (!roles.includes('plus') && !roles.includes('verified')) {
+                upgradeBtn.style.display = 'inline-block';
             }
         }
-        const reviewingSetId = localStorage.getItem("reviewingSetId");
-        const collectionName = localStorage.getItem("reviewingSetCollection");
+    }
 
-        if (!reviewingSetId || !collectionName) {
-            document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error: No set ID found. Please go back and select a set.</h2>";
-            return;
-        }
+    if (!reviewingSetId || !collectionName) {
+        document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error: No set ID found. Please go back and select a set.</h2>";
+        return;
+    }
 
-        try {
-            const setRef = doc(db, collectionName, reviewingSetId);
-            const docSnap = await getDoc(setRef);
+    try {
+        const setRef = doc(db, collectionName, reviewingSetId);
+        const docSnap = await getDoc(setRef);
 
-            if (docSnap.exists()) {
-                const setData = docSnap.data();
-                originalFlashcards = docSnap.data().flashcards || [];
-                populatePageInfo(setData);
-                if (originalFlashcards.length < 2) {
-                     document.querySelector('.blitz-main-container').innerHTML = `<h2 style='color:white; text-align:center;'>Blitz mode requires at least 2 cards in a set.</h2>`;
-                     return;
+        if (docSnap.exists()) {
+            const setData = docSnap.data();
+            originalFlashcards = docSnap.data().flashcards || [];
+            populatePageInfo(setData);
+
+            if (originalFlashcards.length < 2) {
+                document.querySelector('.blitz-main-container').innerHTML = `<h2 style='color:white; text-align:center;'>Blitz mode requires at least 2 cards in a set.</h2>`;
+                return;
+            }
+            
+            let hasSavedProgress = false;
+            if (user && !user.isAnonymous) {
+                const savedProgressRef = doc(db, "blitzsaved", user.email);
+                const savedProgressSnap = await getDoc(savedProgressRef);
+
+                if (savedProgressSnap.exists()) {
+                    const allSavedGames = savedProgressSnap.data();
+                    const savedProgress = allSavedGames[reviewingSetId];
+
+                    if (savedProgress) {
+                        hasSavedProgress = true;
+                        const modalMessage = document.querySelector('#startScreen .modal-message');
+                        const modalButtons = document.querySelector('#startScreen .modal-buttons');
+
+                        modalMessage.innerHTML = `
+                            <h2 style="margin-top: 0; font-size: 2rem;">Resume Session?</h2>
+                            <p>You have a game in progress (${savedProgress.score}/${savedProgress.questions.length} correct). Continue where you left off?</p>
+                        `;
+                        
+                        modalButtons.innerHTML = `
+                            <button id="resumeBtn" class="neumorphic-button">Resume</button>
+                            <button id="newGameBtn" class="neumorphic-button">Start New</button>
+                        `;
+
+                        document.getElementById('resumeBtn').addEventListener('click', () => resumeGame(savedProgress));
+                        document.getElementById('newGameBtn').addEventListener('click', async () => {
+                            try {
+                                await updateDoc(savedProgressRef, { [reviewingSetId]: deleteField() });
+                            } catch (error) {
+                                console.warn("Could not remove old progress.", error.message);
+                            }
+                            startGame();
+                        });
+                    }
                 }
-                startScreen.style.display = 'flex';
+            }
+
+            startScreen.style.display = 'flex';
+            if (!hasSavedProgress) {
                 startGameBtn.disabled = false;
                 startGameBtn.textContent = "Start Game";
-            } else {
-                 document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
             }
-        } catch (error) {
-            console.error("Error loading set:", error);
-             document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set data.</h2>";
-        }
-    });
 
+        } else {
+             document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
+        }
+    } catch (error) {
+        console.error("Error loading set:", error);
+         document.querySelector('.blitz-main-container').innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set data.</h2>";
+    }
+});
     function generateQuestions() {
         questions = originalFlashcards.map((card, index) => {
             const isTrueQuestion = Math.random() > 0.5;
@@ -206,21 +291,37 @@
         questions.sort(() => Math.random() - 0.5);
     }
 
-    function startGame() {
-        clearInterval(timerInterval);
-        generateQuestions();
-
-        currentIndex = 0;
-        score = 0;
-        startScreen.classList.add('hidden');
-        resultsScreen.classList.add('hidden');
-        gameContainer.classList.remove('hidden');
-        
-        startTime = Date.now();
-        timerInterval = setInterval(updateTimer, 1000);
-        
-        displayQuestion(); 
+    // blitz.html
+async function startGame() {
+    // ▼▼▼ NEW LOGIC TO CREATE THE DOCUMENT ON START ▼▼▼
+    const user = auth.currentUser;
+    if (user && !user.isAnonymous) {
+        try {
+            const savedProgressRef = doc(db, "blitzsaved", user.email);
+            // This safely creates the document with no fields if it doesn't exist.
+            // If it already exists, merge:true ensures we don't overwrite it.
+            await setDoc(savedProgressRef, {}, { merge: true });
+            console.log("Ensured blitzsaved document exists for user.");
+        } catch (error) {
+            console.error("Error ensuring blitzsaved document exists:", error);
+        }
     }
+    // ▲▲▲ END OF NEW LOGIC ▲▲▲
+
+    clearInterval(timerInterval);
+    generateQuestions();
+
+    currentIndex = 0;
+    score = 0;
+    startScreen.classList.add('hidden');
+    resultsScreen.classList.add('hidden');
+    gameContainer.classList.remove('hidden');
+
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 1000);
+
+    displayQuestion();
+}
 
     // ▼▼▼ UPDATED DISPLAYQUESTION FUNCTION ▼▼▼
 // --- NEW: Helper function to adjust font size ---
@@ -295,51 +396,105 @@
     // ▲▲▲ END OF UPDATED FUNCTION ▲▲▲
 
     function checkAnswer(userChoice) {
-        trueBtn.disabled = true;
-        falseBtn.disabled = true;
-
-        const isCorrect = userChoice === questions[currentIndex].correct;
-        const animationClass = isCorrect ? 'slide-correct' : 'slide-incorrect';
-        const bodyFlashClass = isCorrect ? 'correct-flash' : 'incorrect-flash';
-
-        if (isCorrect) {
-            score++;
-        }
-        
-        document.body.classList.add(bodyFlashClass);
-        gameContainer.classList.add(animationClass);
-        
-        setTimeout(() => {
-            document.body.classList.remove(bodyFlashClass);
-        }, 300);
-
-        setTimeout(() => {
-            gameContainer.classList.remove(animationClass);
-            currentIndex++;
-
-            if (currentIndex >= questions.length) {
-                endGame();
-            } else {
-                displayQuestion();
-            }
-
-            trueBtn.disabled = false;
-            falseBtn.disabled = false;
-        }, 600);
+    // ▼▼▼ ADD THIS CHECK ▼▼▼
+    // If the game is already over, do nothing. This prevents
+    // errors from rapid clicks on the last question.
+    if (currentIndex >= questions.length) {
+        return;
     }
+    // ▲▲▲ END OF ADDED CHECK ▲▲▲
 
-    function endGame() {
-        clearInterval(timerInterval);
-        const totalTime = Date.now() - startTime;
+    trueBtn.disabled = true;
+    falseBtn.disabled = true;
 
-        gameContainer.classList.add('hidden');
-        resultsScreen.classList.remove('hidden');
-        progressTracker.textContent = '';
-        
-        finalScore.textContent = `Score: ${score} / ${questions.length}`;
-        timeTaken.textContent = `Time: ${formatTime(totalTime)}`;
+    const isCorrect = userChoice === questions[currentIndex].correct;
+    const animationClass = isCorrect ? 'slide-correct' : 'slide-incorrect';
+    const bodyFlashClass = isCorrect ? 'correct-flash' : 'incorrect-flash';
+
+    if (isCorrect) {
+        score++;
+    }
+    saveProgress();
+    document.body.classList.add(bodyFlashClass);
+    gameContainer.classList.add(animationClass);
+
+    setTimeout(() => {
+        document.body.classList.remove(bodyFlashClass);
+    }, 300);
+
+    setTimeout(() => {
+        gameContainer.classList.remove(animationClass);
+        currentIndex++;
+
+        if (currentIndex >= questions.length) {
+            endGame();
+        } else {
+            displayQuestion();
+        }
+
+        trueBtn.disabled = false;
+        falseBtn.disabled = false;
+    }, 600);
+}
+
+    // blitz.html -> <script>
+
+// ▼▼▼ REPLACE THE endGame FUNCTION WITH THIS ASYNC VERSION ▼▼▼
+async function endGame() {
+    clearInterval(timerInterval);
+    const user = auth.currentUser;
+    const reviewingSetId = localStorage.getItem("reviewingSetId");
+
+    // ▼▼▼ LOGIC TO APPEND SCORE AND INCREMENT TOTAL ▼▼▼
+    if (user && !user.isAnonymous && reviewingSetId && currentIndex >= questions.length) {
+        try {
+            const userDocRef = doc(db, 'blitzcorrect', user.email);
+
+            const newScoreEntry = {
+                score: score,
+                totalQuestions: questions.length,
+                setId: reviewingSetId,
+                timestamp: new Date()
+            };
+
+            // This now does two things:
+            // 1. Adds the new game's record to the 'scores' array.
+            // 2. Adds the current score to the 'totalScore' field.
+            await setDoc(userDocRef, {
+                scores: arrayUnion(newScoreEntry),
+                totalScore: increment(score) // ▼▼▼ THIS IS THE NEW LINE ▼▼▼
+            }, { merge: true });
+
+            console.log("Score record added and total score updated.");
+
+        } catch (error) {
+            console.error("Failed to save score:", error);
+        }
+    }
+    // ▲▲▲ END OF LOGIC ▲▲▲
+
+    // Clear any saved in-progress game from Firestore
+    if (user && !user.isAnonymous && reviewingSetId) {
+        try {
+            const savedProgressRef = doc(db, "blitzsaved", user.email);
+            await updateDoc(savedProgressRef, {
+                [reviewingSetId]: deleteField()
+            });
+            console.log("In-progress game data removed from Firestore.");
+        } catch (error) {
+            console.warn("Could not remove in-progress game data:", error.message);
+        }
     }
     
+    const totalTime = Date.now() - startTime;
+
+    gameContainer.classList.add('hidden');
+    resultsScreen.classList.remove('hidden');
+    progressTracker.textContent = '';
+    
+    finalScore.textContent = `Score: ${score} / ${questions.length}`;
+    timeTaken.textContent = `Time: ${formatTime(totalTime)}`;
+} 
     function updateTimer() {
         const elapsedTime = Date.now() - startTime;
         timerDisplay.textContent = formatTime(elapsedTime);
@@ -371,13 +526,88 @@
             document.getElementById("cardCreator").textContent = "N/A";
         }
     }
+// blitz.html -> <script>
 
+// ▼▼▼ ADD OR REPLACE THESE TWO FUNCTIONS ▼▼▼
+async function saveProgress() {
+    const user = auth.currentUser;
+    const reviewingSetId = localStorage.getItem("reviewingSetId");
+
+    // Can't save if not logged in or no set is active
+    if (!user || user.isAnonymous || !reviewingSetId) {
+        if (saveProgressCheckbox.checked) {
+            console.warn("Save progress is on, but no user is logged in. Cannot save.");
+            // Optionally uncheck the box and notify the user
+            // saveProgressCheckbox.checked = false; 
+            // alert("You must be logged in to save progress.");
+        }
+        return;
+    }
+
+    const savedProgressRef = doc(db, "blitzsaved", user.email);
+
+    if (saveProgressCheckbox.checked && currentIndex < questions.length) {
+        const progress = {
+            questions: questions,
+            currentIndex: currentIndex,
+            score: score,
+            elapsedTime: Date.now() - startTime,
+            savedAt: new Date() // Good practice to add a timestamp
+        };
+        try {
+            // Using setDoc with merge:true updates the field for the current set
+            // without affecting progress saved for other sets.
+            await setDoc(savedProgressRef, { [reviewingSetId]: progress }, { merge: true });
+            console.log("Progress saved to Firestore.");
+        } catch (error) {
+            console.error("Error saving progress to Firestore:", error);
+        }
+    } else {
+        // If toggle is off or unchecked, remove the progress for this specific set
+        try {
+            await updateDoc(savedProgressRef, {
+                [reviewingSetId]: deleteField()
+            });
+            console.log("Progress removed from Firestore.");
+        } catch (error) {
+            // This might error if the document/field doesn't exist, which is fine.
+            console.warn("Could not remove progress from Firestore:", error.message);
+        }
+    }
+}
+
+function resumeGame(savedProgress) {
+    if (!savedProgress) {
+        console.error("Resume function called without saved progress object.");
+        startGame(); // Fallback to a new game
+        return;
+    }
+    
+    // Load state from the passed saved progress object
+    questions = savedProgress.questions;
+    currentIndex = savedProgress.currentIndex;
+    score = savedProgress.score;
+    // Recalculate start time to continue the timer correctly
+    startTime = Date.now() - savedProgress.elapsedTime; 
+    
+    saveProgressCheckbox.checked = true;
+
+    // Start the game UI
+    clearInterval(timerInterval);
+    startScreen.classList.add('hidden');
+    resultsScreen.classList.add('hidden');
+    gameContainer.classList.remove('hidden');
+    
+    timerInterval = setInterval(updateTimer, 1000);
+    displayQuestion();
+}
     // --- Event Listeners ---
     startGameBtn.addEventListener('click', startGame);
     playAgainBtn.addEventListener('click', startGame);
     retryBtn.addEventListener('click', startGame);
     trueBtn.addEventListener('click', () => checkAnswer(true));
     falseBtn.addEventListener('click', () => checkAnswer(false));
+    saveProgressCheckbox.addEventListener('change', saveProgress);
       document.addEventListener('keydown', (event) => {
     // Only trigger shortcuts if the game is active
     if (!gameContainer.classList.contains('hidden')) {
@@ -390,6 +620,17 @@
       }
     }
   });
+  const howToBtn = document.getElementById('howToBtn');
+const howToModal = document.getElementById('howToModal');
+const closeHowToModalBtn = document.getElementById('closeHowToModalBtn');
+
+howToBtn.addEventListener('click', () => {
+    howToModal.classList.remove('hidden');
+});
+
+closeHowToModalBtn.addEventListener('click', () => {
+    howToModal.classList.add('hidden');
+});
 </script>
 <script src="protect.js"></script>
 <script type="module" src="presence.js"></script>

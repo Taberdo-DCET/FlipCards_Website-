@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // DOM Elements
     const uploadPdfBtn = document.getElementById('uploadPdfBtn');
 const uploadPptxBtn = document.getElementById('uploadPptxBtn');
+const uploadDocxBtn = document.getElementById('uploadDocxBtn'); // ADD THIS
     const fileUploadInput = document.getElementById('fileUploadInput');
     const flashcardsContainer = document.getElementById('flashcardsContainer');
     const usageTracker = document.getElementById('usageTracker');
@@ -19,6 +20,7 @@ const uploadPptxBtn = document.getElementById('uploadPptxBtn');
     const usageInfoBtn = document.getElementById('usageInfoBtn');
     const infoModal = document.getElementById('infoModal');
     const infoModalCloseBtn = document.getElementById('infoModalCloseBtn');
+    const backToLobbyBtn = document.getElementById('backToLobbyBtn');
 
     let countdownInterval = null;
 
@@ -115,6 +117,13 @@ async function getUserRole() {
             infoModal.classList.remove('visible');
         }
     });
+
+    backToLobbyBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Stop the link from navigating immediately
+        console.log("Back to Lobby clicked. Clearing 'flashcardsData'.");
+        localStorage.removeItem('flashcardsData');
+        window.location.href = backToLobbyBtn.href; // Proceed to lobby
+    });
     // --- Main Functionality ---
     // When the PDF button is clicked...
 uploadPdfBtn.addEventListener('click', () => {
@@ -129,11 +138,15 @@ uploadPptxBtn.addEventListener('click', () => {
     fileUploadInput.accept = '.pptx';
     fileUploadInput.click(); // Open the file dialog
 });
-
+// ADD THIS EVENT LISTENER
+uploadDocxBtn.addEventListener('click', () => {
+    fileUploadInput.accept = '.docx';
+    fileUploadInput.click();
+});
     fileUploadInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (!file) {
-            showCustomAlert('No File Selected', 'Please choose a PDF or PPT file to continue.');
+            showCustomAlert('No File Selected', 'Please choose a PDF, PPTX, or DOCX file to continue.');
             return;
         }
         
@@ -150,16 +163,9 @@ async function processFile(file) {
 
     const usageData = await getUsageData();
     if (usageData.count >= maxUsage) {
-    // Check if the Offerwall API is ready
-    if (window.google && window.google.ads && window.google.ads.offerwall) {
-        // Show the Offerwall
-        window.google.ads.offerwall.show();
-    } else {
-        // Show a fallback alert if the API isn't available
-        showCustomAlert('Daily Limit Reached', 'You have used all your generations for today.');
+        showCustomAlert('Daily Limit Reached', `You have used all your generations for today. Your limit will reset.`);
+        return;
     }
-    return; // Stop processing the file
-}
 
     flashcardsContainer.innerHTML = `
         <div class="loader-container">

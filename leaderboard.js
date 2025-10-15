@@ -54,18 +54,19 @@ async function getQuibblWins(email) {
 }
 
 // Fetch total DefiDrop count
-async function getDefiDropCount(email) {
+async function getBlitzScore(email) {
   if (!email) return 0;
   try {
-    const ref = doc(db, "defidrop_scores", email);
+    const ref = doc(db, "blitzcorrect", email); // Checks blitzcorrect collection
     const snap = await getDoc(ref);
     if (snap.exists()) {
       const data = snap.data();
-      return typeof data.totalCorrect === "number" ? data.totalCorrect : 0;
+      // Reads the totalScore field
+      return typeof data.totalScore === "number" ? data.totalScore : 0;
     }
     return 0;
   } catch (err) {
-    console.error("Error fetching DefiDrop count:", err);
+    console.error("Error fetching Blitz score:", err);
     return 0;
   }
 }
@@ -93,59 +94,52 @@ function closeSidenav() {
   async function populateAchievements(email, title = "🏅 Achievements") {
     const titleEl = document.getElementById("achievementsTitle");
     const cardLabel = document.getElementById("flashcardCountLabel");
-    const defidropLabel = document.getElementById("defidropCountLabel");
+    const blitzLabel = document.getElementById("blitzCountLabel"); // Changed ID
     const quibblWinsLabel = document.getElementById("quibblWinsLabel");
-
-
 
     if (titleEl) titleEl.textContent = title;
     if (cardLabel) cardLabel.textContent = "Loading flashcards...";
-    if (defidropLabel) defidropLabel.textContent = "Loading DefiDrop...";
+    if (blitzLabel) blitzLabel.textContent = "Loading Blitz score..."; // Changed text
 
     if (!email) {
       if (cardLabel) cardLabel.textContent = "Guest accounts have no achievements.";
-      if (defidropLabel) defidropLabel.textContent = "";
+      if (blitzLabel) blitzLabel.textContent = "";
       return;
     }
 
     try {
-      const [cardCount, defidropCount, quibblWins] = await Promise.all([
-  getFlashcardCount(email),
-  getDefiDropCount(email),
-  getQuibblWins(email)
-]);
-
+      const [cardCount, blitzScore, quibblWins] = await Promise.all([
+        getFlashcardCount(email),
+        getBlitzScore(email), // Changed function call
+        getQuibblWins(email)
+      ]);
 
       if (cardLabel) {
         cardLabel.textContent =
           cardCount > 0 ? `Total Created Flashcards: ${cardCount}` : "No flashcards created yet.";
       }
 
-      if (defidropLabel) {
-        defidropLabel.textContent =
-          defidropCount > 0 ? `${defidropCount} DefiDrop Correct` : "No DefiDrop records yet.";
+      if (blitzLabel) {
+        blitzLabel.textContent =
+          blitzScore > 0 ? `${blitzScore} Blitz Total Score` : "No Blitz records yet."; // Changed text
       }
+
      if (quibblWinsLabel) {
-  if (quibblWins > 0) {
-    quibblWinsLabel.innerHTML = `
-  <span style="font-weight:bold; font-size:14px; margin-right:4px; background: transparent; color: white;">${quibblWins}</span>
-  <img src="quibblstar.png" alt="Quibbl Star" class="star-icon" style="width: 20px; height: 20px; vertical-align: middle;">
-`;
-
-  } else {
-    quibblWinsLabel.textContent = "No Quibbl wins yet.";
-  }
-}
-
-console.log("Quibbl Wins for", email, "→", quibblWins);
-
-
+        if (quibblWins > 0) {
+            quibblWinsLabel.innerHTML = `
+                <span style="font-weight:bold; font-size:14px; margin-right:4px; background: transparent; color: white;">${quibblWins}</span>
+                <img src="quibblstar.png" alt="Quibbl Star" class="star-icon" style="width: 20px; height: 20px; vertical-align: middle;">
+            `;
+        } else {
+            quibblWinsLabel.textContent = "No Quibbl wins yet.";
+        }
+      }
     } catch (err) {
       console.error("Error fetching achievements:", err);
       if (cardLabel) cardLabel.textContent = "Error loading data.";
-      if (defidropLabel) defidropLabel.textContent = "";
+      if (blitzLabel) blitzLabel.textContent = "";
     }
-  }
+}
 
   // Profile Achievements button
   if (profileBtn && achievementsModal) {
@@ -214,225 +208,186 @@ leaderboardMenuBtn?.addEventListener("click", () => {
 
 // Load Leaderboards
 async function loadLeaderboards() {
-  const levelEl = document.getElementById("levelLeaderboard");
-  const defidropEl = document.getElementById("defidropLeaderboard");
- const quibblEl = document.getElementById("quibblLeaderboard");
-  if (!levelEl || !defidropEl) return;
+    const levelEl = document.getElementById("levelLeaderboard");
+    const blitzEl = document.getElementById("blitzLeaderboard");
+    const quibblEl = document.getElementById("quibblLeaderboard");
+    if (!levelEl || !blitzEl || !quibblEl) return;
 
-  try {
-    const usersRef = collection(db, "approved_emails");
-    const usernamesRef = collection(db, "usernames");
-    const defidropRef = collection(db, "defidrop_scores");
+    try {
+        const usersRef = collection(db, "approved_emails");
+        const usernamesRef = collection(db, "usernames");
+        const blitzRef = collection(db, "blitzcorrect");
+        const quibblRef = collection(db, "quibblwinner");
 
-    const quibblRef = collection(db, "quibblwinner");
-const [usersSnap, usernamesSnap, defidropSnap, quibblSnap] = await Promise.all([
-  getDocs(usersRef),
-  getDocs(usernamesRef),
-  getDocs(defidropRef),
-  getDocs(quibblRef)
-]);
+        const [usersSnap, usernamesSnap, blitzSnap, quibblSnap] = await Promise.all([
+            getDocs(usersRef),
+            getDocs(usernamesRef),
+            getDocs(blitzRef),
+            getDocs(quibblRef)
+        ]);
 
+        const usernameMap = {};
+        usernamesSnap.forEach(doc => {
+            const data = doc.data();
+            if (data.username && typeof data.username === 'string') {
+                usernameMap[doc.id] = data.username.trim();
+            }
+        });
 
-    const usernameMap = {};
-    usernamesSnap.forEach(doc => {
-      const data = doc.data();
-      if (data.username && typeof data.username === 'string') {
-        usernameMap[doc.id] = data.username.trim();
-      }
-    });
+        const levelUsers = usersSnap.docs
+            .filter(doc => !blockedEmails.includes(doc.id))
+            .map(doc => {
+                const data = doc.data();
+                const email = doc.id;
+                const fallback = email.split("@")[0];
+                const username = typeof data.username === 'string' ? data.username.trim() : usernameMap[email] || fallback;
+                return {
+                    email,
+                    display: username,
+                    level: data.level || 1,
+                    role: (data.role || "").toLowerCase()
+                };
+            });
 
-    const levelUsers = usersSnap.docs
-      .filter(doc => !blockedEmails.includes(doc.id))
-      .map(doc => {
-        const data = doc.data();
-        const email = doc.id;
-        const fallback = email.split("@")[0];
-        const username = typeof data.username === 'string'
-          ? data.username.trim()
-          : usernameMap[email] || fallback;
-        return {
-          email,
-          display: username,
-          level: data.level || 1,
-          role: (data.role || "").toLowerCase()
-        };
-      });
+        const roleMap = {};
+        usersSnap.forEach(doc => {
+            const data = doc.data();
+            roleMap[doc.id] = (data.role || "").toLowerCase();
+        });
 
-    const roleMap = {};
-    usersSnap.forEach(doc => {
-      const data = doc.data();
-      roleMap[doc.id] = (data.role || "").toLowerCase();
-    });
+        const blitzUsers = blitzSnap.docs
+            .filter(doc => !blockedEmails.includes(doc.id))
+            .map(doc => {
+                const data = doc.data();
+                const email = doc.id;
+                const fallback = email.split("@")[0];
+                const username = usernameMap[email] || fallback;
+                return {
+                    email,
+                    display: username,
+                    blitzScore: data.totalScore || 0,
+                    role: roleMap[email] || ""
+                };
+            });
 
-    const defidropUsers = defidropSnap.docs
-      .filter(doc => !blockedEmails.includes(doc.id))
-      .map(doc => {
-        const data = doc.data();
-        const email = doc.id;
-        const fallback = email.split("@")[0];
-        const username = usernameMap[email] || fallback;
-        return {
-          email,
-          display: username,
-          defidrop: data.totalCorrect || 0,
-          role: roleMap[email] || ""
-        };
-      });
-const quibblUsers = quibblSnap.docs
-  .map(doc => {
-    const data = doc.data();
-    const email = doc.id;
-    const fallback = email.split("@")[0];
-    const username = usernameMap[email] || fallback;
-    return {
-      email,
-      display: username,
-      wins: data.wins || 0,
-      role: roleMap[email] || ""
-    };
-  });
+        const quibblUsers = quibblSnap.docs
+            .map(doc => {
+                const data = doc.data();
+                const email = doc.id;
+                const fallback = email.split("@")[0];
+                const username = usernameMap[email] || fallback;
+                return {
+                    email,
+                    display: username,
+                    wins: data.wins || 0,
+                    role: roleMap[email] || ""
+                };
+            });
 
-const quibblMedals = [
-  `<img src="rank1quibbl.png" alt="1st" class="role-badge2">`,
-  `<img src="rank2quibbl.png" alt="2nd" class="role-badge2">`,
-  `<img src="rank3quibbl.png" alt="3rd" class="role-badge2">`
-];
+        const quibblMedals = [`<img src="rank1quibbl.png" alt="1st" class="role-badge2">`, `<img src="rank2quibbl.png" alt="2nd" class="role-badge2">`, `<img src="rank3quibbl.png" alt="3rd" class="role-badge2">`];
+        const levelMedals = [`<img src="rank1XP.png" alt="1st" class="role-badge2">`, `<img src="rank2XP.png" alt="2nd" class="role-badge2">`, `<img src="rank3XP.png" alt="3rd" class="role-badge2">`];
+        const blitzMedals = [`<img src="rank1.png" alt="1st" class="role-badge2">`, `<img src="rank2.png" alt="2nd" class="role-badge2">`, `<img src="rank3.png" alt="3rd" class="role-badge2">`];
 
-    // Medals for Top Levels (XP)
-const levelMedals = [
-  `<img src="rank1XP.png" alt="1st" class="role-badge2">`,
-  `<img src="rank2XP.png" alt="2nd" class="role-badge2">`,
-  `<img src="rank3XP.png" alt="3rd" class="role-badge2">`
-];
+        const topLevels = [...levelUsers].sort((a, b) => b.level - a.level).slice(0, 10);
+        const topBlitz = [...blitzUsers].sort((a, b) => b.blitzScore - a.blitzScore).slice(0, 10);
+        const topQuibbl = [...quibblUsers].sort((a, b) => b.wins - a.wins).slice(0, 10);
 
-// Medals for Top DefiDrop
-const defidropMedals = [
-  `<img src="rank1.png" alt="1st" class="role-badge2">`,
-  `<img src="rank2.png" alt="2nd" class="role-badge2">`,
-  `<img src="rank3.png" alt="3rd" class="role-badge2">`
-];
+        const topLevelEmails = topLevels.slice(0, 3).map(u => u.email);
+        const topBlitzEmails = topBlitz.slice(0, 3).map(u => u.email);
+        const topQuibblEmails = topQuibbl.slice(0, 3).map(u => u.email);
 
+        localStorage.setItem('topLevelEmails', JSON.stringify(topLevelEmails));
+        localStorage.setItem('topBlitzEmails', JSON.stringify(topBlitzEmails));
+        localStorage.setItem('topQuibblEmails', JSON.stringify(topQuibblEmails));
 
-    const colors = ['#FFD700', '#C0C0C0', '#CD7F32'];
-
-    const topLevels = [...levelUsers].sort((a, b) => b.level - a.level).slice(0, 10);
-    const topDefidrop = [...defidropUsers].sort((a, b) => b.defidrop - a.defidrop).slice(0, 10);
-    const topLevelEmails = topLevels.slice(0, 3).map(u => u.email);
-const topDefidropEmails = topDefidrop.slice(0, 3).map(u => u.email);
-localStorage.setItem('topLevelEmails', JSON.stringify(topLevelEmails));
-localStorage.setItem('topDefidropEmails', JSON.stringify(topDefidropEmails));
-
-
-
-    async function withAvatars(userList) {
-      return await Promise.all(userList.map(async user => {
-        let avatar = 'Group-10.png';
-        try {
-          const avatarRef = ref(storage, `avatars/${user.email}`);
-          avatar = await getDownloadURL(avatarRef);
-        } catch {
-          // default avatar
+        async function withAvatars(userList) {
+            return await Promise.all(userList.map(async user => {
+                let avatar = 'Group-10.png';
+                try {
+                    const avatarRef = ref(storage, `avatars/${user.email}`);
+                    avatar = await getDownloadURL(avatarRef);
+                } catch {}
+                return { ...user, avatar };
+            }));
         }
-        return { ...user, avatar };
-      }));
+
+        const [topLevelsWithAvatars, topBlitzWithAvatars, topQuibblWithAvatars] = await Promise.all([
+            withAvatars(topLevels),
+            withAvatars(topBlitz),
+            withAvatars(topQuibbl)
+        ]);
+
+        // --- HELPER FUNCTIONS NOW INCLUDED INSIDE ---
+        function generateRow(u, i, medals, valueLabel, valueKey) {
+            const rank = i < medals.length ?
+                `<span class="glow-rank" style="background: transparent;">${medals[i]}</span>` :
+                `<span style="color: white; background: transparent;">#${i + 1}</span>`;
+            const color = i < 3 ? ['#FFD700', '#C0C0C0', '#CD7F32'][i] : 'white';
+            const valueDisplay = valueKey === 'level' ?
+                `Lvl ${u.level}` :
+                valueKey === 'blitzScore' ?
+                `Score: ${u.blitzScore}` :
+                `<span style="display: flex; align-items: center; font-weight: bold; color: white; background: transparent;">
+                    ${u.wins} <img src="quibblstar.png" alt="Star" style="width: 28px; height: 28px; margin-right: 4px; border: none;">
+                </span>`;
+            return `<li style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
+                <span style="display: flex; align-items: center; gap: 8px; background: transparent;">
+                    ${rank}
+                    <img src="${u.avatar}" alt="avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #888;">
+                    <span style="color: ${color}; background: transparent; cursor: pointer;">
+                        ${u.display}
+                        ${u.role?.includes("plus") ? `<img src="plass.png" title="FlipCards+" class="role-badge2 rol plus-badge">` : ""}
+                        ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol">` : ""}
+                        ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol">` : ""}
+                    </span>
+                </span>
+                <span style="font-weight: bold; color: white;">${valueDisplay}</span>
+            </li>`;
+        }
+
+        function renderLeaderboard(el, users, medals, valueLabel, valueKey, containerId) {
+    if (!el) return;
+    el.innerHTML = '';
+    
+    // Show top 3 by default
+    const top3 = users.slice(0, 3);
+    top3.forEach((user, index) => {
+        el.innerHTML += generateRow(user, index, medals, valueLabel, valueKey);
+    });
+
+    // If there are more than 3 users, create the expandable section
+    if (users.length > 3) {
+        const moreContainer = document.createElement("div");
+        moreContainer.id = containerId;
+        moreContainer.className = "leaderboard-expand hidden"; // Starts hidden
+
+        const restOfUsers = users.slice(3);
+        restOfUsers.forEach((user, index) => {
+            moreContainer.innerHTML += generateRow(user, index + 3, medals, valueLabel, valueKey);
+        });
+        el.appendChild(moreContainer);
+
+        // Create the toggle button
+        const button = document.createElement("button");
+        button.className = "neumorphic-button";
+        button.textContent = "Show More";
+        button.style.cssText = 'width: 100%; margin-top: 10px; font-size: 12px; padding: 8px;';
+        button.onclick = () => toggleMore(containerId); // This calls the toggle function
+        el.appendChild(button);
     }
-
-    const [topLevelsWithAvatars, topDefidropWithAvatars] = await Promise.all([
-      withAvatars(topLevels),
-      withAvatars(topDefidrop)
-    ]);
-const topQuibbl = [...quibblUsers].sort((a, b) => b.wins - a.wins).slice(0, 10);
-const topQuibblWithAvatars = await withAvatars(topQuibbl);
-const topQuibblEmails = topQuibbl.slice(0, 3).map(u => u.email);
-localStorage.setItem('topQuibblEmails', JSON.stringify(topQuibblEmails));
-
-function renderLeaderboard(el, users, medals, valueLabel, valueKey, containerId) {
-  const top3 = users.slice(0, 3);
-  const remaining = users.slice(3);
-
-  el.innerHTML = `
-    ${top3.map((u, i) => generateRow(u, i, medals, valueLabel, valueKey)).join('')}
-    <div id="${containerId}" class="hidden">
-      ${remaining.map((u, i) => generateRow(u, i + 3, medals, valueLabel, valueKey)).join('')}
-    </div>
-    <div style="text-align: center; margin-top: 10px;">
-  <button class="neumorphic-button2" onclick="toggleMore('${containerId}', this)">Show More</button>
-</div>
-
-  `;
 }
+        // --- END OF HELPER FUNCTIONS ---
 
-function generateRow(u, i, medals, valueLabel, valueKey) {
-  const rank = i < medals.length
-    ? `<span class="glow-rank" style="background: transparent;">${medals[i]}</span>`
-    : `<span style="color: white; background: transparent;">#${i + 1}</span>`;
+        renderLeaderboard(levelEl, topLevelsWithAvatars, levelMedals, "Lvl", "level", "moreLevel");
+        renderLeaderboard(blitzEl, topBlitzWithAvatars, blitzMedals, "Score", "blitzScore", "moreBlitz");
+        renderLeaderboard(quibblEl, topQuibblWithAvatars, quibblMedals, "Stars", "wins", "moreQuibbl");
 
-  const color = i < 3 ? ['#FFD700', '#C0C0C0', '#CD7F32'][i] : 'white';
-
-  const valueDisplay = valueKey === 'level'
-    ? `Lvl ${u.level}`
-    : valueKey === 'defidrop'
-      ? `Score: ${u.defidrop}`
-      : `
-  <span style="display: flex; align-items: center; font-weight: bold; color: white; background: transparent;">
-    ${u.wins}
-    <img src="quibblstar.png" alt="Star" style="width: 28px; height: 28px; margin-right: 4px; border: none;">
-  </span>
-`;
-
-
-  return `
-    <li style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0;">
-      <span style="display: flex; align-items: center; gap: 8px; background: transparent;">
-        ${rank}
-        <img src="${u.avatar}" alt="avatar" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #888;">
-        <span style="color: ${color}; background: transparent; cursor: pointer;">
-          ${u.display}
-          ${/* ▼▼▼ ADD THIS LINE ▼▼▼ */''}
-          ${u.role?.includes("plus") ? `<img src="plass.png" title="FlipCards+" class="role-badge2 rol plus-badge">` : ""}
-          ${u.role?.includes("verified") ? `<img src="verified.svg" title="Verified" class="role-badge2 rol">` : ""}
-          ${u.role?.includes("first") ? `<img src="first.png" title="First User" class="role-badge2 rol">` : ""}
-        </span>
-      </span>
-      <span style="font-weight: bold; color: white;">${valueDisplay}</span>
-    </li>
-  `;
-}
-
-window.toggleMore = (id, btn) => {
-  const section = document.getElementById(id);
-  const isHidden = section.classList.contains("hidden");
-
-  if (isHidden) {
-    section.classList.remove("hidden", "leaderboard-collapse");
-    section.classList.add("leaderboard-expand");
-    btn.textContent = "Show Less";
-  } else {
-    section.classList.remove("leaderboard-expand");
-    section.classList.add("leaderboard-collapse");
-
-    // Delay hiding to let animation finish
-    setTimeout(() => {
-      section.classList.add("hidden");
-      section.classList.remove("leaderboard-collapse");
-    }, 400);
-
-    btn.textContent = "Show More";
-  }
-};
-
-
-
-renderLeaderboard(levelEl, topLevelsWithAvatars, levelMedals, "Lvl", "level", "moreLevel");
-renderLeaderboard(defidropEl, topDefidropWithAvatars, defidropMedals, "Score", "defidrop", "moreDefidrop");
-renderLeaderboard(quibblEl, topQuibblWithAvatars, quibblMedals, "Stars", "wins", "moreQuibbl");
-
-
-  } catch (err) {
-    console.error("Error loading leaderboards:", err);
-    if (levelEl) levelEl.innerHTML = "<li>Error loading leaderboard</li>";
-    if (defidropEl) defidropEl.innerHTML = "<li>Error loading leaderboard</li>";
-  }
+    } catch (err) {
+        console.error("Error loading leaderboards:", err);
+        if (levelEl) levelEl.innerHTML = "<li>Error loading leaderboard</li>";
+        if (blitzEl) blitzEl.innerHTML = "<li>Error loading leaderboard</li>";
+        if (quibblEl) quibblEl.innerHTML = "<li>Error loading leaderboard</li>";
+    }
 }
 auth.onAuthStateChanged(async (user) => {
   if (user) {
@@ -485,4 +440,25 @@ onSnapshot(countdownRef, (docSnap) => {
     window._countdownTimer = setInterval(updateCountdown, 1000);
   }
 });
+// leaderboard.js
 
+// ▼▼▼ ADD THIS ENTIRE FUNCTION TO THE VERY END OF THE FILE ▼▼▼
+function toggleMore(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const button = container.nextElementSibling; // The button is the next sibling after the container
+
+    const isHidden = container.classList.contains("hidden");
+    if (isHidden) {
+        container.classList.remove("hidden");
+        container.classList.remove("leaderboard-collapse");
+        container.classList.add("leaderboard-expand");
+        if (button) button.textContent = "Show Less";
+    } else {
+        container.classList.add("leaderboard-collapse");
+        container.classList.remove("leaderboard-expand");
+        // Wait for the collapse animation to finish before hiding
+        setTimeout(() => container.classList.add("hidden"), 390);
+        if (button) button.textContent = "Show More";
+    }
+}

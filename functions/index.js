@@ -65,6 +65,8 @@ exports.generateFlashcards = onRequest(
               break;
 
             case "application/vnd.openxmlformats-officedocument.presentationml.presentation": // .pptx
+            // ADD THIS LINE
+            case "application/vnd.openxmlformats-officedocument.wordprocessingml.document": // .docx
               // ✅ THIS IS THE FIX: Simpler parsing directly from the buffer
               documentText = await officeParser.parseOfficeAsync(fileBuffer);
               break;

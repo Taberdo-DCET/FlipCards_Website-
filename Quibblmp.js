@@ -109,6 +109,58 @@ window.closeHelpModal = function() {
         modal.classList.add('hidden');
     }
 }
+window.openVideoTutorialModal = function() {
+    const modal = document.getElementById('videoTutorialModal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        showVideo('solo'); // <-- ADD THIS LINE
+    }
+}
+
+window.closeVideoTutorialModal = function() {
+    const modal = document.getElementById('videoTutorialModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        // Reset to the default view when closing
+        showVideo('solo'); 
+    }
+}
+
+window.showVideo = function(topic) {
+    const titleElement = document.getElementById('video-title');
+    const videoContainer = document.querySelector('.video-container');
+    const navButtons = document.querySelectorAll('.video-nav-btn');
+
+    // Remove 'active' class from all buttons first
+    navButtons.forEach(btn => btn.classList.remove('active'));
+
+    if (topic === 'solo') {
+        titleElement.textContent = 'How to Play Solo';
+        // 👇 Use the <video> tag for your local MP4 file 👇
+        videoContainer.innerHTML = `
+            <video width="100%" height="100%" controls autoplay muted loop>
+                <source src="soloquibbl.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        `;
+        
+        // Add 'active' class to the correct button
+        document.querySelector('.video-nav-btn[onclick="showVideo(\'solo\')"]').classList.add('active');
+
+    } else if (topic === 'multiplayer') {
+        titleElement.textContent = 'Multiplayer Mode Tutorial';
+        // 👇 Use the <video> tag for your local MP4 file 👇
+        videoContainer.innerHTML = `
+            <video width="100%" height="100%" controls autoplay muted loop>
+                <source src="multiquibbl.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        `;
+        
+        // Add 'active' class to the correct button
+        document.querySelector('.video-nav-btn[onclick="showVideo(\'multiplayer\')"]').classList.add('active');
+    }
+}
 // --- AUTH STATE ---
 auth.onAuthStateChanged((user) => {
   if (user) {

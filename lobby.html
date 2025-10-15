@@ -208,17 +208,20 @@
     <span>Have a Suggestion?</span>
   </button>
 
-  <a href="flipai.html" id="tryFlipBtn" class="upgrade-btn try-btn" aria-label="Try FlipCardsAI">
-    <!-- layers/cards icon -->
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+<a href="flipai.html" id="tryFlipBtn" class="upgrade-btn try-btn" aria-label="Try FlipCardsAI">
+    <svg class="ai-sparkle-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
          stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px; vertical-align:middle;">
-      <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-      <polyline points="2 17 12 22 22 17"></polyline>
-      <polyline points="2 12 12 17 22 12"></polyline>
+      
+      <path class="sparkle-main" d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z"></path>
+      
+      <path class="sparkle-small s1" d="M4 4l2 2m0-2l-2 2"></path>
+      <path class="sparkle-small s2" d="M18 4l2 2m0-2l-2 2"></path>
+      <path class="sparkle-small s3" d="M4 18l2 2m0-2l-2 2"></path>
+      <path class="sparkle-small s4" d="M18 18l2 2m0-2l-2 2"></path>
     </svg>
-    <span>Try FlipCardsAI</span>
-  </a>
+    <span>FlipCards AI</span>
+</a>
 </div>
 <p class="platform-description">
         This platform is founded on the belief that quality education should be accessible to everyone. It provides students with a premium learning experience, powerful study tools, and a vibrant community without the high costs. The service is designed to support learners from all financial backgrounds, ensuring education empowers rather than burdens.
@@ -610,24 +613,21 @@
         <h2>🎉 Welcome to FlipCards!</h2>
         <p>We're excited to share new updates with you:</p>
         <ul style="text-align: left; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update: 10/10/25</li>
+          <li>📅 New features in this Update: 10/16/25</li>
           <br>
-          <li>INTRODUCING: FlipCards AI ✨</li>
-          <li>Our first AI-powered tool is here! Just upload a PDF of your notes or a textbook chapter, and our AI will automatically create a full set of flashcards for you. It's the perfect way to quickly prepare for exams. 🤖</li>
+          <li>DOCX Support for FlipCards AI✨:</li>
+          <li>➥You can now create flashcard sets directly from your .docx files using FlipCards AI!</li>
           <br>
-          <li>PinPoint Mode Upgrades 📍</li>
-          <li>🌎 Public Sets Dropdown:</li>
-          <span class="sub-announcement">➥ You can now access and study amazing image-based sets created by other users from the community!</span>
-          <li>📋 Paste Image Button:</li>
-          <span class="sub-announcement">➥ No more saving and uploading. Just screenshot an image from anywhere and paste it directly from your clipboard to create a PinPoint set.</span>
+          <li>🔄 Save Your Blitz Progress:</li>
+          <span class="sub-announcement">➥ You can now save your progress in Blitz mode and pick up right where you left off.</span>
+          <li>📊 Leaderboards Updated:</li>
+          <span class="sub-announcement">➥ We've swapped out Defidrop for Blitz Mode on the leaderboards. Time to climb those new ranks!</span>
           <br>
-          <li>Flashcard Mode Update 🃏</li>
-          <li>🔀 Reshuffle Button:</li>
-          <span class="sub-announcement">➥ Your most requested feature is here! You can now mix up your deck anytime with a single click to keep your study sessions fresh.</span>
+          <li>🎥 New Quibbl Tutorial:</li>
+          <span class="sub-announcement">➥ Confused about Quibbl? We've added a new video tutorial showing you exactly how to play solo and with friends.</span>
           <br>
-          <li>Navigation & Shortcut Fixes 🔧</li>
-          <span class="sub-announcement">➥ The folder dropdown will now remember your last choice, saving you extra clicks. </span>
-          <span class="sub-announcement">➥ The Enter Key now works correctly in Test mode for submitting answers, making it much faster to go through your tests.</span>
+          <li>💾 Save Drafts for Sets:</li>
+          <span class="sub-announcement">➥ Interrupted while creating a new set? No problem! You can now save your work as a draft and finish it later. </span>
           <br>
           <li>👀 Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes</li>
@@ -671,9 +671,9 @@
     </div>
 
     <div class="leaderboard-section">
-      <div class="section-title">Top 10 DefiDrop Records 🔥</div>
-      <ul id="defidropLeaderboard" class="leaderboard-list"></ul>
-    </div>
+  <div class="section-title">Top 10 Blitz Records ⚡</div>
+  <ul id="blitzLeaderboard" class="leaderboard-list"></ul>
+</div>
 
     <div class="leaderboard-section">
       <div class="section-title">Top 10 Highest Stars Earned in Quibbl <img src="quibblstar.png" alt="Star" class="quibbl-star-icon"></div>
@@ -700,7 +700,7 @@
 
       <div class="badge-card">
   <div class="badge-icon">⚡</div>
-  <div class="badge-label" id="defidropCountLabel">Loading...</div>
+  <div class="badge-label" id="blitzCountLabel">Loading...</div>
 </div>
 
 <div class="badge-card" id="quibblWinsBadge">

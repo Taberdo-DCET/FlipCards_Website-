@@ -369,7 +369,7 @@ if (isPublic) {
 
         await showCustomAlert("✅ Flashcard set with images saved!", 'success');
       }
-
+      localStorage.removeItem('savedraftimage');
       window.location.href = "lobby.html#Folderr";
     } catch (err) {
       console.error("Upload error:", err);
@@ -379,3 +379,132 @@ if (isPublic) {
     }
   });
 });
+// --- START: DRAFT FUNCTIONALITY FOR IMAGE CARDS ---
+
+// Helper function to convert an image file to a base64 string for storage
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Helper function to convert a base64 string back into a File object
+async function dataUrlToFile(dataUrl, fileName) {
+  const res = await fetch(dataUrl);
+  const blob = await res.blob();
+  return new File([blob], fileName, { type: blob.type });
+}
+
+// Gathers all data from the form, converting images for storage
+async function getDraftData() {
+    const title = document.querySelector(".title").value.trim();
+    const description = document.querySelector(".description").value.trim();
+    const flashcards = [];
+    const cardElements = cardsContainer.querySelectorAll(".flashcard");
+
+    for (let i = 0; i < cardElements.length; i++) {
+        const term = cardElements[i].querySelector(".term").value.trim();
+        const imageFile = imageFiles[i]; // Get file from the global array
+        let imageAsDataUrl = null;
+
+        if (imageFile) {
+            imageAsDataUrl = await fileToDataUrl(imageFile);
+        }
+
+        if (term || imageAsDataUrl) {
+            flashcards.push({ term: term, definition: imageAsDataUrl });
+        }
+    }
+    return { title, description, flashcards };
+}
+
+// Checks if any form field has content
+function hasUnsavedChanges() {
+  const title = document.querySelector(".title").value.trim();
+  const description = document.querySelector(".description").value.trim();
+  const terms = Array.from(cardsContainer.querySelectorAll(".term")).map(input => input.value.trim());
+  // Check title, description, any terms, or any selected image files
+  return !!(title || description || terms.some(t => t) || imageFiles.some(f => f));
+}
+
+// Select the back button and modal elements
+const backToFoldersBtn = document.getElementById("backToFoldersBtn");
+const draftModal = document.getElementById("draftConfirmModal");
+const saveDraftBtn = document.getElementById("saveDraftBtn");
+const discardDraftBtn = document.getElementById("discardDraftBtn");
+const cancelLeaveBtn = document.getElementById("cancelLeaveBtn");
+
+// Event listener for the "Back to Folders" button
+backToFoldersBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (hasUnsavedChanges() && !editMode) {
+    draftModal.classList.remove('hidden');
+  } else {
+    window.location.href = "lobby.html#Folderr";
+  }
+});
+
+// Event listener for "Save Draft"
+saveDraftBtn.addEventListener('click', async () => {
+  const draftData = await getDraftData();
+  localStorage.setItem('savedraftimage', JSON.stringify(draftData));
+  draftModal.classList.add('hidden');
+  window.location.href = "lobby.html#Folderr";
+});
+
+// Event listener for "Discard"
+discardDraftBtn.addEventListener('click', () => {
+  localStorage.removeItem('savedraftimage');
+  draftModal.classList.add('hidden');
+  window.location.href = "lobby.html#Folderr";
+});
+
+// Event listener for "Cancel"
+cancelLeaveBtn.addEventListener('click', () => {
+  draftModal.classList.add('hidden');
+});
+
+// --- Logic to load a draft when the page loads ---
+document.addEventListener('DOMContentLoaded', async () => {
+    const draft = JSON.parse(localStorage.getItem('savedraftimage'));
+    // Only load a draft if we are NOT in edit mode and a draft exists
+    if (!editMode && draft) {
+        document.querySelector('.title').value = draft.title || '';
+        document.querySelector('.description').value = draft.description || '';
+
+        cardsContainer.innerHTML = ''; // Clear the default card
+        imageFiles = []; // Reset the global file array
+
+        if (draft.flashcards && draft.flashcards.length > 0) {
+            for (let i = 0; i < draft.flashcards.length; i++) {
+                const fc = draft.flashcards[i];
+                const newCard = createCard(i); // Create a new card UI element
+                cardsContainer.appendChild(newCard);
+                newCard.querySelector('.term').value = fc.term || '';
+
+                // If an image was saved (as a data URL)
+                if (fc.definition) {
+                    // Convert it back to a file
+                    const file = await dataUrlToFile(fc.definition, `draft-image-${i}.png`);
+                    imageFiles[i] = file; // Add the restored file to our global array
+
+                    // Update the UI to show the restored image preview
+                    const previewBox = newCard.querySelector('.image-preview-box');
+                    const successIcon = newCard.querySelector('.upload-success-icon');
+                    const img = document.createElement("img");
+                    img.src = URL.createObjectURL(file);
+                    previewBox.innerHTML = ""; // Clear "No image" text
+                    previewBox.appendChild(img);
+                    successIcon.classList.remove("hidden");
+                }
+            }
+        } else {
+             cardsContainer.appendChild(createCard(0)); // Add one empty card if draft was empty
+        }
+        updateCardNumbers();
+    }
+});
+// --- END: DRAFT FUNCTIONALITY FOR IMAGE CARDS ---

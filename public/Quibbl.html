@@ -40,9 +40,14 @@
 
     <main class="main-content">
       <div class="settings-containers">
-         <button id="help-icon-btn" onclick="openHelpModal()" title="How to Play">
-      <i class="fa-solid fa-circle-question"></i>
-    </button>
+        <div class="top-controls-left">
+            <button id="video-tutorial-btn" onclick="openVideoTutorialModal()" title="Video Tutorial">
+                <i class="fa-solid fa-video"></i> Video Tutorial
+            </button>
+            <button id="help-icon-btn" onclick="openHelpModal()" title="How to Play">
+                <i class="fa-solid fa-circle-question"></i>
+            </button>
+        </div>
         <div class="rounds-container">
           <p><i class="fa-solid fa-list-ol"></i> Cards This Round: <span id="roundsDisplay">0</span></p>
         </div>
@@ -159,6 +164,30 @@
         </div>
         <div class="modal-footer">
             <button id="helpModalCloseBtn" onclick="closeHelpModal()">Got It!</button>
+        </div>
+    </div>
+</div>
+<div id="videoTutorialModal" class="modal-backdrop hidden">
+    <div class="modal-box video-modal-box">
+        <div class="modal-header">
+            <h2><i class="fa-solid fa-video" style="margin-right: 10px;"></i>Video Tutorials</h2>
+            <button onclick="closeVideoTutorialModal()" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body video-modal-body">
+            <aside class="video-modal-sidebar">
+                <button class="video-nav-btn active" onclick="showVideo('solo')">
+                    <i class="fa-solid fa-user"></i> How to Play Solo
+                </button>
+                <button class="video-nav-btn" onclick="showVideo('multiplayer')">
+                    <i class="fa-solid fa-users"></i> Multiplayer Mode
+                </button>
+            </aside>
+            <main id="video-modal-content" class="video-modal-content">
+                <h3 id="video-title">How to Play Solo</h3>
+                <div class="video-container">
+                    <p>Your video player will be embedded here.</p>
+                </div>
+            </main>
         </div>
     </div>
 </div>

@@ -232,19 +232,28 @@ async function checkPublicLimit(user, currentTitle, currentCreatedOn) {
 
 async function saveFlashcardSet(isPracticeAfter = false) {
     const { data, error } = await getFlashcardData();
-    if (error) return showCustomAlert(error, 'error');
+    if (error) {
+        return showCustomAlert(error, 'error');
+    }
 
-    // --- NEW: Change button text to "Creating..." ---
-    createBtn.textContent = "Creating...";
+    // --- Update button text to show it's working ---
+    const originalCreateText = isEditMode ? "Update" : "Create";
+    const originalPracticeText = isEditMode ? "Update and Practice" : "Create and Practice";
+    createBtn.textContent = "Saving...";
+    practiceBtn.textContent = "Saving...";
     createBtn.disabled = true;
     practiceBtn.disabled = true;
 
     const user = auth.currentUser;
     const sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
 
+    // Variables to hold the new set's ID and collection for redirection
+    let redirectSetId = null;
+    let redirectCollection = null;
+
     try {
         if (isEditMode) {
-            // ... (existing edit mode logic remains the same)
+            // Logic for updating an existing set
             const updated = sets.map(set =>
                 set.title === originalTitle && set.createdOn === originalCreatedOn ? data : set
             );
@@ -289,98 +298,216 @@ async function saveFlashcardSet(isPracticeAfter = false) {
             localStorage.setItem("flashcardSets", JSON.stringify(sets));
 
             if (user) {
-                const setId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
-                await setDoc(doc(db, "local_sets", setId), { ...data, user: user.email });
-                const totalToAdd = data.flashcards.length;
+                // Determine collection and generate ID based on public status
                 if (data.public) {
                     const canPublish = await checkPublicLimit(user, data.title, data.createdOn);
                     if (!canPublish) {
-                        // --- NEW: Reset button if publishing fails ---
-                        createBtn.textContent = "Create";
+                        // Reset buttons and stop if user can't publish
+                        createBtn.textContent = originalCreateText;
+                        practiceBtn.textContent = originalPracticeText;
                         createBtn.disabled = false;
                         practiceBtn.disabled = false;
                         return;
                     }
-                    const publicId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
-                    await setDoc(doc(db, "flashcard_sets", publicId), { ...data, user: user.email });
+                    redirectCollection = "flashcard_sets";
+                    redirectSetId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
+                } else {
+                    redirectCollection = "local_sets";
+                    redirectSetId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
                 }
+
+                // Save the new set to Firestore with the generated ID
+                await setDoc(doc(db, redirectCollection, redirectSetId), { ...data, user: user.email });
+
+                // Update user stats
+                const totalToAdd = data.flashcards.length;
                 const userStatsRef = doc(db, "user_card_stats", user.email);
                 await setDoc(userStatsRef, { totalCards: increment(totalToAdd) }, { merge: true });
             }
             if (typeof addXP === "function") addXP(20);
         }
 
-        // --- NEW: Redirect after success ---
+        // --- Handle redirection after a successful save ---
         await showCustomAlert(isEditMode ? "✔️ Flashcard set updated." : `✔️ Flashcard set saved.${data.public ? " Public version created too." : ""}`, 'success');
-        
+        localStorage.removeItem('flashcardDraft');
+
         if (isPracticeAfter) {
-            localStorage.setItem("reviewingSet", JSON.stringify(data));
-            window.location.href = "flashcard.html";
+            if (redirectSetId && redirectCollection) {
+                // --- THIS IS THE FIX ---
+                // Pass the new set's ID and collection to the next page
+                localStorage.setItem("reviewingSetId", redirectSetId);
+                localStorage.setItem("reviewingSetCollection", redirectCollection);
+                window.location.href = "flashcard.html";
+            } else {
+                // Fallback for logged-out users or if the ID couldn't be determined (e.g., during edit)
+                await showCustomAlert("Redirecting to lobby. Please start your practice session from there.", 'default');
+                window.location.href = "lobby.html#Folderr";
+            }
         } else {
-            // Redirect to lobby instead of clearing the form
             window.location.href = "lobby.html#Folderr";
         }
 
     } catch (err) {
         console.error("Error saving set:", err);
         showCustomAlert("❌ Failed to save set.", 'error');
-        // --- NEW: Reset button text on error ---
-        createBtn.textContent = isEditMode ? "Update" : "Create";
+        // Reset button text on error
+        createBtn.textContent = originalCreateText;
+        practiceBtn.textContent = originalPracticeText;
         createBtn.disabled = false;
         practiceBtn.disabled = false;
     }
 }
+function getDraftData() {
+  const title = document.querySelector(".title").value.trim();
+  const description = document.querySelector(".description").value.trim();
+  const flashcards = [];
+  
+  document.querySelectorAll(".flashcard").forEach(card => {
+    const term = card.querySelector(".term")?.value.trim();
+    const def = card.querySelector(".definition")?.value.trim();
+    if (term || def) { // Only add card if it has some content
+      flashcards.push({ term: term || "", definition: def || "" });
+    }
+  });
 
+  return { title, description, flashcards };
+}
+function populateFormFromDraft(draftData) {
+  if (!draftData) return;
+
+  document.querySelector(".title").value = draftData.title || "";
+  document.querySelector(".description").value = draftData.description || "";
+
+  const clearDefaultCards = () => wrapper.querySelectorAll(".flashcard").forEach(card => card.remove());
+  clearDefaultCards();
+
+  if (draftData.flashcards && draftData.flashcards.length > 0) {
+      draftData.flashcards.forEach(fc => {
+          const newCard = createFlashcard();
+          newCard.querySelector('.term').value = fc.term || '';
+          newCard.querySelector('.definition').value = fc.definition || '';
+          wrapper.appendChild(newCard);
+      });
+  } else {
+      wrapper.appendChild(createFlashcard());
+  }
+  updateCardNumbers();
+}
+// Checks if any input field has content
+function hasUnsavedChanges() {
+  const draftData = getDraftData();
+  const hasCardContent = draftData.flashcards.some(fc => fc.term || fc.definition);
+  return !!(draftData.title || draftData.description || hasCardContent);
+}
+
+// Select the back button and modal elements
+const backToFoldersBtn = document.getElementById("backToFoldersBtn");
+const draftModal = document.getElementById("draftConfirmModal");
+const saveDraftBtn = document.getElementById("saveDraftBtn");
+const discardDraftBtn = document.getElementById("discardDraftBtn");
+const cancelLeaveBtn = document.getElementById("cancelLeaveBtn");
+
+// Handles clicking the "Back to Folders" button
+backToFoldersBtn.addEventListener('click', (e) => {
+  e.preventDefault(); // Stop the browser from navigating immediately
+
+  // Only show the prompt if we are creating a new set and there are changes
+  if (hasUnsavedChanges() && !isEditMode) {
+    draftModal.classList.remove('hidden');
+  } else {
+    window.location.href = "lobby.html#Folderr";
+  }
+});
+
+// Handles the "Save Draft" button in the modal
+saveDraftBtn.addEventListener('click', () => {
+  const draftData = getDraftData();
+  localStorage.setItem('flashcardDraft', JSON.stringify(draftData));
+  draftModal.classList.add('hidden');
+  window.location.href = "lobby.html#Folderr";
+});
+
+// Handles the "Discard" button in the modal
+discardDraftBtn.addEventListener('click', () => {
+  localStorage.removeItem('flashcardDraft');
+  draftModal.classList.add('hidden');
+  window.location.href = "lobby.html#Folderr";
+});
+
+// Handles the "Cancel" button in the modal
+cancelLeaveBtn.addEventListener('click', () => {
+  draftModal.classList.add('hidden');
+});
+// --- Logic for the Load Draft Modal ---
+const loadDraftModal = document.getElementById('loadDraftModal');
+const loadDraftBtn = document.getElementById('loadDraftBtn');
+const discardSavedDraftBtn = document.getElementById('discardSavedDraftBtn');
+
+loadDraftBtn.addEventListener('click', () => {
+    const draftData = JSON.parse(localStorage.getItem("flashcardDraft"));
+    if (draftData) {
+        // Use our new function to populate the form
+        populateFormFromDraft(draftData);
+    }
+    loadDraftModal.classList.add('hidden');
+});
+
+discardSavedDraftBtn.addEventListener('click', () => {
+    // User chose to discard, so remove the draft and hide the modal
+    localStorage.removeItem('flashcardDraft');
+    loadDraftModal.classList.add('hidden');
+});
 createBtn.addEventListener("click", () => saveFlashcardSet(false));
 practiceBtn.addEventListener("click", () => saveFlashcardSet(true));
 
 window.addEventListener("DOMContentLoaded", () => {
-  // Only run if we're NOT editing an existing set
-if (!isEditMode) {
+  const editingData = JSON.parse(localStorage.getItem("editingFlashcardSet"));
   const parsedFlashcards = JSON.parse(localStorage.getItem("flashcardsData") || "[]");
+  const draftData = JSON.parse(localStorage.getItem("flashcardDraft"));
 
-  if (parsedFlashcards.length > 0) {
-    // Clear any default existing flashcard
-    wrapper.querySelectorAll(".flashcard").forEach(card => card.remove());
+  // Clear the default card that loads with the page
+  const clearDefaultCards = () => wrapper.querySelectorAll(".flashcard").forEach(card => card.remove());
 
-    parsedFlashcards.forEach((fc, index) => {
+  if (editingData) {
+    // --- 1. PRIORITY: Load a set for editing ---
+    isEditMode = true;
+    originalTitle = editingData.title;
+    originalCreatedOn = editingData.createdOn;
+
+    document.querySelector(".title").value = editingData.title || "";
+    document.querySelector(".description").value = editingData.description || "";
+    document.getElementById("publicToggle").checked = !!editingData.public;
+    
+    clearDefaultCards();
+    editingData.flashcards.forEach((fc, index) => {
+      const card = createFlashcard();
+      card.querySelector(".term").value = fc.term;
+      card.querySelector(".definition").value = fc.definition;
+      wrapper.appendChild(card);
+    });
+    
+    createBtn.textContent = "Update";
+    practiceBtn.textContent = "Update and Practice";
+    localStorage.removeItem("editingFlashcardSet");
+
+  } else if (parsedFlashcards.length > 0) {
+    // --- 2. PRIORITY: Load imported card data ---
+    clearDefaultCards();
+    parsedFlashcards.forEach((fc) => {
       const card = createFlashcard();
       card.querySelector(".term").value = fc.term || "";
       card.querySelector(".definition").value = fc.definition || "";
-      card.querySelector(".flashcard-header span").textContent = index + 1;
       wrapper.appendChild(card);
     });
-
-    // Clear flashcardsData from localStorage to prevent duplicate insertion next time
     localStorage.removeItem("flashcardsData");
-  }
+
+  } else if (draftData) {
+  // --- 3. PRIORITY: A draft was found, so show the confirmation modal ---
+  const loadDraftModal = document.getElementById('loadDraftModal');
+  loadDraftModal.classList.remove('hidden');
 }
 
-  const data = JSON.parse(localStorage.getItem("editingFlashcardSet"));
-  if (!data) return;
-
-  isEditMode = true;
-  originalTitle = data.title;
-  originalCreatedOn = data.createdOn;
-
-  document.querySelector(".title").value = data.title || "";
-  document.querySelector(".description").value = data.description || "";
-  document.getElementById("publicToggle").checked = !!data.public;
-
-  wrapper.querySelectorAll(".flashcard").forEach(card => card.remove());
-
-  data.flashcards.forEach((fc, index) => {
-    const card = createFlashcard();
-    card.querySelector(".term").value = fc.term;
-    card.querySelector(".definition").value = fc.definition;
-    card.querySelector(".flashcard-header span").textContent = index + 1;
-    wrapper.appendChild(card);
-  });
-
-  createBtn.textContent = "Update";
-  practiceBtn.textContent = "Update and Practice";
-
-  localStorage.removeItem("editingFlashcardSet");
+  updateCardNumbers(); // Update card numbers for all cases
 });
 
 onAuthStateChanged(auth, user => {

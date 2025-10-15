@@ -208,8 +208,12 @@ ul {
  .navmenu:hover> :not(:hover) {
     filter: blur(.6px);
     opacity: 0.5;
+   
+    
  }
-
+.navmenu a:hover {
+  color: #ffcf00 !important;
+}
 .getstarted2 {
   background: transparent;
   border: none;
@@ -336,7 +340,7 @@ ul {
   flex-direction: column; /* Key change */
   justify-content: center; /* Key change */
   align-items: center; /* Key change */
-  background-image: linear-gradient(rgba(157, 157, 157, 0.1), rgba(0, 0, 0, 0.8)), url('newbac2.png');
+  background-image: linear-gradient(rgba(157, 157, 157, 0.1), rgba(0, 0, 0, 0.8)), url('newbac.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -557,6 +561,7 @@ span {
   text-decoration: none;
   transition: background-color 0.2s ease, transform 0.2s ease;
   margin-left: -120px;
+  border: 2px solid #ffcf00;
 }
 
 .upgrade-btn:hover {
@@ -1518,8 +1523,8 @@ span {
   margin-right: -8px;
 }
 .role-badge[alt="plus"] {
-  width: 32px !important;
-  height: 32px !important;
+  width: 20px !important;
+  height: 20px !important;
   margin: 0;
   padding: 0;
   transform: translateY(1px);
@@ -9150,6 +9155,7 @@ color: #ffcf00 !important;
   display: inline-flex;
   align-items: center;
   padding: 12px;
+  padding-right: 15px;
 }
 .try-btn span {
   background: none !important;
@@ -9158,7 +9164,33 @@ color: #ffcf00 !important;
 .try-btn:hover span {
   color: #FFCF00;            /* matches hover color */
 }
+/* --- Twinkling Animation for AI Icon --- */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+}
 
+.ai-sparkle-icon .sparkle-small {
+  /* Apply the animation to all small sparkles */
+  animation: twinkle 2.5s ease-in-out infinite;
+}
+
+/* Add delays so they don't all twinkle at once */
+.ai-sparkle-icon .s2 {
+  animation-delay: 0.3s;
+}
+.ai-sparkle-icon .s3 {
+  animation-delay: 0.7s;
+}
+.ai-sparkle-icon .s4 {
+  animation-delay: 1.1s;
+}
 
 
 
