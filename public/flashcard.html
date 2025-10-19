@@ -216,6 +216,79 @@ Match</button>
 <script src="flipTimer.js"></script>
 
 <script type="module">
+  /**
+   * Fetches and plays Google's Text-to-Speech audio.
+   * @param {string} textToSpeak - The text from your flashcard.
+   */
+  async function playGoogleAudio(textToSpeak) {
+    
+    // Stop any currently playing audio before starting a new one
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+    
+    // ⚠️ PASTE YOUR GOOGLE API KEY HERE
+    const API_KEY = 'AIzaSyCynM5G8GUw3uM8pjdgQkWAsKow3ph9tCg'; 
+    
+    const apiUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${API_KEY}`;
+
+    const requestBody = {
+      input: {
+        text: textToSpeak
+      },
+      voice: {
+        languageCode: 'en-US',
+        name: 'en-US-WaveNet-G' // A premium "WaveNet" voice
+      },
+      audioConfig: {
+        audioEncoding: 'MP3'
+      }
+    };
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+      });
+
+      if (!response.ok) {
+        // If the API key is wrong or restricted, this will show an error
+        console.error('API Error Response:', await response.json());
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      // The audio is returned as a base64 string. We need to decode it.
+      currentAudio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
+      currentAudio.play();
+
+      // Add an event listener to clear the variable when audio finishes
+      currentAudio.onended = () => {
+        currentAudio = null;
+      };
+
+    } catch (error) {
+      console.error('Failed to fetch Google audio:', error);
+      showCustomAlert('Failed to generate audio. Check the console for errors (e.g., API key restrictions).');
+      currentAudio = null; // Also clear on error
+    }
+  }
+  // --- ADD THIS NEW HELPER FUNCTION ---
+  function createSpeakerIcon(textToSpeak) {
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-volume-high speaker-icon';
+    
+    icon.addEventListener('click', (e) => {
+        e.stopPropagation(); // Stops the card from flipping
+        playGoogleAudio(textToSpeak);
+    });
+    return icon;
+  }
   // Import the Firebase functions we need
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
@@ -229,6 +302,7 @@ import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, 
   let flashcards = [];
   let currentReviewingSet = null; // ▼▼▼ NEW: Variable to store the fresh data ▼▼▼
   let originalSetData = null; // To store the original set before review
+  let currentAudio = null;
 const exitReviewBtn = document.getElementById('exitReviewBtn');
 
   // --- Get references to HTML elements ---
@@ -355,11 +429,25 @@ function shuffleFlashcards() {
   // Show a confirmation alert
   showCustomAlert("The deck has been shuffled!");
 }
+  // --- REPLACE your old updateCard function with this new one ---
+
+  // --- REPLACE your old updateCard function with this new one ---
   function updateCard(index) {
+    
+    // --- Stop any playing audio when the card changes ---
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+
     card.style.transition = "none";
     card.classList.remove("flipped");
     const cardData = flashcards[index];
     if (!cardData) return;
+
+    // --- NEW: Clear ALL old icons first ---
+    front.querySelectorAll('.speaker-icon').forEach(icon => icon.remove());
+    back.querySelectorAll('.speaker-icon').forEach(icon => icon.remove());
 
     // Temporarily set content for both sides to calculate sizes
     front.textContent = cardData.term;
@@ -389,10 +477,33 @@ function shuffleFlashcards() {
     }
     // If not reverse mode, the content is already correct from our calculation step.
 
+    // --- NEW: Add Speaker Icons to BOTH sides ---
+    
+    // 1. Add icon for the TERM
+    if (!isImageUrl(cardData.term)) {
+        const termIcon = createSpeakerIcon(cardData.term);
+        if (reverseMode) {
+            back.appendChild(termIcon); // In reverse mode, term is on the back
+        } else {
+            front.appendChild(termIcon); // In normal mode, term is on the front
+        }
+    }
+
+    // 2. Add icon for the DEFINITION
+    if (!isImageUrl(cardData.definition)) {
+        const defIcon = createSpeakerIcon(cardData.definition);
+        if (reverseMode) {
+            front.appendChild(defIcon); // In reverse mode, definition is on the front
+        } else {
+            back.appendChild(defIcon); // In normal mode, definition is on the back
+        }
+    }
+    // --- End of New Code ---
+
     counter.textContent = `${index + 1} / ${flashcards.length}`;
     setTimeout(() => { card.style.transition = "transform 0.3s"; }, 10);
   }
-function showFeedback(type) {
+  function showFeedback(type) {
     // Don't show feedback if we're in the locked "My Review Session" mode
     if (performanceToggle.disabled) return;
 

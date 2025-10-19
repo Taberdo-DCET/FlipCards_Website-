@@ -7590,7 +7590,20 @@ color: #ffcf00 !important;
 .fa-privacy:hover svg { stroke: #ffcf00 !important; }
 .fa-x-twitter { color: #ffffff !important; }
 /* --- New Social Sidebar Styles --- */
+.custom-footer .footer-icon-btn.fa-facebook::before,
+.custom-footer .footer-icon-btn.fa-instagram::before,
+.custom-footer .footer-icon-btn.fa-gmail::before,
+.custom-footer .footer-icon-btn.fa-privacy::before {
+  display: none;
+  content: none; /* Add this for extra measure */
+}
 
+/* Ensure the SVG inside still displays correctly */
+.custom-footer .footer-icon-btn svg {
+  display: inline-block; /* Or block, depending on desired layout */
+  vertical-align: middle; /* Helps align the SVG */
+  border: none; /* Reiterate no border */
+}
 /* The main container that sticks to the left */
 .social-sidebar-container {
   position: fixed;
@@ -9191,14 +9204,720 @@ color: #ffcf00 !important;
 .ai-sparkle-icon .s4 {
   animation-delay: 1.1s;
 }
+/* --- Chat Widget Styling --- */
+.chat-widget {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 1001;
+}
+.chat-toggle-btn {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #ffcf00;
+    /* border: none; */ /* <-- REMOVED or COMMENTED OUT */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease;
+    /* ... other styles ... */
+
+    /* ▼▼▼ ADD THESE LINES FROM FLIPAI.CSS ▼▼▼ */
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    animation: rgb-border-animation-pastel 5s linear infinite; /* Or your chosen animation name/duration */
+    /* ▲▲▲ END ADD ▲▲▲ */
+}
+.chat-toggle-btn:hover {
+    transform: scale(1.1);
+}
+#chatIcon,
+.chat-toggle-btn .fa-xmark {
+    position: absolute;
+    color: #171717;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+#chatIcon {
+    width: 30px;
+    height: 30px;
+    stroke: #171717;
+    stroke-width: 2.5;
+}
+.chat-toggle-btn .fa-xmark {
+    font-size: 1.8rem;
+}
+.chat-toggle-btn .hidden {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+}
+.chat-container {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 350px;
+    max-height: 500px;
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform-origin: bottom right;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+@keyframes popOut {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0.5); opacity: 0; }
+}
+.chat-container.closing {
+    animation: popOut 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+.chat-header {
+    background-color: #ffcf00;
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+}
+.chat-header h3 {
+    margin: 0;
+    color: #000000;
+    font-size: 1.1rem;
+}
+.chat-messages {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.chat-message {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 12px;
+    line-height: 1.5;
+}
+.chat-message p { margin: 0; }
+.user-message {
+    background-color: #ffcf00;
+    color: #171717;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+.ai-message {
+    background-color: #333;
+    color: #e0e0e0;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+}
+.typing-indicator p {
+    margin: 0;
+    color: #888;
+    font-style: italic;
+}
+.ai-sparkle-icon-typing {
+    color: #ffcf00;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+.ai-sparkle-icon-typing .sparkle-main,
+.ai-sparkle-icon-typing .sparkle-small {
+    stroke: #ffcf00;
+}
+.chat-input-area {
+    display: flex;
+    border-top: 1px solid #333;
+    padding: 10px;
+}
+#chatInput {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    padding: 10px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Satoshi', sans-serif;
+}
+#chatInput:focus { outline: none; }
+#chatSendBtn {
+    background: none;
+    border: none;
+    color: #ffcf00;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 10px;
+}
+#chatInput:disabled, #chatSendBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+#chatMessages::-webkit-scrollbar { width: 8px; }
+#chatMessages::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 4px; }
+#chatMessages::-webkit-scrollbar-thumb { background-color: #ffcf00; border-radius: 4px; border: 2px solid #2a2a2a; }
+#chatMessages::-webkit-scrollbar-thumb:hover { background-color: #ffe066; }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.9); opacity: 0.7; }
+}
+/* --- Chat Icon Animation --- */
+#chatIcon,
+.chat-toggle-btn .fa-xmark {
+    position: absolute;
+    color: #171717;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.chat-toggle-btn .fa-xmark {
+    font-size: 1.8rem;
+}
+
+.chat-toggle-btn .hidden {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.5);
+}
+/* --- Tooltip for Chat Button --- */
+.chat-toggle-btn::before,
+.chat-toggle-btn::after {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 1002;
+}
+
+.chat-toggle-btn::before {
+    content: attr(data-tooltip);
+    background-color: #ffcf00;
+    color: #000000;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: bold;
+    white-space: nowrap;
+    right: calc(100% + 12px);
+}
+
+.chat-toggle-btn::after {
+    content: '';
+    border: 6px solid transparent;
+    border-left-color: #ffcf00;
+    right: calc(100% + 2px);
+}
+
+.chat-toggle-btn:hover::before,
+.chat-toggle-btn:hover::after {
+    opacity: 1;
+}
+#chatInput:focus {
+    outline: none;
+}
+
+#chatSendBtn {
+    background: none;
+    border: none;
+    color: #ffcf00;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 10px;
+}
+
+#chatInput:disabled, #chatSendBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.chat-message.ai-message ul {
+  padding-left: 20px; /* Adds indentation for the list */
+  margin-top: 10px;
+}
+
+.chat-message.ai-message li {
+  margin-bottom: 8px; /* Adds space between each list item */
+}
+@keyframes rgb-border-animation-pastel {
+  0%   { border-color: #ffadad; } /* Light Red */
+  17%  { border-color: #ffd6a5; } /* Light Orange */
+  33%  { border-color: #fdffb6; } /* Light Yellow */
+  50%  { border-color: #caffbf; } /* Light Green */
+  67%  { border-color: #9bf6ff; } /* Light Blue */
+  83%  { border-color: #bdb2ff; } /* Light Purple */
+  100% { border-color: #ffadad; } /* Back to Light Red */
+}
+/* ======================================= */
+/* ▼▼▼ PROFILE NOTIFICATION STYLES ▼▼▼ */
+/* ======================================= */
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-150%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-150%);
+    opacity: 0;
+  }
+}
+
+.profile-notification-container {
+  position: fixed;
+  top: 80px; /* Position below the header */
+  left: 20px;
+  z-index: 1001;
+  background: rgba(23, 23, 23, 0.7);
+  color: #ffcf00;
+  padding: 12px 40px 12px 18px; /* Added right padding for the X button */
+  border-radius: 10px;
+  border: 1px solid #ffcf00;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  /* Initial state for animation */
+  transform: translateX(-150%);
+  opacity: 0;
+}
+
+/* This class will be toggled by JS to show the notification */
+.profile-notification-container.show {
+  animation: slideInFromLeft 0.5s ease-out forwards;
+}
+
+/* This class will be added by JS to trigger the hide animation */
+.profile-notification-container.dismissing {
+  animation: slideOutToLeft 0.5s ease-out forwards;
+}
+
+.dismiss-btn {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  font-size: 24px;
+  line-height: 1;
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease;
+  background-color: transparent;
+}
+
+.dismiss-btn:hover {
+  transform: translateY(-50%) scale(1.2);
+  color: #ff6b6b;
+}
+#notification-message{
+  background-color: transparent;
+  color: #fff;
+}
+/* --- Feature Showcase Modal Styles --- */
+.showcase-modal-content {
+  background-color: #1e1e1e;
+  width: 90vw;
+  max-width: 1000px;
+  height: 85vh;
+  border-radius: 20px;
+  border: 1px solid #333;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  /* Animation */
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* --- Mute Button for Main Video --- */
+.video-mute-btn {
+  all: unset;
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  background-color: rgba(23, 23, 23, 0.7);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+.video-mute-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.video-mute-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: #fff;
+}
+/* This class is toggled by JS */
+.video-mute-btn .hidden {
+  display: none;
+}
+
+/* --- Floating Scroll Indicator --- */
+.scroll-indicator {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  background-color: rgba(23, 23, 23, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid #FFCF00;
+  border-radius: 999px;
+  color: #f0f0f0;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  animation: bounce 2s ease-in-out infinite;
+}
+.scroll-indicator.hidden {
+  opacity: 0;
+  transform: translate(-50%, 20px); /* Move down slightly on hide */
+}
+.scroll-indicator span {
+  background: none;
+  color: inherit;
+}
+.scroll-indicator svg {
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translate(-50%, 0);
+  }
+  40% {
+    transform: translate(-50%, -10px);
+  }
+  60% {
+    transform: translate(-50%, -5px);
+  }
+}
+
+/* --- Close Button at Bottom --- */
+/* --- Close Button at Bottom --- */
+.showcase-close-footer {
+  padding: 30px;
+  text-align: center; /* This is the line that centers the button */
+  margin-top: 20px; 
+}
+
+.modern-close-btn {
+  /* Reset button styles */
+  all: unset;
+  box-sizing: border-box; /* Crucial for padding */
+
+  /* Layout */
+  display: inline-flex; /* Allows it to be centered by text-align */
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Space between icon and text */
+  
+  /* Sizing */
+  width: 200px;
+  padding: 12px 30px;
+
+  /* Appearance */
+  background-color: #333; /* Modern dark gray */
+  color: #f0f0f0;
+  border: 1px solid #444;
+  border-radius: 999px; /* Pill shape */
+  
+  /* Font */
+  font-family: 'Satoshi', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modern-close-btn:hover {
+  background-color: #ffcf00; /* Main brand color on hover */
+  color: #111; /* Dark text for contrast */
+  border-color: #ffcf00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 207, 0, 0.2);
+}
+
+.modern-close-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.modern-close-btn span {
+  background: none;
+  color: inherit; /* Inherits color from the button */
+}
+
+.modern-close-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: inherit; /* Inherits color from the button's text color */
+}
+
+.showcase-scroll-container {
+  height: 100%;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.showcase-video-main {
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+}
+
+.showcase-video-main video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.showcase-section {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 40px;
+  min-height: 40vh;
+}
+
+.showcase-section.reverse {
+  flex-direction: row-reverse;
+}
+
+.showcase-video-container {
+  flex: 1;
+  min-width: 300px;
+  height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #111;
+  justify-content: center;
+  display: flex;
+}
+
+.showcase-video-container video {
+  width: 70%;
+  height: 90%;
+  object-fit: cover;
+  align-self: center;
+}
+
+.showcase-description {
+  flex: 1;
+  color: #f0f0f0;
+  font-family: 'Satoshi', sans-serif;
+}
+
+.showcase-description h3 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #ffcf00;
+}
+
+.showcase-description p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #ccc;
+}
+
+/* Scrollbar Styling */
+.showcase-scroll-container::-webkit-scrollbar {
+  width: 10px;
+}
+.showcase-scroll-container::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+.showcase-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 5px;
+}
+.showcase-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+.showcase-modal-content {
+  border: 1px solid #ffcf00
+}
+/* --- Add/Replace with these rules for Modal Scroll Lock (v3) --- */
+html.modal-open {
+    /* Keep overflow hidden on html */
+    overflow: hidden;
+}
+body.modal-open {
+    /* Make body fixed, ensure it covers the whole viewport */
+    position: fixed;
+    /* Use inset instead of just width for better coverage */
+    inset: 0; 
+    /* Still need to hide potential body overflow */
+    overflow: hidden; 
+}
+/* --- End of new rules --- */
+@keyframes popOut {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0.8); opacity: 0; }
+}
+.showcase-modal-content.closing {
+  animation: popOut 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+.assistant-suggestion-note {
+  text-align: center;
+  font-size: 14px;
+  color: #aaa;
+  font-family: 'Satoshi', sans-serif;
+  margin-top: 30px; /* Space above the note */
+  margin-bottom: -10px; /* Pull the close button slightly closer */
+  padding: 0 20px; /* Prevent text from touching edges */
+}
+/* --- Video Progress Bar --- */
+.video-progress-bar-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px; /* Adjust height as needed */
+  background-color: rgba(255, 255, 255, 0.2); /* Track color */
+  overflow: hidden; /* Ensures fill stays within bounds */
+}
+
+.video-progress-bar-fill {
+  height: 100%;
+  width: 0%; /* Starts empty */
+  background-color: #ffcf00; /* Progress color (your brand yellow) */
+  transition: width 0.1s linear; /* Smooths the progress update slightly */
+}
 
 
 
 
 
 
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  /* This rule already exists, keep it */
+  .showcase-section, .showcase-section.reverse {
+    flex-direction: column;
+  }
 
+  /* ▼▼▼ ADD THESE NEW RULES ▼▼▼ */
 
+  /* Make the modal take up more vertical space */
+  .showcase-modal-content {
+    height: 90vh; /* Increase height slightly */
+    width: 95vw;  /* Make it slightly wider */
+  }
+
+  /* Adjust main video height - use a smaller vh or a percentage */
+  .showcase-video-main {
+    height: 45vh; /* Reduce height to leave more space for content below */
+    /* Alternatively, you could try a percentage like: height: 40%; */
+  }
+
+  /* Reduce padding and minimum height for stacked sections */
+  .showcase-section {
+    padding: 25px;    /* Reduce vertical padding */
+    min-height: auto; /* Remove minimum height constraint */
+    gap: 20px;       /* Reduce gap between video and text */
+  }
+
+  /* Adjust video container size in stacked layout */
+  .showcase-video-container {
+    height: 250px; /* Slightly smaller video previews */
+    min-width: 90%; /* Allow it to fill more width */
+  }
+
+  /* Adjust text size for better readability */
+  .showcase-description h3 {
+    font-size: 1.6rem;
+  }
+  .showcase-description p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  /* Make the bottom close button slightly smaller */
+  .modern-close-btn {
+    width: 160px;
+    padding: 10px 20px;
+    font-size: 15px;
+  }
+  .showcase-close-footer {
+    padding: 20px; /* Reduce padding around close button */
+  }
+
+  /* Adjust scroll indicator position */
+  .scroll-indicator {
+    bottom: 15px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .scroll-indicator svg {
+     width: 16px;
+     height: 16px;
+  }
+
+  /* --- Optional: Hide mute button if it feels cluttered --- */
+  /*
+  .video-mute-btn {
+    display: none;
+  }
+  */
+
+  /* --- Optional: Adjust progress bar height --- */
+  /*
+  .video-progress-bar-container {
+      height: 3px;
+  }
+  */
+
+  /* ▲▲▲ END OF NEW RULES ▲▲▲ */
+}
 
 
 

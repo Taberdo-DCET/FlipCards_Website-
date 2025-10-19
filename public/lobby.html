@@ -6,10 +6,12 @@
     <title>FlipCards Lobby</title>
      <link rel="stylesheet" href="lobby.css">
      <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
      crossorigin="anonymous"></script>
      <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
      <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 
 </head>
@@ -605,7 +607,7 @@
   <div class="modal-content">
     
     <div class="welcome-modal-image">
-      <img src="wilkam.png" alt="Welcome to FlipCards">
+      <img src="wilkamm.png" alt="Welcome to FlipCards">
     </div>
 
     <div class="welcome-modal-text">
@@ -613,21 +615,28 @@
         <h2>🎉 Welcome to FlipCards!</h2>
         <p>We're excited to share new updates with you:</p>
         <ul style="text-align: left; font-size: 14px; line-height: 1.6;">
-          <li>📅 New features in this Update: 10/16/25</li>
+          <li>📅 New features in this Update: 10/20/25</li>
           <br>
-          <li>DOCX Support for FlipCards AI✨:</li>
-          <li>➥You can now create flashcard sets directly from your .docx files using FlipCards AI!</li>
+          <li>Meet your FlipCards Assistant! 🤖</li>
+          <span class="sub-announcement">➥ See that new chat icon in the lobby and AI page? That's your new AI helper! Ask it anything about FlipCards features, how to get started, or what's new.</span>
           <br>
-          <li>🔄 Save Your Blitz Progress:</li>
-          <span class="sub-announcement">➥ You can now save your progress in Blitz mode and pick up right where you left off.</span>
-          <li>📊 Leaderboards Updated:</li>
-          <span class="sub-announcement">➥ We've swapped out Defidrop for Blitz Mode on the leaderboards. Time to climb those new ranks!</span>
+          <li>Introducing 4 Powerful New FlipCards AI Tools! ✨:</li>
+          <li>➔ Analyze File 💡</li>
+          <span class="sub-announcement">➥ Upload your PDF, PPTX, or DOCX and get deep explanations of key concepts. The AI adapts to your subject!</span>
+          <li>➔ Summarizer 📜</li>
+          <span class="sub-announcement">➥ Upload any document and our AI will instantly generate a concise summary AND a paraphrased version. Perfect for quick reviews!</span>
+          <li>➔ Ask AI (Image) 📸</li>
+          <span class="sub-announcement">➥ Snap a picture! Upload a JPG of any question, diagram, or problem, and the AI will analyze it and give you a detailed answer.</span>
+          <li>➔ Ask AI (Text) ⌨️</li>
+          <span class="sub-announcement">➥ Have a question? Just type it! Get instant, detailed answers for complex theories, history questions, or even tough math problems (with all the steps!).</span>
           <br>
-          <li>🎥 New Quibbl Tutorial:</li>
-          <span class="sub-announcement">➥ Confused about Quibbl? We've added a new video tutorial showing you exactly how to play solo and with friends.</span>
+          <li>Text-to-Speech Support:</li>
+          <span class="sub-announcement">➥ You can now listen to your flashcards! We've added a speaker icon in Flashcard Mode. Just click it to hear the voice-over for both the term and the definition.</span>
           <br>
-          <li>💾 Save Drafts for Sets:</li>
-          <span class="sub-announcement">➥ Interrupted while creating a new set? No problem! You can now save your work as a draft and finish it later. </span>
+          <li>Increased Daily AI Usage: We've recently increased the daily usage limits for all users!</li>
+          <span class="sub-announcement">➥ Standard Users: 3 ➔ 5 Uses</span>
+          <span class="sub-announcement">➥ Verified Users: 5 ➔ 20 Uses</span>
+          <span class="sub-announcement">➥ Plus Users: 10 ➔ 50 Uses</span>
           <br>
           <li>👀 Visual Glitch Fixes</li>
           <li>🛠 Bug Fixes</li>
@@ -1057,6 +1066,88 @@ For the best results, avoid using low-quality images.</p>
     <button id="dismissSuggestionNotificationBtn" class="neumorphic-button">Dismiss</button>
   </div>
 </div>
+<div id="chatWidget" class="chat-widget">
+        <button id="chatToggleBtn" class="chat-toggle-btn" data-tooltip="Ask FlipCards Lobby Assistant">
+            <svg id="chatIcon" class="ai-sparkle-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path class="sparkle-main" d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z"></path>
+                <path class="sparkle-small s1" d="M4 4l2 2m0-2l-2 2"></path>
+                <path class="sparkle-small s2" d="M18 4l2 2m0-2l-2 2"></path>
+                <path class="sparkle-small s3" d="M4 18l2 2m0-2l-2 2"></path>
+                <path class="sparkle-small s4" d="M18 18l2 2m0-2l-2 2"></path>
+            </svg>
+            <i class="fa-solid fa-xmark hidden"></i>
+        </button>
+        <div id="chatContainer" class="chat-container hidden">
+            <div class="chat-header">
+                <h3>FlipCards Lobby Assistant</h3>
+            </div>
+            <div id="chatMessages" class="chat-messages">
+                <div class="chat-message ai-message">
+                    <p>Hi there! How can I help you with the features in the lobby?</p>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Ask about the lobby..." autocomplete="off">
+                <button id="chatSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    <div id="profile-notification" class="profile-notification-container hidden">
+        <span id="notification-message"></span>
+        <span id="dismiss-notification" class="dismiss-btn">&times;</span>
+    </div>
+<!-- Feature Showcase Modal -->
+<div id="featureShowcaseModal" class="custom-modal hidden">
+  <div class="showcase-modal-content">
+    
+    <div class="showcase-scroll-container">
+      
+      <div class="showcase-video-main">
+        <video id="mainShowcaseVideo" src="Introducing FlipCards Assistant.mp4" loop playsinline></video>
+        <button id="toggleMuteBtn" class="video-mute-btn" aria-label="Toggle Mute">
+          <svg id="unmutedIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          <svg id="mutedIcon" class="hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+        </button>
+        <div id="videoProgressBarContainer" class="video-progress-bar-container">
+            <div id="videoProgressBarFill" class="video-progress-bar-fill"></div>
+        </div>
+      </div>
+      
+      <div class="showcase-section">
+        <div class="showcase-video-container">
+           <video src="flipcardsailobby.mp4" autoplay muted loop playsinline></video>
+        </div>
+        <div class="showcase-description">
+          <h3>FlipCards AI Assistant</h3>
+          <p>he FlipCards AI page includes a chat widget feature, identified as chatWidget, which is fixed in the bottom-right corner of the screen. Users can open the chat interface by clicking the toggle button (chatToggleBtn), which displays an AI sparkle icon and has a tooltip that reads "Ask FlipCards Assistant".</p>
+        </div>
+      </div>
+      
+      <div class="showcase-section reverse">
+        <div class="showcase-video-container">
+           <video src="flipaipage.mp4" autoplay muted loop playsinline></video>
+        </div>
+        <div class="showcase-description">
+          <h3>Interaction</h3>
+          <p>Users can type questions into the chatInput text field, which has a placeholder of "Ask about a feature...". Messages are sent by clicking the chatSendBtn or pressing the Enter key.</p>
+          <p>To use it, just click the chat button that has the sparkle icon. When you hover over it, you'll see a tooltip that says "Ask FlipCards Assistant".</p>
+        </div>
+      </div>
+      <p class="assistant-suggestion-note">
+        Help improve the Assistant! Message us with your suggestions.
+      </p>
+      <div class="showcase-close-footer">
+        <button id="closeShowcaseModal" class="modern-close-btn">
+          <span>&times;Close</span>
+        </button>
+      </div>
+      
+    </div> <div id="scrollIndicator" class="scroll-indicator">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+      <span>Scroll down to see more</span>
+    </div>
+    
+  </div> </div>
 <script type="module">
 import { doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { db } from "./firebaseinit.js";
@@ -1099,17 +1190,160 @@ onSnapshot(docRef, (docSnap) => {
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const modal = document.getElementById("welcomeModal");
-    const dismissBtn = document.getElementById("dismissWelcome");
+    // DEBUG: Initial log
+    console.log("Script loaded (Overflow+Important). Initializing elements.");
 
-    if (sessionStorage.getItem("justLoggedIn") === "true") {
-      modal.classList.remove("hidden");
-      sessionStorage.removeItem("justLoggedIn"); // prevent repeat
+    const welcomeModal = document.getElementById("welcomeModal");
+    const dismissWelcomeBtn = document.getElementById("dismissWelcome");
+    const htmlEl = document.documentElement;
+    const bodyEl = document.body;
+
+    // DEBUG: Log elements found
+    console.log("htmlEl:", htmlEl);
+    console.log("bodyEl:", bodyEl);
+    console.log("welcomeModal found?", !!welcomeModal); // Check if modal exists
+
+    // ... (rest of the element variables: showcaseModal, closeShowcaseBtn, etc.)
+    const showcaseModal = document.getElementById("featureShowcaseModal");
+    const closeShowcaseBtn = document.getElementById("closeShowcaseModal");
+    const scrollContainer = document.querySelector(".showcase-scroll-container");
+    const mainVideo = document.getElementById("mainShowcaseVideo");
+    const toggleMuteBtn = document.getElementById("toggleMuteBtn");
+    const unmutedIcon = document.getElementById("unmutedIcon");
+    const mutedIcon = document.getElementById("mutedIcon");
+    const scrollIndicator = document.getElementById("scrollIndicator");
+    const progressBarFill = document.getElementById("videoProgressBarFill");
+
+
+    // Function to lock background scroll
+    function lockScroll() {
+      console.log("--- LOCKING SCROLL (Overflow Method + !important) ---");
+      htmlEl.style.setProperty('overflow', 'hidden', 'important');
+      bodyEl.style.setProperty('overflow', 'hidden', 'important');
+      console.log("Set html.style.overflow:", htmlEl.style.overflow);
+      console.log("Set body.style.overflow:", bodyEl.style.overflow);
     }
 
-    dismissBtn?.addEventListener("click", () => {
-      modal.classList.add("hidden");
+    // Function to unlock background scroll
+    function unlockScroll() {
+      console.log("--- UNLOCKING SCROLL (Overflow Method + !important) ---");
+      htmlEl.style.removeProperty('overflow');
+      bodyEl.style.removeProperty('overflow');
+      console.log("Cleared html.style.overflow");
+      console.log("Cleared body.style.overflow");
+    }
+
+    // --- Start Debugging the initial modal show ---
+    console.log("DEBUG: Checking condition to show welcome modal..."); // Log BEFORE the check
+
+    // Make sure this is still set to true for testing:
+    const shouldShowWelcome = sessionStorage.getItem("justLoggedIn") === "true"; // Original line
+    // const shouldShowWelcome = sessionStorage.getItem("justLoggedIn") === "true"; // Original line
+
+    console.log("DEBUG: shouldShowWelcome is:", shouldShowWelcome); // Log the condition result
+
+    if (shouldShowWelcome) {
+      console.log("DEBUG: Condition MET. Attempting to show welcome modal..."); // Log INSIDE the block
+
+      if (welcomeModal) {
+        console.log("DEBUG: welcomeModal exists. Removing 'hidden' class..."); // Log before class change
+        welcomeModal.classList.remove("hidden");
+        console.log("DEBUG: 'hidden' class removed. Calling lockScroll()..."); // Log before lockScroll
+        lockScroll();
+        console.log("DEBUG: lockScroll() called."); // Log after lockScro
+        sessionStorage.removeItem("justLoggedIn"); // Keep commented out for testing
+      } else {
+        console.error("DEBUG: welcomeModal element NOT FOUND! Cannot show modal or lock scroll."); // Log if modal is missing
+      }
+    } else {
+      console.log("DEBUG: Condition NOT MET. Welcome modal will not be shown initially."); // Log if condition is false
+    }
+    // --- End Debugging ---
+
+
+    // When "Let's Go!" is clicked...
+    dismissWelcomeBtn?.addEventListener("click", () => {
+      console.log("'Let's Go!' clicked. Transitioning to Showcase Modal.");
+      if (welcomeModal) welcomeModal.classList.add("hidden");
+      showcaseModal.classList.remove("hidden");
+      lockScroll(); // Ensure scroll remains locked
+if (progressBarFill) progressBarFill.style.width = '0%';
+      if (mainVideo) {
+         mainVideo.muted = false;
+         unmutedIcon.classList.remove("hidden");
+         mutedIcon.classList.add("hidden");
+         mainVideo.play().catch(error => { /* ... error handling ... */ });
+      }
     });
+mainVideo?.addEventListener('timeupdate', () => {
+    if (mainVideo.duration && progressBarFill) {
+        const progressPercent = (mainVideo.currentTime / mainVideo.duration) * 100;
+        progressBarFill.style.width = `${progressPercent}%`;
+    } else if (progressBarFill) {
+        progressBarFill.style.width = '0%'; // Reset if duration isn't available
+    }
+});
+    // ... (rest of the script: Mute button, Scroll indicator, Close button listeners)
+     toggleMuteBtn?.addEventListener("click", () => { /* ... mute logic ... */ });
+     scrollContainer?.addEventListener("scroll", () => { /* ... scroll indicator logic ... */ });
+     closeShowcaseBtn?.addEventListener("click", () => { /* ... close logic including unlockScroll() ... */ });
+     // Mute button listener
+    toggleMuteBtn?.addEventListener("click", () => {
+      if (mainVideo) {
+        mainVideo.muted = !mainVideo.muted;
+        unmutedIcon.classList.toggle("hidden", mainVideo.muted);
+        mutedIcon.classList.toggle("hidden", !mainVideo.muted);
+      }
+    });
+
+    // Scroll indicator listener
+    scrollContainer?.addEventListener("scroll", () => {
+      scrollIndicator.classList.toggle("hidden", scrollContainer.scrollTop > 40);
+    });
+
+    // Showcase modal close button listener
+// Showcase modal close button listener
+    closeShowcaseBtn?.addEventListener("click", () => {
+      // DEBUG: Log close button click
+      console.log("Showcase 'Close' button clicked. Starting close animation.");
+
+      const modalContent = showcaseModal.querySelector('.showcase-modal-content');
+
+      // --- NEW ANIMATION LOGIC ---
+      if (modalContent) {
+        modalContent.classList.add('closing'); // Add the class to start the animation
+
+        // Listen for the animation to end
+        modalContent.addEventListener('animationend', () => {
+          console.log("Close animation finished. Hiding modal and unlocking scroll."); // DEBUG Log
+          showcaseModal.classList.add("hidden"); // Hide the modal backdrop
+          modalContent.classList.remove('closing'); // Clean up the animation class
+          unlockScroll(); // Unlock background scroll
+
+          // Reset video and scroll state (as before)
+          if (mainVideo) {
+            mainVideo.pause();
+            mainVideo.currentTime = 0;
+          }
+          if (scrollContainer) scrollContainer.scrollTop = 0;
+          if (scrollIndicator) scrollIndicator.classList.remove("hidden");
+          if (progressBarFill) progressBarFill.style.width = '0%';
+
+        }, { once: true }); // Use { once: true } so the listener removes itself
+
+      } else {
+        // Fallback if modalContent isn't found (shouldn't happen)
+        showcaseModal.classList.add("hidden");
+        unlockScroll();
+         if (mainVideo) { mainVideo.pause(); mainVideo.currentTime = 0; }
+         if (scrollContainer) scrollContainer.scrollTop = 0;
+         if (scrollIndicator) scrollIndicator.classList.remove("hidden");
+         if (progressBarFill) progressBarFill.style.width = '0%';
+      }
+      // --- END NEW ANIMATION LOGIC ---
+
+    });
+
   });
 </script>
 
@@ -1414,5 +1648,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <script src="pass.js"></script>
 <script type="module" src="suggestion.js"></script>
 <script type="module" src="notifsugg.js"></script>
+<script type="module" src="lobby.js"></script>
+<script type="module" src="profile-notifications.js"></script>
 </body>
 </html>

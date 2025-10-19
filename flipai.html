@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
      crossorigin="anonymous"></script>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script> MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } }; </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -27,85 +32,227 @@
 
     <!-- Main Content -->
     <!-- Main Content -->
+<!-- Main Content -->
 <main class="main-container">
-    <div class="title-container">
-    <h1 class="page-title">
-    <svg class="ai-sparkle-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
-         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-         stroke-linecap="round" stroke-linejoin="round" style="margin-right:15px; vertical-align:middle;">
-      
-      <path class="sparkle-main" d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z"></path>
-      
-      <path class="sparkle-small s1" d="M4 4l2 2m0-2l-2 2"></path>
-      <path class="sparkle-small s2" d="M18 4l2 2m0-2l-2 2"></path>
-      <path class="sparkle-small s3" d="M4 18l2 2m0-2l-2 2"></path>
-      <path class="sparkle-small s4" d="M18 18l2 2m0-2l-2 2"></path>
-    </svg>
-    <span>FlipCards AI</span>
-</h1>
-    <img src="beta.png" alt="Beta Logo" class="beta-logo">
+
+    <!-- Tab Navigation with Title -->
+    <div class="tabs-container">
+        <!-- The Title container is now here, on the left -->
+        <div class="title-container">
+            <h1 class="page-title">
+                <svg class="ai-sparkle-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round" style="margin-right:15px; vertical-align:middle;">
+                  <path class="sparkle-main" d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z"></path>
+                  <path class="sparkle-small s1" d="M4 4l2 2m0-2l-2 2"></path>
+                  <path class="sparkle-small s2" d="M18 4l2 2m0-2l-2 2"></path>
+                  <path class="sparkle-small s3" d="M4 18l2 2m0-2l-2 2"></path>
+                  <path class="sparkle-small s4" d="M18 18l2 2m0-2l-2 2"></path>
+                </svg>
+                <span>FlipCards AI</span>
+            </h1>
+            <img src="beta.png" alt="Beta Logo" class="beta-logo">
+        </div>
+        <div class="tab-buttons-wrapper">
+        <!-- The actual tabs -->
+        <button class="tab-btn active" data-tab="create">
+    <i class="fa-solid fa-layer-group"></i> <span>Create Sets</span>
+</button>
+<button class="tab-btn" data-tab="explain">
+    <i class="fa-solid fa-lightbulb"></i> <span>Analyze File</span>
+</button>
+<button class="tab-btn" data-tab="summarizer">
+    <i class="fa-solid fa-file-lines"></i> <span>Summarizer</span>
+</button>
+<button class="tab-btn" data-tab="ask">
+    <i class="fa-solid fa-image"></i> <span>Ask AI (Image)</span>
+</button>
+<button class="tab-btn" data-tab="ask-text">
+    <i class="fa-solid fa-comment-dots"></i> <span>Ask AI (Text)</span>
+</button>
 </div>
-    <p class="page-description">
-    Instantly turn your PDF, PowerPoint, and Word documents into a complete set of flashcards. Upload your file to get started.
-</p>
-
-    <!-- File Upload Section -->
-    <div class="action-buttons-container">
-    <input type="file" id="fileUploadInput" accept=".pdf, .pptx, .docx" class="hidden">
-
-    <button id="uploadPdfBtn" class="modern-button">
-        <i class="fa-solid fa-file-pdf"></i>
-        Upload PDF
-    </button>
-
-    <button id="uploadPptxBtn" class="modern-button">
-        <i class="fa-solid fa-file-powerpoint"></i>
-        Upload PPTX
-    </button>
-
-    <button id="uploadDocxBtn" class="modern-button">
-        <i class="fa-solid fa-file-word"></i>
-        Upload DOCX
-    </button>
-
-    <button id="addSetBtn" class="modern-button hidden">
-        <i class="fa-solid fa-layer-group"></i>
-        Add this as Flashcard Set
-    </button>
-</div>
-
-    <div id="usageTracker" class="usage-tracker hidden">
-        <i id="usageInfoBtn" class="fa-solid fa-circle-info usage-info-icon"></i>
-        <span id="usageCount"></span>
-        <span id="resetTimer"></span>
+    </div>
+<div class="tab-panels-wrapper">
+    <!-- Tab Panel for Creating Sets -->
+    <div id="create-panel" class="tab-panel active">
+        <p class="page-description">
+            Instantly turn your PDF, PowerPoint, and Word documents into a complete set of flashcards. Upload your file to get started.
+        </p>
+        <div class="action-buttons-container">
+            <input type="file" id="fileUploadInput" accept=".pdf, .pptx, .docx" class="hidden">
+            <button id="uploadPdfBtn" class="modern-button">
+                <i class="fa-solid fa-file-pdf"></i>
+                Upload PDF
+            </button>
+            <button id="uploadPptxBtn" class="modern-button">
+                <i class="fa-solid fa-file-powerpoint"></i>
+                Upload PPTX
+            </button>
+            <button id="uploadDocxBtn" class="modern-button">
+                <i class="fa-solid fa-file-word"></i>
+                Upload DOCX
+            </button>
+            <button id="addSetBtn" class="modern-button hidden">
+                <i class="fa-solid fa-layer-group"></i>
+                Add this as Flashcard Set
+            </button>
+        </div>
+        <button class="how-it-works-btn" data-tab="create">How does this work?</button>
+        <div id="usageTracker" class="usage-tracker hidden">
+            <i id="usageInfoBtn" class="fa-solid fa-circle-info usage-info-icon"></i>
+            <span id="usageCount"></span>
+            <span id="resetTimer"></span>
+        </div>
+        <a href="shop.html" id="upgradeNote" class="upgrade-note hidden">
+            Upgrade your plan to gain more usage
+        </a>
+        <div id="fileInfoCreate" class="file-info-display hidden"></div>
+        <div id="flashcardsContainer">
+            <!-- Loader will be injected here by JavaScript -->
+        </div>
     </div>
 
-    <a href="shop.html" id="upgradeNote" class="upgrade-note hidden">
+    <!-- Tab Panel for Explaining File -->
+    <div id="explain-panel" class="tab-panel">
+     <p class="page-description">
+        Upload a file and the AI will explain the key concepts to you.Deepen your understanding. Upload a file for detailed explanations with culturally relevant examples.
+    </p>
+    <div class="action-buttons-container">
+         <input type="file" id="fileUploadInputExplain" accept=".pdf, .pptx, .docx" class="hidden">
+        <button id="uploadPdfBtnExplain" class="modern-button">
+            <i class="fa-solid fa-file-pdf"></i>
+            Upload PDF
+        </button>
+        <button id="uploadPptxBtnExplain" class="modern-button">
+            <i class="fa-solid fa-file-powerpoint"></i>
+            Upload PPTX
+        </button>
+        <button id="uploadDocxBtnExplain" class="modern-button">
+            <i class="fa-solid fa-file-word"></i>
+            Upload DOCX
+        </button>
+        <button id="downloadPdfBtn" class="modern-button hidden">
+            <i class="fa-solid fa-file-arrow-down"></i>
+            Download PDF
+        </button>
+    </div>
+    <button class="how-it-works-btn" data-tab="explain">How does this work?</button>
+
+    <!-- START: ADDED THIS SECTION -->
+    <div id="usageTrackerExplain" class="usage-tracker hidden">
+        <i id="usageInfoBtnExplain" class="fa-solid fa-circle-info usage-info-icon"></i>
+        <span id="usageCountExplain"></span>
+        <span id="resetTimerExplain"></span>
+    </div>
+    <a href="shop.html" id="upgradeNoteExplain" class="upgrade-note hidden">
         Upgrade your plan to gain more usage
     </a>
-
-    <!-- Loader -->
-    <!-- Flashcards Display -->
-    <div id="flashcardsContainer">
-        <!-- Loader will be injected here by JavaScript -->
+    <div id="fileInfoExplain" class="file-info-display hidden"></div>
+    <div id="explanationContainer">
+        <!-- Loader or explanation content will be injected here -->
     </div>
+    <!-- END: ADDED THIS SECTION -->
+</div>
+<div id="summarizer-panel" class="tab-panel">
+    <p class="page-description">
+        Get the key points fast. Upload a document, and the AI will provide a concise summary.
+    </p>
+    <div class="action-buttons-container">
+        <input type="file" id="fileUploadInputSummarizer" accept=".pdf, .pptx, .docx" class="hidden">
+        <button id="uploadPdfBtnSummarizer" class="modern-button">
+            <i class="fa-solid fa-file-pdf"></i>
+            Upload PDF
+        </button>
+        <button id="uploadPptxBtnSummarizer" class="modern-button">
+            <i class="fa-solid fa-file-powerpoint"></i>
+            Upload PPTX
+        </button>
+        <button id="uploadDocxBtnSummarizer" class="modern-button">
+            <i class="fa-solid fa-file-word"></i>
+            Upload DOCX
+        </button>
+    </div>
+    <button class="how-it-works-btn" data-tab="summarizer">How does this work?</button>
+    <div id="usageTrackerSummarizer" class="usage-tracker hidden">
+        <i id="usageInfoBtnSummarizer" class="fa-solid fa-circle-info usage-info-icon"></i>
+        <span id="usageCountSummarizer"></span>
+        <span id="resetTimerSummarizer"></span>
+    </div>
+    <a href="shop.html" id="upgradeNoteSummarizer" class="upgrade-note hidden">
+        Upgrade your plan to gain more usage
+    </a>
+    <div id="fileInfoSummarizer" class="file-info-display hidden"></div>
+    <div id="summaryContainer"></div>
+</div>
+<div id="ask-panel" class="tab-panel">
+    <p class="page-description">
+        Have a question? Upload a JPG image of your problem, and the AI will provide an answer.
+    </p>
+    <div class="action-buttons-container">
+        <input type="file" id="fileUploadInputAsk" accept=".jpg, .jpeg" class="hidden">
+        <button id="uploadJpgBtnAsk" class="modern-button">
+            <i class="fa-solid fa-file-image"></i>
+            Upload JPG
+        </button>
+    </div>
+    <button class="how-it-works-btn" data-tab="ask">How does this work?</button>
+    <div id="usageTrackerAsk" class="usage-tracker hidden">
+        <i id="usageInfoBtnAsk" class="fa-solid fa-circle-info usage-info-icon"></i>
+        <span id="usageCountAsk"></span>
+        <span id="resetTimerAsk"></span>
+    </div>
+    <a href="shop.html" id="upgradeNoteAsk" class="upgrade-note hidden">
+        Upgrade your plan to gain more usage
+    </a>
+    <div id="imagePreviewContainer" class="hidden"></div>
+    <div id="askContainer"></div>
+</div>
+<div id="ask-text-panel" class="tab-panel">
+    <p class="page-description">
+        Type your question below, and the AI will provide a detailed answer.
+    </p>
+    <div class="ask-ai-input-area">
+        <textarea id="askAiTextInput" placeholder="Enter your question here..." rows="3"></textarea>
+        <button id="askAiTextSendBtn" class="modern-button send-btn">
+            <i class="fa-solid fa-paper-plane"></i> Send
+        </button>
+    </div>
+    <button class="how-it-works-btn" data-tab="ask-text">How does this work?</button>
+    <div id="usageTrackerAskText" class="usage-tracker hidden">
+        <i id="usageInfoBtnAskText" class="fa-solid fa-circle-info usage-info-icon"></i>
+        <span id="usageCountAskText"></span>
+        <span id="resetTimerAskText"></span>
+    </div>
+    <a href="shop.html" id="upgradeNoteAskText" class="upgrade-note hidden">
+        Upgrade your plan to gain more usage
+    </a>
+    <div id="askTextContainer">
+        </div>
+     
+</div>
+<p class="ai-disclaimer">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        FlipCards AI is a helpful study tool, but it can make mistakes. Please review important information for accuracy.
+    </p>
+</div>
+
 </main>
 <div id="infoModal" class="modal-overlay">
         <div class="modal-box info-modal-box">
             <h3>How Usage Works</h3>
             <div class="modal-content">
                 <p>
-                    Your usage is based on the number of documents you successfully convert into flashcards each day. Here’s a detailed breakdown:
+                    Your daily usage limit is <strong>shared across all FlipCards AI features.</strong> Each successful document generation, whether creating flashcards or analyzing a file, consumes one 'use'.
                 </p>
                 <ul>
                     <li>
                         <strong>The Counter:</strong> This shows your remaining uses for the current 24-hour period (e.g., <strong>8/10</strong>). The limit is determined by your account plan.
                     </li>
                     <li>
-                        <strong>The Timer:</strong> This countdown shows exactly when your usage limit will reset. The reset happens automatically every day at midnight Coordinated Universal Time (UTC).
+                        <strong>The Timer:</strong> This countdown shows when your usage limit will reset, which happens daily at midnight Coordinated Universal Time (UTC).
                     </li>
                     <li>
-                        <strong>What Counts as a "Use":</strong> A "use" is only consumed when you upload a file and the AI successfully generates a set of flashcards from it. If an error occurs, your count will not be reduced.
+                        <strong>What Counts as a "Use":</strong> A use is consumed when you successfully <strong>create a flashcard set</strong> OR <strong>analyze a file for key concepts</strong>. If an error occurs, your count will not be reduced.
                     </li>
                 </ul>
                  <p>
@@ -115,7 +262,13 @@
             <button id="infoModalCloseBtn" class="confirm-btn">Got it</button>
         </div>
     </div>
-
+<div id="howItWorksModal" class="modal-overlay">
+    <div class="modal-box info-modal-box">
+        <h3 id="howItWorksTitle"></h3>
+        <div id="howItWorksContent" class="modal-content"></div>
+        <button id="howItWorksCloseBtn" class="confirm-btn">Got it</button>
+    </div>
+</div>
     <!-- Custom Alert Modal -->
     <div id="alertModal" class="modal-overlay">
         <div class="modal-box alert-box">
@@ -130,9 +283,35 @@
 <footer class="site-footer" aria-label="Attribution">
   <p>Powered by the Gemini AI API. FlipCards AI is not affiliated with Google.</p>
 </footer>
-
+<div id="chatWidget" class="chat-widget">
+        <button id="chatToggleBtn" class="chat-toggle-btn" data-tooltip="Ask FlipCards Assistant">
+            <svg id="chatIcon" class="ai-sparkle-icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path class="sparkle-main" d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z"></path>
+    <path class="sparkle-small s1" d="M4 4l2 2m0-2l-2 2"></path>
+    <path class="sparkle-small s2" d="M18 4l2 2m0-2l-2 2"></path>
+    <path class="sparkle-small s3" d="M4 18l2 2m0-2l-2 2"></path>
+    <path class="sparkle-small s4" d="M18 18l2 2m0-2l-2 2"></path>
+</svg>
+            <i class="fa-solid fa-xmark hidden"></i>
+        </button>
+        <div id="chatContainer" class="chat-container hidden">
+            <div class="chat-header">
+                <h3>FlipCards AI Assistant</h3>
+            </div>
+            <div id="chatMessages" class="chat-messages">
+                <div class="chat-message ai-message">
+                    <p>Hi there! How can I help you with FlipCards AI's features today?</p>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Ask about a feature..." autocomplete="off">
+                <button id="chatSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
     <!-- Link to external JavaScript file -->
     <script type="module" src="flipai.js"></script>
+    <script type="module" src="presence.js"></script>
     <script src="protect.js"></script>
 </body>
 </html>

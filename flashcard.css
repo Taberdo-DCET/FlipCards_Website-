@@ -1067,6 +1067,22 @@ input:checked + .slider:before {
   vertical-align: middle;
   margin-left: 4px;
 }
+/* --- Speaker Icon --- */
+.speaker-icon {
+  position: absolute;
+  bottom: 25px;
+  right: 30px;
+  font-size: 1.5rem; /* Adjust size as needed */
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  z-index: 5; /* Ensures it's above the text */
+}
+
+.speaker-icon:hover {
+  color: #ffcf00; /* Your yellow accent color */
+}
+
 
 /* === Responsive Media Queries (Improved) === */
 
