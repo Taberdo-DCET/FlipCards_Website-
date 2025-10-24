@@ -8,7 +8,8 @@ import {
   collection,
   query,
   where,
-  getDocs
+  getDocs,
+  limit
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { storage } from "./firebaseStorageInit.js";
 
@@ -21,6 +22,20 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  const openSettingsBtn = document.getElementById("openSettingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const closeSettingsModalBtn = document.getElementById("closeSettingsModalBtn");
+const referralCodeInput = document.getElementById("referralCodeInput");
+const setReferralCodeBtn = document.getElementById("setReferralCodeBtn");
+
+// Re-using your existing confirm modal selectors
+const confirmModal = document.getElementById("customConfirmModal"); // Make sure this ID is correct
+const confirmMessage = document.getElementById("confirmMessage"); // Make sure this ID is correct
+const confirmBtn = document.getElementById("confirmBtn"); // Make sure this ID is correct
+const cancelBtn = document.getElementById("cancelBtn");
+const userReferralCodeDisplay = document.getElementById("userReferralCodeDisplay");
+const userReferralCodeSpan = document.getElementById("userReferralCodeSpan");
+const referralCounterSpan = document.getElementById("referralCounterSpan");
   const profileBtn = document.querySelector(".music-icon.profile");
   const profileModal = document.getElementById("profileModal");
   const modalBox = document.querySelector(".profile-box");
@@ -36,6 +51,52 @@ const usernameModal = document.getElementById("usernameModal");
    const customAlertModal = document.getElementById("customAlertModal");
   const customAlertMessage = document.getElementById("customAlertMessage");
   const customAlertOkBtn = document.getElementById("customAlertOkBtn");
+  const showRewardsBtn = document.getElementById("showRewardsBtn");
+const rewardsModal = document.getElementById("rewardsModal");
+const closeRewardsModalBtn = document.getElementById("closeRewardsModalBtn");
+
+  async function checkAndDisableReferralUI() {
+  if (!currentUser) return;
+
+  // Show loading state
+  referralCodeInput.disabled = true;
+  setReferralCodeBtn.disabled = true;
+  setReferralCodeBtn.textContent = "Loading...";
+
+  const referralDocRef = doc(db, "ReferralCodeChoice", currentUser.email);
+  const docSnap = await getDoc(referralDocRef);
+
+  // ▼▼▼ REPLACE THE OLD if/else BLOCK WITH THIS ▼▼▼
+if (docSnap.exists()) {
+  const data = docSnap.data();
+  const userCode = data.code || "N/A";
+
+  // Update input and button
+  referralCodeInput.value = userCode;
+  referralCodeInput.disabled = true;
+  setReferralCodeBtn.disabled = true;
+  setReferralCodeBtn.textContent = "Code Set";
+
+  // Fetch count and update display area
+  const referralCount = await getReferralCount(userCode);
+  userReferralCodeSpan.textContent = userCode;
+  referralCounterSpan.textContent = `Points: ${referralCount}`;
+  userReferralCodeDisplay.classList.remove("hidden"); // Show the display area
+
+} else {
+  // Reset input and button
+  referralCodeInput.value = "";
+  referralCodeInput.disabled = false;
+  setReferralCodeBtn.disabled = false;
+  setReferralCodeBtn.textContent = "Set Code";
+
+  // Hide the display area
+  userReferralCodeDisplay.classList.add("hidden");
+  userReferralCodeSpan.textContent = "";
+  referralCounterSpan.textContent = "Points: 0";
+}
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+}
   // Helper function to show the custom alert
   function showAlert(message, type = 'default') { // type can be 'success' or 'error'
     const alertContent = customAlertModal.querySelector('.custom-alert-content');
@@ -56,6 +117,59 @@ const usernameModal = document.getElementById("usernameModal");
       customAlertModal.classList.add("hidden");
     };
   }
+// ▼▼▼ REPLACE THE OLD getReferralCount FUNCTION WITH THIS ▼▼▼
+// Function to get the referral count by checking field names in 'Paid' and 'Guest' docs
+async function getReferralCount(userCode) {
+  if (!userCode) return 0; // Return 0 if no code provided
+
+  let totalCount = 0;
+
+  try {
+    // Define references to the Paid and Guest documents in the Referral collection
+    const paidDocRef = doc(db, "Referral", "Paid");
+    const guestDocRef = doc(db, "Referral", "Guest");
+
+    // Fetch both documents
+    const [paidDocSnap, guestDocSnap] = await Promise.all([
+      getDoc(paidDocRef),
+      getDoc(guestDocRef)
+    ]);
+
+    // Process Paid document
+    if (paidDocSnap.exists()) {
+      const paidData = paidDocSnap.data();
+      // Check if a field with the userCode name exists
+      if (paidData.hasOwnProperty(userCode)) {
+         // Ensure the value is a number before adding
+         const count = Number(paidData[userCode]);
+         if (!isNaN(count)) {
+           totalCount += count;
+         }
+      }
+    }
+
+    // Process Guest document
+    if (guestDocSnap.exists()) {
+      const guestData = guestDocSnap.data();
+      // Check if a field with the userCode name exists
+      if (guestData.hasOwnProperty(userCode)) {
+         // Ensure the value is a number before adding
+         const count = Number(guestData[userCode]);
+         if (!isNaN(count)) {
+           totalCount += count;
+         }
+      }
+    }
+
+    return totalCount; // Return the combined count
+
+  } catch (error) {
+    console.error("Error fetching referral count from Paid/Guest docs:", error);
+    return 0; // Return 0 on error
+  }
+}
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
+// ▲▲▲ END OF REPLACEMENT ▲▲▲
   profileBtn?.addEventListener("click", () => {
   // Slide miniProfile out (if present), then open profile
   const mp = document.getElementById("miniProfile");
@@ -165,6 +279,110 @@ const usernameModal = document.getElementById("usernameModal");
   });
 
   makeModalDraggable(modalBox, dragHandle);
+  // Listener to open settings modal
+openSettingsBtn?.addEventListener("click", () => {
+  profileModal.classList.add("hidden"); // Close profile modal
+  settingsModal.classList.remove("hidden"); // Open settings modal
+  checkAndDisableReferralUI(); // Check referral status when modal opens
+});
+
+// Listener to close settings modal
+// Listener to close settings modal and hard reload
+closeSettingsModalBtn?.addEventListener("click", () => {
+  window.location.reload(true); // Hard reload the page
+});
+
+// Listener for the "Set" referral code button
+setReferralCodeBtn?.addEventListener("click", () => {
+  const code = referralCodeInput.value.trim();
+  if (code === "") {
+    showAlert("Please enter a referral code.", "error");
+    return;
+  }
+
+  // Show the confirmation modal
+  confirmMessage.textContent = "Are you sure? This code cannot be changed once set.";
+  confirmModal.classList.remove("hidden");
+
+  // Handle confirmation
+  confirmBtn.onclick = async () => {
+    confirmModal.classList.add("hidden");
+    if (!currentUser) {
+      showAlert("You must be logged in.", "error");
+      return;
+    }
+
+    // Disable UI immediately to prevent double-click
+    setReferralCodeBtn.disabled = true;
+    setReferralCodeBtn.textContent = "Saving...";
+
+    try {
+      // ▼▼▼ ADD THIS BLOCK TO CHECK FOR DUPLICATES ▼▼▼
+// Check if the code already exists in the collection
+const checkQuery = query(
+  collection(db, "ReferralCodeChoice"),
+  where("code", "==", code),
+  limit(1) // We only need to know if at least one exists
+);
+const checkSnapshot = await getDocs(checkQuery);
+
+if (!checkSnapshot.empty) {
+  // Code already exists
+  showAlert("This referral code is already taken. Please choose another one.", "error");
+  // Re-enable button on failure
+  setReferralCodeBtn.disabled = false;
+  setReferralCodeBtn.textContent = "Set Code";
+  return; // Stop the function here
+}
+// ▲▲▲ END OF DUPLICATE CHECK BLOCK ▲▲▲
+
+      // Set the document in Firestore
+      const referralDocRef = doc(db, "ReferralCodeChoice", currentUser.email);
+      await setDoc(referralDocRef, {
+        code: code,
+        timestamp: new Date()
+      });
+
+      showAlert("Referral code set successfully!", "success");
+const referralCount = await getReferralCount(code); // Re-use the code variable
+userReferralCodeSpan.textContent = code;
+referralCounterSpan.textContent = `Points: ${referralCount}`;
+userReferralCodeDisplay.classList.remove("hidden");
+      // Permanently disable the UI
+      referralCodeInput.value = code;
+      referralCodeInput.disabled = true;
+      setReferralCodeBtn.textContent = "Code Set";
+
+    } catch (error) {
+      console.error("Error setting referral code: ", error);
+      showAlert("Failed to set referral code.", "error");
+      // Re-enable button on failure
+      setReferralCodeBtn.disabled = false;
+      setReferralCodeBtn.textContent = "Set Code";
+    }
+  };
+
+  // Handle cancellation
+  cancelBtn.onclick = () => {
+    confirmModal.classList.add("hidden");
+  };
+});
+showRewardsBtn?.addEventListener("click", () => {
+  // Keep settings modal open behind it
+  rewardsModal.classList.remove("hidden");
+});
+
+// Listener to close rewards modal
+closeRewardsModalBtn?.addEventListener("click", () => {
+  rewardsModal.classList.add("hidden");
+});
+
+// Optional: Close rewards modal if backdrop is clicked
+rewardsModal?.addEventListener("click", (event) => {
+    if (event.target === rewardsModal) {
+        rewardsModal.classList.add("hidden");
+    }
+});
 });
 
 function makeModalDraggable(modalBox, dragHandle) {

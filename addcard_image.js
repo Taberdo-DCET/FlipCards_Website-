@@ -369,6 +369,7 @@ if (isPublic) {
 
         await showCustomAlert("✅ Flashcard set with images saved!", 'success');
       }
+      localStorage.removeItem("editingFlashcardSet");
       localStorage.removeItem('savedraftimage');
       window.location.href = "lobby.html#Folderr";
     } catch (err) {
@@ -440,6 +441,10 @@ const cancelLeaveBtn = document.getElementById("cancelLeaveBtn");
 // Event listener for the "Back to Folders" button
 backToFoldersBtn.addEventListener('click', (e) => {
   e.preventDefault();
+
+  // --- NEW: Always clear editing data when going back ---
+  localStorage.removeItem("editingFlashcardSet");
+
   if (hasUnsavedChanges() && !editMode) {
     draftModal.classList.remove('hidden');
   } else {

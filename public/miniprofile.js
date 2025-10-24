@@ -1,11 +1,20 @@
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"; // <-- Added onSnapshot
 import { app } from "./firebaseinit.js";
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+let referralCodeListenerUnsubscribe = null;
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Create the referral code notification element
+const referralNotification = document.createElement("div");
+referralNotification.id = "referralNotification";
+referralNotification.classList.add("referral-notification", "hidden"); // Start hidden
+referralNotification.innerHTML = `
+  <span>Set your unique Referral Code in your Profile Settings!</span>
+`;
+document.body.appendChild(referralNotification); // Add it to the page
   // Create the mini profile modal
   const miniProfile = document.createElement("div");
   miniProfile.id = "miniProfile";
@@ -33,9 +42,26 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <span id="miniProfileEmail">Loading...</span>
     </div>
+    <button id="miniProfileToggle" class="mini-profile-toggle-btn" aria-label="Toggle profile">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
   `;
   document.body.appendChild(miniProfile);
+const toggleButton = document.getElementById('miniProfileToggle');
 
+// Check localStorage for the saved state when the page loads
+if (localStorage.getItem('miniProfileMinimized') === 'true') {
+  miniProfile.classList.add('minimized');
+}
+
+// Add the click event listener to the button
+toggleButton.addEventListener('click', () => {
+    // Toggle the 'minimized' class on the profile element
+    const isNowMinimized = miniProfile.classList.toggle('minimized');
+    
+    // Save the new state to localStorage
+    localStorage.setItem('miniProfileMinimized', isNowMinimized);
+});
   // Load from localStorage instantly
   const cachedProfile = JSON.parse(localStorage.getItem("miniProfileData") || "null");
   if (cachedProfile) {
@@ -44,6 +70,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Firebase auth listener
  onAuthStateChanged(auth, async (user) => {
+  if (referralCodeListenerUnsubscribe) {
+    console.log("Detaching previous referral code listener."); // Debug log
+    referralCodeListenerUnsubscribe(); // Call the unsubscribe function
+    referralCodeListenerUnsubscribe = null; // Reset the variable
+  }
+  // Hide notification when logged out/guest
+  const notificationElement = document.getElementById("referralNotification");
+  if (notificationElement) notificationElement.classList.add("hidden");
   if (!user) {
     localStorage.removeItem("miniProfileData");
     populateMiniProfile({
@@ -72,6 +106,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Otherwise, fetch their real profile data
   await fetchAndCacheUserData(user.email);
+
+  // ▼▼▼ ADD REAL-TIME LISTENER SETUP HERE ▼▼▼
+  console.log(`Setting up referral code listener for ${user.email}`); // Debug log
+  const referralChoiceDocRef = doc(db, "ReferralCodeChoice", user.email);
+  
+
+  // Attach the listener and store the unsubscribe function
+  referralCodeListenerUnsubscribe = onSnapshot(referralChoiceDocRef, (docSnap) => {
+    if (!auth.currentUser || auth.currentUser.isAnonymous) return; // Extra check
+
+    if (docSnap.exists()) {
+      // User HAS set a code
+      console.log("Referral code document exists, hiding notification."); // Debug log
+      if (notificationElement) notificationElement.classList.add("hidden");
+    } else {
+      // User has NOT set a code
+      console.log("Referral code document does NOT exist, showing notification."); // Debug log
+      if (notificationElement) notificationElement.classList.remove("hidden");
+    }
+  }, (error) => {
+      console.error("Error listening to ReferralCodeChoice:", error);
+      // Hide notification on listener error
+      if (notificationElement) notificationElement.classList.add("hidden");
+  });
 });
 
 });
@@ -139,43 +197,66 @@ async function fetchAndCacheUserData(email) {
     const usernameSnap = await getDoc(usernameDoc);
     const username = usernameSnap.exists() ? usernameSnap.data().username || "No Username" : "No Username";
 
-    // Fetch roles and level
+    // Fetch roles, level, and referral code
     const userDocRef = doc(db, "approved_emails", email);
     const userSnap = await getDoc(userDocRef);
-    let level = 1, roles = "";
+    let level = 1, roles = "", referralCode = null; // <-- Initialize referralCode
     if (userSnap.exists()) {
       const data = userSnap.data();
       level = data.level || 1;
       roles = (data.role || "").toLowerCase();
     }
 
+    // Role checks
     const verified = roles.includes("verified");
-    const plus = roles.includes("plus"); // Add this line
+    const plus = roles.includes("plus");
     const first = roles.includes("first");
     const goldborder = roles.includes("goldborder");
     const adminborder = roles.includes("admn");
-const agaborder = roles.includes("aga");
-const coadminborder = roles.includes("co");
-const persborder = roles.includes("pers");
-const secondborder = roles.includes("sec");
-const firstuser = roles.includes("1st");
+    const agaborder = roles.includes("aga");
+    const coadminborder = roles.includes("co");
+    const persborder = roles.includes("pers");
+    const secondborder = roles.includes("sec");
+    const firstuser = roles.includes("1st");
 
 
     // Fetch avatar
-    let avatarUrl = "Group-10.png";
+    let avatarUrl = "Group-10.png"; // Default avatar
     try {
+      // Dynamically import storage functions only when needed
       const { getStorage, ref, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js");
       const storage = getStorage(app);
       const avatarRef = ref(storage, `avatars/${email}`);
       avatarUrl = await getDownloadURL(avatarRef);
     } catch {
-      console.warn("No avatar found, using default.");
+      console.warn("No avatar found for user, using default.");
     }
 
-    const profileData = { email, username, level, plus, verified, first, goldborder, adminborder, agaborder, coadminborder, persborder, secondborder, firstuser,avatar: avatarUrl };
+    // Construct profile data object including all roles
+    const profileData = {
+        email,
+        username,
+        level,
+        plus,
+        verified,
+        first,
+        goldborder,
+        adminborder,
+        agaborder,
+        coadminborder,
+        persborder,
+        secondborder,
+        firstuser,
+        avatar: avatarUrl
+    };
+
+    // Cache data and update UI
     localStorage.setItem("miniProfileData", JSON.stringify(profileData));
     populateMiniProfile(profileData);
+
   } catch (error) {
     console.error("Failed to fetch user data:", error);
+    // Hide notification on error as well
+    document.getElementById("referralNotification")?.classList.add("hidden");
   }
 }

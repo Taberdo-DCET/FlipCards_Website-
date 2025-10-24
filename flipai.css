@@ -1379,7 +1379,116 @@ body {
     color: #999; /* Grey out the icon too */
 }
 /* END OF ADDED RULES */
+/* flipai.css */
 
+/* Container for each distinct section (Term, Explanation, Examples) */
+.explanation-section {
+    margin-bottom: 20px; /* Space between sections */
+    padding-bottom: 15px; /* Space before the next section's border */
+    border-bottom: 1px solid #333; /* Separator line */
+}
+.explanation-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none; /* No line after the last section */
+}
+
+/* Header within each section holding title and copy button */
+.explanation-header {
+    display: flex;
+    justify-content: space-between; /* Pushes title left, button right */
+    align-items: center;      /* Vertically aligns title and button */
+    margin-bottom: 8px;       /* Space below the header */
+}
+
+/* Title within the header */
+.explanation-title {
+    font-size: 1.1rem;
+    color: #ffcf00;
+    margin: 0;
+    padding: 0;
+    border-bottom: none; /* Remove any previous border */
+}
+
+/* Style specifically for the inline copy buttons */
+.copy-btn.copy-inline {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 5px; /* Smaller padding */
+    color: #777; /* Dimmer color initially */
+    transition: color 0.2s ease;
+    font-size: 0.9rem; /* Slightly smaller icon */
+    margin-left: 10px; /* Space from the title */
+}
+
+.copy-btn.copy-inline:hover {
+    color: #ffcf00; /* Brighten on hover */
+}
+
+/* Adjustments for specific sections if needed */
+.ai-examples-section .explanation-header,
+.synonyms-section .explanation-header,
+.math-section .explanation-header {
+    margin-bottom: 15px; /* More space for example/list headings */
+}
+
+.synonyms-section p { /* Display synonyms like tags */
+     display: flex;
+     flex-wrap: wrap;
+     gap: 8px;
+     margin-top: 10px;
+}
+
+/* Re-use existing list item style for visual consistency if needed, but copy from <p> */
+.synonyms-section ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.synonyms-section ul li {
+    background-color: #333;
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* Ensure paragraph below header has appropriate spacing */
+.explanation-section > p,
+.explanation-section > ol {
+    margin-top: 0;
+    color: #ccc;
+    line-height: 1.6;
+}
+
+/* Override .term style to remove bottom margin when inside explanation-section */
+.explanation-section p.term {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #ffcf00;
+    margin-bottom: 0; /* Remove default margin */
+}
+
+/* Style for the <ol> in math section */
+.math-section ol {
+    padding-left: 20px;
+    margin: 0;
+    line-height: 1.8;
+}
+
+.math-section ol li {
+    margin-bottom: 12px;
+}
+
+.math-section ol li::marker {
+    font-weight: bold;
+    color: #ffcf00;
+}
 
 
 

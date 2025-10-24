@@ -508,7 +508,113 @@ footer {
   color: #ffcf00; /* Make the checkmark yellow */
   font-weight: bold; /* Makes the checkmark thicker */
 }
+/* === Add this to the end of shop.css === */
 
+/* --- Claim Rewards Button --- */
+.claim-rewards-button {
+  display: inline-block;
+  background-color: #ffcf00;
+  color: #111;
+  padding: 12px 24px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.claim-rewards-button:hover {
+  background-color: white;
+  transform: scale(1.05);
+}
+
+/* --- Rewards Modal --- */
+.rewards-modal-content {
+  background-color: #1a1a1a; /* Darker background */
+  max-width: 600px;
+  width: 90%;
+  border-radius: 15px;
+  padding: 30px 40px;
+  position: relative;
+  border: 1px solid #444;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
+
+.rewards-modal-content h2 {
+  text-align: center;
+  color: #ffcf00; /* Yellow title */
+  font-size: 2rem;
+  margin-top: 10px;
+  margin-bottom: 30px;
+}
+
+.rewards-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.rewards-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #252525; /* Slightly lighter row */
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap; /* For small screens */
+}
+
+.reward-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.reward-tier {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+}
+
+.reward-cost {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-top: 5px;
+}
+
+.claim-link-btn {
+  background-color: #1e2a4a; /* Blue button */
+  color: white;
+  border: 1px solid #4a5a8a;
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  margin-left: 10px; /* Space from info */
+}
+
+.claim-link-btn:hover {
+  background-color: #4a5a8a;
+  color: white;
+}
+
+/* Responsive fix for modal list */
+@media (max-width: 500px) {
+  .rewards-list li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .claim-link-btn {
+    margin-left: 0;
+    margin-top: 15px;
+    width: 100%;
+    text-align: center;
+  }
+}
 /* --- Responsive adjustment for smaller screens --- */
 @media (max-width: 768px) {
   .benefits-grid {

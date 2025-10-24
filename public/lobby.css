@@ -335,12 +335,11 @@ ul {
   padding-bottom: 20px;
   box-sizing: border-box;
   color: white;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   display: flex; /* Key change */
   flex-direction: column; /* Key change */
   justify-content: center; /* Key change */
   align-items: center; /* Key change */
-  background-image: linear-gradient(rgba(157, 157, 157, 0.1), rgba(0, 0, 0, 0.8)), url('newbac.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -730,10 +729,24 @@ span {
 }
 /* --- Tooltip Styles --- */
 .tooltip-container {
-  position: relative; /* This is the anchor for the tooltip */
-  display: inline-block;
+  position: relative;
+  display: inline-flex; /* Changed from inline-block */
+  flex-direction: column; /* Stack icon and label */
+  align-items: center; /* Center items horizontally */
+  text-align: center; /* Ensure text alignment is center */
+  vertical-align: top; /* Align containers nicely in the row */
+  width: 90px; /* Give containers a fixed width for alignment */
 }
-
+.icon-label {
+  display: block; /* Make it take its own line */
+  margin-top: 6px; /* Space between icon and label */
+  font-size: 13px; /* Adjust font size as needed */
+  font-family: 'Satoshi', sans-serif;
+  color: #ccc; /* Adjust color as needed */
+  background: none; /* Ensure no background interference */
+  pointer-events: none; /* Prevent label from interfering with tooltip */
+  white-space: nowrap; /* Keep label on one line */
+}
 .tooltip-container::before {
   content: attr(data-tooltip); /* Pulls text from the data-tooltip attribute */
   position: absolute;
@@ -756,7 +769,12 @@ span {
   pointer-events: none; /* Prevents the tooltip from being interactable */
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
-
+.tooltip-container[data-tooltip="Chat"] a {
+    display: inline-block; /* Treat the link like the button for alignment */
+}
+.tooltip-container .chat-link {
+  text-decoration: none; /* Removes the underline */
+}
 /* Show the tooltip on hover */
 .tooltip-container:hover::before {
   opacity: 1;
@@ -778,7 +796,7 @@ span {
   padding: 0px 30px 60px;
   color: white;
   text-align: center;
-  border-top: 1px solid rgb(80, 80, 80);
+  border-top: .5px solid rgba(80, 80, 80, 0.46);
 
 }
 
@@ -2397,7 +2415,7 @@ span {
   box-shadow:
     inset 4px 4px 8px #dcdcdc,
     inset -4px -4px 8px #ffffff;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   color: #333;
 }
 
@@ -2409,7 +2427,7 @@ span {
   padding: 10px 24px;
   font-size: 14px;
   border-radius: 12px;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   cursor: pointer;
   border: none;
   transition: 0.3s ease;
@@ -2799,7 +2817,7 @@ font-family: 'Satoshi', sans-serif;
     inset -8px -8px 16px #1f1f1f,
     8px 8px 20px rgba(0, 0, 0, 0.7),
     -8px -8px 20px rgba(255, 255, 255, 0.02);
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   color: white;
   position: relative;
 }
@@ -3129,7 +3147,7 @@ font-family: 'Satoshi', sans-serif;
   padding: 10px 15px;
   background: #171717;
   color: white;
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   border-radius: 12px;
   box-shadow: 
     inset 4px 4px 8px #0f0f0f, 
@@ -3248,7 +3266,7 @@ box-shadow: none !important;
   border-radius: 20px;
   box-shadow: inset 8px 8px 16px #0f0f0f, inset -8px -8px 16px #1f1f1f;
   color: white;
-  font-family: 'Accasia';
+  font-family: 'Satoshi';
   max-height: 70vh;
   overflow-y: auto;
 }
@@ -3316,7 +3334,7 @@ box-shadow: none !important;
   width: 150px;
   padding: 12px 16px;
  
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 16px;
   color: white;
   background: #171717;
@@ -6562,7 +6580,7 @@ margin-top: -10px;
 
 /* The popover "bubble" */
 .member-actions-popover {
-  position: absolute; /* Positioned by JavaScript */
+  position: fixed;
   z-index: 10003; /* Ensures it's on top */
   background: #2a2a2a;
   border-radius: 8px;
@@ -6996,7 +7014,7 @@ margin-top: -10px;
 
 .modal h2 {
     margin-bottom: 25px;
-    font-family: 'Accasia', sans-serif;
+    font-family: 'Satoshi', sans-serif;
     color: white;
 }
 
@@ -7245,7 +7263,7 @@ margin-top: -10px;
 
 /* Modal Title */
 #suggestionModal h3 {
-  font-family: 'Accasia', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 22px;
   margin-bottom: 10px;
   color: #ffcf00; /* Gold accent color */
@@ -7680,6 +7698,10 @@ color: #ffcf00 !important;
   border-radius: 50%;
   transition: all 0.2s ease;
 
+}
+.social-sidebar-icon::before {
+  content: none !important; /* Prevents any content from being generated */
+  display: none !important; /* Ensures the pseudo-element is not rendered or takes up space */
 }
 .social-sidebar:hover a {
   background: none;
@@ -9162,13 +9184,38 @@ color: #ffcf00 !important;
   gap: 140px;
   flex-wrap: wrap;
 }
+@keyframes rgb-text-animation-pastel {
+  0%   { color: #ffadad; stroke: #ffadad; } /* Light Red */
+  17%  { color: #ffd6a5; stroke: #ffd6a5; } /* Light Orange */
+  33%  { color: #fdffb6; stroke: #fdffb6; } /* Light Yellow */
+  50%  { color: #caffbf; stroke: #caffbf; } /* Light Green */
+  67%  { color: #9bf6ff; stroke: #9bf6ff; } /* Light Blue */
+  83%  { color: #bdb2ff; stroke: #bdb2ff; } /* Light Purple */
+  100% { color: #ffadad; stroke: #ffadad; } /* Back to Light Red */
+}
 
+/* Override hover colors to ensure animation continues */
+#tryFlipBtn:hover span {
+  /* Animation handles color, no need to override color here unless you want static hover color */
+   color: #FFCF00; /* Or remove this if you want animated hover */
+   animation: rgb-text-animation-pastel 5s linear infinite; /* Explicitly keep animation on hover */
+}
+
+#tryFlipBtn:hover svg {
+  /* Animation handles color, no need to override stroke here unless you want static hover color */
+   stroke: #FFCF00; /* Or remove this if you want animated hover */
+   animation: rgb-text-animation-pastel 5s linear infinite; /* Explicitly keep animation on hover */
+}
 /* Match Suggestion button overrides for the new Try button */
 .try-btn {
   display: inline-flex;
   align-items: center;
   padding: 12px;
   padding-right: 15px;
+
+  border: 3px solid transparent;
+    background-clip: padding-box;
+    animation: rgb-border-animation-pastel 5s linear infinite;
 }
 .try-btn span {
   background: none !important;
@@ -9176,6 +9223,18 @@ color: #ffcf00 !important;
 }
 .try-btn:hover span {
   color: #FFCF00;            /* matches hover color */
+}
+/* --- What's New Button Specific Hover Style --- */
+.whats-new-btn {
+  padding: 12px;
+  padding-right: 15px;
+}
+.whats-new-btn span {
+  background: none !important;
+  color: #000; /* Match default text color */
+}
+.whats-new-btn:hover span {
+  color: #FFCF00; /* Match hover text color */
 }
 /* --- Twinkling Animation for AI Icon --- */
 @keyframes twinkle {
@@ -9459,6 +9518,7 @@ color: #ffcf00 !important;
   83%  { border-color: #bdb2ff; } /* Light Purple */
   100% { border-color: #ffadad; } /* Back to Light Red */
 }
+
 /* ======================================= */
 /* ▼▼▼ PROFILE NOTIFICATION STYLES ▼▼▼ */
 /* ======================================= */
@@ -9832,10 +9892,588 @@ body.modal-open {
   background-color: #ffcf00; /* Progress color (your brand yellow) */
   transition: width 0.1s linear; /* Smooths the progress update slightly */
 }
+/* =============================== */
+/* ▼▼▼ MINIPROFILE MINIMIZE STYLES ▼▼▼ */
+/* =============================== */
+
+.mini-profile-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-profile-toggle-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: #aaa;
+  transition: transform 0.3s ease, stroke 0.2s ease;
+}
+
+.mini-profile-toggle-btn:hover svg {
+  stroke: #fff;
+}
+
+/* --- MINIMIZED STATE --- */
+#miniProfile.minimized {
+  width: auto; /* Shrink to fit content */
+  padding: 8px; /* Padding around the button */
+}
+
+/* Hide the user info when minimized */
+#miniProfile.minimized .avatar-wrapper,
+#miniProfile.minimized .mini-profile-info,
+#miniProfile.minimized img[id$="Overlay"] { /* Hides all border overlays */
+  display: none;
+}
+
+/* Rotate the arrow when minimized */
+#miniProfile.minimized .mini-profile-toggle-btn svg {
+  transform: rotate(180deg);
+}
+/* ======================================= */
+/* ▼▼▼ NEW SETTINGS MODAL STYLES ▼▼▼ */
+/* ======================================= */
+
+.settings-modal-content {
+  width: min(90vw, 650px);
+  background: #171717;
+  color: white;
+  border-radius: 20px;
+  border: 1px solid #000;
+  box-shadow: 12px 12px 24px #0f0f0f, -12px -12px 24px #1f1f1f;
+  font-family: 'Satoshi', sans-serif;
+  animation: notePop 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  height: min(70vh, 400px); /* Fixed height */
+  overflow: hidden; /* Hide overflow */
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1a1a1a;
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+}
+
+.settings-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.settings-body {
+  display: flex;
+  flex-grow: 1; /* Make body fill remaining space */
+  overflow: hidden;
+}
+
+.settings-sidenav {
+  width: 200px;
+  flex-shrink: 0;
+  background: #111;
+  padding: 16px;
+  border-right: 1px solid #000;
+  box-shadow: inset -5px 0 10px #0f0f0f;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-nav-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 14px;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 14px;
+  color: #aaa;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-nav-btn:hover {
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+.settings-nav-btn.active {
+  background-color: #1e1e1e;
+  color: #ffcf00;
+  box-shadow: inset 3px 3px 6px #0f0f0f, inset -3px -3px 6px #1f1f1f;
+}
+
+.settings-content {
+  flex-grow: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.referral-tab-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #ffcf00;
+}
+
+.referral-tab-content p {
+  font-size: 13px;
+  color: #ccc;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+.referral-input-group {
+  display: flex;
+  gap: 12px;
+}
+
+.referral-input-group .neumorphic-search {
+  flex-grow: 1; /* Input takes available space */
+}
+
+.referral-input-group .neumorphic-button {
+  flex-shrink: 0; /* Button doesn't shrink */
+}
+
+/* Disable styles */
+.referral-input-group input:disabled {
+  background: #111;
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+  color: #888;
+}
+
+.referral-input-group button:disabled {
+  background: #2a2a2a;
+  color: #888;
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+  cursor: not-allowed;
+}
+.referral-warning {
+  display: block; /* Make it take its own line */
+  margin-top: 10px; /* Add some space above it */
+  font-size: 12px;
+  color: #ff6b6b; /* A noticeable red color */
+  text-align: center; /* Center the text */
+}
+.referral-warning strong {
+  color: #ff4d4d; /* Slightly darker red for the bold part */
+}
+/* Fix for confirm modal z-index */
+#customConfirmModal {
+  z-index: 10002;
+}
+/* Fix for success/error alert z-index */
+#customAlertModal {
+  z-index: 10002;
+}
+/* ▼▼▼ Styles for User Code Display Area ▼▼▼ */
+.user-code-display {
+  margin-top: 15px; /* Space above the display */
+  padding: 10px 15px;
+  background: #111; /* Darker background */
+  border-radius: 8px;
+  border: 1px solid #000;
+  box-shadow: inset 3px 3px 6px #0f0f0f, inset -3px -3px 6px #1f1f1f;
+  text-align: center;
+  font-size: 14px;
+  color: #ccc;
+}
+
+.user-code {
+  font-weight: bold;
+  color: #ffcf00; /* Yellow for the code itself */
+  background: transparent; /* Ensure span has no background */
+}
+
+.user-code-counter {
+  font-size: 13px;
+  color: #aaa; /* Lighter gray for the counter */
+  background: transparent; /* Ensure span has no background */
+  margin-left: 5px;
+}
+/* ▲▲▲ End of User Code Display Styles ▲▲▲ */
+/* ======================================= */
+/* ▼▼▼ NEW REWARDS MODAL STYLES ▼▼▼ */
+/* ======================================= */
+
+#rewardsModal {
+  z-index: 10003; /* Ensure it's above the settings modal (10001) and alerts (10002) */
+}
+
+.rewards-modal-content {
+  width: min(90vw, 550px);
+  background: #171717;
+  color: white;
+  border-radius: 20px;
+  border: 1px solid #000;
+  box-shadow: 15px 15px 30px #0f0f0f, -15px -15px 30px #1f1f1f;
+  font-family: 'Satoshi', sans-serif;
+  animation: notePop 0.2s ease-out; /* Re-use existing animation */
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh; /* Prevent modal from becoming too tall */
+}
+
+.rewards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1a1a1a;
+  box-shadow: inset 4px 4px 8px #0f0f0f, inset -4px -4px 8px #1f1f1f;
+  flex-shrink: 0; /* Prevent header shrinking */
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+
+.rewards-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.rewards-body {
+  padding: 24px;
+  overflow-y: auto; /* Allow body content to scroll */
+  flex-grow: 1; /* Allow body to fill available space */
+}
+
+.rewards-body h4 {
+  font-size: 16px;
+  color: #ffcf00;
+  margin: 0 0 10px 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #333;
+}
+
+.rewards-list,
+.rewards-rules {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 20px 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.rewards-list li,
+.rewards-rules li {
+  margin-bottom: 8px;
+  padding-left: 1.5em; /* Indentation for bullet */
+  position: relative;
+}
+
+.rewards-list li::before,
+.rewards-rules li::before {
+  content: '•'; /* Bullet point */
+  position: absolute;
+  left: 0;
+  color: #ffcf00; /* Bullet color */
+  font-size: 1.2em;
+  line-height: 1;
+}
+.rewards-list li strong {
+   background: transparent;
+   color: white;
+}
+
+.claim-instruction {
+  font-size: 14px;
+  color: #ccc;
+  margin: 25px 0 10px 0;
+  text-align: center;
+}
+
+.facebook-claim-btn {
+  display: flex; /* Align icon and text */
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+  margin: 0 auto; /* Center the button */
+  background-color: #1877F2; /* Facebook blue */
+  border-color: #1877F2;
+  color: white;
+}
+
+.facebook-claim-btn:hover {
+  background-color: #166fe5;
+  border-color: #166fe5;
+  color: white;
+  box-shadow: inset 4px 4px 8px rgba(0,0,0,0.3), inset -4px -4px 8px rgba(255,255,255,0.1);
+}
+
+/* Scrollbar for rewards body */
+.rewards-body::-webkit-scrollbar {
+  width: 8px;
+}
+.rewards-body::-webkit-scrollbar-track {
+  background: #111;
+  border-radius: 4px;
+}
+.rewards-body::-webkit-scrollbar-thumb {
+  background-color: #333;
+  border-radius: 4px;
+  border: 2px solid #111;
+}
+.rewards-body::-webkit-scrollbar-thumb:hover {
+  background-color: #444;
+}
+/* --- Styles for Landscape Layout Sections --- */
+.showcase-section.landscape-layout {
+  flex-direction: column; /* Stack video above text */
+  align-items: center;    /* Center items */
+  gap: 15px;              /* Space between video and text */
+  padding: 30px 40px;     /* Keep padding consistent */
+  min-height: auto;       /* Allow natural height */
+}
+
+.showcase-video-container.landscape-video {
+  width: 100%;            /* Take full width available */
+  max-width: 700px;       /* Limit max width */
+  height: auto;           /* Remove fixed height */
+  aspect-ratio: 16 / 9;   /* Maintain landscape ratio */
+  min-width: unset;       /* Remove min-width from default */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Add shadow */
+}
+
+.showcase-video-container.landscape-video video {
+  width: 100%;            /* Ensure video fills container */
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.showcase-description.landscape-description {
+  width: 100%;
+  max-width: 700px; /* Match video max width */
+  text-align: center;
+}
+
+.showcase-description.landscape-description h3 {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+}
+
+.showcase-description.landscape-description p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+/* --- Styles for the Section Divider and Title --- */
+.section-divider-container {
+  padding: 40px 20px 0; /* Add padding above the divider */
+  text-align: center;
+}
+
+.section-divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #444, transparent); /* Fading gradient line */
+  width: 90%;
+  max-width: 800px;
+  margin: 0 auto 25px auto; /* Centered with space below */
+}
+
+.section-divider-title {
+  font-family: 'Satoshi', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffcf00; /* Yellow title color */
+  margin: 0 0 10px 0; /* Space below the title */
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+
+/* --- Responsive adjustments for Landscape Layout --- */
+/* ======================================= */
+/* ▼▼▼ REFERRAL NOTIFICATION STYLES ▼▼▼ */
+/* ======================================= */
+
+.referral-notification {
+  position: fixed;
+  bottom: 105px; /* Position above the default mini profile position */
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  background: #171717; /* Semi-transparent */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 4px solid #A90300; /* Yellow border */
+  border-radius: 10px;
+  color: #f0f0f0;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 13px;
+  z-index: 4999; /* Just below mini profile */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: slideInFromLeft 0.5s ease-out forwards; /* Reuse existing animation */
+  transition: bottom 0.4s ease; /* Smooth transition when sidebar opens */
+}
+
+.referral-notification span {
+    background: none;
+    color: white;
+}
+.referral-notification.hidden {
+  display: none;
+}
+
+/* Adjust position when member sidebar is open */
+body.sidebar-open .referral-notification {
+    left: 320px; /* Adjust if your sidebar width/padding changes */
+}
+
+/* Adjust position when mini profile is minimized */
+#miniProfile.minimized + .referral-notification {
+   bottom: 75px; /* Position above the smaller minimized profile */
+}
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 768px) {
+  .settings-modal-content {
+    /* Allow more width and height on smaller screens */
+    width: 95vw;
+    height: 85vh;
+  }
+
+  .settings-body {
+    /* Stack sidenav on top of content */
+    flex-direction: column;
+  }
+
+  .settings-sidenav {
+    /* Make sidenav take full width */
+    width: 100%;
+    /* Remove right border and add a bottom border */
+    border-right: none;
+    border-bottom: 1px solid #000;
+    box-shadow: inset 0 -5px 10px #0f0f0f;
+    /* Allow sidenav to shrink if needed, adjust padding */
+    flex-shrink: 1;
+    padding: 10px;
+    /* Arrange buttons horizontally for space */
+    flex-direction: row;
+    overflow-x: auto; /* Allow horizontal scroll if many buttons */
+    gap: 10px;
+  }
+
+  .settings-nav-btn {
+    /* Adjust button width for horizontal layout */
+    width: auto;
+    white-space: nowrap; /* Prevent button text wrapping */
+    padding: 8px 12px;
+  }
+
+  .settings-content {
+    /* Ensure content area still scrolls vertically */
+    overflow-y: auto;
+    padding: 15px; /* Reduce padding slightly */
+  }
+
+  .referral-input-group {
+    /* Stack input and button vertically if needed */
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .referral-input-group .neumorphic-button {
+    width: 100%; /* Make button full width */
+  }
+  #referralCodeInput{
+    width: 90%;
+  }
+}
+
+/* Optional: Hide sidenav scrollbar visually if desired */
+@media (max-width: 768px) {
+  .settings-sidenav::-webkit-scrollbar {
+    height: 4px; /* Make horizontal scrollbar thinner */
+  }
+  .settings-sidenav::-webkit-scrollbar-thumb {
+    background-color: #333;
+    border-radius: 2px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-divider-container {
+    padding-top: 30px;
+  }
+  .section-divider {
+    margin-bottom: 20px;
+  }
+  .section-divider-title {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .referral-notification {
+    /* Optional: Adjust positioning or width on smaller screens if needed */
+    max-width: calc(100vw - 40px); /* Example: Limit width */
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 85px; /* Adjust if it overlaps other elements */
+  }
+   body.sidebar-open .referral-notification {
+     left: 50%; /* Keep centered even with sidebar */
+   }
+   #miniProfile.minimized + .referral-notification {
+     bottom: 65px; /* Adjust for minimized profile on mobile */
+  }
+}
+@media (max-width: 768px) {
+  .showcase-section.landscape-layout {
+    padding: 20px 25px;
+  }
+  .showcase-video-container.landscape-video {
+    max-width: 100%; /* Full width on smaller screens */
+  }
+  .showcase-description.landscape-description h3 {
+    font-size: 1.5rem;
+  }
+  .showcase-description.landscape-description p {
+    font-size: 0.95rem;
+  }
+   /* Ensure side-by-side sections stack correctly too */
+   .showcase-section:not(.landscape-layout),
+   .showcase-section.reverse:not(.landscape-layout) {
+      flex-direction: column;
+   }
+   .showcase-video-container:not(.landscape-video) {
+      height: 250px;
+      min-width: 90%;
+   }
+}
 
 
 /* Responsive adjustments */

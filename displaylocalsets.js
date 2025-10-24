@@ -381,29 +381,52 @@ if (!snapshot.empty) {
         if (!user) return;
 
         try {
-            if (docId) {
+            if (docId) { // docId is the ID from local_sets
                 if (typeof addXP === "function") {
-                    addXP(-20);
+                    addXP(-20); // Deduct XP first
                 }
-                await deleteDoc(doc(db, "local_sets", docId));
+
+                // --- START OF CHANGES ---
+
+                // 1. Get a reference to the local document
+                const localDocRef = doc(db, "local_sets", docId);
+                // 2. Read the local document BEFORE deleting it
+                const localDocSnap = await getDoc(localDocRef);
+
+                let publicIdToDelete = null; // Variable to store the public ID
+
+                if (localDocSnap.exists()) {
+                    const localData = localDocSnap.data();
+                    publicIdToDelete = localData.publicId; // Get the publicId if it exists
+                    console.log("Found local data, publicId is:", publicIdToDelete); // LOG
+                } else {
+                    console.warn("Local document to delete was not found. Cannot check for publicId."); // LOG
+                }
+
+                // 3. Delete the local document
+                await deleteDoc(localDocRef);
+                console.log("Deleted document from local_sets:", docId); // LOG
+
+                // 4. If a publicId was found, delete the public document
+                if (publicIdToDelete) {
+                    try {
+                        await deleteDoc(doc(db, "flashcard_sets", publicIdToDelete));
+                        console.log("Deleted corresponding document from flashcard_sets:", publicIdToDelete); // LOG
+                    } catch (publicDeleteError) {
+                        console.error("Error deleting public set document:", publicIdToDelete, publicDeleteError); // LOG Error deleting public
+                    }
+                } else {
+                    console.log("No publicId found, skipping deletion from flashcard_sets."); // LOG No publicId
+                }
+
+                // --- END OF CHANGES ---
+
+            } else {
+                console.warn("Delete button clicked, but no docId found in data-id attribute."); // LOG missing docId
             }
 
-            // Additional logic to delete corresponding public set if it exists
-            const targetCard = deleteBtn.closest(".folder-card");
-            const title = targetCard.querySelector(".folder-title")?.textContent.trim();
-            const dateText = targetCard.querySelector(".folder-date")?.textContent.trim();
-            const createdOn = new Date(dateText).toISOString().split("T")[0];
-
-            const publicQuery = query(collection(db, "flashcard_sets"), where("user", "==", user.email), where("title", "==", title));
-            const publicSnapshot = await getDocs(publicQuery);
-            for (const docSnap of publicSnapshot.docs) {
-                const data = docSnap.data();
-                if (data.createdOn?.startsWith(createdOn)) {
-                    await deleteDoc(doc(db, "flashcard_sets", docSnap.id));
-                }
-            }
         } catch (err) {
-            console.error("Error deleting documents:", err);
+            console.error("❌ Error during delete process:", err); // LOG Catch block error
         }
 
         await renderFilteredFolders(auth.currentUser);

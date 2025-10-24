@@ -18,8 +18,9 @@
       <h2>FlipCards.</h2>
     </div>
     <nav>
-      <button id="openLoginModalBtn" class="login-btn-neumorphic">Login</button>
-    </nav>
+  <button id="openLoginModalBtn" class="header-btn primary">Login</button>
+  <button id="openSignupModalBtn" class="header-btn secondary">Create an Account</button>
+</nav>
   </div>
 </header>
 
@@ -39,8 +40,14 @@
 
   
 </section>
+<div id="scrollIndicator">
+  <div class="scroll-text">Scroll down to learn more about FlipCards</div>
+  <div class="scroll-arrow">
+    <i class="fa-solid fa-chevron-down"></i>
+  </div>
+</div>
 
-  <section class="feature-section">
+<section class="feature-section">
     <div class="feature-image">
       <img src="uno.png" alt="A descriptive image of the feature">
     </div>
@@ -175,16 +182,23 @@
     <div class="login-modal-form">
       <button class="close-modal-btn" id="closeLoginModalBtn">&times;</button>
       <form onsubmit="event.preventDefault(); login();">
-        <div class="loginlogo">
-          <img class="group-5" src="Group-100.png" />
-          <h2>FlipCards.</h2>
-        </div>
-        <p class="login-welcome">Welcome back! Please login to your account.</p>
-        <input type="email" name="username" placeholder="Email" required />
-        <input type="password" name="password" placeholder="Password" required />
-        <button id="loginBtn" type="submit">Login</button>
-        <button id="guestLoginBtn" type="button" class="guest-btn">Continue as Guest</button>
-      </form>
+  <div class="loginlogo">
+    <img class="group-5" src="Group-100.png" />
+    <h2>FlipCards.</h2>
+  </div>
+  <p class="login-welcome">Welcome back! Please login to your account.</p>
+  <input type="email" name="username" placeholder="Email" required />
+  <input type="password" name="password" placeholder="Password" required />
+  <button id="loginBtn" type="submit">Login</button>
+  <button id="guestLoginBtn" type="button" class="guest-btn">Continue as Guest</button>
+  
+  <!-- ADD THIS PART -->
+  <p style="text-align: center; font-size: 0.9em; color: #ccc; margin-top: 15px;">
+    Don't have an account? <a href="#" id="signupLink" style="color: #ffcf00; text-decoration: none;">Sign Up</a>
+  </p>
+  <!-- END OF ADDED PART -->
+
+</form>
     </div>
   </div>
 </div>
@@ -243,7 +257,106 @@
     </form>
   </div>
 </div>
+<!-- INVITATION CODE MODAL -->
+<div id="invitationModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 400px; text-align: left;">
+        <h3 style="text-align: center;">Enter Invitation Code</h3>
+        <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px; text-align: center;">
+            A valid code is required to create an account.
+        </p>
+        <div class="facebook-note">
+            <i class="fa-brands fa-facebook"></i>
+            <a href="https://www.facebook.com/Raaaph.28" target="_blank">
+                Message the admin on Facebook to get your code.
+            </a>
+        </div>
+        <label for="invitationCodeInput" style="font-size: 0.8em; color: #aaa;">Invitation Code (Required)</label>
+<input type="text" id="invitationCodeInput" placeholder="Enter code from admin..." required style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #333; color: white; margin-top: 5px;">
 
+<!-- ADD THIS NEW SECTION -->
+<label for="referralCodeInput" style="font-size: 0.8em; color: #aaa; margin-top: 15px;">Enter Referral Code (Optional)</label>
+<input type="text" id="referralCodeInput" placeholder="Enter code from a friend..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #333; color: white; margin-top: 5px;">
+        <p id="invitationError" style="color: #ff4d4d; font-size: 0.8em; height: 1em; margin-top: 5px; text-align: center;"></p>
+        <button id="submitInvitationCode" style="margin-top: 15px; width: 100%; background-color: #ffcf00; color: #171717;">Create Account</button>
+        <button id="cancelInvitation" type="button" class="guest-btn" style="width: 100%; margin-top: 10px;">Cancel</button>
+    </div>
+</div>
+<!-- NEW SIGN UP MODAL -->
+<!-- NEW SIGN UP MODAL -->
+<div id="signupModal" class="modal-overlay">
+  <div class="modal-box signup-modal-content">
+    <div class="signup-modal-image">
+      <img src="wilkam.png" alt="Signup visual">
+    </div>
+    <div class="signup-modal-form">
+      <button class="close-modal-btn2" id="closeSignupModalBtn">&times;</button>
+      <form id="signupForm" onsubmit="event.preventDefault(); handleSignupRequest();">
+        <div class="loginlogo">
+          <img class="group-5" src="Group-100.png" />
+          <h2>Create Account</h2>
+        </div>
+        <p class="login-welcome">Join the FlipCards community!</p>
+
+        <input type="email" id="signupEmail" placeholder="Email" required />
+        <input type="password" id="signupPassword" placeholder="Password (min. 6 characters)" required minlength="6" />
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+        
+        <p id="signupError" style="color: #ff4d4d; font-size: 0.8em; height: 1em; margin-top: -10px; margin-bottom: 10px; text-align: center;"></p>
+
+        <button type="submit" id="createAccountBtn">Request Account</button>
+        <p class="form-footer-text">
+            Already have an account? <a href="#" id="switchToLoginLink">Log In</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+<div id="customAlertModal" class="custom-modal hidden">
+    <div class="modal-content success">
+        <div class="modal-message">
+            <i class="fa-solid fa-paper-plane" style="font-size: 40px; color: #ffcf00; margin-bottom: 15px;"></i>
+            <h3 id="customAlertTitle" style="margin-top: 0; font-size: 1.5rem;">Request Sent!</h3>
+            <p id="customAlertMessage" style="margin-bottom: 20px; line-height: 1.6;"></p> <div class="facebook-contact-note">
+                <p>To get your activation code:</p>
+                <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="facebook-button">
+                    <i class="fa-brands fa-facebook"></i>
+                    Message Admin on Facebook
+                </a>
+            </div>
+            </div>
+        <div class="modal-buttons">
+            <button id="customAlertCloseBtn" class="neumorphic-button">Got it</button>
+        </div>
+    </div>
+</div>
+<div id="successModal" class="custom-modal hidden">
+    <div class="modal-content success">
+        <div class="modal-message">
+            <h3 id="successModalTitle" style="margin-top: 0; font-size: 1.5rem;">Account Created!</h3>
+            <p id="successModalMessage" style="margin-bottom: 0; line-height: 1.6;"></p>
+        </div>
+        <div class="modal-buttons">
+            <button id="proceedToLoginBtn" class="neumorphic-button">Proceed to Login</button>
+        </div>
+    </div>
+</div>
+<!-- GUEST REFERRAL MODAL -->
+<div id="guestReferralModal" class="modal-overlay">
+  <div class="modal-box" style="max-width: 400px; text-align: left;">
+    <h3 style="text-align: center;">Have a Referral Code?</h3>
+    <p style="color: #ccc; font-size: 0.9em; margin-bottom: 20px; text-align: center;">
+      If a friend gave you a code, enter it below to support them!
+    </p>
+
+    <label for="guestReferralCodeInput" style="font-size: 0.8em; color: #aaa;">Referral Code (Optional)</label>
+    <input type="text" id="guestReferralCodeInput" placeholder="Enter code from a friend..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #555; background: #333; color: white; margin-top: 5px;">
+    
+    <p id="guestReferralError" style="color: #ff4d4d; font-size: 0.8em; height: 1em; margin-top: 5px; text-align: center;"></p>
+
+    <button id="submitGuestReferral" style="margin-top: 15px; width: 100%; background-color: #ffcf00; color: #171717;">Submit Code</button>
+    <button id="skipGuestReferral" type="button" class="guest-btn" style="width: 100%; margin-top: 10px;">Skip for Now</button>
+  </div>
+</div>
   <script src="icon.js"></script>
   <script type="module" src="auth.js"></script>
   
@@ -285,29 +398,65 @@
   }
 </script>
 <script>
-  // Updated script to control the login modal with animation
+  // Script to control all authentication modals
   document.addEventListener("DOMContentLoaded", () => {
     const loginModal = document.getElementById('loginModal');
-    const openBtn = document.getElementById('openLoginModalBtn');
-    const closeBtn = document.getElementById('closeLoginModalBtn');
+    const signupModal = document.getElementById('signupModal');
 
-    function openModal() {
+    const openLoginBtn = document.getElementById('openLoginModalBtn');
+    const openSignupBtn = document.getElementById('openSignupModalBtn');
+
+    const closeLoginBtn = document.getElementById('closeLoginModalBtn');
+    const closeSignupBtn = document.getElementById('closeSignupModalBtn'); // From the new HTML
+
+    const switchToSignupLink = document.getElementById('signupLink'); // In login modal
+    const switchToLoginLink = document.getElementById('switchToLoginLink'); // In signup modal
+
+    // --- Functions to open/close modals ---
+    function openLoginModal() {
+      signupModal.classList.remove('visible'); // Close signup if open
       loginModal.classList.add('visible');
     }
-
-    function closeModal() {
+    function openSignupModal() {
+      loginModal.classList.remove('visible'); // Close login if open
+      signupModal.classList.add('visible');
+    }
+    function closeAllModals() {
       loginModal.classList.remove('visible');
+      signupModal.classList.remove('visible');
     }
 
-    openBtn.onclick = openModal;
-    closeBtn.onclick = closeModal;
+    // --- Event Listeners ---
+    openLoginBtn.onclick = openLoginModal;
+    openSignupBtn.onclick = openSignupModal;
+    
+    closeLoginBtn.onclick = closeAllModals;
+    closeSignupBtn.onclick = closeAllModals;
 
-    // Also close if user clicks on the overlay background
+    switchToSignupLink.onclick = (e) => { e.preventDefault(); openSignupModal(); };
+    switchToLoginLink.onclick = (e) => { e.preventDefault(); openLoginModal(); };
+
+    // Close modals on background click
     window.onclick = function(event) {
-      if (event.target == loginModal) {
-        closeModal();
+      if (event.target == loginModal || event.target == signupModal) {
+        closeAllModals();
       }
     }
+  });
+</script>
+<script>
+  // Script for the floating scroll indicator
+  document.addEventListener("DOMContentLoaded", () => {
+    const scrollIndicator = document.getElementById('scrollIndicator');
+    
+    window.addEventListener('scroll', () => {
+      // If user has scrolled more than a tiny amount (e.g., 50 pixels)
+      if (window.scrollY > 500) {
+        scrollIndicator.classList.add('hidden');
+      } else {
+        scrollIndicator.classList.remove('hidden');
+      }
+    });
   });
 </script>
 <script type="module" src="guestTimer.js"></script>

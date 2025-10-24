@@ -554,8 +554,162 @@ body {
   font-size: 0.9rem;
 }
 
+/* --- Speaker Icon --- */
+.definition-box {
+  position: relative; /* Needed for absolute positioning of the icon */
+}
 
+.speaker-icon {
+  position: absolute;
+  top: 15px; /* Adjust as needed */
+  right: 20px; /* Adjust as needed */
+  font-size: 1.5rem;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  z-index: 5;
+}
 
+.speaker-icon:hover {
+  color: #ffcf00;
+}
+/* --- Reverse Mode Toggle Switch --- */
+.reverse-mode-container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center it */
+  gap: 10px;
+  font-family: 'Satoshi', sans-serif;
+  color: #ccc;
+  margin-bottom: 20px; /* Space above description */
+}
+
+/* This is the small '?' button */
+.info-icon {
+  all: unset;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.info-icon:hover {
+  background-color: #ffcf00;
+  color: #171717;
+  transform: scale(1.1);
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #333;
+  border-radius: 28px;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #ffcf00;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* --- Reverse Info Modal (Copied from flashcard.css) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0,0,0,0.6) !important;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 10001;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.modal-overlay.hidden {
+    display: none; /* Use display none to work with the JS */
+}
+
+.modal-box {
+  transition: transform 0.3s ease-in-out;
+  background-color: #171717;
+  border-radius: 20px;
+}
+
+.info-modal-content {
+  max-width: 400px;
+  text-align: center;
+  line-height: 1.6;
+  padding: 30px;
+  border-top: 4px solid #ffcf00; /* Yellow accent */
+}
+
+.modal-info-icon {
+  font-size: 40px;
+  color: #ffcf00; /* Yellow to match accent */
+  margin-bottom: 15px;
+}
+
+.info-modal-content h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  font-family: 'Satoshi', sans-serif;
+}
+
+.info-modal-content p {
+  margin: 0 0 25px 0;
+  color: #ccc;
+}
+
+.info-modal-content .neumorphic-button {
+  width: 100%;
+  background-color: #ffcf00;
+  color: #171717;
+  font-weight: bold;
+}
+.info-modal-content .neumorphic-button:hover {
+  background-color: #fff;
+  border: 1px solid #171717;
+  box-shadow: none;
+}
 
 
 

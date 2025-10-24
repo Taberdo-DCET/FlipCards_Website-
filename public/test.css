@@ -187,7 +187,7 @@ body {
 .title-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 20px;
   margin-bottom: 15px;
 }
@@ -755,8 +755,145 @@ body {
   font-weight: bold;
   font-size: 0.9rem;
 }
+/* --- Speaker Icon --- */
+.definition-text {
+  position: relative; /* This MUST be here */
+  min-height: 40px; /* Ensures the container has some height */
+}
+
+/* Make sure images don't overflow the container height */
+.definition-text img {
+    display: block; /* Helps layout */
+    max-height: 100%; /* Respect container max-height */
+    width: auto;      /* Maintain aspect ratio */
+    margin: 0 auto;   /* Center image if narrower than container */
+}
 
 
+.speaker-icon {
+  position: absolute;
+  top: 8px;   /* Small value */
+  right: 8px;  /* Small value */
+  font-size: 1.5rem;
+  color: #bbb; /* Slightly brighter color */
+  cursor: pointer;
+  transition: color 0.2s ease;
+  z-index: 10; /* Increased z-index */
+  /* Remove text-shadow for simplicity now */
+}
+
+.speaker-icon:hover {
+  color: #ffcf00;
+}
+/* --- Reverse Mode Toggle Switch (Copied from flashcard.css) --- */
+/* --- Reverse Mode Toggle Switch (Copied from flashcard.css) --- */
+.reverse-mode-container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* ◄◄◄ ADD THIS */
+  gap: 10px;
+  font-family: 'Satoshi', sans-serif;
+  color: #ccc;
+  margin-bottom: 20px; /* ◄◄◄ ADD THIS */
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #333;
+  border-radius: 28px;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #ffcf00;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* --- Reverse Info Modal (Copied from flashcard.css) --- */
+/* We prefix with #reverseInfoModal to avoid CSS conflicts */
+#reverseInfoModal .info-modal-content {
+  max-width: 400px;
+  text-align: center;
+  line-height: 1.6;
+  padding: 30px;
+  border-top: 4px solid #ffcf00;
+}
+
+.modal-info-icon {
+  font-size: 40px;
+  color: #ffcf00;
+  margin-bottom: 15px;
+}
+
+#reverseInfoModal .info-modal-content h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  font-family: 'Satoshi', sans-serif;
+  text-align: center; /* Explicitly set center */
+}
+
+#reverseInfoModal .info-modal-content p {
+  margin: 0 0 25px 0;
+  color: #ccc;
+}
+
+#reverseInfoModal .info-modal-content ul {
+  list-style: none; /* Reset list style */
+  padding: 0; /* Reset padding */
+}
+#reverseInfoModal .info-modal-content li {
+  position: static; /* Reset position */
+  padding-left: 0; /* Reset padding */
+  margin-bottom: 0; /* Reset margin */
+}
+#reverseInfoModal .info-modal-content li::before {
+  content: none; /* Hide checkmark */
+}
+
+#reverseInfoModal .info-modal-content .neumorphic-button {
+  width: 100%;
+  background-color: #ffcf00;
+  color: #171717;
+  font-weight: bold;
+}
+#reverseInfoModal .info-modal-content .neumorphic-button:hover {
+  background-color: #fff;
+  border: 1px solid #171717;
+  box-shadow: none;
+}
 
 
 

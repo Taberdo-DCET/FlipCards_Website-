@@ -20,6 +20,9 @@
     <h2 class="shop-main-title">Upgrade your Plan</h2>
     <p class="shop-subtitle">Tap/Hold for Info</p>
  <p class="shop-description">Unlock your academic potential and achieve the grades you've always wanted.</p> 
+ <div style="text-align: center; margin-bottom: 40px;">
+  <a href="#" id="claimRewardsBtn" class="claim-rewards-button">Claim Rewards with Your Points!</a>
+</div>
     <div class="plans-fullscreen-container">
         <div class="plan-panel">
             <img src="normal1.png" alt="Standard Access background">
@@ -155,47 +158,178 @@
     </div>
     <button id="closeContactBannerBtn" class="banner-close">&times;</button>
 </div>
+<div id="rewardsModal" class="modal-overlay">
+  <div class="modal-box rewards-modal-content">
+    <button id="closeRewardsModalBtn" class="plan-modal-close">&times;</button>
+
+    <h2>Claim your Rewards!</h2>
+<p id="userPointsDisplay" class="rewards-points-counter">Loading your points...</p>
+    <ul class="rewards-list">
+      <li>
+        <div class="reward-info">
+          <span class="reward-tier">Tier 1: 1 Month of Verified Subscription</span>
+          <span class="reward-cost">Cost: 20 Points</span>
+        </div>
+        <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="claim-link-btn">Claim from Admin</a>
+      </li>
+      <li>
+        <div class="reward-info">
+          <span class="reward-tier">Tier 2: 2 Months of Verified Subscription</span>
+          <span class="reward-cost">Cost: 30 Points</span>
+        </div>
+        <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="claim-link-btn">Claim from Admin</a>
+      </li>
+      <li>
+        <div class="reward-info">
+          <span class="reward-tier">Tier 3: 1 Month of Plus Subscription</span>
+          <span class="reward-cost">Cost: 50 Points</span>
+        </div>
+        <a href="https://www.facebook.com/Raaaph.28" target="_blank" class="claim-link-btn">Claim from Admin</a>
+      </li>
+    </ul>
+  </div>
+</div>
 <script type="module" src="firebaseinit.js"></script>
 
 <script type="module">
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+  import { getFirestore, doc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
   import { db } from "./firebaseinit.js";
 
   const auth = getAuth();
+// --- Function to get referral count (from profile.js) ---
+async function getReferralCount(userCode) {
+  if (!userCode) return 0; // Return 0 if no code provided
 
-  onAuthStateChanged(auth, (user) => {
-    if (user && !user.isAnonymous) {
-      const verifiedBtn = document.getElementById('verifiedPlanBtn');
-      const plusBtn = document.getElementById('plusPlanBtn');
-      
-      const userRolesRef = doc(db, "approved_emails", user.email);
+  let totalCount = 0;
 
-      onSnapshot(userRolesRef, (docSnap) => {
-        const roles = docSnap.exists() ? docSnap.data().role.toLowerCase() : "";
+  try {
+    // Define references to the Paid and Guest documents in the Referral collection
+    const paidDocRef = doc(db, "Referral", "Paid");
+    const guestDocRef = doc(db, "Referral", "Guest");
 
-        // Check for 'verified' role
-        if (roles.includes('verified')) {
-          verifiedBtn.textContent = 'Owned';
-          verifiedBtn.classList.add('is-owned');
-        } else {
-          // Reset the button if the role is not present
-          verifiedBtn.textContent = 'View More Info';
-          verifiedBtn.classList.remove('is-owned');
-        }
+    // Fetch both documents
+    const [paidDocSnap, guestDocSnap] = await Promise.all([
+      getDoc(paidDocRef),
+      getDoc(guestDocRef)
+    ]);
 
-        // Check for 'plus' role
-        if (roles.includes('plus')) {
-          plusBtn.textContent = 'Owned';
-          plusBtn.classList.add('is-owned');
-        } else {
-          // Reset the button if the role is not present
-          plusBtn.textContent = 'View More Info';
-          plusBtn.classList.remove('is-owned');
-        }
-      });
+    // Process Paid document
+    if (paidDocSnap.exists()) {
+      const paidData = paidDocSnap.data();
+      // Check if a field with the userCode name exists
+      if (paidData.hasOwnProperty(userCode)) {
+         // Ensure the value is a number before adding
+         const count = Number(paidData[userCode]);
+         if (!isNaN(count)) {
+           totalCount += count;
+         }
+      }
     }
-  });
+
+    // Process Guest document
+    if (guestDocSnap.exists()) {
+      const guestData = guestDocSnap.data();
+      // Check if a field with the userCode name exists
+      if (guestData.hasOwnProperty(userCode)) {
+         // Ensure the value is a number before adding
+         const count = Number(guestData[userCode]);
+         if (!isNaN(count)) {
+           totalCount += count;
+         }
+      }
+    }
+
+    return totalCount; // Return the combined count
+
+  } catch (error) {
+    console.error("Error fetching referral count from Paid/Guest docs:", error);
+    return 0; // Return 0 on error
+  }
+}
+// --- End of getReferralCount function ---
+onAuthStateChanged(auth, (user) => {
+  const pointsDisplay = document.getElementById('userPointsDisplay'); // Get the counter element
+
+  if (user && !user.isAnonymous) {
+    // --- NEW: Logic to fetch user points ---
+    (async () => {
+      try {
+        // 1. Get the user's referral code from ReferralCodeChoice
+        const codeRef = doc(db, "ReferralCodeChoice", user.email);
+        const codeSnap = await getDoc(codeRef);
+
+        let userCode = null;
+        if (codeSnap.exists()) {
+          userCode = codeSnap.data().code;
+        }
+
+        // 2. Get the points count using that code
+        const points = await getReferralCount(userCode); // userCode can be null, function handles it
+
+        // 3. Update the display in the rewards modal
+        if (pointsDisplay) {
+          pointsDisplay.textContent = `Your Points: ${points}`;
+        }
+      } catch (error) {
+        console.error("Error fetching user points:", error);
+        if (pointsDisplay) {
+          pointsDisplay.textContent = "Could not load points";
+        }
+      }
+    })();
+    // --- END: Logic to fetch user points ---
+
+
+    // --- This is your existing code, leave it here ---
+    const verifiedBtn = document.getElementById('verifiedPlanBtn');
+    const plusBtn = document.getElementById('plusPlanBtn');
+
+    const userRolesRef = doc(db, "approved_emails", user.email);
+
+    onSnapshot(userRolesRef, (docSnap) => {
+      const roles = docSnap.exists() ? docSnap.data().role.toLowerCase() : "";
+
+      // Check for 'verified' role
+      if (roles.includes('verified')) {
+        verifiedBtn.textContent = 'Owned';
+        verifiedBtn.classList.add('is-owned');
+      } else {
+        verifiedBtn.textContent = 'View More Info';
+        verifiedBtn.classList.remove('is-owned');
+      }
+
+      // Check for 'plus' role
+      if (roles.includes('plus')) {
+        plusBtn.textContent = 'Owned';
+        plusBtn.classList.add('is-owned');
+      } else {
+        plusBtn.textContent = 'View More Info';
+        plusBtn.classList.remove('is-owned');
+      }
+    });
+    // --- End of your existing code ---
+
+  } else {
+    // --- NEW: Handle logged-out/anonymous user ---
+    if (pointsDisplay) {
+      pointsDisplay.textContent = "Log in to see your points";
+    }
+
+    // Reset buttons for logged-out state
+    const verifiedBtn = document.getElementById('verifiedPlanBtn');
+    const plusBtn = document.getElementById('plusPlanBtn');
+    if (verifiedBtn) {
+      verifiedBtn.textContent = 'View More Info';
+      verifiedBtn.classList.remove('is-owned');
+    }
+    if (plusBtn) {
+      plusBtn.textContent = 'View More Info';
+      plusBtn.classList.remove('is-owned');
+    }
+    // --- END: Handle logged-out/anonymous user ---
+  }
+});
 </script>
 
 <script>
@@ -216,7 +350,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalPlanBilling = document.getElementById('modalPlanBilling');
   const modalPlanPrice = document.getElementById('modalPlanPrice');
   const modalPlanImage = document.getElementById('modalPlanImage');
-  
+  const claimRewardsBtn = document.getElementById('claimRewardsBtn');
+const rewardsModal = document.getElementById('rewardsModal');
+const closeRewardsModalBtn = document.getElementById('closeRewardsModalBtn');
   // --- Functions ---
   function openPlanModal(planData) {
     modalPlanTitle.textContent = planData.plan;
@@ -267,6 +403,26 @@ document.addEventListener("DOMContentLoaded", () => {
   closeContactBannerBtn.addEventListener('click', () => {
     contactBanner.classList.remove('expanded');
   });
+  // --- Add these new event listeners for the rewards modal ---
+
+// Open rewards modal
+claimRewardsBtn.addEventListener('click', (e) => {
+  e.preventDefault(); // Stops the '#' link from jumping page
+  rewardsModal.classList.add('visible');
+});
+
+// Close rewards modal (with button)
+closeRewardsModalBtn.addEventListener('click', () => {
+  rewardsModal.classList.remove('visible');
+});
+
+// Close rewards modal (by clicking outside)
+rewardsModal.addEventListener('click', (event) => {
+  if (event.target === rewardsModal) {
+    rewardsModal.classList.remove('visible');
+  }
+});
+// --- End of new event listeners ---
 });
 </script>
 <script src="protect.js"></script>

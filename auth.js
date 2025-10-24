@@ -3,18 +3,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebas
 import {
   getAuth,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import {
   getFirestore,
   doc,
-  getDoc,
   setDoc,
+  getDoc,
   updateDoc,
-  serverTimestamp
+  serverTimestamp,
+  increment
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-// Firebase config
+// --- (Firebase config remains the same) ---
 const firebaseConfig = {
   apiKey: "AIzaSyCndfcWksvEBhzJDiQmJj_zSRI6FSVNUC0",
   authDomain: "flipcards-7adab.firebaseapp.com",
@@ -22,122 +23,275 @@ const firebaseConfig = {
   storageBucket: "flipcards-7adab.firebasestorage.app",
   messagingSenderId: "836765717736",
   appId: "1:836765717736:web:ff749a40245798307b655d",
-  measurementId: "G-M26MWQZBJ0"
+  measurementId: "G-M26MWQZBJ0",
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Generate or load device ID from localStorage
-function getDeviceId() {
-  let id = localStorage.getItem('deviceId');
-  if (!id) {
-    id = 'device-' + Math.random().toString(36).substring(2, 15);
-    localStorage.setItem('deviceId', id);
+// --- State variables to hold user details during signup ---
+let tempEmail = "";
+let tempPassword = "";
+// --- NEW HELPER FUNCTION FOR CUSTOM ALERT ---
+function showCustomAlert(title, message) {
+    const modal = document.getElementById('customAlertModal');
+    const titleEl = document.getElementById('customAlertTitle');
+    const messageEl = document.getElementById('customAlertMessage');
+    const closeBtn = document.getElementById('customAlertCloseBtn');
+
+    titleEl.textContent = title;
+    messageEl.innerHTML = message; // Use innerHTML to allow for bolding/breaks
+
+    // Show the modal
+    modal.classList.remove('hidden');
+    modal.classList.add('visible');
+
+    // Add a one-time event listener to the close button
+    const closeHandler = () => {
+        modal.classList.remove('visible');
+        // Use a timeout to hide it after the animation
+        setTimeout(() => modal.classList.add('hidden'), 300);
+        closeBtn.removeEventListener('click', closeHandler);
+    };
+    closeBtn.addEventListener('click', closeHandler);
+}
+function showSuccessModal(message) {
+    const successModal = document.getElementById('successModal');
+    const messageEl = document.getElementById('successModalMessage');
+    const proceedBtn = document.getElementById('proceedToLoginBtn');
+    const loginModal = document.getElementById('loginModal'); // Get reference to login modal
+
+    messageEl.textContent = message;
+
+    // Show the success modal
+    successModal.classList.remove('hidden');
+    successModal.classList.add('visible');
+
+    // Add a one-time event listener to the proceed button
+    const proceedHandler = () => {
+        // Close success modal
+        successModal.classList.remove('visible');
+        setTimeout(() => successModal.classList.add('hidden'), 300);
+
+        // Open login modal
+        loginModal.classList.add('visible');
+
+        proceedBtn.removeEventListener('click', proceedHandler); // Clean up listener
+    };
+    proceedBtn.addEventListener('click', proceedHandler);
+}
+// --- EVENT LISTENERS ---
+document.addEventListener("DOMContentLoaded", () => {
+  const loginModal = document.getElementById('loginModal');
+  const signupModal = document.getElementById('signupModal');
+  const invitationModal = document.getElementById('invitationModal');
+
+  document.getElementById("signupLink")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    loginModal.classList.remove("visible");
+    signupModal.classList.add("visible");
+    document.getElementById("signupForm").reset(); // Clear the form
+  });
+
+  document.getElementById("cancelSignup")?.addEventListener("click", () => {
+    signupModal.classList.remove("visible");
+  });
+
+  document.getElementById("submitInvitationCode")?.addEventListener("click", verifyCodeAndFinalizeAccount);
+
+  document.getElementById("cancelInvitation")?.addEventListener("click", () => {
+    invitationModal.classList.remove("visible");
+  });
+});
+
+// --- NEW SIGNUP FLOW ---
+
+// STEP 1: User submits their desired email/password.
+window.handleSignupRequest = async function() {
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const errorP = document.getElementById("signupError");
+  const createBtn = document.getElementById("createAccountBtn");
+  errorP.textContent = "";
+
+  // --- Validation ---
+  if (!email || !password || !confirmPassword) {
+    errorP.textContent = "Please fill in all fields."; return;
   }
-  return id;
+  if (password !== confirmPassword) {
+    errorP.textContent = "Passwords do not match."; return;
+  }
+  if (password.length < 6) {
+    errorP.textContent = "Password must be at least 6 characters."; return;
+  }
+
+  createBtn.textContent = "Requesting...";
+  createBtn.disabled = true;
+
+  try {
+    // Generate a unique code for this user
+    const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Create a document in the 'NewUsers' collection with the email as the ID
+    const newUserRef = doc(db, "NewUsers", email);
+    await setDoc(newUserRef, {
+        email: email,
+        code: generatedCode, // This is the code you will give them
+        requestedAt: serverTimestamp(),
+        status: "pending"
+    });
+
+    // Store credentials for the next step
+    tempEmail = email;
+    tempPassword = password;
+    
+    // Success! Close the signup modal and show the invitation modal
+    document.getElementById('signupModal').classList.remove('visible');
+    document.getElementById('invitationModal').classList.add('visible');
+    
+    // For you, the admin, to see the code easily during testing
+    //... inside handleSignupRequest
+    // Use the new custom alert
+    const alertMessage = `Your request for <strong>${email}</strong> has been received. Please follow the instructions below to get your activation code.`;
+    showCustomAlert("Request Sent!", alertMessage);
+//...
+
+  } catch (error) {
+    console.error("Error during account request:", error);
+    errorP.textContent = "An error occurred. Please try again.";
+  }
+
+  createBtn.textContent = "Create Account";
+  createBtn.disabled = false;
+};
+
+
+// STEP 2: User enters the code you gave them.
+// STEP 2: User enters the code you gave them.
+async function verifyCodeAndFinalizeAccount() {
+    const enteredCode = document.getElementById('invitationCodeInput').value.trim();
+    const referralCode = document.getElementById('referralCodeInput').value.trim(); // Get the referral code
+    const errorP = document.getElementById('invitationError');
+    const submitBtn = document.getElementById('submitInvitationCode');
+    errorP.textContent = '';
+
+    if (!enteredCode) {
+        errorP.textContent = 'Please enter an invitation code.'; return;
+    }
+    if (!tempEmail || !tempPassword) {
+        errorP.textContent = 'Session expired. Please start over.'; return;
+    }
+
+    submitBtn.textContent = "Verifying...";
+    submitBtn.disabled = true;
+
+    try {
+        const newUserRef = doc(db, "NewUsers", tempEmail);
+        const newUserSnap = await getDoc(newUserRef);
+
+        if (newUserSnap.exists() && newUserSnap.data().code === enteredCode) {
+            // --- CODE IS CORRECT ---
+            
+            // 1. Create the user in Firebase Authentication
+            const userCredential = await createUserWithEmailAndPassword(auth, tempEmail, tempPassword);
+            const user = userCredential.user;
+
+            // --- [NEW] PROCESS REFERRAL CODE (if provided) ---
+            if (referralCode) {
+                const referralRef = doc(db, "Referral", "Paid");
+                // Use dot notation to increment a field within the document
+                const referralUpdate = {
+                    [referralCode]: increment(1)
+                };
+                // setDoc with merge:true will create or update the field
+                await setDoc(referralRef, referralUpdate, { merge: true });
+            }
+            // --- END OF NEW REFERRAL LOGIC ---
+
+            // 2. Add them to the 'approved_emails' collection
+            const approvedEmailRef = doc(db, "approved_emails", tempEmail);
+            await setDoc(approvedEmailRef, {
+                allowed: true,
+                uid: user.uid,
+                createdAt: serverTimestamp(),
+                slots: 10,
+                role: "prepper",
+                maxPublicSets: 4,
+                referredBy: referralCode || null // Optionally save who referred them
+            });
+
+            // 3. Create their main document in the 'users' collection
+            const userDocRef = doc(db, "users", user.uid);
+            await setDoc(userDocRef, {
+                email: user.email,
+                uid: user.uid,
+                createdAt: serverTimestamp(),
+                role: 'user'
+            });
+
+            // 4. Update the original request to mark it as completed
+            await updateDoc(newUserRef, { status: "completed", uid: user.uid });
+
+            showSuccessModal("You can now log in with your new credentials.");
+            document.getElementById('invitationModal').classList.remove('visible');
+            
+            tempEmail = "";
+            tempPassword = "";
+            
+        } else {
+            errorP.textContent = 'The code you entered is incorrect.';
+        }
+
+    } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+            errorP.textContent = 'This email has already been registered.';
+        } else {
+            console.error("Final account creation error:", error);
+            errorP.textContent = 'An error occurred. Please try again.';
+        }
+    }
+
+    submitBtn.textContent = "Create Account";
+    submitBtn.disabled = false;
 }
 
+
+// --- LOGIN FUNCTION ---
+// (No changes needed here, it inherits the old whitelisting logic from your original file)
 window.login = async function () {
- 
-  const loginBtn = document.getElementById('loginBtn');
-  if (loginBtn) {
-    loginBtn.textContent = "Logging In...";
-    loginBtn.disabled = true; // prevent double clicks
-  }
-  const email = document.querySelector('input[name="username"]').value;
-  const password = document.querySelector('input[name="password"]').value;
+  const loginBtn = document.getElementById("loginBtn");
+  const email = document.querySelector('.login-modal-form input[name="username"]').value;
+  const password = document.querySelector('.login-modal-form input[name="password"]').value;
 
-  if (!email || !password) {
-    alert("Please enter email and password.");
-    return;
-  }
+  loginBtn.textContent = "Logging In...";
+  loginBtn.disabled = true;
 
-  const approvedRef = doc(db, "approved_emails", email);
-  const approvedSnap = await getDoc(approvedRef);
-  if (!approvedSnap.exists() || approvedSnap.data().allowed !== true) {
-    alert("This email is not whitelisted.");
-    return;
-  }
-
-  const deviceId = getDeviceId();
-  const userDocRef = doc(db, "users", email);
-  const userSnap = await getDoc(userDocRef);
-
-  // Get slots (default 1 if not set)
-  const slots = approvedSnap.exists() ? (approvedSnap.data().slots || 1) : 1;
-
-  // Check device IDs for existing user
-  if (userSnap.exists()) {
-    const data = userSnap.data();
-    let deviceIds = data.deviceIds || [];
-
-    // Device not registered yet
-    if (!deviceIds.includes(deviceId)) {
-      if (deviceIds.length >= slots) {
-        alert(`This account is already active on the maximum of ${slots} devices.`);
-        return;
-      } else {
-        // Add current device
-        deviceIds.push(deviceId);
-        await updateDoc(userDocRef, { deviceIds: deviceIds, lastLogin: serverTimestamp() });
-      }
-    } else {
-      // Update last login if device already exists
-      await updateDoc(userDocRef, { lastLogin: serverTimestamp() });
-    }
-  }
-
-  // Try sign in or create user
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    localStorage.removeItem('guestBlocked');
-    localStorage.removeItem('guestStartTime');
+    const approvedRef = doc(db, "approved_emails", email);
+    const approvedSnap = await getDoc(approvedRef);
 
-    // Store UID in approved_emails
-    await setDoc(approvedRef, { uid: auth.currentUser.uid }, { merge: true });
-
-    // Create or update user doc with deviceId
-    if (!userSnap.exists()) {
-      await setDoc(userDocRef, {
-        deviceIds: [deviceId],
-        lastLogin: serverTimestamp()
-      });
-    } else {
-      const data = userSnap.data();
-      let deviceIds = data.deviceIds || [];
-      if (!deviceIds.includes(deviceId)) {
-        deviceIds.push(deviceId);
-        await updateDoc(userDocRef, { deviceIds: deviceIds, lastLogin: serverTimestamp() });
-      }
+    if (!approvedSnap.exists() || approvedSnap.data().allowed !== true) {
+      alert("This account is not approved for access.");
+      loginBtn.textContent = "Login";
+      loginBtn.disabled = false;
+      return;
     }
 
+    await signInWithEmailAndPassword(auth, email, password);
+    localStorage.removeItem("guestStartTime");
+    localStorage.removeItem("guestBlocked");
     sessionStorage.setItem("justLoggedIn", "true");
     window.location.href = "lobby.html";
 
   } catch (error) {
-    if (error.code === "auth/user-not-found") {
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        localStorage.removeItem('guestBlocked');
-
-        // Store UID in approved_emails
-        await setDoc(approvedRef, { uid: auth.currentUser.uid }, { merge: true });
-
-        await setDoc(userDocRef, {
-          deviceIds: [deviceId],
-          lastLogin: serverTimestamp()
-        });
-
-        sessionStorage.setItem("justLoggedIn", "true");
-        window.location.href = "lobby.html";
-
-      } catch (err) {
-        alert("Account creation failed: " + err.message);
-      }
-    } else {
-      alert("Login failed: " + error.message);
+    alert("Login failed: Incorrect email or password.");
+    console.error("Login error:", error);
+  } finally {
+    if (loginBtn) {
+        loginBtn.textContent = "Login";
+        loginBtn.disabled = false;
     }
   }
 };

@@ -91,6 +91,7 @@ const uploadJpgBtnAsk = document.getElementById('uploadJpgBtnAsk');
     const resetTimerAsk = document.getElementById('resetTimerAsk');
     const upgradeNoteAsk = document.getElementById('upgradeNoteAsk');
     const usageInfoBtnAsk = document.getElementById('usageInfoBtnAsk');
+    const pasteImageBtnAsk = document.getElementById('pasteImageBtnAsk');
 
     const fileInfoCreate = document.getElementById('fileInfoCreate');
 const fileInfoExplain = document.getElementById('fileInfoExplain');
@@ -654,77 +655,167 @@ async function displayExplanations(explanations) {
 
     explanations.forEach((item, index) => {
         const itemElement = document.createElement('div');
-        itemElement.className = 'flashcard';
+        itemElement.className = 'flashcard'; // Keep the card style
         itemElement.style.animationDelay = `${index * 100}ms`;
-        
+        const uniqueIdPrefix = `explain-${index}`; // Unique prefix for element IDs
+
+        // --- TERM SECTION ---
+        let termHTML = `
+            <div class="explanation-section">
+                <div class="explanation-header">
+                    <h4 class="explanation-title">Term</h4>
+                    <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-term-text" title="Copy Term">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <p id="${uniqueIdPrefix}-term-text" class="term">${item.term || 'Untitled Concept'}</p>
+            </div>`;
+
+        // --- EXPLANATION SECTION ---
+        let explanationHTML = `
+            <div class="explanation-section">
+                <div class="explanation-header">
+                    <h4 class="explanation-title">Explanation</h4>
+                    <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-explanation-text" title="Copy Explanation">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <p id="${uniqueIdPrefix}-explanation-text" class="base-explanation">${item.explanation || 'No explanation found.'}</p>
+            </div>`;
+
         let contentHTML = '';
 
-        // Check the subject to decide which layout to render
         if (item.subject === 'mathematics') {
-            // ----- RENDER MATH-SPECIFIC LAYOUT -----
+            // --- MATH-SPECIFIC SECTION ---
             const stepsHTML = (item.process_steps || []).map(step => `<li>${step}</li>`).join('');
             contentHTML = `
-                <div class="math-section">
-                    <h4 class="examples-heading">Process Steps:</h4>
-                    <ol>${stepsHTML}</ol>
+                <div class="explanation-section math-section">
+                     <div class="explanation-header">
+                        <h4 class="explanation-title examples-heading">Process Steps</h4>
+                        <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-math-steps" title="Copy Steps">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                    <ol id="${uniqueIdPrefix}-math-steps">${stepsHTML}</ol>
                 </div>`;
         } else {
-            // ----- RENDER STANDARD LAYOUT -----
+            // --- STANDARD LAYOUT SECTIONS ---
             let docExampleHTML = '';
             if (item.document_example) {
                 docExampleHTML = `
-                    <div class="document-example-section">
-                        <h4 class="examples-heading">Example from the Document:</h4>
-                        <p>${item.document_example}</p>
+                    <div class="explanation-section document-example-section">
+                         <div class="explanation-header">
+                             <h4 class="explanation-title examples-heading">Example from Document</h4>
+                             <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-doc-example" title="Copy Document Example">
+                                <i class="fa-regular fa-copy"></i>
+                             </button>
+                         </div>
+                        <p id="${uniqueIdPrefix}-doc-example">${item.document_example}</p>
                     </div>`;
             }
 
             let aiExamplesHTML = '';
             if (item.ai_examples) {
                 aiExamplesHTML = `
-                    <div class="ai-examples-section">
-                        <h4 class="examples-heading">AI Generated Examples:</h4>
+                    <div class="explanation-section ai-examples-section">
+                        <h4 class="explanation-title examples-heading">AI Generated Examples</h4>
                         <div class="example-item">
-                            <h5>General</h5>
-                            <p>${item.ai_examples.general}</p>
+                             <div class="explanation-header">
+                                <h5>General</h5>
+                                <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-ai-general" title="Copy General Example">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                             </div>
+                            <p id="${uniqueIdPrefix}-ai-general">${item.ai_examples.general}</p>
                         </div>
                         <div class="example-item">
-                            <h5>Real-Life Context</h5>
-                            <p>${item.ai_examples.real_life_context}</p>
+                             <div class="explanation-header">
+                                <h5>Real-Life Context</h5>
+                                <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-ai-real" title="Copy Real-Life Example">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                            <p id="${uniqueIdPrefix}-ai-real">${item.ai_examples.real_life_context}</p>
                         </div>
                         <div class="example-item">
-                            <h5>Filipino Context</h5>
-                            <p>${item.ai_examples.filipino_context}</p>
+                            <div class="explanation-header">
+                                <h5>Filipino Context</h5>
+                                <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-ai-filipino" title="Copy Filipino Example">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                            <p id="${uniqueIdPrefix}-ai-filipino">${item.ai_examples.filipino_context}</p>
                         </div>
                         <div class="example-item tagalog-example">
-                            <h5>In Tagalog</h5>
-                            <p>${item.ai_examples.filipino_context_tagalog}</p>
+                             <div class="explanation-header">
+                                <h5>In Tagalog</h5>
+                                <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-ai-tagalog" title="Copy Tagalog Example">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                            <p id="${uniqueIdPrefix}-ai-tagalog">${item.ai_examples.filipino_context_tagalog}</p>
                         </div>
                     </div>`;
             }
 
             let synonymsHTML = '';
             if (item.synonyms && item.synonyms.length > 0) {
-                synonymsHTML = `
-                    <div class="synonyms-section">
-                        <h4 class="examples-heading">Synonyms:</h4>
-                        <ul>
-                            ${item.synonyms.map(synonym => `<li>${synonym}</li>`).join('')}
-                        </ul>
+                 const synonymsText = item.synonyms.join(', ');
+                 synonymsHTML = `
+                    <div class="explanation-section synonyms-section">
+                         <div class="explanation-header">
+                             <h4 class="explanation-title examples-heading">Synonyms</h4>
+                              <button class="copy-btn copy-inline" data-copy-target="${uniqueIdPrefix}-synonyms" title="Copy Synonyms">
+                                <i class="fa-regular fa-copy"></i>
+                             </button>
+                         </div>
+                         <p id="${uniqueIdPrefix}-synonyms">${synonymsText}</p>
+                         <ul style="display: none;">${item.synonyms.map(s => `<li>${s}</li>`).join('')}</ul>
                     </div>`;
             }
             contentHTML = docExampleHTML + aiExamplesHTML + synonymsHTML;
         }
 
+        // Combine all sections for the card
         itemElement.innerHTML = `
-            <div class="term">${item.term || 'Untitled Concept'}</div>
-            <div class="definition">
-                <p class="base-explanation">${item.explanation || 'No explanation found.'}</p>
-                ${contentHTML}
-            </div>`;
-            
+            ${termHTML}
+            ${explanationHTML}
+            ${contentHTML}
+            `;
+
         explanationContainer.appendChild(itemElement);
     });
+
+    // --- Attach Event Listeners to ALL new copy buttons within the container ---
+    explanationContainer.querySelectorAll('.copy-btn.copy-inline').forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.dataset.copyTarget;
+            const elementToCopy = document.getElementById(targetId);
+
+            if (!elementToCopy) {
+                console.error(`Copy target not found: ${targetId}`);
+                return;
+            }
+
+            // For the math steps <ol>, extract text content from list items
+            let textToCopy;
+            if (elementToCopy.tagName === 'OL') {
+                textToCopy = Array.from(elementToCopy.querySelectorAll('li'))
+                                .map(li => li.textContent.trim())
+                                .join('\n'); // Add newline between steps
+            } else {
+                textToCopy = elementToCopy.innerText || elementToCopy.textContent; // Use innerText or textContent for <p> or <h4>
+            }
+
+            navigator.clipboard.writeText(textToCopy.trim()).then(() => {
+                showCustomAlert('Copied!', 'Text copied to clipboard.', 'success');
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                showCustomAlert('Copy Failed', 'Could not copy text.', 'error');
+            });
+        });
+    });
+    // --- End of Event Listener Attachment ---
 }
 // --- Usage Tracking Logic ---
     // --- Usage Tracking Logic ---
@@ -1138,4 +1229,75 @@ chatToggleBtn.addEventListener('click', () => {
             handleSendMessage();
         }
     });
+    pasteImageBtnAsk.addEventListener('click', async () => {
+    // Check if the AI is already processing something on this tab
+    if (aiProcessingState.ask) {
+        showCustomAlert('Processing...', 'Please wait for the current analysis to complete before pasting a new image.', 'error');
+        return;
+    }
+
+    // Check if Clipboard API is supported
+    if (!navigator.clipboard || !navigator.clipboard.read) {
+        showCustomAlert('Unsupported Browser', 'Your browser does not support pasting images directly. Please use the "Upload JPG" button.', 'error');
+        return;
+    }
+
+    try {
+        // Request permission and read clipboard contents
+        const clipboardItems = await navigator.clipboard.read();
+        let imageBlob = null;
+        let imageType = 'image/png'; // Default to PNG
+
+        // Look for an image item in the clipboard
+        for (const item of clipboardItems) {
+            const imageTypeFound = item.types.find(type => type.startsWith('image/'));
+            if (imageTypeFound) {
+                imageBlob = await item.getType(imageTypeFound);
+                imageType = imageTypeFound; // Store the actual type (png, jpeg, etc.)
+                break; // Stop after finding the first image
+            }
+        }
+
+        if (imageBlob) {
+            // Convert Blob to File
+            // Create a filename based on type and timestamp
+            const fileExtension = imageType.split('/')[1] || 'png';
+            const fileName = `clipboard-image-${Date.now()}.${fileExtension}`;
+            const imageFile = new File([imageBlob], fileName, { type: imageType });
+
+            // Clear previous results and show preview for pasted image
+            imagePreviewContainer.innerHTML = '';
+            imagePreviewContainer.classList.add('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = document.createElement('img');
+                img.src = event.target.result;
+                img.alt = "Pasted image";
+                imagePreviewContainer.appendChild(img);
+                imagePreviewContainer.classList.remove('hidden');
+            }
+            reader.readAsDataURL(imageBlob); // Use the blob directly for preview
+
+            // Process the file using the existing function
+            console.log(`Processing pasted image as ${imageFile.name} (${imageFile.type})`);
+            await processFileForAskAI(imageFile); // Use the SAME function as file upload
+
+        } else {
+            showCustomAlert('No Image Found', 'Could not find an image in your clipboard. Please copy an image first.', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error reading clipboard:', error);
+        // Handle potential permission errors or other issues
+        if (error.name === 'NotAllowedError') {
+             showCustomAlert('Permission Denied', 'Clipboard access was denied. Please allow access in your browser settings or use the Upload button.', 'error');
+        } else if (error.message.includes("secure context")) {
+             showCustomAlert('Insecure Context', 'Pasting from clipboard requires a secure (HTTPS) connection.', 'error');
+        }
+         else {
+            showCustomAlert('Paste Error', `Could not get image from clipboard: ${error.message}`, 'error');
+        }
+    }
+});
 });

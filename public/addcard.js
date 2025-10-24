@@ -231,10 +231,14 @@ async function checkPublicLimit(user, currentTitle, currentCreatedOn) {
 }
 
 async function saveFlashcardSet(isPracticeAfter = false) {
+    console.log("--- saveFlashcardSet START ---"); // LOG START
+    console.log("isPracticeAfter:", isPracticeAfter); // LOG PARAMETER
     const { data, error } = await getFlashcardData();
     if (error) {
+        console.error("❌ Error getting flashcard data:", error); // LOG ERROR
         return showCustomAlert(error, 'error');
     }
+    console.log("✅ Flashcard data retrieved:", JSON.stringify(data, null, 2)); // LOG DATA (stringified for better readability)
 
     // --- Update button text to show it's working ---
     const originalCreateText = isEditMode ? "Update" : "Create";
@@ -243,23 +247,49 @@ async function saveFlashcardSet(isPracticeAfter = false) {
     practiceBtn.textContent = "Saving...";
     createBtn.disabled = true;
     practiceBtn.disabled = true;
+    console.log("🔄 Buttons disabled, text set to 'Saving...'. isEditMode:", isEditMode); // LOG BUTTON STATE
 
     const user = auth.currentUser;
+    if (!user) { // LOG Check for user early
+        console.error("❌ No user logged in. Aborting save.");
+        showCustomAlert("❌ You must be logged in to save.", 'error');
+        // Reset buttons
+        createBtn.textContent = originalCreateText;
+        practiceBtn.textContent = originalPracticeText;
+        createBtn.disabled = false;
+        practiceBtn.disabled = false;
+        return;
+    }
+    console.log("👤 User found:", user.email); // LOG USER
+
+    // Note: LocalStorage 'sets' variable might be outdated/less relevant with Firestore.
     const sets = JSON.parse(localStorage.getItem("flashcardSets") || "[]");
+    console.log("ℹ️ Current LocalStorage 'sets' count:", sets.length); // LOG LocalStorage state
 
     // Variables to hold the new set's ID and collection for redirection
     let redirectSetId = null;
     let redirectCollection = null;
+    console.log("🚦 Initial redirect variables set to null."); // LOG Redirect vars init
 
     try {
         if (isEditMode) {
+            console.log("✏️ Entering EDIT mode logic."); // LOG Edit Mode Start
+            console.log("   Original Title:", originalTitle);
+            console.log("   Original CreatedOn:", originalCreatedOn);
+            // Logic for updating an existing set
             // Logic for updating an existing set
             const updated = sets.map(set =>
                 set.title === originalTitle && set.createdOn === originalCreatedOn ? data : set
             );
             localStorage.setItem("flashcardSets", JSON.stringify(updated));
+            console.log("   LocalStorage 'sets' potentially updated (in-memory).");
 
-            if (user) {
+            let existingLocalData = null; // <-- DECLARE AND INITIALIZE HERE (Moved outside if(user))
+            let localSetDocRef = null; // <-- Moved declaration here too for consistency
+
+            if (user) { // Redundant check, user confirmed above
+                // --- Update Local Set ---
+                console.log("   🔍 Querying local_sets for existing document...");
                 const q = query(
                     collection(db, "local_sets"),
                     where("user", "==", user.email),
@@ -267,94 +297,193 @@ async function saveFlashcardSet(isPracticeAfter = false) {
                     where("createdOn", "==", originalCreatedOn)
                 );
                 const snap = await getDocs(q);
+                // localSetDocRef and existingLocalData are already declared outside
+
                 if (!snap.empty) {
-                    await updateDoc(snap.docs[0].ref, { ...data, user: user.email });
+                    localSetDocRef = snap.docs[0].ref;
+                    existingLocalData = snap.docs[0].data(); // Assign inside the if
+                    console.log("   ✅ Found local document:", snap.docs[0].id, " Existing data:", JSON.stringify(existingLocalData, null, 2));
+                    await updateDoc(localSetDocRef, { ...data, user: user.email });
+                    console.log("   ✅ Updated local_sets document:", snap.docs[0].id);
+                } else {
+                    console.warn("   ⚠️ Could not find matching document in local_sets to update.");
+                    // Optionally, you might want to handle this case, e.g., create it if missing?
                 }
 
-                const pubQ = query(
-                    collection(db, "flashcard_sets"),
-                    where("user", "==", user.email),
-                    where("title", "==", originalTitle),
-                    where("createdOn", "==", originalCreatedOn)
-                );
-                const pubSnap = await getDocs(pubQ);
-                const wasPublic = !pubSnap.empty;
+                // --- Handle Public Set based on Toggle ---
                 const isNowPublic = data.public;
+                const existingPublicId = existingLocalData?.publicId; // Get publicId from existing data (now correctly scoped)
+                console.log("   🌐 Handling Public/Private status. isNowPublic:", isNowPublic, " Existing publicId:", existingPublicId);
 
-                if (wasPublic && !isNowPublic) {
-                    for (const docSnap of pubSnap.docs) {
-                        await deleteDoc(doc(db, "flashcard_sets", docSnap.id));
+                // ... [rest of the public/private logic inside if(user) stays the same] ...
+                 if (isNowPublic) {
+                    console.log("      Making/Keeping set PUBLIC.");
+                    // Logic for making/keeping it public
+                    let publicIdToUse = existingPublicId;
+                    if (!publicIdToUse) {
+                        console.log("      No existing publicId. Generating new one.");
+                        // Generate a new public ID if it didn't exist before
+                        publicIdToUse = `${user.email.replace(/\./g, "_")}_${Date.now()}_public_edit`;
+                        console.log("      Generated publicId:", publicIdToUse);
+                        // Update the local set to store this new publicId
+                        if (localSetDocRef) {
+                            await setDoc(localSetDocRef, { publicId: publicIdToUse }, { merge: true });
+                            console.log("      ✅ Added new publicId to local_sets document.");
+                        } else {
+                            console.warn("      ⚠️ Cannot add publicId link because localSetDocRef is null.");
+                        }
+                    } else {
+                         console.log("      Using existing publicId:", publicIdToUse);
                     }
-                } else if (!wasPublic && isNowPublic) {
-                    const docId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
-                    await setDoc(doc(db, "flashcard_sets", docId), { ...data, user: user.email });
-                } else if (wasPublic && isNowPublic) {
-                    await updateDoc(pubSnap.docs[0].ref, { ...data, user: user.email });
+                    // Update or create the public document
+                    await setDoc(doc(db, "flashcard_sets", publicIdToUse), { ...data, user: user.email, publicId: publicIdToUse }, { merge: false }); // Use setDoc with merge:false to overwrite or create
+                    console.log("      ✅ Updated/Created public document in flashcard_sets with ID:", publicIdToUse);
+                } else {
+                    console.log("      Making set PRIVATE.");
+                    // Logic for making it private (if it was public before)
+                    if (existingPublicId) {
+                        console.log("      Found existing publicId to delete:", existingPublicId);
+                        try {
+                            await deleteDoc(doc(db, "flashcard_sets", existingPublicId));
+                            console.log("      ✅ Deleted public document from flashcard_sets:", existingPublicId);
+                            // Remove publicId from local set
+                            if (localSetDocRef) {
+                                await setDoc(localSetDocRef, { publicId: null }, { merge: true });
+                                console.log("      ✅ Removed publicId from local_sets document.");
+                            } else {
+                                 console.warn("      ⚠️ Cannot remove publicId link because localSetDocRef is null.");
+                            }
+                        } catch (deleteError) {
+                            console.error("      ❌ Error deleting public document:", deleteError);
+                        }
+                    } else {
+                         console.log("      Set was already private or had no publicId. No public deletion needed.");
+                    }
                 }
+
+            } else { // Should not happen due to early user check
+                 console.warn("   ⚠️ User became undefined during edit process? Skipping DB operations.");
             }
+             // Set redirect variables for editing case (usually redirects to lobby)
+            // This line should now work correctly because existingLocalData was declared in the higher scope
+            redirectSetId = existingLocalData?._id; // Use the local ID if found
+            redirectCollection = "local_sets"; // Assume local collection for edit context
+            console.log("   🚦 Set redirect variables for EDIT mode:", "ID:", redirectSetId, "Collection:", redirectCollection);
+
         } else {
             // --- Logic for creating a new set ---
-            sets.push(data);
-            localStorage.setItem("flashcardSets", JSON.stringify(sets));
+            console.log("➕ Entering CREATE mode logic."); // LOG Create Mode Start
+            // 1. ALWAYS SAVE TO LOCAL_SETS
+            const localCollection = "local_sets";
+            const localSetId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
+            data._id = localSetId; // Add the local ID to the data object
+            console.log("   Generated localSetId:", localSetId);
 
-            if (user) {
-                // Determine collection and generate ID based on public status
-                if (data.public) {
-                    const canPublish = await checkPublicLimit(user, data.title, data.createdOn);
-                    if (!canPublish) {
-                        // Reset buttons and stop if user can't publish
-                        createBtn.textContent = originalCreateText;
-                        practiceBtn.textContent = originalPracticeText;
-                        createBtn.disabled = false;
-                        practiceBtn.disabled = false;
-                        return;
-                    }
-                    redirectCollection = "flashcard_sets";
-                    redirectSetId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
-                } else {
-                    redirectCollection = "local_sets";
-                    redirectSetId = `${user.email.replace(/\./g, "_")}_${Date.now()}`;
+            await setDoc(doc(db, localCollection, localSetId), { ...data, user: user.email });
+            console.log("   ✅ Set saved to local_sets with ID:", localSetId); // Logging
+
+            // Set initial redirection variables to the local set
+            redirectSetId = localSetId;
+            redirectCollection = localCollection;
+            console.log("   🚦 Set redirect variables for CREATE mode:", "ID:", redirectSetId, "Collection:", redirectCollection);
+
+            // 2. CONDITIONALLY SAVE TO FLASHCARD_SETS IF PUBLIC
+            console.log("   🌐 Checking if set should be public. data.public:", data.public);
+            if (data.public) {
+                console.log("      Set is marked public. Checking limit...");
+                const canPublish = await checkPublicLimit(user, data.title, data.createdOn);
+                console.log("      Can publish check result:", canPublish);
+                if (!canPublish) {
+                    console.warn("      ⚠️ User cannot publish more sets. Aborting public save.");
+                    // Reset buttons and stop if user can't publish
+                    createBtn.textContent = originalCreateText;
+                    practiceBtn.textContent = originalPracticeText;
+                    createBtn.disabled = false;
+                    practiceBtn.disabled = false;
+                    return; // Stop execution here
                 }
 
-                // Save the new set to Firestore with the generated ID
-                await setDoc(doc(db, redirectCollection, redirectSetId), { ...data, user: user.email });
+                const publicCollection = "flashcard_sets";
+                // Generate a unique ID for the public copy (can be related or different)
+                const publicSetId = `${user.email.replace(/\./g, "_")}_${Date.now()}_public`;
+                data.publicId = publicSetId; // Add the public ID reference
+                console.log("      Generated publicSetId:", publicSetId);
 
-                // Update user stats
-                const totalToAdd = data.flashcards.length;
-                const userStatsRef = doc(db, "user_card_stats", user.email);
-                await setDoc(userStatsRef, { totalCards: increment(totalToAdd) }, { merge: true });
+                // Save the public copy
+                await setDoc(doc(db, publicCollection, publicSetId), { ...data, user: user.email });
+                console.log("      ✅ Public copy saved to flashcard_sets with ID:", publicSetId); // Logging
+
+                // IMPORTANT: Update the local set to store the ID of its public copy
+                await setDoc(doc(db, localCollection, localSetId), { publicId: publicSetId }, { merge: true });
+                console.log("      ✅ Updated local set with publicId reference."); // Logging
+
+                 // If creating public, practice mode should use the public version for consistency?
+                 // Or maybe always use local? Let's stick with local for now.
+                 // redirectSetId = publicSetId; // Uncomment if practice should use public ID
+                 // redirectCollection = publicCollection; // Uncomment if practice should use public collection
+                 // console.log("      🚦 Updated redirect variables for PRACTICE (if applicable):", "ID:", redirectSetId, "Collection:", redirectCollection);
+            } else {
+                 console.log("      Set is private. Skipping public save.");
             }
-            if (typeof addXP === "function") addXP(20);
+
+            // --- Original User Stats and XP update ---
+            console.log("   📊 Updating user stats and XP...");
+            sets.push(data); // Still update local storage if needed, though Firestore is primary
+            localStorage.setItem("flashcardSets", JSON.stringify(sets));
+            console.log("      LocalStorage 'sets' updated (in-memory).");
+
+            if (user) { // This check might be redundant now but safe to keep
+              const totalToAdd = data.flashcards.length;
+              const userStatsRef = doc(db, "user_card_stats", user.email);
+              await setDoc(userStatsRef, { totalCards: increment(totalToAdd) }, { merge: true });
+              console.log("      ✅ Incremented totalCards in user_card_stats by:", totalToAdd);
+            }
+            if (typeof addXP === "function") {
+                addXP(20);
+                console.log("      ✨ Added 20 XP.");
+            } else {
+                 console.log("      ℹ️ addXP function not found. Skipping XP update.");
+            }
+            // --- End Original User Stats ---
         }
 
         // --- Handle redirection after a successful save ---
-        await showCustomAlert(isEditMode ? "✔️ Flashcard set updated." : `✔️ Flashcard set saved.${data.public ? " Public version created too." : ""}`, 'success');
-        localStorage.removeItem('flashcardDraft');
+        console.log("✅ Save/Update successful. Handling redirection...");
+        const successMessage = isEditMode ? "✔️ Flashcard set updated." : `✔️ Flashcard set saved.${data.public ? " Public version created too." : ""}`;
+        await showCustomAlert(successMessage, 'success');
+        console.log("   Alert shown:", successMessage);
+        localStorage.removeItem('flashcardDraft'); // Clear draft after successful save/update
+        console.log("   Cleared 'flashcardDraft' from LocalStorage.");
 
         if (isPracticeAfter) {
+            console.log("   ➡️ Redirecting to Practice Mode...");
+            // Use the determined redirectSetId and redirectCollection
             if (redirectSetId && redirectCollection) {
-                // --- THIS IS THE FIX ---
-                // Pass the new set's ID and collection to the next page
+                console.log("      Using ID:", redirectSetId, "Collection:", redirectCollection);
                 localStorage.setItem("reviewingSetId", redirectSetId);
                 localStorage.setItem("reviewingSetCollection", redirectCollection);
                 window.location.href = "flashcard.html";
             } else {
-                // Fallback for logged-out users or if the ID couldn't be determined (e.g., during edit)
+                console.warn("   ⚠️ Could not determine redirect ID/Collection for practice mode after edit/save.");
                 await showCustomAlert("Redirecting to lobby. Please start your practice session from there.", 'default');
                 window.location.href = "lobby.html#Folderr";
             }
         } else {
-            window.location.href = "lobby.html#Folderr";
+            console.log("   ➡️ Redirecting to Lobby...");
+            window.location.href = "lobby.html#Folderr"; // Default redirect to lobby
         }
 
     } catch (err) {
-        console.error("Error saving set:", err);
+        console.error("❌ Error during save/update process:", err); // LOG ERROR in catch block
         showCustomAlert("❌ Failed to save set.", 'error');
         // Reset button text on error
         createBtn.textContent = originalCreateText;
         practiceBtn.textContent = originalPracticeText;
         createBtn.disabled = false;
         practiceBtn.disabled = false;
+        console.log("   🔄 Buttons reset due to error.");
+    } finally {
+         console.log("--- saveFlashcardSet END ---"); // LOG END
     }
 }
 function getDraftData() {

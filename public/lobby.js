@@ -91,4 +91,106 @@ document.addEventListener("DOMContentLoaded", () => {
     chatInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleSendMessage();
     });
+    const initialAiMessageDiv = document.getElementById('initialAiMessage');
+
+if (initialAiMessageDiv) {
+    // --- Existing Referral Button ---
+    const referralButton = document.createElement('button');
+    referralButton.textContent = 'How Referral System work'; // Corrected text
+    referralButton.className = 'quick-question-button';
+
+    // (Keep the existing styles and event listener for referralButton here)
+    referralButton.style.all = 'unset'; // Reset default button styles
+    referralButton.style.display = 'inline-block';
+    referralButton.style.marginTop = '10px';
+    referralButton.style.marginRight = '8px'; // Add margin between buttons
+    referralButton.style.padding = '6px 12px';
+    referralButton.style.fontSize = '13px';
+    referralButton.style.fontFamily = "'Satoshi', sans-serif";
+    referralButton.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    referralButton.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    referralButton.style.borderRadius = '8px';
+    referralButton.style.color = '#ffcf00';
+    referralButton.style.cursor = 'pointer';
+    referralButton.style.transition = 'background-color 0.2s ease';
+    referralButton.onmouseover = () => { referralButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'; };
+    referralButton.onmouseout = () => { referralButton.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'; };
+    referralButton.addEventListener('click', () => {
+        chatInput.value = 'How Referral System work'; // Corrected text
+        handleSendMessage();
+        referralButton.remove();
+        // Remove other buttons when one is clicked
+        addCardButton?.remove();
+        reviewModesButton?.remove();
+    });
+    initialAiMessageDiv.appendChild(referralButton);
+    // --- End Existing Referral Button ---
+
+    // === NEW BUTTON 1: Add Card Sets ===
+    const addCardButton = document.createElement('button');
+    addCardButton.textContent = 'How to Add Card Sets';
+    addCardButton.className = 'quick-question-button';
+
+    // Apply styles (same as referral button)
+    addCardButton.style.all = 'unset';
+    addCardButton.style.display = 'inline-block';
+    addCardButton.style.marginTop = '10px';
+    addCardButton.style.marginRight = '8px'; // Space between buttons
+    addCardButton.style.padding = '6px 12px';
+    addCardButton.style.fontSize = '13px';
+    addCardButton.style.fontFamily = "'Satoshi', sans-serif";
+    addCardButton.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    addCardButton.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    addCardButton.style.borderRadius = '8px';
+    addCardButton.style.color = '#ffcf00';
+    addCardButton.style.cursor = 'pointer';
+    addCardButton.style.transition = 'background-color 0.2s ease';
+    addCardButton.onmouseover = () => { addCardButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'; };
+    addCardButton.onmouseout = () => { addCardButton.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'; };
+
+    addCardButton.addEventListener('click', () => {
+        chatInput.value = 'How to Add Card Sets';
+        handleSendMessage();
+        addCardButton.remove();
+        // Remove other buttons
+        referralButton?.remove();
+        reviewModesButton?.remove();
+    });
+    initialAiMessageDiv.appendChild(addCardButton);
+    // === END NEW BUTTON 1 ===
+
+    // === NEW BUTTON 2: Review Modes ===
+    const reviewModesButton = document.createElement('button');
+    reviewModesButton.textContent = 'Available Review Modes';
+    reviewModesButton.className = 'quick-question-button';
+
+    // Apply styles
+    reviewModesButton.style.all = 'unset';
+    reviewModesButton.style.display = 'inline-block';
+    reviewModesButton.style.marginTop = '10px';
+    // No marginRight needed for the last button in the row
+    reviewModesButton.style.padding = '6px 12px';
+    reviewModesButton.style.fontSize = '13px';
+    reviewModesButton.style.fontFamily = "'Satoshi', sans-serif";
+    reviewModesButton.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    reviewModesButton.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+    reviewModesButton.style.borderRadius = '8px';
+    reviewModesButton.style.color = '#ffcf00';
+    reviewModesButton.style.cursor = 'pointer';
+    reviewModesButton.style.transition = 'background-color 0.2s ease';
+    reviewModesButton.onmouseover = () => { reviewModesButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'; };
+    reviewModesButton.onmouseout = () => { reviewModesButton.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'; };
+
+    reviewModesButton.addEventListener('click', () => {
+        chatInput.value = 'Available Review Modes';
+        handleSendMessage();
+        reviewModesButton.remove();
+        // Remove other buttons
+        referralButton?.remove();
+        addCardButton?.remove();
+    });
+    initialAiMessageDiv.appendChild(reviewModesButton);
+    // === END NEW BUTTON 2 ===
+
+}
 });

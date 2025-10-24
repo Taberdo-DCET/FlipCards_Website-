@@ -4335,6 +4335,7 @@ inviteUserSearch.addEventListener('input', () => {
 });
 
 // Function to fetch and display all users
+// Function to fetch and display all users
 async function populateInviteList() {
   const inviteUserList = document.getElementById('inviteUserList');
   inviteUserList.innerHTML = `<li>Loading users...</li>`;
@@ -4361,9 +4362,12 @@ async function populateInviteList() {
     currentMemberEmails.add(creatorEmail);
 
     try {
-      const usersSnapshot = await db.collection('usernames').get();
+      // ▼▼▼ FETCHES FROM 'approved_emails' INSTEAD OF 'usernames' ▼▼▼
+      const usersSnapshot = await db.collection('approved_emails').get();
+      // ▲▲▲ FETCHES FROM 'approved_emails' INSTEAD OF 'usernames' ▲▲▲
+
       if (usersSnapshot.empty) {
-        inviteUserList.innerHTML = `<li>No registered users found.</li>`;
+        inviteUserList.innerHTML = `<li>No approved users found.</li>`; // Updated message
         return;
       }
 
@@ -4371,7 +4375,7 @@ async function populateInviteList() {
       let usersAvailableToInvite = 0;
 
       for (const doc of usersSnapshot.docs) {
-        const email = doc.id;
+        const email = doc.id; // Email is the document ID in 'approved_emails'
 
         // If the user is already in the class, skip them
         if (currentMemberEmails.has(email)) {
@@ -4379,41 +4383,63 @@ async function populateInviteList() {
         }
 
         usersAvailableToInvite++;
-        const username = doc.data().username || email;
+
+        // --- NEW/MODIFIED DISPLAY NAME LOGIC ---
+        let displayName = email; // Default to email
+        try {
+            // Attempt to fetch the username from the 'usernames' collection for a prettier display
+            const usernameDoc = await db.collection('usernames').doc(email).get();
+            if (usernameDoc.exists && usernameDoc.data().username) {
+                displayName = usernameDoc.data().username;
+            } else {
+                 displayName = email.split('@')[0]; // Fallback to part before @ if no username found
+            }
+        } catch (error) {
+            console.warn(`Could not fetch username for ${email}:`, error);
+             displayName = email.split('@')[0]; // Fallback on error
+        }
+        // --- END DISPLAY NAME LOGIC ---
+
         let avatarUrl = 'Group-100.png';
         let roleBadgeHtml = '';
 
+        // Fetch avatar (same as before)
         try {
           const avatarRef = storage.ref(`avatars/${email}`);
           avatarUrl = await avatarRef.getDownloadURL();
         } catch (error) { /* Use default avatar */ }
 
-        const roleDoc = await db.collection('approved_emails').doc(email).get();
-        if (roleDoc.exists) {
-          const roles = roleDoc.data().role || '';
-          if (roles.includes('verified')) roleBadgeHtml = `<img src="verified.svg" alt="Verified" class="member-role-badge">`;
-          else if (roles.includes('first')) roleBadgeHtml = `<img src="first.png" alt="First User" class="member-role-badge">`;
+        // Get role from the current 'approved_emails' doc data
+        const roleData = doc.data();
+        if (roleData) { // Check if roleData exists
+            const roles = roleData.role || '';
+            if (roles.includes('verified')) {
+                 roleBadgeHtml = `<img src="verified.svg" alt="Verified" class="member-role-badge">`;
+            } else if (roles.includes('first')) {
+                 roleBadgeHtml = `<img src="first.png" alt="First User" class="member-role-badge">`;
+            }
+            // Add more role checks here if needed
         }
 
         userHtml += `
           <li>
             <img src="${avatarUrl}" alt="Avatar" class="invite-user-avatar">
             <div class="invite-user-details">
-              <span class="invite-user-name">${username}</span>
+              <span class="invite-user-name">${displayName}</span>
               ${roleBadgeHtml}
             </div>
-            <button class="invite-user-add-btn" data-email="${email}" title="Invite ${username}">+</button>
+            <button class="invite-user-add-btn" data-email="${email}" title="Invite ${displayName}">+</button>
           </li>
         `;
       }
 
       if (usersAvailableToInvite === 0) {
-        inviteUserList.innerHTML = `<li>All registered users are already in this class.</li>`;
+        inviteUserList.innerHTML = `<li>All registered users are already in this class or not approved.</li>`; // Updated message
       } else {
         inviteUserList.innerHTML = userHtml;
       }
 
-      // Add event listeners to the new invite buttons
+      // Add event listeners to the new invite buttons (same as before)
       inviteUserList.querySelectorAll('.invite-user-add-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
           const emailToInvite = btn.dataset.email;

@@ -283,25 +283,20 @@ body.incorrect-flash { background-color: #82000b; }
   overflow: hidden; /* Add this line */
 }
 
-.blitz-label {
-  font-size: 0.9rem;
-  color: #aaa;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: block; /* Puts it on its own line */
-  margin-bottom: 8px;
-}
+
 
 #blitzStatement .term {
   font-size: 1.5rem; /* Slightly larger term */
   color: #fff;
   margin: 0;
+  text-align: center; /* ◄◄◄ ADD THIS LINE */
 }
 
 #blitzStatement .def {
   font-size: 1.2rem; /* Slightly smaller definition */
   line-height: 1.5;
   margin: 0;
+  text-align: center; /* ◄◄◄ ADD THIS LINE */
 }
 /* --- Card Animation Styles --- */
 .blitz-main-container {
@@ -704,6 +699,137 @@ input:checked + .slider:before {
 #howToModal .modal-body-scrollable::-webkit-scrollbar-thumb:hover {
   background: #3a3a3a;
 }
+/* --- Speaker Icon --- */
+
+
+.blitz-label {
+  font-size: 0.9rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block; 
+  margin-bottom: 8px;
+  
+  /* ▼▼▼ MODIFIED LINES ▼▼▼ */
+  display: flex;        /* Use flexbox for alignment */
+  align-items: center;  /* Vertically center icon with text */
+  justify-content: center; /* ◄◄◄ ADD THIS LINE */
+}
+
+.speaker-icon {
+  /* ▼▼▼ REPLACED STYLES ▼▼▼ */
+  position: static;     /* Use normal document flow, not absolute */
+  font-size: 1rem;    /* Make it a good size relative to the label */
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  margin-left: 8px;   /* Add space between text and icon */
+  /* z-index, top, and right are no longer needed */
+}
+
+.speaker-icon:hover {
+  color: #ffcf00; /* Your yellow accent color */
+}
+/* --- Reverse Mode Toggle Switch --- */
+.reverse-mode-container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center it */
+  gap: 10px;
+  font-family: 'Satoshi', sans-serif;
+  color: #ccc;
+  margin-bottom: 20px; /* Space above description */
+}
+
+/* This is the small '?' button */
+.info-icon {
+  all: unset;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.info-icon:hover {
+  background-color: #ffcf00;
+  color: #171717;
+  transform: scale(1.1);
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #333;
+  border-radius: 28px;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #ffcf00;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* --- Responsive Media Queries --- */
 /* --- Responsive Media Queries (Updated) --- */
 @media (max-width: 768px) {

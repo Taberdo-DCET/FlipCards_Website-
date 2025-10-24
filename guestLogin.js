@@ -18,9 +18,16 @@ const surveyModal = document.getElementById("surveyModal");
 const surveyForm = document.getElementById("surveyForm");
 const surveyCancel = document.getElementById("surveyCancel");
 
+const guestReferralModal = document.getElementById("guestReferralModal");
+const guestReferralInput = document.getElementById("guestReferralCodeInput");
+const submitGuestReferralBtn = document.getElementById("submitGuestReferral");
+const skipGuestReferralBtn = document.getElementById("skipGuestReferral");
+
 // -------- Promotion tally config --------
 const PROMO_COLLECTION = "Promotion";
 const PROMO_DOC_ID = "DiscoverFlipCards"; // single doc that holds all counters
+const REFERRAL_COLLECTION = "Referral";
+const REFERRAL_GUEST_DOC_ID = "Guest";
 
 function keyFor(choice) {
   // Map labels to safe Firestore field keys
@@ -49,63 +56,88 @@ surveyCancel?.addEventListener("click", () => {
   surveyModal.classList.remove('visible'); // Use class to hide
 });
 
-surveyForm.addEventListener("submit", async (e) => {
+// 2. User submits the "How did you find us?" survey
+// ▼▼▼ REPLACE THE OLD surveyForm SUBMIT LISTENER WITH THIS ▼▼▼
+surveyForm.addEventListener("submit", (e) => {
   e.preventDefault();
-
-  // Support MULTIPLE selections
   const checkedInputs = surveyForm.querySelectorAll('input[name="discovery"]:checked');
   if (checkedInputs.length === 0) {
     alert("Please select at least one option to continue.");
     return;
   }
 
+  // Save survey choices
   const choices = Array.from(checkedInputs).map(i => i.value);
-  localStorage.setItem("guestDiscovery", JSON.stringify(choices)); // keep for redirect edge cases
+  localStorage.setItem("guestDiscovery", JSON.stringify(choices));
 
-  surveyModal.classList.remove('visible'); // Use class to hide
-  proceedGuestLogin();
+  surveyModal.classList.remove('visible'); // Hide survey modal
+
+  // --- CHECK IF REFERRAL ALREADY PROCESSED THIS SESSION ---
+  if (sessionStorage.getItem('guestReferralProcessed') === 'true') {
+    console.log("Guest referral already processed this session. Skipping modal."); // Debug log
+    finalizeGuestLogin(); // Go straight to login
+  } else {
+    guestReferralModal.classList.add('visible'); // Show the referral modal
+  }
+  // --- END CHECK ---
+});
+// ▲▲▲ END REPLACEMENT ▲▲▲
+// 3. User submits a referral code
+submitGuestReferralBtn.addEventListener("click", () => {
+    const referralCode = guestReferralInput.value.trim();
+    if (referralCode) {
+        localStorage.setItem("guestReferral", referralCode);
+    }
+    guestReferralModal.classList.remove('visible');
+    finalizeGuestLogin();
 });
 
-// -------- Flow helpers --------
-function proceedGuestLogin() {
+// 4. User skips the referral step
+skipGuestReferralBtn.addEventListener("click", () => {
+    localStorage.removeItem("guestReferral"); // Ensure no old code is stored
+    guestReferralModal.classList.remove('visible');
+    finalizeGuestLogin();
+});
+
+// --- Final Login Function ---
+async function finalizeGuestLogin() {
   if (!localStorage.getItem("guestStartTime")) {
     localStorage.setItem("guestStartTime", Date.now());
   }
   localStorage.setItem("guestBlocked", "false");
 
-  signInAnonymously(auth)
-    .then(async () => {
-      // Read stored selections (array)
-      const stored = localStorage.getItem("guestDiscovery");
-      const selections = stored ? JSON.parse(stored) : [];
+  try {
+    await signInAnonymously(auth);
 
-      // Build a single atomic update object with increment for EACH selected field
-      const updatePayload = { lastUpdated: serverTimestamp() };
-      if (Array.isArray(selections) && selections.length > 0) {
-        for (const choice of selections) {
-          const field = keyFor(choice);
-          updatePayload[field] = increment(1);
+    // --- Save Survey Data ---
+    const surveyChoices = JSON.parse(localStorage.getItem("guestDiscovery") || "[]");
+    if (surveyChoices.length > 0) {
+        const promoUpdate = { lastUpdated: serverTimestamp() };
+        for (const choice of surveyChoices) {
+            promoUpdate[keyFor(choice)] = increment(1);
         }
-      } else {
-        // fallback if something went wrong
-        updatePayload["unknown"] = increment(1);
-      }
+        const promoRef = doc(db, PROMO_COLLECTION, PROMO_DOC_ID);
+        await setDoc(promoRef, promoUpdate, { merge: true });
+    }
 
-      const docRef = doc(db, PROMO_COLLECTION, PROMO_DOC_ID);
+// --- [NEW] Save Referral Data ---
+    const referralCode = localStorage.getItem("guestReferral");
+    if (referralCode) {
+        const referralUpdate = { [referralCode]: increment(1) };
+        const referralRef = doc(db, REFERRAL_COLLECTION, REFERRAL_GUEST_DOC_ID);
+        await setDoc(referralRef, referralUpdate, { merge: true });
+        sessionStorage.setItem('guestReferralProcessed', 'true'); // <-- ADD THIS LINE
+        console.log("Guest referral processed and flag set for this session."); // Debug log
+    }
+    // --- [END OF NEW CODE] ---
 
-      try {
-        // Create or update in ONE call; won't reset other counters
-        await setDoc(docRef, updatePayload, { merge: true });
-      } catch (err) {
-        console.error("Failed to record promotion tally:", err);
-        // Non-blocking — still let the user in
-      }
+    // --- Clean up local storage and redirect ---
+    localStorage.removeItem("guestDiscovery");
+    localStorage.removeItem("guestReferral"); // <-- Also add this line for cleanup
+    window.location.href = "lobby.html";
 
-      // Go to lobby
-      window.location.href = "lobby.html";
-    })
-    .catch((error) => {
-      console.error("Anonymous sign-in failed:", error.message);
-      showGuestModal("Something went wrong. Please try again.");
-    });
+  } catch (error) {
+    console.error("Anonymous sign-in failed:", error.message);
+    showGuestModal("Something went wrong. Please try again.");
+  }
 }

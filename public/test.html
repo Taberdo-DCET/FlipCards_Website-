@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
      crossorigin="anonymous"></script>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 <body>
 
@@ -38,7 +39,17 @@
                     <span class="title-label">Title:</span>
                     <h1 class="page-title" id="setTitle"></h1>
                 </div>
+                </div>
+            
+            <div class="reverse-mode-container">
+                <button id="reverseInfoBtn" class="info-icon">?</button>
+                <span>Reverse Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="reverseToggle">
+                    <span class="slider"></span>
+                </label>
             </div>
+            
             <div class="description-container">
                 <div class="description-box" id="descriptionBox">Loading description...</div>
             </div>
@@ -173,6 +184,14 @@
     <button id="closeMistakeInfoModal" class="neumorphic-button">Got it</button>
   </div>
 </div>
+<div id="reverseInfoModal" class="modal-overlay">
+  <div class="modal-box info-modal-content">
+    <i class="fa-solid fa-lightbulb modal-info-icon"></i>
+    <h3>What is Reverse Mode?</h3>
+    <p>Reverse Mode swaps the term and definition. You will be shown the definition first and must recall the term.</p>
+    <button id="closeReverseInfoModal" class="neumorphic-button">Got it</button>
+  </div>
+</div>
 <script src="flipTimer.js"></script>
 <script type="module">
   import { db, auth } from './firebaseinit.js';
@@ -189,16 +208,85 @@
   // --- Global Variables ---
   let retryMode = false;
   let liveMistakeTracking = false;
+  let reverseMode = false;
   let originalFlashcards = [];
   let flashcards = [];
   let currentIndex = 0;
   let currentReviewingSet = null;
+  let currentAudio = null;
 
   // --- Element References ---
   const termInput = document.getElementById("termInput");
   const defElement = document.getElementById("definition");
   const alertBox = document.getElementById("customAlert");
   const alertMsg = document.getElementById("customAlertMessage");
+  const reverseToggle = document.getElementById("reverseToggle");
+  const reverseInfoBtn = document.getElementById('reverseInfoBtn');
+  const reverseInfoModal = document.getElementById('reverseInfoModal');
+  const closeReverseInfoModalBtn = document.getElementById('closeReverseInfoModal');
+
+async function playGoogleAudio(textToSpeak) {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+
+    const API_KEY = 'AIzaSyCynM5G8GUw3uM8pjdgQkWAsKow3ph9tCg'; // Replace with your actual key
+
+    const apiUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${API_KEY}`;
+
+    const requestBody = {
+        input: {
+            text: textToSpeak
+        },
+        voice: {
+            languageCode: 'en-US', // Make sure this matches the voice name
+            name: 'en-US-WaveNet-G' // Example voice
+        },
+        audioConfig: {
+            audioEncoding: 'MP3'
+        }
+    };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            console.error('API Error Response:', await response.json());
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        currentAudio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
+        currentAudio.play();
+
+        currentAudio.onended = () => {
+            currentAudio = null;
+        };
+
+    } catch (error) {
+        console.error('Failed to generate audio. Check console errors (e.g., API key restrictions).', error);
+        currentAudio = null;
+    }
+}
+
+function createSpeakerIcon(textToSpeak) {
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-volume-high speaker-icon';
+
+    icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playGoogleAudio(textToSpeak);
+    });
+    return icon;
+}
 
   // This runs when the user's login state is known
   onAuthStateChanged(auth, async (user) => {
@@ -221,10 +309,75 @@
     // The rest of the script now runs inside the auth state listener
     const reviewingSetId = localStorage.getItem("reviewingSetId");
     const collectionName = localStorage.getItem("reviewingSetCollection");
+    // +++ Get references for placeholder state +++
+    const setTitleElem = document.getElementById("setTitle");
+    const descriptionBoxElem = document.getElementById("descriptionBox");
+    const categoryElem = document.getElementById("cardCategory");
+    const creatorElem = document.getElementById("cardCreator");
+    const defElement = document.getElementById("definition"); // Definition display area
+    const termInput = document.getElementById("termInput"); // User input field
+    const submitBtn = document.querySelector(".input-area button"); // Submit button
+    const modeButtons = document.querySelectorAll(".button-container .neumorphic-button");
+    const reverseToggle = document.getElementById('reverseToggle');
+    const mistakeReviewSection = document.querySelector('.mistake-review');
+    const mistakeButtons = mistakeReviewSection.querySelectorAll('.neumorphic-button2');
+    const progressTracker = document.getElementById('progressTracker');
+    const shortcutBar = document.querySelector('.shortcut-bar span'); // Assuming one main span for text
+    // +++ End getting references +++
 
     if (!reviewingSetId || !collectionName) {
-      document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: No set ID found.</h2>";
-      return;
+      // --- NEW: Placeholder State when no ID is found ---
+      console.warn("No reviewingSetId or collectionName found in localStorage. Displaying placeholder state.");
+
+      // Set placeholder text for info elements
+      setTitleElem.textContent = "No Set Loaded";
+      descriptionBoxElem.textContent = "Please return to the lobby and select a flashcard set to use Test mode.";
+      categoryElem.textContent = "-";
+      creatorElem.textContent = "-";
+
+      // Set placeholder text and disable test area
+      defElement.textContent = "Select a set in the lobby to start the test.";
+      termInput.value = "";
+      termInput.placeholder = "No set loaded...";
+      termInput.disabled = true;
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = "0.5";
+      submitBtn.style.cursor = "not-allowed";
+
+      // Update progress tracker
+      progressTracker.textContent = "0 / 0";
+
+      // Disable mode buttons
+      modeButtons.forEach(button => {
+        button.onclick = (e) => {
+           e.preventDefault(); // Stop navigation
+           // Use your existing alert function if available
+           if (typeof showCustomAlert === 'function') {
+               showCustomAlert("Please select a flashcard set from the lobby first.");
+           } else {
+               alert("Please select a flashcard set from the lobby first.");
+           }
+        };
+        button.style.opacity = "0.6";
+        button.style.cursor = "not-allowed";
+        button.classList.remove('active'); // Ensure no button looks active
+      });
+
+      // Disable reverse toggle
+      if (reverseToggle) reverseToggle.disabled = true;
+
+      // Disable mistake review section
+      mistakeReviewSection.style.opacity = "0.5";
+      mistakeButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.cursor = "not-allowed";
+      });
+      document.getElementById("mistakeList").innerHTML = "<p style='color: gray;'>Load a set to track mistakes.</p>";
+
+      // Update shortcut bar
+      if (shortcutBar) shortcutBar.textContent = 'Select a set in the lobby to enable shortcuts.';
+
+      return; // Stop execution here
     }
 
     try {
@@ -245,15 +398,118 @@
             updateDefinition(currentIndex);
             toggleGoBackBtn(false);
             await reviewMistakes();
+            // --- +++ Ensure controls are ENABLED +++ ---
+        termInput.disabled = false;
+        termInput.placeholder = "What is the term? Enter answer here..."; // Restore placeholder
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+        submitBtn.style.cursor = "pointer";
+
+        modeButtons.forEach(button => {
+            button.style.opacity = "1";
+            button.style.cursor = "pointer";
+            // Re-attach original onclick handlers dynamically
+            const modeTextContent = button.textContent.trim();
+            let mode = '';
+            // Extract the mode name
+            if (modeTextContent.includes('Flashcard')) mode = 'flashcard';
+            else if (modeTextContent.includes('Test')) mode = 'test';
+            else if (modeTextContent.includes('Blitz')) mode = 'blitz';
+            else if (modeTextContent.includes('Learn')) mode = 'learn';
+            else if (modeTextContent.includes('Match')) mode = 'match';
+            else if (modeTextContent.includes('DefiDrop')) mode = 'defidrop';
+
+            const targetUrl = mode ? `${mode}.html` : '';
+
+            // Use the globally defined navigateToMode function
+            if (targetUrl && typeof navigateToMode === 'function') {
+                 button.onclick = () => navigateToMode(targetUrl);
+            } else {
+                 console.warn(`Could not set navigation for button: ${button.textContent.trim()}`);
+                 button.onclick = null; // Clear if no URL or function
+            }
+        });
+
+         // Make sure the correct mode button is active
+         modeButtons.forEach(button => button.classList.remove('active'));
+         // Find button specifically containing "Test" text
+         const currentModeButton = Array.from(modeButtons).find(btn => btn.textContent.includes('Test'));
+         if (currentModeButton) currentModeButton.classList.add('active');
+
+
+        // Enable reverse toggle
+         if (reverseToggle) reverseToggle.disabled = false;
+
+        // Enable mistake review section
+         mistakeReviewSection.style.opacity = "1";
+         mistakeButtons.forEach(btn => {
+             btn.disabled = false;
+             btn.style.cursor = "pointer";
+         });
+
+        // Restore shortcut bar text
+         if (shortcutBar) shortcutBar.textContent = 'Shortcut: Press Enter to submit your answer.';
+        // --- +++ End enabling controls +++ ---
         } else {
             defElement.textContent = "This set is empty.";
         }
       } else {
         document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
+        // Handle case where ID existed but document doesn't
+        console.error("Set ID found in localStorage, but document does not exist.");
+        setTitleElem.textContent = "Error";
+        descriptionBoxElem.textContent = "The requested flashcard set could not be found in the database.";
+        categoryElem.textContent = "-";
+        creatorElem.textContent = "-";
+        defElement.textContent = "Set not found.";
+        termInput.disabled = true;
+        submitBtn.disabled = true;
+        progressTracker.textContent = "Error";
+        // +++ Disable buttons like in the placeholder state +++
+         modeButtons.forEach(button => {
+            button.style.opacity = "0.6";
+            button.style.cursor = "not-allowed";
+            button.onclick = (e) => e.preventDefault();
+            button.classList.remove('active');
+         });
+         if (reverseToggle) reverseToggle.disabled = true;
+         mistakeReviewSection.style.opacity = "0.5";
+         mistakeButtons.forEach(btn => {
+             btn.disabled = true;
+             btn.style.cursor = "not-allowed";
+         });
+         document.getElementById("mistakeList").innerHTML = "<p style='color: gray;'>Error loading set.</p>";
+         if (shortcutBar) shortcutBar.textContent = 'Error loading set.';
+        // +++ End disabling +++
       }
     } catch (error) {
       console.error("Error loading set:", error);
       document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set.</h2>";
+      // Display error messages without removing layout
+      setTitleElem.textContent = "Error";
+      descriptionBoxElem.textContent = "An error occurred while trying to load the flashcard set.";
+      categoryElem.textContent = "-";
+      creatorElem.textContent = "-";
+      defElement.textContent = "Error loading set.";
+      termInput.disabled = true;
+      submitBtn.disabled = true;
+      progressTracker.textContent = "Error";
+      // +++ Disable buttons like in the placeholder state +++
+      modeButtons.forEach(button => {
+        button.style.opacity = "0.6";
+        button.style.cursor = "not-allowed";
+        button.onclick = (e) => e.preventDefault();
+        button.classList.remove('active');
+      });
+      if (reverseToggle) reverseToggle.disabled = true;
+      mistakeReviewSection.style.opacity = "0.5";
+      mistakeButtons.forEach(btn => {
+          btn.disabled = true;
+          btn.style.cursor = "not-allowed";
+      });
+      document.getElementById("mistakeList").innerHTML = "<p style='color: gray;'>Error loading set.</p>";
+      if (shortcutBar) shortcutBar.textContent = 'Error loading set.';
+      // +++ End disabling +++
     }
   });
 // --- ADD THIS ENTIRE FUNCTION ---
@@ -290,16 +546,58 @@
     document.getElementById('setTitle').textContent = titleText;
   }
 
-  function updateDefinition(index) {
-    const def = flashcards[index]?.definition || "All done!";
-    if (isImageUrl(def)) {
-      defElement.innerHTML = `<img src="${def}" alt="Definition Image" />`;
+function updateDefinition(index) {
+    console.log("updateDefinition called for index:", index); // Log start
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+
+    // Always clear the definition element first
+    defElement.innerHTML = '';
+
+    // ▼▼▼ MODIFIED LOGIC ▼▼▼
+    const card = flashcards[index];
+    if (!card) {
+        defElement.textContent = "All done!";
+        updateDotTracker(index, flashcards.length);
+        return;
+    }
+
+    const textToShow = reverseMode ? card.term : card.definition;
+    const textToSpeak = textToShow; // Text for the speaker icon
+    // ▲▲▲ END OF MODIFIED LOGIC ▲▲▲
+    
+    const definitionIsImage = isImageUrl(textToShow); // Use textToShow
+    console.log("Is definition an image?", definitionIsImage); // Log image check
+
+    if (definitionIsImage) {
+        console.log("Setting definition as image:", textToShow);
+        const img = document.createElement('img');
+        img.src = textToShow;
+        img.alt = "Definition Image";
+        defElement.appendChild(img);
     } else {
-      defElement.textContent = def;
+        console.log("Setting definition as text:", textToShow);
+        // Create a text node for the definition content
+        const textNode = document.createTextNode(textToShow);
+        defElement.appendChild(textNode); // Add the text first
+
+        console.log("Attempting to add speaker icon...");
+        try {
+            const newIcon = createSpeakerIcon(textToSpeak); // Use textToSpeak
+            if (newIcon) {
+                 defElement.appendChild(newIcon); // Add the icon AFTER the text
+                 console.log("Speaker icon added successfully."); // Log success
+            } else {
+                 console.error("createSpeakerIcon returned null or undefined.");
+            }
+        } catch (e) {
+            console.error("Error adding speaker icon:", e); // Log any error during append
+        }
     }
     updateDotTracker(index, flashcards.length);
-  }
-
+}
   async function saveMistakeToFirebase(card) {
     const user = auth.currentUser; if (!user) return;
     const title = currentReviewingSet.title || "Untitled Set";
@@ -327,39 +625,62 @@
     document.getElementById("goBackBtn")?.classList.toggle("hidden", !show);
   }
 
-  async function submitAnswer() {
+async function submitAnswer() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+
     const input = termInput.value.trim();
     if (!input || !flashcards[currentIndex]) return;
     const currentCard = flashcards[currentIndex];
-    const isCorrect = input.toLowerCase() === currentCard.term.toLowerCase();
+
+    // ▼▼▼ MODIFIED LOGIC ▼▼▼
+    const correctAnswer = reverseMode ? currentCard.definition : currentCard.term;
+    const isCorrect = input.toLowerCase() === correctAnswer.toLowerCase();
+    // ▲▲▲ END OF MODIFIED LOGIC ▲▲▲
 
     if (isCorrect) {
-      showCustomAlert("✅ Correct!");
-      if (typeof addXP === "function") addXP(100);
-      if (retryMode) {
-        await removeMistakeFromFirebase(currentCard);
-        flashcards.splice(currentIndex, 1);
-        if (liveMistakeTracking) await reviewMistakes();
-        if (flashcards.length === 0) {
-          await clearAllMistakes();
-          showCustomAlert("🎉 All mistakes corrected!");
-          return;
+        showCustomAlert("✅ Correct!");
+        if (typeof addXP === "function") addXP(100);
+        if (retryMode) {
+            await removeMistakeFromFirebase(currentCard);
+            flashcards.splice(currentIndex, 1);
+            if (liveMistakeTracking) await reviewMistakes();
+            if (flashcards.length === 0) {
+                await clearAllMistakes();
+                showCustomAlert("🎉 All mistakes corrected!");
+                // Prevent further action if the list is empty
+                defElement.textContent = "All mistakes corrected!";
+                termInput.value = "";
+                termInput.disabled = true; // Disable input
+                document.querySelector('.input-area button').disabled = true; // Disable button
+                updateDotTracker(-1, 0); // Clear tracker
+                return; // Stop execution here
+            }
+            // Adjust index if we removed the last item but there are still items left
+            if (currentIndex >= flashcards.length && flashcards.length > 0) {
+              currentIndex = 0; // Go back to the start or handle as appropriate
+            }
+        } else {
+             currentIndex = (currentIndex + 1 >= flashcards.length) ? 0 : currentIndex + 1;
         }
-      } else {
-        currentIndex = (currentIndex + 1) % flashcards.length;
-      }
     } else {
-      showCustomAlert(`❌ Incorrect.<br>Correct answer: <strong>${currentCard.term}</strong>`);
-      await saveMistakeToFirebase({ ...currentCard, userAnswer: input });
-      if (liveMistakeTracking) await reviewMistakes();
-      currentIndex = (currentIndex + 1) % flashcards.length;
+        // ▼▼▼ MODIFIED LOGIC ▼▼▼
+        showCustomAlert(`❌ Incorrect.<br>Correct answer: <strong>${correctAnswer}</strong>`);
+        // ▲▲▲ END OF MODIFIED LOGIC ▲▲▲
+        await saveMistakeToFirebase({ ...currentCard, userAnswer: input });
+        if (liveMistakeTracking) await reviewMistakes();
+         currentIndex = (currentIndex + 1 >= flashcards.length) ? 0 : currentIndex + 1;
     }
     termInput.value = "";
     localStorage.setItem("currentIndex", currentIndex);
-    updateDefinition(currentIndex);
-    setupDotTracker(flashcards.length);
-  }
-
+    // Only update if there are still cards
+    if (flashcards.length > 0) {
+        updateDefinition(currentIndex);
+        setupDotTracker(flashcards.length); // Update tracker based on potentially reduced list
+    }
+}
   function showCustomAlert(message) {
     alertMsg.innerHTML = message;
     alertBox.style.display = "flex";
@@ -431,6 +752,11 @@
   }
 
   async function retryMistakes() {
+if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+
     const user = auth.currentUser; if (!user) return;
     const title = currentReviewingSet.title || "Untitled Set";
     const docRef = doc(db, "mistakes", user.uid);
@@ -449,6 +775,10 @@
   }
 
   function goBackToNormal() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
     retryMode = false;
     toggleGoBackBtn(false);
     flashcards = [...originalFlashcards];
@@ -485,7 +815,24 @@
     closeCustomAlert(); 
   }
 });
+reverseToggle.addEventListener("change", (event) => { 
+      reverseMode = event.target.checked; 
+      updateDefinition(currentIndex); 
+  });
 
+  reverseInfoBtn.addEventListener('click', () => {
+    reverseInfoModal.style.display = 'flex';
+  });
+
+  closeReverseInfoModalBtn.addEventListener('click', () => {
+    reverseInfoModal.style.display = 'none';
+  });
+
+  reverseInfoModal.addEventListener('click', (event) => {
+    if (event.target === reverseInfoModal) {
+      reverseInfoModal.style.display = 'none';
+    }
+  });
   // Make functions available to HTML onclick attributes
   window.submitAnswer = submitAnswer;
   window.closeCustomAlert = closeCustomAlert;

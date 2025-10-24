@@ -7,7 +7,7 @@ const guestBlocked = localStorage.getItem("guestBlocked") === "true";
 const timeSince = Date.now() - guestStart;
 
 // ⏳ Block if time has already passed
-if (guestStart > 0 && timeSince > 20 * 60 * 1000 && !guestBlocked) {
+if (guestStart > 0 && timeSince > (5 * 24 * 60 * 60 * 1000) && !guestBlocked) {
   localStorage.setItem("guestBlocked", "true");
 }
 
@@ -44,10 +44,15 @@ onAuthStateChanged(auth, (user) => {
 
     function updateCountdown() {
       const now = Date.now();
-      const secondsLeft = Math.max(0, 20 * 60 - Math.floor((now - guestStart) / 1000));
-      const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
-      const seconds = String(secondsLeft % 60).padStart(2, '0');
-      timerElement.querySelector("span").textContent = `⏳ ${minutes}:${seconds}`;
+      const secondsLeft = Math.max(0, (5 * 24 * 60 * 60) - Math.floor((now - guestStart) / 1000));
+      const days = Math.floor(secondsLeft / (60 * 60 * 24));
+let remainingSeconds = secondsLeft % (60 * 60 * 24);
+const hours = String(Math.floor(remainingSeconds / (60 * 60))).padStart(2, '0');
+remainingSeconds %= (60 * 60);
+const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+const seconds = String(remainingSeconds % 60).padStart(2, '0');
+
+timerElement.querySelector("span").textContent = `⏳ ${days}d ${hours}:${minutes}:${seconds}`;
 
       if (secondsLeft <= 0) {
         localStorage.setItem("guestBlocked", "true");
@@ -71,17 +76,24 @@ onAuthStateChanged(auth, (user) => {
     const timerElement = createTimerBox();
 
     function updateCountdown() {
-      const now = Date.now();
-      const secondsLeft = Math.max(0, 60 - Math.floor((now - guestStart) / 1000));
-      const minutes = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
-      const seconds = String(secondsLeft % 60).padStart(2, '0');
-      timerElement.querySelector("span").textContent = `⏳ ${minutes}:${seconds}`;
+    const now = Date.now();
+    // --- CORRECT CALCULATION AND DISPLAY BELOW ---
+    const secondsLeft = Math.max(0, (5 * 24 * 60 * 60) - Math.floor((now - guestStart) / 1000)); // Use 5 days
+    const days = Math.floor(secondsLeft / (60 * 60 * 24));
+    let remainingSeconds = secondsLeft % (60 * 60 * 24);
+    const hours = String(Math.floor(remainingSeconds / (60 * 60))).padStart(2, '0');
+    remainingSeconds %= (60 * 60);
+    const minutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
+    const seconds = String(remainingSeconds % 60).padStart(2, '0');
+    timerElement.querySelector("span").textContent = `⏳ ${days}d ${hours}:${minutes}:${seconds}`; // Use new format
+    // --- END CORRECT PART ---
 
-      if (secondsLeft <= 0) {
+    if (secondsLeft <= 0) {
         localStorage.setItem("guestBlocked", "true");
         showGuestModal("⏱️ Your guest session has expired. Contact us to avail a slot.", true);
-      }
+        // No auth.signOut() needed here as user is already signed out
     }
+}
 
     updateCountdown();
     setInterval(updateCountdown, 1000);
@@ -110,13 +122,13 @@ function createTimerBox() {
     timer.style.cursor = "default";
 
     const label = document.createElement("span");
-    label.textContent = "⏳ 01:00";
+    label.textContent = "⏳ 5d 00:00:00";
     label.style.background = "transparent";
     label.style.color = "white";
     timer.appendChild(label);
 
     const tooltip = document.createElement("div");
-    tooltip.textContent = "Free trial session timer (20 mins)";
+    tooltip.textContent = "Free trial session timer (5 days)";
     tooltip.style.position = "absolute";
     tooltip.style.bottom = "130%";
     tooltip.style.right = "0";

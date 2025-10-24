@@ -41,6 +41,15 @@
                     <h1 class="page-title" id="learnSetTitle"></h1>
                 </div>
             </div>
+            
+            <div class="reverse-mode-container">
+                <button id="reverseInfoBtn" class="info-icon">?</button>
+                <span>Reverse Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="reverseToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
             <div class="description-container">
                 <div class="description-box" id="descriptionBox">Loading description...</div>
             </div>
@@ -155,6 +164,14 @@
     </div>
   </div>
 </div>
+<div id="reverseInfoModal" class="modal-overlay hidden">
+  <div class="modal-box info-modal-content">
+    <i class="fa-solid fa-lightbulb modal-info-icon"></i>
+    <h3>What is Reverse Mode?</h3>
+    <p>Reverse Mode swaps the term and definition. You will be shown the term first and must choose the correct definition from the options.</p>
+    <button id="closeReverseInfoModal" class="neumorphic-button">Got it</button>
+  </div>
+</div>
 <script src="flipTimer.js"></script>
 <script type="module">
     import { db, auth } from './firebaseinit.js';
@@ -163,9 +180,11 @@
 
     // --- Global Variables ---
     let flashcards = [];
+    let reverseMode = false;
     let currentIndex = 0;
     let autoAdvanceTimeout = null;
     let currentReviewingSet = null;
+    let currentAudio = null;
 
     // --- Element References ---
     const titleElement = document.getElementById("learnSetTitle");
@@ -174,6 +193,75 @@
     const counterElement = document.getElementById("card-counter");
     const progressWrapper = document.getElementById("progressWrapper");
     const progressBar = document.getElementById("progressBar");
+    const reverseToggle = document.getElementById("reverseToggle");
+    const reverseInfoBtn = document.getElementById('reverseInfoBtn');
+    const reverseInfoModal = document.getElementById('reverseInfoModal');
+    const closeReverseInfoModalBtn = document.getElementById('closeReverseInfoModal');
+
+
+async function playGoogleAudio(textToSpeak) {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+
+    const API_KEY = 'AIzaSyCynM5G8GUw3uM8pjdgQkWAsKow3ph9tCg'; // Replace with your actual key
+
+    const apiUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${API_KEY}`;
+
+    const requestBody = {
+        input: {
+            text: textToSpeak
+        },
+        voice: {
+            languageCode: 'en-US', // Make sure this matches the voice name
+            name: 'en-US-WaveNet-G' // Example voice
+        },
+        audioConfig: {
+            audioEncoding: 'MP3'
+        }
+    };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            console.error('API Error Response:', await response.json());
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        currentAudio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
+        currentAudio.play();
+
+        currentAudio.onended = () => {
+            currentAudio = null;
+        };
+
+    } catch (error) {
+        console.error('Failed to generate audio. Check console errors (e.g., API key restrictions).', error);
+        currentAudio = null;
+    }
+}
+
+function createSpeakerIcon(textToSpeak) {
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-volume-high speaker-icon';
+
+    icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playGoogleAudio(textToSpeak);
+    });
+    return icon;
+}
+
 
     // This runs when the user's login state is known
     onAuthStateChanged(auth, async (user) => {
@@ -267,50 +355,79 @@
         return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com");
     }
 
-    function updateCard(index) {
+  function updateCard(index) {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+        }
+
         clearTimeout(autoAdvanceTimeout);
         resetProgressBar();
         const currentCard = flashcards[index];
-        if (isImageUrl(currentCard.definition)) {
-            defElement.innerHTML = `<img src="${currentCard.definition}" alt="Definition Image" />`;
+
+        const oldIcon = defElement.querySelector('.speaker-icon');
+        if (oldIcon) oldIcon.remove();
+
+        // ▼▼▼ REVERSE MODE LOGIC ▼▼▼
+        const mainContent = reverseMode ? currentCard.term : currentCard.definition;
+        const correctChoice = reverseMode ? currentCard.definition : currentCard.term;
+        const allChoices = reverseMode
+            ? flashcards.map(fc => fc.definition)
+            : flashcards.map(fc => fc.term);
+        // ▲▲▲ END OF REVERSE MODE LOGIC ▲▲▲
+
+        const mainContentIsImage = isImageUrl(mainContent);
+        if (mainContentIsImage) {
+            defElement.innerHTML = `<img src="${mainContent}" alt="Main Content Image" />`;
         } else {
-            defElement.textContent = currentCard.definition;
+            defElement.textContent = mainContent;
+            defElement.appendChild(createSpeakerIcon(mainContent));
         }
 
-        const correct = currentCard.term;
-        const allTerms = flashcards.map(fc => fc.term);
-        let choices = allTerms.filter(term => term !== correct);
+        let choices = allChoices.filter(choice => choice !== correctChoice);
         choices = choices.sort(() => 0.5 - Math.random()).slice(0, 3);
-        choices.push(correct);
+        choices.push(correctChoice);
         choices = choices.sort(() => 0.5 - Math.random());
 
         const labels = ['A', 'B', 'C', 'D'];
         choicesContainer.innerHTML = choices.map((opt, i) =>
-            `<div class="choice" data-term="${opt}">${labels[i]}. ${opt}</div>`
+            `<div class="choice" data-choice="${opt}">${labels[i]}. ${opt}</div>` // Changed data-term to data-choice
         ).join('');
         counterElement.textContent = `${index + 1} / ${flashcards.length}`;
+
         document.querySelectorAll('.choice').forEach(choice => {
             choice.addEventListener('click', function handleChoice() {
-                const selectedTerm = this.getAttribute('data-term');
-                const isCorrect = selectedTerm === correct;
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+
+                const selectedChoice = this.getAttribute('data-choice'); // Changed to data-choice
+                const isCorrect = selectedChoice === correctChoice;
                 document.querySelectorAll('.choice').forEach(c => {
                     c.classList.add('disabled');
-                    if (c.getAttribute('data-term') === correct) c.style.backgroundColor = '#228B22';
+                    // Check if the choice attribute matches the correct choice
+                    if (c.getAttribute('data-choice') === correctChoice) c.style.backgroundColor = '#228B22';
                 });
-                if (!isCorrect) { this.style.backgroundColor = '#B22222'; }
-                if (isCorrect && typeof addXP === "function") addXP(100);
+                if (!isCorrect) {
+                    this.style.backgroundColor = '#B22222';
+                }
                 showProgressBar(3000);
                 autoAdvanceTimeout = setTimeout(() => { goToCard(1); }, 3000);
             }, { once: true });
         });
+    } 
+function goToCard(direction) {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
     }
 
-    function goToCard(direction) {
-        clearTimeout(autoAdvanceTimeout);
-        resetProgressBar();
-        currentIndex = (currentIndex + direction + flashcards.length) % flashcards.length;
-        updateCard(currentIndex);
-    }
+    clearTimeout(autoAdvanceTimeout);
+    resetProgressBar();
+    currentIndex = (currentIndex + direction + flashcards.length) % flashcards.length;
+    updateCard(currentIndex);
+}
 
     document.getElementById("nextBtn").addEventListener("click", () => goToCard(1));
     function shuffleArray(array) {
@@ -366,6 +483,24 @@ document.getElementById("prevBtn").addEventListener("click", () => {
             break;
         }
       });
+      reverseToggle.addEventListener("change", (event) => { 
+        reverseMode = event.target.checked; 
+        updateCard(currentIndex); // Re-load the current card
+    });
+
+    reverseInfoBtn.addEventListener('click', () => {
+      reverseInfoModal.classList.remove('hidden');
+    });
+
+    closeReverseInfoModalBtn.addEventListener('click', () => {
+      reverseInfoModal.classList.add('hidden');
+    });
+
+    reverseInfoModal.addEventListener('click', (event) => {
+      if (event.target === reverseInfoModal) {
+        reverseInfoModal.classList.add('hidden');
+      }
+    });
 </script>
 
 <script>

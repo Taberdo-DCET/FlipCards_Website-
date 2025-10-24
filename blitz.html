@@ -39,6 +39,15 @@
             <h1 class="page-title" id="setTitle"></h1>
         </div>
     </div>
+    
+    <div class="reverse-mode-container">
+        <button id="reverseInfoBtn" class="info-icon">?</button>
+        <span>Reverse Mode</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="reverseToggle">
+            <span class="slider"></span>
+        </label>
+    </div>
     <div class="description-container">
         <div class="description-box" id="descriptionBox">Loading description...</div>
     </div>
@@ -150,6 +159,18 @@
         </div>
     </div>
 </div>
+<div id="reverseInfoModal" class="custom-modal hidden">
+  <div class="modal-content success">
+    <div class="modal-message">
+      <i class="fa-solid fa-lightbulb" style="font-size: 40px; color: #ffcf00; margin-bottom: 15px;"></i>
+      <h3 style="margin-top: 0; font-size: 1.5rem;">What is Reverse Mode?</h3>
+      <p style="margin-bottom: 0;">Reverse Mode swaps the term and definition. You will be shown the definition first and must recall the term.</p>
+    </div>
+    <div class="modal-buttons">
+      <button id="closeReverseInfoModal" class="neumorphic-button">Got it</button>
+    </div>
+  </div>
+</div>
     <script type="module">
     import { db, auth } from './firebaseinit.js';
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
@@ -170,14 +191,20 @@ import { doc, getDoc, setDoc, updateDoc, deleteField, collection, addDoc, server
     const timeTaken = document.getElementById('timeTaken');
     const retryBtn = document.getElementById('retryBtn');
     const saveProgressCheckbox = document.getElementById('saveProgressCheckbox');
+    const reverseToggle = document.getElementById("reverseToggle");
+    const reverseInfoBtn = document.getElementById('reverseInfoBtn');
+    const reverseInfoModal = document.getElementById('reverseInfoModal');
+    const closeReverseInfoModalBtn = document.getElementById('closeReverseInfoModal');
     
     // --- Game State Variables ---
     let originalFlashcards = [];
+    let reverseMode = false;
     let questions = [];
     let currentIndex = 0;
     let score = 0;
     let timerInterval;
     let startTime;
+    let currentAudio = null;
 
     // ▼▼▼ NEW HELPER FUNCTION TO CHECK FOR IMAGES ▼▼▼
     function isImageUrl(text) {
@@ -186,7 +213,68 @@ import { doc, getDoc, setDoc, updateDoc, deleteField, collection, addDoc, server
 
     // --- Main Logic ---
     // blitz.html -> <script>
+async function playGoogleAudio(textToSpeak) {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
 
+    const API_KEY = 'AIzaSyCynM5G8GUw3uM8pjdgQkWAsKow3ph9tCg';
+
+    const apiUrl = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${API_KEY}`;
+
+    const requestBody = {
+        input: {
+            text: textToSpeak
+        },
+        voice: {
+            languageCode: 'en-US',
+            name: 'en-US-WaveNet-G'
+        },
+        audioConfig: {
+            audioEncoding: 'MP3'
+        }
+    };
+
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            console.error('API Error Response:', await response.json());
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        currentAudio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
+        currentAudio.play();
+
+        currentAudio.onended = () => {
+            currentAudio = null;
+        };
+
+    } catch (error) {
+        console.error('Failed to generate audio. Please check the console for errors (e.g., API key restrictions).', error);
+        currentAudio = null;
+    }
+}
+
+function createSpeakerIcon(textToSpeak) {
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-volume-high speaker-icon';
+
+    icon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playGoogleAudio(textToSpeak);
+    });
+    return icon;
+}
 // ▼▼▼ REPLACE THE ENTIRE onAuthStateChanged FUNCTION WITH THIS ▼▼▼
 onAuthStateChanged(auth, async (user) => {
     const reviewingSetId = localStorage.getItem("reviewingSetId");
@@ -293,6 +381,10 @@ onAuthStateChanged(auth, async (user) => {
 
     // blitz.html
 async function startGame() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
     // ▼▼▼ NEW LOGIC TO CREATE THE DOCUMENT ON START ▼▼▼
     const user = auth.currentUser;
     if (user && !user.isAnonymous) {
@@ -356,45 +448,86 @@ async function startGame() {
 }
 
     // ▼▼▼ UPDATED DISPLAYQUESTION FUNCTION ▼▼▼
+ // --- REPLACE your old displayQuestion function ---
+// --- REPLACE your old displayQuestion function ---
     function displayQuestion() {
-    if (!questions[currentIndex]) {
-        endGame(); 
-        return; 
+        // --- Stop any playing audio ---
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio = null;
+        }
+
+        if (!questions[currentIndex]) {
+            endGame();
+            return;
+        }
+
+        const q = questions[currentIndex];
+
+        // ▼▼▼ (2) REVERSE MODE LOGIC ▼▼▼
+        // --- Get base term/def ---
+        const baseTerm = q.term;
+        const baseDef = q.definition;
+
+        // --- Apply Reverse Mode ---
+        const finalTerm = reverseMode ? baseDef : baseTerm;
+        const finalDef = reverseMode ? baseTerm : baseDef;
+        // ▲▲▲ (2) END REVERSE MODE LOGIC ▲▲▲
+
+        // --- Build Term Content ---
+        const termIsImage = isImageUrl(finalTerm); // Use finalTerm
+        const termContent = termIsImage
+            ? `<img src="${finalTerm}" alt="Term Image" class="blitz-image">` // Use finalTerm
+            : `<p class="term">${finalTerm}</p>`; // Use finalTerm
+
+        // --- Build Definition Content ---
+        const defIsImage = isImageUrl(finalDef); // Use finalDef
+        const defContent = defIsImage
+            ? `<img src="${finalDef}" alt="Definition Image" class="blitz-image">` // Use finalDef
+            : `<p class="def"><strong>${finalDef}</strong></p>`; // Use finalDef
+
+        // --- Set HTML ---
+        blitzStatement.innerHTML = `
+            <div class="blitz-question-part term-container">
+                <span class="blitz-label">Term:</span>
+                ${termContent}
+            </div>
+            <div class="blitz-question-part def-container">
+                <span class="blitz-label">Definition:</span>
+                ${defContent}
+            </div>
+        `; // ◄◄◄ (1) THIS IS THE MISSING BACKTICK!
+        
+        progressTracker.textContent = `${currentIndex + 1} / ${questions.length}`;
+
+        // --- Add Speaker Icons (AFTER setting innerHTML) ---
+        // --- Add Speaker Icons (AFTER setting innerHTML) ---
+        const termContainer = blitzStatement.querySelector('.term-container');
+        const defContainer = blitzStatement.querySelector('.def-container');
+        
+        // ▼▼▼ SELECT THE LABELS THEMSELVES ▼▼▼
+        const termLabel = termContainer.querySelector('.blitz-label');
+        const defLabel = defContainer.querySelector('.blitz-label');
+
+        if (!termIsImage && termLabel) { // Check if the label exists
+            termLabel.appendChild(createSpeakerIcon(finalTerm)); // Append to the label
+        }
+        if (!defIsImage && defLabel) { // Check if the label exists
+            defLabel.appendChild(createSpeakerIcon(finalDef));   // Append to the label
+        }
+        // --- End Icon Adding ---
+
+
+        // --- Adjust Font Sizes ---
+        // Use setTimeout to allow rendering before font size check
+        setTimeout(() => {
+             const termElement = termContainer.querySelector('.term');
+             const defElement = defContainer.querySelector('.def strong'); // Target the strong tag
+
+             adjustFontSize(termElement, 'Term');
+             adjustFontSize(defElement, 'Definition');
+        }, 0); // Execute immediately after current rendering cycle
     }
-
-    const q = questions[currentIndex];
-
-    const termContent = isImageUrl(q.term)
-        ? `<img src="${q.term}" alt="Term Image" class="blitz-image">`
-        : `<p class="term">${q.term}</p>`;
-
-    const defContent = isImageUrl(q.definition)
-        ? `<img src="${q.definition}" alt="Definition Image" class="blitz-image">`
-        : `<p class="def"><strong>${q.definition}</strong></p>`;
-
-    blitzStatement.innerHTML = `
-        <div class="blitz-question-part">
-            <span class="blitz-label">Term:</span>
-            ${termContent}
-        </div>
-        <div class="blitz-question-part">
-            <span class="blitz-label">Definition:</span>
-            ${defContent}
-        </div>
-    `;
-    progressTracker.textContent = `${currentIndex + 1} / ${questions.length}`;
-
-    // --- Adjust font sizes with logging ---
-// Use setTimeout to allow the browser to render the content first
-        // Adjust font sizes now that content is set
-        const termElement = blitzStatement.querySelector('.term');
-        const defElement = blitzStatement.querySelector('.def strong');
-
-        adjustFontSize(termElement, 'Term');
-        adjustFontSize(defElement, 'Definition');
-}
-    // ▲▲▲ END OF UPDATED FUNCTION ▲▲▲
-
     function checkAnswer(userChoice) {
     // ▼▼▼ ADD THIS CHECK ▼▼▼
     // If the game is already over, do nothing. This prevents
@@ -441,6 +574,10 @@ async function startGame() {
 
 // ▼▼▼ REPLACE THE endGame FUNCTION WITH THIS ASYNC VERSION ▼▼▼
 async function endGame() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
     clearInterval(timerInterval);
     const user = auth.currentUser;
     const reviewingSetId = localStorage.getItem("reviewingSetId");
@@ -618,6 +755,27 @@ function resumeGame(savedProgress) {
         event.preventDefault();
         trueBtn.click();
       }
+    }
+  });
+  reverseToggle.addEventListener("change", (event) => { 
+      reverseMode = event.target.checked; 
+      // Re-display the current question with term/def swapped
+      if (!gameContainer.classList.contains('hidden')) {
+          displayQuestion();
+      }
+  });
+
+  reverseInfoBtn.addEventListener('click', () => {
+    reverseInfoModal.classList.remove('hidden');
+  });
+
+  closeReverseInfoModalBtn.addEventListener('click', () => { 
+  reverseInfoModal.classList.add('hidden');
+});
+
+  reverseInfoModal.addEventListener('click', (event) => {
+    if (event.target === reverseInfoModal) {
+      reverseInfoModal.classList.add('hidden');
     }
   });
   const howToBtn = document.getElementById('howToBtn');
