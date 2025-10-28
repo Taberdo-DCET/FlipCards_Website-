@@ -5459,7 +5459,7 @@ color: red !important;
 .custom-alert-content {
   background: #171717;
   color: white;
-  padding: 25px 30px;
+  padding: 20px 30px 25px 30px;
   border-radius: 16px;
   border: 1px solid #000;
   box-shadow:
@@ -5485,11 +5485,20 @@ color: red !important;
 }
 
 #customAlertMessage {
-  font-size: 16px;
+  font-size: 15px; /* Slightly smaller text */
   line-height: 1.5;
-  margin: 0 0 20px 0;
+  margin: 0 0 25px 0; /* Increased bottom margin */
+  word-wrap: break-word; /* Ensure long text wraps nicely */
 }
-
+/* Optional: Add this rule to lobby.css */
+#customAlertTitle {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  font-weight: 600; /* Make title bolder */
+  color: #ffcf00; /* Use yellow accent */
+  word-wrap: break-word; /* Ensure title wraps if long */
+}
 #customAlertOkBtn {
   min-width: 100px;
 }
@@ -8517,7 +8526,7 @@ color: #ffcf00 !important;
   justify-content: flex-end;
   padding: 16px 24px;
   border-top: 1px solid #e5e5e5;
-  background-color: #f9f9f9;
+  background-color: #171717;
   border-radius: 0 0 20px 20px;
 }
 
@@ -8537,11 +8546,12 @@ color: #ffcf00 !important;
 }
 
 .gq-modal-btn.submit {
-  color: #fff;
-  background-color: #171717;
+  color: #000;
+  background-color: #ffcf00;
 }
 .gq-modal-btn.submit:hover {
   background-color: #333;
+  color: #fffdfd;
 }
 .gq-modal-btn.submit span {
   background: none;
@@ -10334,10 +10344,273 @@ body.sidebar-open .referral-notification {
 #miniProfile.minimized + .referral-notification {
    bottom: 75px; /* Position above the smaller minimized profile */
 }
+/* ============================ */
+/* ▼▼▼ LINK TYPE BUTTON STYLES ▼▼▼ */
+/* ============================ */
 
+.link-type-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #ccc;
+  font-weight: 500;
+  text-align: left;
+}
 
+#linkTypeButtons {
+  display: flex;
+  justify-content: center; /* Center buttons horizontally */
+  flex-wrap: wrap;
+  gap: 12px;
+}
 
+.link-type-btn {
+  all: unset; /* Reset default button styles */
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px; /* Slightly less rounded than fully circular */
+  background: #1e1e1e;
+  cursor: pointer;
+  border: 1px solid #1a1a1a;
+  box-shadow: 4px 4px 8px #131313, -4px -4px 8px #292929;
+  transition: all 0.15s ease-out;
+}
 
+.link-type-btn:hover {
+  background: #2a2a2a;
+  transform: translateY(-1px);
+}
+
+.link-type-btn.active {
+  background: #3f3f3f; /* Darker background for active state */
+  border: 1px solid #ffcf00; /* Yellow border for active state */
+  box-shadow: inset 4px 4px 8px #131313, inset -4px -4px 8px #292929;
+}
+
+.link-type-btn svg {
+  width: 24px;
+  height: 24px;
+  pointer-events: none; /* Make sure clicks go to the button */
+}
+
+/* Specific fill/stroke for non-colored icons if needed */
+.link-type-btn[data-type="default"] svg {
+  stroke: #fff; /* White stroke for the default link icon */
+}
+/* in lobby.css */
+
+/* ============================ */
+/* ▼▼▼ CLASS LINK LIST STYLES ▼▼▼ */
+/* ============================ */
+
+.class-link-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 10px; /* Add some horizontal padding */
+}
+
+.class-link-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1e1e1e;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #2a2a2a;
+  transition: background-color 0.2s ease;
+}
+
+.class-link-item:hover {
+  background-color: #2a2a2a;
+}
+
+.link-icon {
+  flex-shrink: 0;
+  display: inline-flex; /* Helps align SVG vertically */
+  background: transparent;
+}
+
+.link-title {
+  flex-grow: 1; /* Takes up most space */
+  font-size: 14px;
+  color: #dcdcdc;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: transparent;
+}
+
+.link-title:hover {
+  color: #ffcf00;
+  text-decoration: underline;
+}
+
+.link-meta {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #888;
+  background: transparent;
+  white-space: nowrap;
+}
+
+/* Add styles for a delete button if you implement it */
+.link-delete-btn {
+  /* Similar styles to other delete buttons */
+  all: unset;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  /* ... rest of delete button styles */
+}
+#linkTitleInput, #linkUrlInput {
+  width: 90%;
+}
+.link-delete-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #ff6b6b; /* Red color */
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  margin-left: auto; /* Pushes the button to the far right */
+}
+.link-delete-btn:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+  transform: scale(1.1);
+}
+
+/* --- Deletion Animation --- */
+@keyframes slideOutLeftFade {
+  to {
+    opacity: 0;
+    transform: translateX(-100%);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    border-width: 0;
+  }
+}
+.class-link-item.deleting {
+  animation: slideOutLeftFade 0.4s ease-out forwards;
+}
+.link-url {
+  color: #00bfff !important;
+}
+.link-pin-btn {
+  all: unset;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: #888; /* Default gray */
+  transition: all 0.2s ease;
+  order: 99; /* Positions it just before the delete button (margin-left: auto) */
+}
+
+.link-pin-btn:hover {
+  color: #ffcf00; /* Yellow hover */
+  background-color: rgba(255, 207, 0, 0.1);
+  transform: scale(1.1);
+}
+
+.link-pin-btn.active {
+  color: #ffcf00; /* Yellow when pinned */
+  transform: translateY(-2px) rotate(-15deg);
+}
+
+/* --- Pinning Animation Keyframes --- */
+@keyframes slideUpAndGrow {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50px) scale(1.05); /* Lifts and slightly enlarges */
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.class-link-item.pin-animate {
+    animation: slideUpAndGrow 0.6s ease-in-out;
+}
+.link-pin-btn.active {
+  /* color: #ffcf00; Removed as fill is hardcoded */
+  transform: translateY(-2px) rotate(30deg);
+  /* Add a visual cue like a shadow or different background */
+  box-shadow: none;
+}
+.link-pin-btn:hover {
+  /* color: #ffcf00; Removed as fill is hardcoded */
+  background-color: transparent !important;
+  transform: scale(1.5);
+}
+.member-action-hidden {
+  opacity: 0.3; /* Make buttons semi-transparent */
+  pointer-events: none; /* Disable clicks */
+  cursor: default;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+#classLinkSearchInput {
+  height: 20% !important;
+}
+/* --- Featured Section Ad Container --- */
+.ad-feature-unit {
+    /* Centering and sizing */
+    max-width: 900px;
+    margin: 40px auto 0 auto; /* 40px top margin, centered horizontally */
+    padding: 20px;
+    width: 90%;
+    
+    /* Design to match feature boxes */
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #dcdcdc;
+    
+    /* Neumorphic-style shadow for consistency */
+  
+      
+    /* Ensure ad element inside is centered */
+    text-align: center;
+    min-height: 120px; /* Ensures space is reserved even if ad doesn't load */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* Ensure the AdSense element fills its container */
+.ad-feature-unit ins.adsbygoogle {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+}
 
 
 
@@ -10751,6 +11024,7 @@ body.sidebar-open .referral-notification {
   .tooltip-container::before {
     bottom: 120%; /* Ensure it doesn't overlap with the icon */
   }
+  
 }
 
 @media (max-width: 1000px) {
@@ -11028,4 +11302,323 @@ body.sidebar-open .referral-notification {
   margin-left: -40%  !important;
 }
 }
+@media (max-width: 600px) {
+    /* --- General Header Adjustments --- */
+    .shop-header {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .header-left, .header-right {
+        justify-content: center;
+    }
 
+    /* --- FlipCards AI Title Adjustments --- */
+    .title-container .page-title {
+        font-size: 1.9rem;
+    }
+    .beta-logo {
+        height: 18px;
+    }
+
+    /* --- FlipCards AI Action Buttons --- */
+    .action-buttons-container {
+        flex-direction: column;
+        width: 100%;
+    }
+    .modern-button {
+        width: 90%;
+        max-width: 350px;
+    }
+
+    /* --- FlipCards AI Usage Tracker --- */
+    .usage-tracker {
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+    }
+
+    /* --- FlipCards AI Content Containers --- */
+    #flashcardsContainer,
+    #explanationContainer,
+    #summaryContainer,
+    #askContainer {
+        padding: 20px 15px;
+    }
+    .flashcard, .file-info-display {
+        padding: 15px;
+    }
+    .flashcard .term, .summary-heading, .ask-ai-heading, .file-name {
+        font-size: 1.1rem;
+    }
+    .flashcard .definition, .summary-item p, .file-meta {
+        font-size: 0.95rem;
+    }
+
+    /* --- Modal Box General Padding --- */
+    .modal-box {
+        padding: 30px 25px;
+    }
+
+    /* --- FlipCards AI Tab Buttons Scrolling --- */
+    .tab-buttons-wrapper {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+        padding-bottom: 5px;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .tab-buttons-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* --- FlipNotes Modal Adjustments (Phone) --- */
+    .note-modal {
+        width: 98vw;
+        height: 92vh;
+        max-width: 98vw;
+        max-height: 92vh;
+        border-radius: 12px;
+    }
+    .note-topbar {
+        padding: 10px 12px;
+        flex-wrap: wrap; /* Allow wrapping */
+        justify-content: space-between;
+    }
+    .note-title { font-size: 16px; }
+    .note-controls {
+        width: 100%; /* Full width */
+        order: 99; /* Force below title/dropdown */
+        margin-top: 10px; /* Space above */
+        padding-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .note-search-wrap {
+        flex-grow: 1; /* Allow search to take space */
+    }
+    .note-search-wrap input { font-size: 12px; }
+    .note-icon-btn { width: 32px; height: 32px; font-size: 18px; }
+    .note-list {
+        grid-template-columns: 1fr; /* Single column layout */
+        padding: 10px;
+        gap: 8px;
+    }
+
+    /* --- Class Info View Adjustments (Phone) --- */
+    .class-info-sidenav {
+        padding: 8px 10px; /* Adjust padding */
+        flex-wrap: wrap; /* Allow wrapping */
+        justify-content: space-around; /* Distribute space better */
+    }
+    #classInfoSidenavPhoto { width: 35px; height: 35px; }
+    #classConfigureBtn { display: none; } /* Hide configure button */
+    .sidenav-photo-container { gap: 10px; }
+    .sidenav-collapsed-actions {
+        gap: 5px; /* Tighter icon buttons */
+        justify-content: center;
+        width: 100%; /* Allow full width if wrapping */
+        margin-top: 5px; /* Add space if wrapped */
+        padding-top: 5px;
+        border-top: 1px solid #333; /* Add separator if wrapped */
+    }
+    .sidenav-icon-btn { width: 35px; height: 35px; }
+    .sidenav-icon-btn img { width: 16px; height: 16px; }
+    .class-info-main {
+        padding: 10px; /* Reduce main content padding */
+    }
+
+    /* --- Class Links Panel Adjustments (Phone) --- */
+    .class-link-actions {
+        gap: 8px; /* Slightly reduce gap */
+    }
+    #classLinkSearchInput,
+    .class-link-actions .neumorphic-button {
+        font-size: 13px; /* Smaller font */
+        padding: 8px 12px; /* Smaller padding */
+    }
+    #refreshClassLinkBtn svg {
+        width: 16px;
+        height: 16px;
+    }
+    #classLinkListContainer {
+        padding: 0 5px; /* Keep reduced padding */
+    }
+
+    /* --- REVISED Link Item Layout using Grid --- */
+    .class-link-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto; /* Icon | Details | Actions */
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        position: relative;
+    }
+    .link-icon {
+        grid-column: 1 / 2;
+        width: 24px; /* Ensure consistent icon size */
+        height: 24px;
+    }
+    .link-details {
+        grid-column: 2 / 3;
+        overflow: hidden;
+        padding-left: 0;
+    }
+    .link-title {
+        font-size: 13px;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .link-url {
+        font-size: 11px;
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 2px;
+    }
+    .link-meta {
+        font-size: 10px;
+        display: block;
+        margin-top: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* NEW: Container for action buttons */
+    .link-actions-container {
+         grid-column: 3 / 4;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         gap: 5px;
+         justify-self: end;
+    }
+    /* Styles for Pin and Delete buttons (reset position) */
+    .link-pin-btn,
+    .link-delete-btn {
+        position: static;
+        transform: none;
+        width: 28px;
+        height: 28px;
+    }
+
+    /* --- START: AI Chat Tab Enhancements for Small Screens --- */
+    #ask-text-panel {
+        padding-bottom: 90px !important;
+    }
+    #askTextContainer {
+        padding: 15px;
+        gap: 15px;
+    }
+    .user-message-content,
+    #askTextContainer .summary-item {
+        max-width: 90%;
+    }
+    .ask-ai-input-area {
+        width: 95%;
+        padding: 8px 10px;
+        bottom: 10px;
+        border-radius: 10px;
+    }
+    .input-controls {
+        gap: 5px;
+        padding-top: 3px;
+    }
+    .attach-btn,
+    .send-icon-btn {
+        width: 34px;
+        height: 34px;
+    }
+    .attach-btn i,
+    .send-icon-btn i {
+        font-size: 0.9rem;
+    }
+    .model-display {
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+    #askAiTextInput {
+        font-size: 0.95rem;
+        min-height: calc(1em * 1.5 + 10px);
+        max-height: 120px;
+    }
+    .image-preview img {
+        max-height: 60px;
+    }
+    .image-preview .remove-image-btn {
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        top: -6px;
+        right: -6px;
+    }
+    .doc-preview-item {
+        padding: 4px 8px;
+    }
+    .doc-preview-item i {
+        font-size: 1rem;
+    }
+    .doc-preview-item span {
+        font-size: 0.8rem;
+    }
+    .doc-preview-item .remove-doc-btn {
+        width: 16px;
+        height: 16px;
+        font-size: 0.65rem;
+    }
+    .user-images-container img {
+        height: 50px !important;
+        width: 50px !important;
+    }
+    .user-doc-preview-item {
+        padding: 4px 8px;
+    }
+    .user-doc-preview-item i {
+        font-size: 1rem;
+    }
+    .user-doc-preview-item span {
+        font-size: 0.75rem;
+    }
+    .ai-disclaimer {
+        margin-bottom: 80px;
+    }
+    /* --- END: AI Chat Tab Enhancements --- */
+
+    /* --- START: Fix Chat Widget Overlap on Small Screens --- */
+    .chat-widget {
+        right: 80px; /* Moves widget left */
+    }
+    .chat-toggle-btn::before {
+        right: calc(100% + 12px);
+    }
+    .chat-toggle-btn::after {
+        right: calc(100% + 2px);
+    }
+    /* --- END: Fix Chat Widget Overlap --- */
+    .cta-row {
+        flex-direction: column; /* Keep vertical stacking */
+        gap: 20px;              /* Keep vertical gap */
+        align-items: center;    /* Keep horizontal centering */
+        width: 100%;            /* Ensure the container takes full available width */
+    }
+
+    /* Target ALL button types within the row */
+    .cta-row .upgrade-btn,
+    .cta-row .suggestion-btn, /* Add this */
+    .cta-row .whats-new-btn,  /* Add this */
+    .cta-row .try-btn {       /* Add this */
+        width: 90%;          /* Apply width to all */
+        max-width: 350px;    /* Keep max width */
+        justify-content: center; /* Keep text/icon centered */
+        margin: 0;           /* ADD THIS: Reset any horizontal margins */
+    }
+
+    /* Ensure parent container allows full width */
+    .container2 {
+        padding: 20px 10px; /* Adjust padding slightly if needed */
+        width: 100%;
+        box-sizing: border-box;
+    }
+}

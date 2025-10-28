@@ -11,11 +11,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
      crossorigin="anonymous"></script>
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script> MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } }; </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
 </head>
 <body>
     <!-- Header -->
@@ -55,6 +55,9 @@
         </div>
         <div class="tab-buttons-wrapper">
         <!-- The actual tabs -->
+         <button class="tab-btn" data-tab="ask-text">
+    <i class="fa-solid fa-comment-dots"></i> <span>AI Chat</span>
+</button>
         <button class="tab-btn active" data-tab="create">
     <i class="fa-solid fa-layer-group"></i> <span>Create Sets</span>
 </button>
@@ -64,12 +67,7 @@
 <button class="tab-btn" data-tab="summarizer">
     <i class="fa-solid fa-file-lines"></i> <span>Summarizer</span>
 </button>
-<button class="tab-btn" data-tab="ask">
-    <i class="fa-solid fa-image"></i> <span>Ask AI (Image)</span>
-</button>
-<button class="tab-btn" data-tab="ask-text">
-    <i class="fa-solid fa-comment-dots"></i> <span>Ask AI (Text)</span>
-</button>
+
 </div>
     </div>
 <div class="tab-panels-wrapper">
@@ -92,6 +90,10 @@
                 <i class="fa-solid fa-file-word"></i>
                 Upload DOCX
             </button>
+            <button id="importGoogleDocBtn" class="modern-button">
+        <i class="fa-brands fa-google-drive"></i>
+        Import from Google Docs
+    </button>
             <button id="addSetBtn" class="modern-button hidden">
                 <i class="fa-solid fa-layer-group"></i>
                 Add this as Flashcard Set
@@ -184,43 +186,32 @@
     <div id="fileInfoSummarizer" class="file-info-display hidden"></div>
     <div id="summaryContainer"></div>
 </div>
-<div id="ask-panel" class="tab-panel">
-    <p class="page-description">
-        Have a question? Upload a JPG image of your problem, and the AI will provide an answer.
-    </p>
-    <div class="action-buttons-container">
-        <input type="file" id="fileUploadInputAsk" accept=".jpg, .jpeg" class="hidden">
-        <button id="uploadJpgBtnAsk" class="modern-button">
-            <i class="fa-solid fa-file-image"></i>
-            Upload JPG
-        </button>
-        <button id="pasteImageBtnAsk" class="modern-button">
-        <i class="fa-solid fa-paste"></i>
-        Paste Image
-    </button>
-    </div>
-    <button class="how-it-works-btn" data-tab="ask">How does this work?</button>
-    <div id="usageTrackerAsk" class="usage-tracker hidden">
-        <i id="usageInfoBtnAsk" class="fa-solid fa-circle-info usage-info-icon"></i>
-        <span id="usageCountAsk"></span>
-        <span id="resetTimerAsk"></span>
-    </div>
-    <a href="shop.html" id="upgradeNoteAsk" class="upgrade-note hidden">
-        Upgrade your plan to gain more usage
-    </a>
-    <div id="imagePreviewContainer" class="hidden"></div>
-    <div id="askContainer"></div>
-</div>
 <div id="ask-text-panel" class="tab-panel">
     <p class="page-description">
         Type your question below, and the AI will provide a detailed answer.
     </p>
-    <div class="ask-ai-input-area">
-        <textarea id="askAiTextInput" placeholder="Enter your question here..." rows="3"></textarea>
-        <button id="askAiTextSendBtn" class="modern-button send-btn">
-            <i class="fa-solid fa-paper-plane"></i> Send
-        </button>
+<div class="ask-ai-input-area">
+    <div id="askAiImagePreview" class="image-preview hidden"></div>
+    <div id="askAiDocPreview" class="doc-preview hidden"></div>
+
+    <input type="file" id="askAiImageInput" accept="image/*" class="hidden" style="display: none;" multiple>
+    <input type="file" id="askAiDocInput" accept=".pdf,.pptx,.docx" class="hidden" style="display: none;">
+
+    <textarea id="askAiTextInput" placeholder="Enter question (or attach image/document)..." rows="1"></textarea>
+
+    <div class="input-controls">
+         <button id="askAiAttachImageBtn" class="attach-btn" title="Attach Image">
+             <i class="fa-solid fa-paperclip"></i>
+         </button>
+         <button id="askAiAttachDocBtn" class="attach-btn doc-btn" title="Attach Document (PDF, PPTX, DOCX)">
+             <i class="fa-solid fa-folder-open"></i>
+         </button>
+         <span class="model-display">Current Model: Gemini 2.5 Pro</span>
+         <button id="askAiTextSendBtn" class="send-icon-btn" title="Send message">
+             <i class="fa-solid fa-paper-plane"></i>
+         </button>
     </div>
+</div>
     <button class="how-it-works-btn" data-tab="ask-text">How does this work?</button>
     <div id="usageTrackerAskText" class="usage-tracker hidden">
         <i id="usageInfoBtnAskText" class="fa-solid fa-circle-info usage-info-icon"></i>
@@ -316,6 +307,8 @@
     <!-- Link to external JavaScript file -->
     <script type="module" src="flipai.js"></script>
     <script type="module" src="presence.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
     <script src="protect.js"></script>
 </body>
 </html>

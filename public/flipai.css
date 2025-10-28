@@ -1224,108 +1224,187 @@ body {
     margin-bottom: 0;
 }
 /* --- Ask AI Text Input --- */
-.ask-ai-input-area {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px; /* Space between input and upload button */
-    max-width: 600px; /* Limit width */
-    margin-left: auto;
-    margin-right: auto;
-}
 
 #askAiTextInput {
-    flex-grow: 1; /* Take available space */
-    padding: 12px 15px;
+    flex-grow: 1; /* Allows it to take available vertical space */
+    padding: 8px 0;
     font-size: 1rem;
     font-family: 'Satoshi', sans-serif;
     color: #e0e0e0;
-    background-color: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 10px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-    resize: vertical; /* Allow vertical resizing, disable horizontal */
-    min-height: calc(1em * 3 + 24px); /* Match initial rows + padding */
-    line-height: 1.5; /* Improve readability for multiple lines */
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    resize: none;
+    line-height: 1.5;
+    min-height: calc(1em * 1.5 + 16px); /* <<< ADD: Ensure at least one line height + padding */
+    max-height: 150px;
+    overflow-y: hidden; /* JS will change this to 'auto' when needed */
+    box-sizing: border-box;
+    /* height: calc(1em * 1.5 + 16px); */ /* <<< REMOVED */
 }
-
 #askAiTextInput:focus {
     outline: none;
-    border-color: #ffcf00;
-    background-color: #333;
+    border: none;
+    background-color: transparent;
 }
 
-.send-btn {
-    flex-shrink: 0; /* Prevent button from shrinking */
-    padding: 10px 18px; /* Adjust padding if needed */
-    background-color: #ffcf00;
-    color: #171717;
+/* --- ADD Custom Scrollbar Styling --- */
+#askAiTextInput::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
 }
-.send-btn i { color: #171717; } /* Icon color for send */
 
-.send-btn:hover {
-    background-color: #ffe066;
-    color: #000;
+#askAiTextInput::-webkit-scrollbar-track {
+    background: #1e1e1e; /* Background of the scrollbar track */
+    border-radius: 4px;
 }
-/* --- Ask AI Text Input --- */
-.ask-ai-input-area {
+
+#askAiTextInput::-webkit-scrollbar-thumb {
+    background-color: #ffcf00; /* Yellow scrollbar handle */
+    border-radius: 4px; /* Rounded handle */
+    border: 2px solid #1e1e1e; /* Padding around handle */
+}
+
+#askAiTextInput::-webkit-scrollbar-thumb:hover {
+    background-color: #ffe066; /* Lighter yellow on hover */
+}
+#askAiTextInput:focus {
+    outline: none;
+    border-color: none; /* This likely does nothing as border is none */
+    background-color: #33333341;
+}
+/* --- Styling for User Images Below Bubble --- */
+
+.user-images-container {
     display: flex;
-    gap: 10px;
-    margin-bottom: 15px; /* Space between input and how-it-works button */
-    max-width: 700px; /* Limit width */
-    margin-left: auto;
-    margin-right: auto;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    /* width: 100%; */ /* <<< Remove or comment out */
+    padding-right: 5px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    align-self: flex-end; /* <<< ADD THIS LINE to align the container right */
+    max-width: 80%;       /* <<< ADD THIS LINE (optional, matches bubble width) */
 }
 
-#askAiTextInput {
-    flex-grow: 1; /* Take available space */
-    padding: 12px 15px;
-    font-size: 1rem;
-    font-family: 'Satoshi', sans-serif;
-    color: #e0e0e0;
+
+/* --- Ask AI Text Input (Footer Design) --- */
+.ask-ai-input-area {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 700px;
+
+    display: flex;
+    flex-direction: column; /* <<<--- CHANGED: Stack items vertically */
+    /* align-items: center; */ /* <<<--- REMOVED: No longer center aligning row items */
+    /* gap: 15px; */ /* <<<--- REMOVED */
+
+    /* Bar styling */
     background-color: #2a2a2a;
-    border: 1px solid #444;
-    border-radius: 10px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    border: 1px solid #5e5e5e;
+    border-radius: 12px;
+    padding: 10px 15px; /* <<<--- ADJUSTED: Slightly more vertical padding */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    z-index: 5;
+    box-sizing: border-box;
+    /* min-height: 56px; */ /* Let content define height now */
+    transition: bottom 0.2s ease-in-out;
 }
 
-#askAiTextInput:focus {
-    outline: none;
-    border-color: #ffcf00;
+/* --- New Input Area Controls Styling --- */
+.input-controls {
+    display: flex;
+    align-items: center;
+    /* justify-content: flex-end; */ /* Let buttons align naturally now */
+    gap: 10px; /* Adjust gap between all control items */
+    width: 100%;
+    padding-top: 5px;
+    margin-top: 0;
+}
+/* Ensure model display stays between buttons */
+.input-controls .model-display {
+    margin-left: auto; /* Pushes model name towards the send button */
+}
+
+.model-display {
+    font-size: 0.9rem;
+    color: #888; /* Grey color for model name */
+    background-color: #1e1e1e; /* Slightly darker background */
+    padding: 4px 10px;
+    border-radius: 6px;
+    white-space: nowrap; /* Prevent wrapping */
+}
+
+.send-icon-btn {
+    all: unset; /* Reset default button styles */
+    box-sizing: border-box;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%; /* Make it circular */
+    background-color: #444; /* Grey background */
+    color: #ccc; /* Light icon color */
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+    flex-shrink: 0;
+}
+
+.send-icon-btn:hover {
+    background-color: #555;
+    color: #fff;
+}
+
+.send-icon-btn:disabled {
     background-color: #333;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
-.send-btn {
-    flex-shrink: 0; /* Prevent button from shrinking */
-    padding: 10px 18px; /* Adjust padding if needed */
-    background-color: #ffcf00;
-    color: #171717;
-}
-.send-btn i { color: #171717; } /* Icon color for send */
-
-.send-btn:hover {
-    background-color: #ffe066;
-    color: #000;
+.send-icon-btn i {
+    font-size: 1rem;
+    line-height: 1;
 }
 
 /* Style for the Ask AI Text response container (similar to Summarizer) */
+/* Style for the Ask AI Text response container (CHAT LOG) */
 #askTextContainer {
     margin-top: 40px;
     text-align: left;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px; /* Increased gap for chat bubbles */
     border: 1px solid #333;
     border-radius: 15px;
     padding: 25px;
     background-color: #1a1a1a;
     min-height: 150px; /* Adjust as needed */
-    justify-content: center;
+    /* justify-content: center; */ /* <-- REMOVED to align messages to top */
+}
+/* Add padding to the bottom of the tab panel to make space for the fixed input */
+#ask-text-panel {
+    /* Set an initial padding, JS will adjust it */
+    padding-bottom: 20px !important; /* Start with a safe value */
+    transition: padding-bottom 0.2s ease-in-out; /* Smooth transition */
 }
 
-/* Reuse Summarizer styles for the answer display */
+/* Reuse Summarizer styles for the answer display (Full-width box) */
 #askTextContainer .summary-item {
     line-height: 1.7;
     color: #ccc;
+    
+    /* Reverted to full-width box style */
+    background-color: #2a2a2a; /* Retain a background for the box */
+    border: 1px solid #444;
+    padding: 20px;
+    border-radius: 10px; /* Simple rounded corners */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    /* max-width, align-self, and specific border-radius removed to restore full-width */
 }
 #askTextContainer .summary-header {
     display: flex;
@@ -1489,6 +1568,413 @@ body {
     font-weight: bold;
     color: #ffcf00;
 }
+/* flipai.css */
+
+/* Styles for code blocks in the Ask AI (Text) tab response */
+#askTextContainer .ask-ai-answer pre {
+    background-color: #1e1e1e; /* Dark background */
+    border: 1px solid #333; /* Subtle border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 16px; /* Padding inside the block */
+    overflow-x: auto; /* Allow horizontal scrolling for long lines */
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); /* Inner shadow */
+    margin: 16px 0; /* Space above and below the block */
+    position: relative; /* Needed if you add a copy button later */
+}
+
+#askTextContainer .ask-ai-answer code {
+    font-family: 'Courier New', Courier, monospace; /* Monospaced font */
+    font-size: 0.9em; /* Slightly smaller font size */
+    color: #e0e0e0; /* Light text color */
+    background-color: transparent !important; /* Override potential inline styles */
+    padding: 0; /* Remove default padding if any */
+    white-space: pre-wrap; /* Wrap long lines if possible, preserve whitespace */
+    word-break: break-all; /* Break long words/identifiers */
+}
+
+/* Optional: Style for inline code (single backticks `code`) */
+#askTextContainer .ask-ai-answer p code,
+#askTextContainer .ask-ai-answer li code {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 2px 5px;
+    font-size: 0.85em;
+    font-family: 'Courier New', Courier, monospace;
+    color: #ffcf00; /* Yellow accent for inline code */
+}
+/* flipai.css */
+
+/* Wrapper for code block + copy button */
+.code-block-wrapper {
+    position: relative; /* Establishes positioning context for the button */
+    margin: 16px 0; /* Keep the original margin */
+}
+
+/* Container for the label and button */
+.code-copy-container {
+    position: absolute;
+    top: 8px; /* Adjust spacing from the top */
+    right: 8px; /* Adjust spacing from the right */
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(40, 40, 40, 0.8); /* Semi-transparent background */
+    backdrop-filter: blur(2px);
+    padding: 4px 8px;
+    border-radius: 6px;
+    opacity: 1; /* Hidden by default */
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Show the container on hover */
+.code-block-wrapper:hover .code-copy-container {
+    opacity: 1;
+}
+
+/* Label style */
+.code-copy-label {
+    font-size: 11px;
+    color: #ccc;
+    font-family: 'Satoshi', sans-serif;
+    user-select: none; /* Prevent text selection */
+    transition: color 0.2s ease;
+    background: none; /* Override potential inherited background */
+}
+
+/* Copy button style */
+.code-copy-btn {
+    all: unset; /* Reset default button styles */
+    box-sizing: border-box;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ccc;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.code-copy-btn:hover {
+    background-color: #ffcf00;
+    color: #000;
+}
+
+.code-copy-btn:active {
+    transform: scale(0.95);
+}
+
+/* Icon style within the button */
+.code-copy-btn i {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Style when copied (checkmark) */
+.code-copy-btn i.fa-check {
+    color: #4ade80; /* Green checkmark */
+}
+/* --- Ask AI (Text) Chat Styles --- */
+
+/* Placeholder for empty chat */
+#askTextContainer:empty::before {
+    content: 'Your conversation will appear here...';
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    align-self: center;
+    /* These are needed since we removed justify-content: center */
+    flex-grow: 1; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100px;
+}
+
+/* User message styling */
+.user-message-item {
+    display: flex;
+    justify-content: flex-end; /* Aligns to the right */
+    width: 100%;
+}
+
+/* (Around line 1558) */
+.user-message-content {
+    background-color: #ffcf00; /* Yellow */
+    color: #171717; /* Dark text */
+    padding: 12px 18px;
+    border-radius: 15px 15px 2px 15px; /* Bubble shape, right aligned */
+    max-width: 80%;
+    text-align: left;
+    line-height: 1.6;
+    word-wrap: break-word;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    white-space: pre-wrap; /* <-- ADD THIS LINE */
+}
+
+/* Loader styling (reusing from chat widget) */
+#askTextContainer .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+    padding: 10px 0;
+}
+
+#askTextContainer .typing-indicator p {
+    margin: 0;
+    color: #888;
+    font-style: italic;
+}
+
+#askTextContainer .ai-sparkle-icon-typing {
+    color: #ffcf00;
+    animation: pulse 1.5s ease-in-out infinite;
+    width: 24px; /* Smaller for in-chat */
+    height: 24px;
+}
+
+#askTextContainer .ai-sparkle-icon-typing .sparkle-main,
+#askTextContainer .ai-sparkle-icon-typing .sparkle-small {
+    stroke: #ffcf00;
+}
+/* --- Ask AI Text - Image Attach Styling --- */
+
+/* Input Area Adjustments */
+.ask-ai-input-area {
+    /* Existing styles... */
+    padding: 10px 15px 5px 15px; /* Adjust padding slightly for preview */
+}
+
+/* Attach Button */
+.attach-btn {
+    all: unset; /* Reset default button styles */
+    box-sizing: border-box;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px; /* Slightly rounded square */
+    background-color: transparent; /* No background initially */
+    color: #888; /* Grey icon */
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0; /* Prevent button from shrinking */
+    margin-right: auto; /* Push other controls to the right */
+}
+
+.attach-btn:hover {
+    background-color: #444; /* Darker grey on hover */
+    color: #ccc;
+}
+
+.attach-btn i {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Image Preview Area */
+.image-preview {
+    position: relative; /* For positioning the remove button */
+    margin-bottom: 8px; /* Space between preview and textarea */
+    max-width: fit-content; /* Size to image */
+    margin-left: 0; /* Align left */
+    margin-right: auto; /* Align left */
+}
+
+.image-preview img {
+    display: block;
+    max-width: 100%; /* Ensure it doesn't overflow container width */
+    max-height: 80px; /* Limit preview height */
+    height: auto;
+    border-radius: 6px; /* Rounded corners for the image */
+    border: 1px solid #444;
+}
+
+.image-preview .remove-image-btn {
+    position: absolute;
+    top: -8px; /* Position slightly outside the image */
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(40, 40, 40, 0.8); /* Dark semi-transparent */
+    color: #ccc;
+    border: none;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    padding: 0;
+}
+
+.image-preview .remove-image-btn:hover {
+    background-color: rgba(239, 68, 68, 0.8); /* Reddish on hover */
+    color: #fff;
+}
+
+/* Adjust controls layout */
+.input-controls {
+    /* Existing styles... */
+    justify-content: flex-end; /* Keep model/send button on right */
+    padding-top: 5px;
+    margin-top: 0;
+    gap: 10px; /* Adjust gap if needed */
+}
+/* --- Ask AI Chat - Document Attach Styling --- */
+
+/* Adjust overall padding if previews take more space */
+.ask-ai-input-area {
+    padding-bottom: 5px; /* Ensure space for controls */
+}
+
+/* Style for the folder button (reuse attach-btn and add specificity) */
+.attach-btn.doc-btn {
+    margin-right: 5px; /* Space between folder and clip */
+}
+/* Ensure attach buttons don't push others too far */
+.attach-btn {
+    margin-right: 0; /* Reset margin-right for default */
+}
+
+
+
+/* Document Preview Area */
+.doc-preview {
+    display: flex; /* Can hold multiple previews later if needed */
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.doc-preview-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #3a3a3a; /* Slightly different background */
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 5px 10px 5px 8px; /* Padding around icon/text/button */
+    max-width: 100%; /* Prevent overflow */
+}
+
+.doc-preview-item i { /* File icon */
+    font-size: 1.2rem;
+    color: #ffcf00; /* Yellow icon */
+    flex-shrink: 0;
+}
+
+.doc-preview-item span { /* File name */
+    font-size: 0.85rem;
+    color: #ccc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Add ... if name is too long */
+    flex-grow: 1; /* Allow name to take space */
+}
+
+.doc-preview-item .remove-doc-btn { /* Similar to remove image btn */
+    all: unset;
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #aaa;
+    border: none;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 0.7rem;
+    line-height: 1;
+    padding: 0;
+    margin-left: 5px; /* Space before remove button */
+    flex-shrink: 0;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.doc-preview-item .remove-doc-btn:hover {
+    background-color: rgba(239, 68, 68, 0.8);
+    color: #fff;
+}
+
+/* --- Styling for User Doc Below Bubble --- */
+.user-doc-container {
+    display: flex;
+    justify-content: flex-end; /* Align right */
+    width: 100%;
+    padding-right: 5px;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    align-self: flex-end;
+    max-width: 80%;
+}
+
+.user-doc-preview-item { /* Style for preview below bubble */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #ffeeb3; /* Lighter yellow to match bubble */
+    border: 1px solid #e6b800;
+    border-radius: 6px;
+    padding: 5px 10px;
+    max-width: 100%;
+    color: #171717; /* Dark text */
+}
+
+.user-doc-preview-item i {
+    font-size: 1.1rem;
+    color: #d1a100; /* Darker yellow icon */
+}
+
+.user-doc-preview-item span {
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1538,6 +2024,11 @@ body {
   .file-info-display {
     max-width: 100%;
   }
+  .chat-widget {
+        /* Move the widget further from the right edge */
+        /* You could also slightly adjust the bottom if desired */
+         bottom: 140px; 
+    }
 }
 
 /* Small screens (phones) */
@@ -1609,4 +2100,221 @@ body {
   .tab-buttons-wrapper::-webkit-scrollbar {
       display: none; /* Hide scrollbar for Chrome, Safari, Opera */
   }
+  /* --- START: AI Chat Tab Enhancements for Small Screens --- */
+
+#ask-text-panel {
+    /* Reduce initial bottom padding slightly, JS will adjust */
+    padding-bottom: 90px !important;
+}
+
+#askTextContainer {
+    padding: 15px; /* Reduce padding inside the chat log */
+    gap: 15px;     /* Slightly reduce gap between bubbles */
+}
+
+/* Make chat bubbles slightly narrower on small screens */
+.user-message-content,
+#askTextContainer .summary-item {
+    max-width: 90%; /* Allow bubbles to use more width */
+}
+
+.ask-ai-input-area {
+    width: 95%; /* Make input area slightly wider */
+    padding: 8px 10px; /* Adjust padding */
+    bottom: 10px; /* Slightly raise from the very bottom */
+    border-radius: 10px; /* Slightly less rounded */
+}
+
+/* Reduce size/padding of control buttons */
+.input-controls {
+    gap: 5px; /* Smaller gap */
+    padding-top: 3px;
+}
+
+.attach-btn,
+.send-icon-btn {
+    width: 34px;
+    height: 34px;
+}
+
+.attach-btn i,
+.send-icon-btn i {
+    font-size: 0.9rem;
+}
+
+.model-display {
+    font-size: 0.8rem;
+    padding: 3px 8px;
+}
+
+/* Adjust text area font size slightly */
+#askAiTextInput {
+    font-size: 0.95rem;
+    min-height: calc(1em * 1.5 + 10px); /* Adjust min-height if needed */
+    max-height: 120px; /* Lower max height before scrolling */
+}
+
+/* Make previews slightly smaller */
+.image-preview img {
+    max-height: 60px;
+}
+.image-preview .remove-image-btn {
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    top: -6px;
+    right: -6px;
+}
+
+.doc-preview-item {
+    padding: 4px 8px;
+}
+.doc-preview-item i {
+    font-size: 1rem;
+}
+.doc-preview-item span {
+    font-size: 0.8rem;
+}
+.doc-preview-item .remove-doc-btn {
+    width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+}
+
+/* Adjust user message previews too */
+.user-images-container img {
+    height: 50px !important; /* Force smaller size */
+    width: 50px !important;
+}
+.user-doc-preview-item {
+    padding: 4px 8px;
+}
+.user-doc-preview-item i {
+    font-size: 1rem;
+}
+.user-doc-preview-item span {
+    font-size: 0.75rem;
+}
+
+/* Ensure disclaimer doesn't get pushed too far down */
+.ai-disclaimer {
+    margin-bottom: 80px; /* Add margin below disclaimer */
+}
+
+/* --- END: AI Chat Tab Enhancements --- */
+.chat-widget {
+        /* Move the widget further from the right edge */
+        /* You could also slightly adjust the bottom if desired */
+         bottom: 110px; 
+    }
+
+    /* Optional: Slightly adjust tooltip position if needed */
+    .chat-toggle-btn::before {
+        right: calc(100% + 12px);
+    }
+    .chat-toggle-btn::after {
+        right: calc(100% + 2px);
+    }
+
+    /* Existing small screen rules... */
+/* --- START: AI Chat Tab Enhancements for Small Screens --- */
+
+#ask-text-panel {
+    /* Reduce initial bottom padding slightly, JS will adjust */
+    padding-bottom: 90px !important;
+}
+
+#askTextContainer {
+    padding: 15px; /* Reduce padding inside the chat log */
+    gap: 15px;     /* Slightly reduce gap between bubbles */
+}
+
+/* Make chat bubbles slightly narrower on small screens */
+.user-message-content,
+#askTextContainer .summary-item {
+    max-width: 90%; /* Allow bubbles to use more width */
+}
+
+.ask-ai-input-area {
+    width: 95%; /* Make input area slightly wider */
+    padding: 8px 10px; /* Adjust padding */
+    bottom: 10px; /* Slightly raise from the very bottom */
+    border-radius: 10px; /* Slightly less rounded */
+}
+
+/* Reduce size/padding of control buttons */
+.input-controls {
+    gap: 5px; /* Smaller gap */
+    padding-top: 3px;
+}
+
+.attach-btn,
+.send-icon-btn {
+    width: 34px;
+    height: 34px;
+}
+
+.attach-btn i,
+.send-icon-btn i {
+    font-size: 0.9rem;
+}
+
+.model-display {
+    font-size: 0.8rem;
+    padding: 3px 8px;
+}
+
+/* Adjust text area font size slightly */
+#askAiTextInput {
+    font-size: 0.95rem;
+    min-height: calc(1em * 1.5 + 10px); /* Adjust min-height if needed */
+    max-height: 120px; /* Lower max height before scrolling */
+}
+
+/* Make previews slightly smaller */
+.image-preview img {
+    max-height: 60px;
+}
+.image-preview .remove-image-btn {
+    width: 18px;
+    height: 18px;
+    font-size: 0.7rem;
+    top: -6px;
+    right: -6px;
+}
+
+.doc-preview-item {
+    padding: 4px 8px;
+}
+.doc-preview-item i {
+    font-size: 1rem;
+}
+.doc-preview-item span {
+    font-size: 0.8rem;
+}
+.doc-preview-item .remove-doc-btn {
+    width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+}
+
+/* Adjust user message previews too */
+.user-images-container img {
+    height: 50px !important; /* Force smaller size */
+    width: 50px !important;
+}
+.user-doc-preview-item {
+    padding: 4px 8px;
+}
+.user-doc-preview-item i {
+    font-size: 1rem;
+}
+.user-doc-preview-item span {
+    font-size: 0.75rem;
+}
+
+/* Ensure disclaimer doesn't get pushed too far down */
+.ai-disclaimer {
+    margin-bottom: 80px; /* Add margin below disclaimer */
+}
 }

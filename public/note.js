@@ -2,21 +2,40 @@
 // note.js — Firestore-backed Notes with local fallback + auto-numbered docs
 // Structure: notepad/{email}/notes/{number}
 // ----- Custom Alert Function -----
-function showCustomAlert(message, type = 'info') { // type can be 'success' or 'error'
+// in note.js
+
+function showCustomAlert(message, type = 'info', title = '') { // Added optional title argument
   const modal = document.getElementById('customAlertModal');
   const content = modal.querySelector('.custom-alert-content');
   const msgEl = document.getElementById('customAlertMessage');
   const okBtn = document.getElementById('customAlertOkBtn');
+  const titleEl = document.getElementById('customAlertTitle'); // Get title element
 
-  if (!modal || !msgEl || !okBtn) {
+  if (!modal || !msgEl || !okBtn || !titleEl) { // Check titleEl
     console.error("Custom alert elements not found!");
-    alert(message); // Fallback to default alert
+    alert(title ? `${title}\n${message}` : message); // Fallback includes title if present
     return;
   }
 
-  msgEl.textContent = message;
+  // --- Use provided title or generate default ---
+  let finalTitle = title;
+  if (!finalTitle) { // If no title provided, use defaults based on type
+      if (type === 'success') {
+          finalTitle = 'Success!';
+      } else if (type === 'error') {
+          finalTitle = 'Error';
+      } else {
+          finalTitle = 'Information'; // Default for 'info' or other types
+      }
+  }
 
-  // Reset classes and add the new one for styling
+  titleEl.textContent = finalTitle; // Set the title text
+  titleEl.style.display = finalTitle ? 'block' : 'none'; // Show/hide title element based on if it has content
+
+  msgEl.textContent = message; // Set the main message text
+  // --- End title logic ---
+
+  // Reset classes and add the new one for styling based on type
   content.classList.remove('success', 'error');
   if (type === 'success' || type === 'error') {
     content.classList.add(type);
@@ -88,6 +107,18 @@ window.showCustomAlert = showCustomAlert; // Make it globally accessible
   const list = document.getElementById('noteList');
   const noteModal = document.getElementById('noteModal');
 
+  // ----- Get references to the new Create Link Modal elements -----
+const createLinkBackdrop = document.getElementById('createLinkBackdrop');
+const createLinkModal = document.getElementById('createLinkModal');
+const closeCreateLinkBtn = document.getElementById('closeCreateLinkBtn');
+const saveLinkBtn = document.getElementById('saveLinkBtn');
+const linkTitleInput = document.getElementById('linkTitleInput');
+const linkUrlInput = document.getElementById('linkUrlInput');
+const linkTypeButtonsContainer = document.getElementById('linkTypeButtons');
+const classLinkListContainer = document.getElementById('classLinkListContainer'); // Container for displaying links
+
+let selectedLinkType = 'default'; // Keep track of the selected type, default is 'default'
+
 // Create the new view for class info and append it to the modal
 // ▼▼▼ REPLACE THE OLD classInfoView CREATION CODE WITH THIS ▼▼▼
 // in note.js
@@ -149,10 +180,23 @@ classInfoView.innerHTML = `
 
     <div id="classAnnouncementsPanel" class="hidden">
       </div>
+      <div id="classLinksPanel" class="hidden">
+      <div class="class-link-actions" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 10px auto 20px;">
+      <input type="text" id="classLinkSearchInput" class="neumorphic-search" placeholder="Search links..." style="margin: 0; width: 200px; height: 40px; font-size: 14px;">
+          <button id="createClassLinkBtn" class="neumorphic-button" style="margin: 0;">+ Create Link</button>
+          <button id="refreshClassLinkBtn" class="neumorphic-button" style="margin: 0; padding: 10px 15px;" title="Refresh Links">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>
+          </button>
+          </div>
+      <div id="classLinkListContainer" class="class-link-list-container" style="display: flex; flex-direction: column; gap: 10px; padding: 0 10px;">
+         <div class="note-empty">No links added yet.</div>
+      </div>
+  </div>
     </main>
 
   <nav class="class-info-right-nav">
     <button id="viewInfoBtn" class="right-nav-btn active" title="Class Info"><img src="classpage.png" alt="Class Info Icon"></button>
+    <button id="viewLinksBtn" class="right-nav-btn" title="Class Links"><img src="link.png" alt="Links Icon"></button>
     <button id="viewNotesBtn" class="right-nav-btn" title="Class Shared Notes"><img src="notepage.png" alt="Shared Notes Icon"></button>
     <button id="viewAnnouncementsBtn" class="right-nav-btn" title="Announcements"><img src="announcementsclass.png" alt="Announcements Icon"></button>
   </nav>
@@ -347,13 +391,15 @@ function setupClassInfoNav() {
     const viewInfoBtn = document.getElementById('viewInfoBtn');
     const viewNotesBtn = document.getElementById('viewNotesBtn');
     const viewAnnouncementsBtn = document.getElementById('viewAnnouncementsBtn');
+    const viewLinksBtn = document.getElementById('viewLinksBtn');
 
     const infoPanel = document.getElementById('classInfoBodyPanel');
     const notesPanel = document.getElementById('classSharedNotesPanel');
     const announcementsPanel = document.getElementById('classAnnouncementsPanel');
+    const linksPanel = document.getElementById('classLinksPanel');
 
-    const allBtns = [viewInfoBtn, viewNotesBtn, viewAnnouncementsBtn];
-    const allPanels = [infoPanel, notesPanel, announcementsPanel];
+    const allBtns = [viewInfoBtn, viewLinksBtn, viewNotesBtn, viewAnnouncementsBtn];
+    const allPanels = [infoPanel, linksPanel, notesPanel, announcementsPanel];
 
     const safelyRun = (element, action) => { if (element) action(element); };
 
@@ -396,6 +442,7 @@ function setupClassInfoNav() {
 
     if (!window.classViewTabsInitialized) {
         safelyRun(viewInfoBtn, btn => btn.addEventListener('click', () => handleTabClick(btn, infoPanel)));
+        safelyRun(viewLinksBtn, btn => btn.addEventListener('click', () => handleTabClick(btn, linksPanel)));
         safelyRun(viewNotesBtn, btn => btn.addEventListener('click', () => handleTabClick(btn, notesPanel)));
         safelyRun(viewAnnouncementsBtn, btn => btn.addEventListener('click', () => handleTabClick(btn, announcementsPanel)));
         window.classViewTabsInitialized = true;
@@ -552,11 +599,96 @@ async function displayClassInfo(data) {
         console.error("Error fetching class members:", error);
         memberList.innerHTML = '<li>Error loading members.</li>';
     });
-    
+    const createLinkBtn = document.getElementById('createClassLinkBtn');
+    if (createLinkBtn) {
+        // Use a flag to prevent adding multiple listeners if displayClassInfo is called again
+        if (!createLinkBtn.listenerAttached) {
+             createLinkBtn.addEventListener('click', openCreateLinkModal);
+             createLinkBtn.listenerAttached = true; // Mark as attached
+        }
+    }
+    // ▼▼▼ ADD LISTENER FOR REFRESH BUTTON ▼▼▼
+    const refreshLinkBtn = document.getElementById('refreshClassLinkBtn');
+    if (refreshLinkBtn) {
+        if (!refreshLinkBtn.listenerAttached) { // Prevent duplicate listeners
+            refreshLinkBtn.addEventListener('click', async () => {
+                const { creatorEmail, id: classId } = window.activeClassContext || {};
+                if (creatorEmail && classId) {
+                    // Optional: Add visual feedback
+                    refreshLinkBtn.disabled = true;
+                    refreshLinkBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>`; // Simple spinner
+
+                    try {
+                        await displayClassLinks(creatorEmail, classId); // Call the display function again
+                    } finally {
+                        // Restore button state
+                        refreshLinkBtn.disabled = false;
+                        refreshLinkBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M3 21v-5h5"></path></svg>`;
+                    }
+                } else {
+                    console.error("Cannot refresh links: Missing class context.");
+                }
+            });
+            refreshLinkBtn.listenerAttached = true; // Mark as attached
+        }
+    }
+    // ▼▼▼ ADD LISTENER FOR LINK SEARCH INPUT ▼▼▼
+    const linkSearchInput = document.getElementById('classLinkSearchInput');
+    if (linkSearchInput) {
+        // Use a flag or check if listener exists to prevent duplicates
+        if (!linkSearchInput.listenerAttached) {
+            linkSearchInput.addEventListener('input', () => {
+                const searchTerm = linkSearchInput.value.toLowerCase().trim();
+                const linkItems = document.querySelectorAll('#classLinkListContainer .class-link-item');
+                let visibleCount = 0;
+
+                linkItems.forEach(item => {
+                    const title = item.querySelector('.link-title')?.textContent.toLowerCase() || '';
+                    const type = item.dataset.type?.toLowerCase() || '';
+                    const username = item.dataset.username?.toLowerCase() || ''; // Already lowercase from Step 2
+
+                    const isMatch = title.includes(searchTerm) ||
+                                    type.includes(searchTerm) ||
+                                    username.includes(searchTerm);
+
+                    if (isMatch) {
+                        item.style.display = 'flex'; // Make sure it uses flex display
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Optional: Show "No results" message
+                const container = document.getElementById('classLinkListContainer');
+                let noResultsMsg = container.querySelector('.note-empty-search');
+                if (visibleCount === 0 && linkItems.length > 0) {
+                    if (!noResultsMsg) {
+                        noResultsMsg = document.createElement('div');
+                        noResultsMsg.className = 'note-empty note-empty-search'; // Added specific class
+                        noResultsMsg.textContent = 'No links match your search.';
+                        container.appendChild(noResultsMsg);
+                    }
+                    noResultsMsg.style.display = 'block';
+                } else if (noResultsMsg) {
+                    noResultsMsg.style.display = 'none'; // Hide if there are results or no items at all initially
+                }
+                // Handle case where original list was empty
+                const originalEmptyMsg = container.querySelector('.note-empty:not(.note-empty-search)');
+                 if (originalEmptyMsg) {
+                     originalEmptyMsg.style.display = (linkItems.length === 0) ? 'block' : 'none';
+                 }
+            });
+            linkSearchInput.listenerAttached = true; // Mark as attached
+        }
+    }
+    // ▲▲▲ END LINK SEARCH LISTENER ▲▲▲
+    // ▲▲▲ END REFRESH LISTENER ▲▲▲
     // Final calls to update the other tabs
     displayClassNotes(creatorEmail, classId);
     displayAnnouncements(creatorEmail, classId);
     updateLogsNotification(creatorEmail, classId);
+    displayClassLinks(creatorEmail, classId);
 }
 // in note.js
 
@@ -712,6 +844,387 @@ window.addEventListener('click', () => {
         closeMemberOptionsMenu();
     }
 });
+// ----- Event Listeners for closing the Create Link modal -----
+if (closeCreateLinkBtn) {
+    closeCreateLinkBtn.addEventListener('click', closeCreateLinkModal);
+}
+if (createLinkBackdrop) {
+    createLinkBackdrop.addEventListener('click', (e) => {
+        if (e.target === createLinkBackdrop) {
+            closeCreateLinkModal();
+        }
+    });
+}
+// ----- Event Listener for Link Type Button Clicks (using delegation) -----
+if (linkTypeButtonsContainer) {
+    linkTypeButtonsContainer.addEventListener('click', (e) => {
+        const clickedBtn = e.target.closest('.link-type-btn');
+        if (!clickedBtn) return; // Exit if click wasn't on a button
+
+        // Remove active class from all buttons
+        const allBtns = linkTypeButtonsContainer.querySelectorAll('.link-type-btn');
+        allBtns.forEach(btn => btn.classList.remove('active'));
+
+        // Add active class to the clicked button
+        clickedBtn.classList.add('active');
+
+        // Store the selected type
+        selectedLinkType = clickedBtn.dataset.type || 'default';
+        console.log('Selected Link Type:', selectedLinkType); // For debugging
+    });
+}
+saveLinkBtn.addEventListener('click', async () => {
+        const title = linkTitleInput.value.trim();
+        const url = linkUrlInput.value.trim();
+        const type = selectedLinkType;
+        const user = auth.currentUser; // Get the currently logged-in user
+
+        // --- Basic Validation ---
+        if (!user) {
+            showCustomAlert("You must be logged in to save links.", "error");
+            return;
+        }
+        if (!window.activeClassContext || !window.activeClassContext.creatorEmail || !window.activeClassContext.id) {
+            showCustomAlert("Could not identify the current class context.", "error");
+            return;
+        }
+        if (!title || !url) {
+            showCustomAlert("Please enter both a title and a valid URL.", "error");
+            return;
+        }
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+             showCustomAlert("Please enter a valid URL starting with http:// or https://", "error");
+             return;
+        }
+        // --- End Validation ---
+
+        // Get class context
+        const { creatorEmail, id: classId } = window.activeClassContext;
+        const currentUserEmail = user.email;
+
+        // Prepare data for Firestore
+        // Prepare data for Firestore
+        const linkData = {
+            title: title,
+            url: url,
+            type: type,
+            addedBy: currentUserEmail,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(), // Use server timestamp
+            isPinned: false // Initialize as not pinned
+        };
+
+        // Disable button while saving
+        saveLinkBtn.disabled = true;
+        saveLinkBtn.textContent = 'Saving...';
+
+        try {
+            // Define the path to the 'links' subcollection
+            const linksCollectionRef = db.collection('Class')
+                                         .doc(creatorEmail)
+                                         .collection('userClasses')
+                                         .doc(classId)
+                                         .collection('links'); // New collection for links
+
+            // Add the new link document
+            await linksCollectionRef.add(linkData);
+await logClassActivity(classId, creatorEmail, `Added a new link: "${title}"`);
+            showCustomAlert(`"${title}" saved successfully!`, 'success', 'Link');
+            closeCreateLinkModal();
+
+            // Refresh the displayed links list immediately
+            displayClassLinks(creatorEmail, classId); // <-- Refresh the list
+
+        } catch (error) {
+            console.error("Error saving link to Firestore:", error);
+            showCustomAlert("Failed to save the link. Please try again.", "error");
+        } finally {
+            // Re-enable button
+            saveLinkBtn.disabled = false;
+            saveLinkBtn.textContent = 'Save Link';
+        }
+    });
+// ----- Placeholder Function to Display Links (You'll need to implement this) -----
+// ----- Placeholder Function to Display Links (You'll need to implement this) -----
+async function displayClassLinks(creatorEmail, classId) {
+    // Re-fetch the container element here to ensure it exists in the DOM
+    const container = document.getElementById('classLinkListContainer');
+
+    if (!container || !creatorEmail || !classId) {
+        console.error("Missing container or class context for displaying links.", { containerExists: !!container, creatorEmail, classId });
+        if (container) container.innerHTML = '<div class="note-empty">Error loading links context.</div>';
+        return;
+    }
+
+    container.innerHTML = '<div class="note-empty">Loading links...</div>';
+
+    try {
+        // --- Firestore Fetching Logic ---
+        const linksCollectionRef = db.collection('Class')
+                                     .doc(creatorEmail)
+                                     .collection('userClasses')
+                                     .doc(classId)
+                                     .collection('links')
+                                     .orderBy('timestamp', 'desc'); // Order by newest first
+
+        const snapshot = await linksCollectionRef.get();
+
+        if (snapshot.empty) {
+            container.innerHTML = '<div class="note-empty">No links added yet.</div>';
+            return;
+        }
+
+        const links = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+            isPinned: doc.data().isPinned || false // Get isPinned, default to false
+        }));
+        // --- End Firestore Fetching ---
+
+        // --- End Firestore Fetching ---
+
+        const user = auth.currentUser;
+        const currentUserEmail = user ? user.email : null;
+        let isAllowedToModifyLinks = false; // Flag to check user permission
+
+        // Determine if the current user is the creator or a co-creator
+        if (currentUserEmail) {
+            if (currentUserEmail === creatorEmail) {
+                isAllowedToModifyLinks = true;
+            } else {
+                try {
+                    const memberDoc = await db.collection('Class').doc(creatorEmail)
+                                            .collection('userClasses').doc(classId)
+                                            .collection('members').doc(currentUserEmail).get();
+                    if (memberDoc.exists && memberDoc.data().role === 'creator') {
+                        isAllowedToModifyLinks = true;
+                    }
+                } catch (err) {
+                    console.error("Error checking member role for link permissions:", err);
+                    // Default to false if there's an error fetching role
+                    isAllowedToModifyLinks = false;
+                }
+            }
+        }
+
+        let linksHtml = '';
+        // Sort links: Pinned first, then by timestamp descending
+        links.sort((a, b) => {
+            if (a.isPinned !== b.isPinned) {
+                return a.isPinned ? -1 : 1; // Pinned items come first
+            }
+            const timeA = a.timestamp?.toMillis() || 0;
+            const timeB = b.timestamp?.toMillis() || 0;
+            return timeB - timeA; // Newest first
+        });
+
+
+        for (const link of links) {
+            // Fetch username
+            const username = await getUsernameFromEmail(link.addedBy);
+
+            // Format timestamp
+            const date = link.timestamp ? link.timestamp.toDate().toLocaleString() : 'Just now';
+
+            // Get the appropriate icon
+            const iconHtml = getIconSvg(link.type);
+
+            // Use the isPinned value directly from the link data
+            const isPinned = link.isPinned;
+
+            // Determine the class for action buttons based on permission
+            const actionButtonClass = isAllowedToModifyLinks ? '' : ' member-action-hidden';
+
+            // --- Corrected Rendering Structure with Permission Check ---
+            linksHtml += `
+              <div class="class-link-item${isPinned ? ' is-pinned' : ''}" data-link-id="${link.id}" data-pinned="${isPinned}" data-type="${link.type || 'default'}" data-username="${username.toLowerCase()}" style="display: flex; align-items: center;">
+                   <span class="link-icon">${iconHtml}</span>
+                   <div class="link-details" style="flex-grow: 1; overflow: hidden; padding-left: 10px;">
+                       <div class="link-title" style="font-weight: 600; color: #fff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px;">${link.title}</div>
+                       <a href="${link.url}" target="_blank" class="link-url" style="font-size: 12px; color: #aaa; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">${link.url}</a>
+                       <div class="link-meta" style="font-size: 11px; color: #888; margin-top: 4px;">Added by ${username} on ${date}</div>
+                   </div>
+
+                   <button class="link-pin-btn${isPinned ? ' active' : ''}${actionButtonClass}" data-link-id="${link.id}" title="${isPinned ? 'Unpin' : 'Pin to Top'}">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24">
+                            <circle cx="12" cy="7" r="5" stroke="${isPinned ? '#ffcf00' : '#DC4A38'}" fill="rgba(255, 255, 255, 0)"/>
+                            <circle cx="13.5" cy="5.5" r="1.5" fill="rgba(255,255,255,0.3)"/>
+                            <rect x="11" y="12" width="2" height="10" fill="#607D8B"/>
+                       </svg>
+                   </button>
+                   <button class="link-delete-btn${actionButtonClass}" data-link-id="${link.id}" title="Delete Link">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                   </button>
+               </div>
+            `;
+            // --- End Corrected Rendering Structure ---
+        }
+        container.innerHTML = linksHtml; // Changed to 'container'
+container.querySelectorAll('.link-delete-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const linkId = e.currentTarget.dataset.linkId;
+                handleDeleteLink(creatorEmail, classId, linkId);
+            });
+        });
+        container.querySelectorAll('.link-pin-btn').forEach(button => {
+    button.addEventListener('click', (e) => {
+        const linkId = e.currentTarget.dataset.linkId;
+        handlePinLink(classId, linkId);
+    });
+});
+    } catch (error) {
+        console.error("Error fetching or displaying class links:", error);
+        container.innerHTML = '<div class="note-empty">Error loading links.</div>'; // Changed to 'container'
+    }
+}
+// in note.js (after displayClassLinks)
+
+/**
+ * Handles the deletion of a link document from the class's 'links' subcollection.
+ * @param {string} creatorEmail 
+ * @param {string} classId 
+ * @param {string} linkId 
+ */
+async function handleDeleteLink(creatorEmail, classId, linkId) {
+    const confirmed = await showCustomConfirm('Are you sure you want to permanently delete this link?');
+    if (!confirmed) return;
+
+    // 1. Get the HTML element and start the animation
+    const linkElement = document.querySelector(`.class-link-item[data-link-id="${linkId}"]`);
+    if (linkElement) {
+        linkElement.classList.add('deleting'); // Trigger CSS animation
+    }
+
+    try {
+        // 2. Perform the Firestore deletion
+        const linkRef = db.collection('Class').doc(creatorEmail)
+                          .collection('userClasses').doc(classId)
+                          .collection('links').doc(linkId);
+
+        await linkRef.delete();
+
+        // 3. Log the activity
+        await logClassActivity(classId, creatorEmail, `The Creator/Co-Creator deleted a link.`);
+
+        // 4. Wait for the animation to finish, then remove element from DOM
+        if (linkElement) {
+             linkElement.addEventListener('animationend', () => {
+                linkElement.remove();
+             }, { once: true });
+        }
+        
+        showCustomAlert('Link deleted successfully!', 'success');
+        
+    } catch (error) {
+        console.error("Error deleting link:", error);
+        showCustomAlert('Failed to delete link.', 'error');
+        // Restore the element if the deletion failed
+        linkElement?.classList.remove('deleting'); 
+    }
+}
+/**
+ * Toggles Firestore-based pinning for a link item.
+ * @param {string} classId
+ * @param {string} linkId
+ */
+async function handlePinLink(classId, linkId) {
+    const linkElement = document.querySelector(`.class-link-item[data-link-id="${linkId}"]`);
+    const pinButton = linkElement?.querySelector('.link-pin-btn');
+    const container = document.getElementById('classLinkListContainer');
+    const { creatorEmail } = window.activeClassContext || {};
+    const user = auth.currentUser;
+
+    if (!linkElement || !pinButton || !container || !creatorEmail || !user) {
+        console.error("Missing context for pinning:", { linkElement, pinButton, container, creatorEmail, user });
+        return;
+    }
+
+    const currentlyPinned = linkElement.dataset.pinned === 'true';
+    const newPinnedState = !currentlyPinned;
+    const logAction = newPinnedState ? 'Pinned' : 'Unpinned';
+    const linkTitle = linkElement.querySelector('.link-title')?.textContent || 'a link';
+
+    // --- Optimistic UI Update ---
+    linkElement.dataset.pinned = newPinnedState.toString(); // Update data attribute
+    linkElement.classList.toggle('is-pinned', newPinnedState);
+    pinButton.classList.toggle('active', newPinnedState);
+    pinButton.title = newPinnedState ? 'Unpin' : 'Pin to Top';
+    // Update the SVG stroke color directly
+    const pinSvgCircle = pinButton.querySelector('circle[stroke]');
+    if (pinSvgCircle) {
+       pinSvgCircle.setAttribute('stroke', newPinnedState ? '#ffcf00' : '#DC4A38');
+    }
+
+    // Apply animation if pinning
+    if (newPinnedState) {
+        linkElement.classList.add('pin-animate');
+        linkElement.addEventListener('animationend', () => {
+            linkElement.classList.remove('pin-animate');
+        }, { once: true });
+    }
+    // Immediately re-sort visually in the DOM
+    sortLinkItems(container);
+    // --- End Optimistic UI Update ---
+
+    try {
+        // Update Firestore
+        const linkRef = db.collection('Class').doc(creatorEmail)
+                          .collection('userClasses').doc(classId)
+                          .collection('links').doc(linkId);
+
+        await linkRef.update({ isPinned: newPinnedState });
+
+        // Log activity
+         await logClassActivity(classId, creatorEmail, `${logAction} ${linkTitle}.`);
+        console.log(`Successfully ${logAction} link: ${linkId}`);
+
+    } catch (error) {
+        console.error("Error updating pin status in Firestore:", error);
+        showCustomAlert(`Failed to ${logAction.toLowerCase()} link. Please try again.`, 'error');
+
+        // --- Revert Optimistic UI Update on Error ---
+        linkElement.dataset.pinned = currentlyPinned.toString(); // Revert data attribute
+        linkElement.classList.toggle('is-pinned', currentlyPinned);
+        pinButton.classList.toggle('active', currentlyPinned);
+        pinButton.title = currentlyPinned ? 'Unpin' : 'Pin to Top';
+         if (pinSvgCircle) {
+             pinSvgCircle.setAttribute('stroke', currentlyPinned ? '#ffcf00' : '#DC4A38');
+         }
+        linkElement.classList.remove('pin-animate'); // Ensure animation class is removed
+        // Re-sort visually back to original state
+        sortLinkItems(container);
+        // --- End Revert ---
+    }
+}
+
+// Helper function to sort link items in the DOM based on pin status and potentially date
+function sortLinkItems(container) {
+    const items = Array.from(container.querySelectorAll('.class-link-item'));
+    items.sort((a, b) => {
+        const pinnedA = a.dataset.pinned === 'true';
+        const pinnedB = b.dataset.pinned === 'true';
+
+        if (pinnedA !== pinnedB) {
+            return pinnedA ? -1 : 1; // Pinned items come first
+        }
+        // Optional: Add secondary sort by date if needed, parsing from the .link-meta text
+        // For now, just keeping original relative order if pin status is the same
+        return 0;
+    });
+    // Re-append items in sorted order
+    items.forEach(item => container.appendChild(item));
+}
+// Helper function to get the SVG icon based on type
+function getIconSvg(type) {
+    switch (type) {
+        case 'docs': return `<img src="docs.png" alt="Google Docs Icon" width="20" height="20">`;
+        case 'drive': return `<img src="drive.png" alt="Google Drive Icon" width="20" height="20">`;
+        case 'facebook': return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>`;
+        case 'instagram': return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#instaGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`;
+      case 'canva': return `<img src="canva.png" alt="Canva Icon" width="20" height="20">`;
+        case 'youtube': return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#FF0000"><path d="M10 15l5.19-3L10 9v6zm11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z"></path></svg>`;
+        default: return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>`;
+    }
+}
 // --- Action Functions (Delete/Leave) ---
 async function handleDeleteClass(creatorEmail, classId, className) {
   const confirmed = await showCustomConfirm('Are you sure you want to permanently delete this class? This will notify all members and cannot be undone.');
@@ -2711,7 +3224,61 @@ function closeModal() {
     mp.classList.add('mp-slide-in');      // play slide-in
   }
 }
+// ----- Function to open the Create Link Modal -----
+// in note.js
 
+// ----- Function to open the Create Link Modal -----
+function openCreateLinkModal() {
+    const user = auth.currentUser;
+    const { creatorEmail, id: classId } = window.activeClassContext || {};
+
+    if (!user || !creatorEmail || !classId) {
+        showCustomAlert("Error: Class context not found.", "error");
+        return;
+    }
+
+    // --- NEW PERMISSION CHECK ---
+    // Check if the user is the creator
+    const isCreator = user.email === creatorEmail;
+
+    // Check if the user is a co-creator (from the real-time member data)
+    let isCoCreator = false;
+    const memberList = document.getElementById('classInfoMemberList');
+    if (memberList) {
+        // Look for the Co-Creator badge in the rendered member list (a simple DOM check)
+        const currentUserItem = memberList.querySelector(`.member-item:has(.member-options-btn[data-email="${user.email}"])`);
+        if (currentUserItem?.querySelector('.creator-badge[style*="background-color:#87CEEB"]')) {
+            isCoCreator = true;
+        }
+    }
+    
+    if (!isCreator && !isCoCreator) {
+        showCustomAlert("Only the Creator and Co-Creators can add links to the class.", "error");
+        return;
+    }
+    // --- END PERMISSION CHECK ---
+    
+    // Reset fields
+    linkTitleInput.value = '';
+    linkUrlInput.value = '';
+    // Reset button active states and set default
+    const typeBtns = linkTypeButtonsContainer.querySelectorAll('.link-type-btn');
+    typeBtns.forEach(btn => btn.classList.remove('active'));
+    const defaultBtn = linkTypeButtonsContainer.querySelector('[data-type="default"]');
+    if (defaultBtn) defaultBtn.classList.add('active');
+    selectedLinkType = 'default';
+
+    if (createLinkBackdrop) {
+        createLinkBackdrop.classList.remove('hidden');
+    }
+}
+
+// ----- Function to close the Create Link Modal -----
+function closeCreateLinkModal() {
+    if (createLinkBackdrop) {
+        createLinkBackdrop.classList.add('hidden');
+    }
+}
 // === Preview modal logic ===
 let previewSaveTitle = null;
 let previewSaveText  = null;

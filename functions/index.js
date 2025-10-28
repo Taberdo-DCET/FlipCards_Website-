@@ -156,7 +156,11 @@ Respond ONLY with the raw JSON array.`;
                 }
                 break; // End of .docx case
               // --- END: New DOCX Handling ---
-
+                case "text/plain":
+              console.log("Processing plain text file (from Google Doc import)...");
+              // The buffer already contains the plain text
+              documentText = fileBuffer.toString('utf-8');
+              break;
             default:
               return res.status(400).json({ message: `Unsupported file type: ${fileMimeType}` });
           }
@@ -431,171 +435,287 @@ exports.summarizeDocument = onRequest(
 );
 
 
-exports.askAI = onRequest(
+
+
+
+// Function to handle text-based questions, potentially with images AND/OR a document
+exports.askAIText = onRequest(
   { region: "us-central1", timeoutSeconds: 300, memory: "1Gi", secrets: [GEMINI_API_KEY] },
   async (req, res) => {
     cors(req, res, async () => {
-      if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+      // Allow specific headers needed for CORS and content-type checks
+      res.set('Access-Control-Allow-Headers', 'Content-Type');
 
-      const ct = (req.headers["content-type"] || "").toLowerCase();
-      if (!ct.includes("multipart/form-data")) {
-        return res.status(400).json({ message: "Expected multipart/form-data with a 'file' field." });
+      if (req.method === 'OPTIONS') {
+        // Handle CORS preflight request.
+        res.status(204).send('');
+        return;
       }
 
-      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
-
-      const busboy = Busboy({ headers: req.headers });
-      let fileBuffer = null;
-      let fileMimeType = null;
-
-      busboy.on("file", (fieldname, file, info) => {
-        const { mimeType } = info;
-        fileMimeType = mimeType;
-        const chunks = [];
-        file.on("data", (c) => chunks.push(c));
-        file.on("end", () => { fileBuffer = Buffer.concat(chunks); });
-      });
-
-      busboy.on("finish", async () => {
-        try {
-          if (!fileBuffer) return res.status(400).json({ message: "No file uploaded." });
-
-          const askAIPrompt = `You are an expert academic assistant. Your task is to identify and answer ALL questions present in the provided image.
-
-**Step 1: Identify All Questions**
-Scan the image and find every distinct question.
-
-**Step 2: Generate a Response for Each Question**
-For each question you find, generate a detailed answer.
-
-- If a question is a **math problem**, your answer must be a detailed, step-by-step solution.
-    - **Each step must be a separate section with a bolded heading**, like \`Step 1: Title of Step\`.
-    - **Use LaTeX formatting for all mathematical equations and notations**. Enclose inline math with single dollar signs (\`$\`) and block equations with double dollar signs (\`$$\`).
-    - The entire answer should be a single string formatted with Markdown and LaTeX.
-
-- If a question is **general**, provide a clear, paragraph-based answer.
-
-**Step 3: Format the Output**
-Your response MUST be a single JSON object with a "responses" key, which contains an array of objects. Each object in the array represents one question and its answer.
-
-The structure MUST be:
-{
-  "responses": [
-    {
-      "question_number": 1,
-      "answer": "Your detailed answer to the first question."
-    },
-    {
-      "question_number": 2,
-      "answer": "Your detailed answer to the second question."
-    }
-  ]
-}
-
-Respond ONLY with the raw JSON object.`;
-          
-          // ✨ This part is different: we handle an image, not text.
-          if (!fileMimeType.startsWith('image/')) {
-            return res.status(400).json({ message: 'Unsupported file type. Please upload a JPG image.' });
-          }
-
-          const imagePart = {
-            inlineData: {
-              data: fileBuffer.toString("base64"),
-              mimeType: fileMimeType,
-            },
-          };
-
-          const promptParts = [askAIPrompt, imagePart];
-          
-          const result = await model.generateContent(promptParts);
-          const aiText = result.response?.text?.() || "";
-
-          let cleaned = aiText.replace(/```json/gi, "").replace(/```/g, "").trim();
-          const i1 = cleaned.indexOf("{"); 
-          const i2 = cleaned.lastIndexOf("}");
-          if (i1 !== -1 && i2 !== -1) cleaned = cleaned.slice(i1, i2 + 1);
-
-          const aiResponse = JSON.parse(cleaned);
-          return res.status(200).json(aiResponse);
-
-        } catch (err) {
-          console.error("Ask AI Process error:", err);
-          return res.status(500).json({ message: "Failed to get an answer from the AI.", error: String(err?.message || err) });
-        }
-      });
-
-      busboy.end(req.rawBody);
-    });
-  }
-);
-
-
-// Function to handle text-based questions
-exports.askAIText = onRequest(
-  { region: "us-central1", timeoutSeconds: 120, memory: "1Gi", secrets: [GEMINI_API_KEY] },
-  async (req, res) => {
-    cors(req, res, async () => {
-      // 1. Basic Request Validation
       if (req.method !== "POST") {
         return res.status(405).send("Method Not Allowed");
       }
-      // Expecting JSON data
-      if (!req.body || !req.body.question) {
-        return res.status(400).json({ message: "Request body must be JSON and contain a 'question'." });
-      }
 
-      // 2. Initialize AI Model
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      // Use a model suitable for chat/Q&A, like gemini-1.5-flash or gemini-pro-latest
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const selectedModelName = "gemini-2.5-pro"; // Or "gemini-2.5-flash" if preferred
+      console.log(`Using model: ${selectedModelName}`);
+      const model = genAI.getGenerativeModel({ model: selectedModelName });
 
       try {
-        const userQuestion = req.body.question;
+        // --- Initialize variables ---
+        let question = "";
+        let history = [];
+        let images = []; // Will hold images parsed from FormData OR JSON
+        let docFileBuffer = null;
+        let docMimeType = null;
+        let hasDocFile = false; // Flag for document presence
+        let hasImages = false; // Flag for image presence
 
-        // 3. Define the AI's Persona and Task
-        const askTextPrompt = `Your primary goal is to answer the user's question accurately and clearly, showing logical reasoning where applicable.
+        const contentType = (req.headers["content-type"] || "").toLowerCase();
 
-**Persona & Tone:**
-1.  **Follow User Instructions:** Pay close attention to how the user asks you to respond. If they specify a persona or tone (e.g., "answer like a student," "explain simply," "be very formal"), **you MUST adopt that style** throughout your entire answer.
-2.  **Default Tone:** If no specific persona or tone is requested, respond in a helpful, clear, and informative manner, like a knowledgeable peer or tutor explaining the concept.
-3.  **CRITICAL RULE:** **NEVER mention that you are an AI**, language model, large language model, or assistant. Respond directly as the requested persona or simply as someone providing the information. Do not use phrases like "As an AI..." or "I am programmed to...".
+        // --- Updated Content Type Handling ---
+        if (contentType.includes("multipart/form-data")) {
+            console.log("Processing multipart/form-data request (expecting text, optional history, optional file, optional images).");
+            // Wrap Busboy processing in a Promise
+            await new Promise((resolve, reject) => {
+                 const busboy = Busboy({ headers: req.headers });
+                 const fields = {};
+                 const filePromises = []; // To wait for the file buffer
+                 let tempImageParts = {}; // To temporarily store image field parts
 
----
-**Formatting Rules:**
-* If the question is a **math problem**:
-    * Provide a detailed, **step-by-step** solution.
-    * Each step MUST have a bolded heading (e.g., "**Step 1: Identify the variables**"). Briefly explain the reasoning for each step.
-    * Use **LaTeX** for all math notations ($inline$ or $$block$$).
-    * Format the entire response as a single Markdown string with LaTeX.
-* If the question is **general** (e.g., history, science, definition) and requires explanation:
-    * Break down the answer into logical points or steps if possible. Use bolded headings ("## Section Title") or bullet points for clarity.
-    * Provide a comprehensive answer using clear language. Use Markdown for formatting.
-    * If defining a term, include its core definition and perhaps a key example or context.
+                 busboy.on('field', (fieldname, val) => {
+                     console.log(`Busboy field parsed: ${fieldname}`);
+                     fields[fieldname] = val; // Store regular fields
 
----
-**General Guidelines:**
-* Ensure accuracy based on established knowledge.
-* Be clear and avoid unnecessary jargon (unless the requested persona naturally uses it).
+                     // --- New: Capture image fields ---
+                     if (fieldname.startsWith('imageBase64_')) {
+                         const index = fieldname.split('_')[1];
+                         tempImageParts[index] = { ...tempImageParts[index], base64Data: val };
+                     } else if (fieldname.startsWith('imageMimeType_')) {
+                         const index = fieldname.split('_')[1];
+                         tempImageParts[index] = { ...tempImageParts[index], mimeType: val };
+                     }
+                     // --- End New ---
+                 });
 
----
-User Question: "${userQuestion}"
+                 busboy.on('file', (fieldname, file, info) => {
+                     const { filename, encoding, mimeType } = info;
+                     console.log(`Receiving file: ${filename}, Field: ${fieldname}, Type: ${mimeType}`);
+                     if (fieldname === 'file') { // Document file
+                         docMimeType = mimeType;
+                         hasDocFile = true; // Set doc flag
+                         const chunks = [];
+                         file.on('data', (chunk) => chunks.push(chunk));
+                         const filePromise = new Promise((resolveFile, rejectFile) => {
+                              file.on('end', () => {
+                                  docFileBuffer = Buffer.concat(chunks);
+                                  console.log(`Document file buffer created, size: ${docFileBuffer?.length || 0}`);
+                                  resolveFile();
+                              });
+                              file.on('error', (err) => {
+                                   console.error(`File stream error for ${filename}:`, err);
+                                   rejectFile(err);
+                              });
+                         });
+                         filePromises.push(filePromise);
+                     } else {
+                          console.warn(`Ignoring unexpected file field: ${fieldname}`);
+                          file.resume(); // Discard the stream
+                     }
+                 });
 
-[Begin response here, adopting the requested persona/tone if specified, otherwise using the default helpful tone]:`;
+                 busboy.on('close', async () => {
+                    console.log("Busboy finished/closed.");
+                    question = fields.question || "";
+                    try {
+                        // Use provided history, default to empty array if missing or invalid
+                        history = JSON.parse(fields.history || '[]');
+                        console.log(`Parsed history field, length: ${history.length}`);
+                    } catch (e) {
+                        history = []; console.error("Bad history format:", e, "Raw value:", fields.history);
+                    }
 
-        // 4. Generate Content
-        const result = await model.generateContent(askTextPrompt);
-        const aiText = result.response?.text?.() || "Sorry, I couldn't generate a response for that question.";
+                    // --- New: Assemble images from temp parts ---
+                    const parsedImages = [];
+                    Object.keys(tempImageParts).sort().forEach(index => {
+                        if (tempImageParts[index] && tempImageParts[index].base64Data && tempImageParts[index].mimeType) {
+                            parsedImages.push({
+                                mimeType: tempImageParts[index].mimeType,
+                                base64Data: tempImageParts[index].base64Data // Matches expected format later
+                            });
+                        } else {
+                            console.warn(`Incomplete image parts found for index ${index}, skipping.`);
+                        }
+                    });
+                    images = parsedImages; // Assign to main images array
+                    hasImages = images.length > 0;
+                    console.log(`Assembled ${images.length} images from FormData fields.`);
+                    // --- End New ---
 
-        // 5. Send Response
-        // Respond with a simple JSON object containing the answer
+                    try {
+                         await Promise.all(filePromises); // Wait for doc buffer if any
+                         // Correct the hasDocFile flag if no file stream was processed or buffer failed
+                         if (filePromises.length > 0 && (!docFileBuffer || docFileBuffer.length === 0)) {
+                            console.warn("File stream finished but docFileBuffer is empty or missing.");
+                            hasDocFile = false; // Correct flag if buffer failed
+                         } else if (filePromises.length === 0) {
+                            hasDocFile = false; // No file stream started
+                         }
+                         console.log("Finished processing fields and potential file. Has Doc Flag:", hasDocFile);
+                         resolve(); // Resolve the main Busboy promise
+                    } catch (fileError) {
+                         console.error("Error processing file stream promise:", fileError);
+                         reject(fileError);
+                    }
+                 });
+
+                 busboy.on('error', (err) => {
+                     console.error("Busboy error event:", err);
+                     reject(err);
+                 });
+
+                 // --- FEED rawBody TO BUSBOY ---
+                 console.log("Ending Busboy with req.rawBody");
+                 if (req.rawBody) {
+                     busboy.end(req.rawBody);
+                 } else {
+                     console.error("req.rawBody is not available. Ensure function is not consuming the stream elsewhere.");
+                     reject(new Error("Request raw body is unavailable for Busboy processing."));
+                 }
+                 // --- END FEED ---
+
+            }); // End of new Promise(busboy processing)
+             console.log("Successfully processed FormData.");
+
+        } else if (contentType.includes("application/json")) {
+            // --- This part remains mostly the same, handling text-only ---
+            console.log("Processing application/json request (text-only expected now).");
+            if (!req.body) {
+                return res.status(400).json({ message: "Empty JSON body received." });
+            }
+            question = req.body.question || "";
+            history = req.body.history || [];
+             // Ensure images array is empty for JSON path now
+            images = [];
+            hasImages = false;
+            hasDocFile = false; // Explicitly false for JSON
+            if (!Array.isArray(history)) {
+                 console.warn("Received non-array history in JSON, resetting.");
+                 history = [];
+            }
+            // --- End JSON Handling ---
+
+        } else {
+            console.error(`Unsupported Content-Type: ${contentType}`);
+            return res.status(400).json({ message: `Unsupported Content-Type: ${contentType}` });
+        }
+        // --- End Updated Content Type Handling ---
+
+        // --- Validation Check (uses updated flags) ---
+        console.log("Running validation check. Q:", !!question, "Img:", hasImages, "Doc:", hasDocFile, "Hist len:", history.length);
+        if (!question && !hasImages && !hasDocFile && history.length === 0) {
+            console.error("Validation failed: Request lacks necessary content.");
+            return res.status(400).json({ message: "Request lacks necessary content (question, images, document, or history)." });
+        }
+        console.log("Validation passed.");
+        // --- End Validation Check ---
+
+        let aiText = "";
+        let documentTextContent = ""; // To store extracted text
+
+        // --- Process Document if Present (No change needed here) ---
+        if (hasDocFile && docFileBuffer) {
+            console.log("Extracting text from document:", docMimeType);
+            try {
+                switch (docMimeType) {
+                    case "application/pdf":
+                        const pdfData = await pdf(docFileBuffer);
+                        documentTextContent = pdfData.text || "";
+                        break;
+                    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                        documentTextContent = await officeParser.parseOfficeAsync(docFileBuffer);
+                        // Add DOCX image extraction here if required for the prompt context
+                        break;
+                    default:
+                        console.warn(`Unsupported document type for text extraction: ${docMimeType}`);
+                        documentTextContent = `(Unsupported file type: ${docMimeType})`;
+                }
+                if (!documentTextContent.trim()) {
+                     console.log("No text content extracted from the document.");
+                     documentTextContent = "(Document contained no readable text)";
+                } else {
+                     console.log(`Extracted ${documentTextContent.length} characters from document.`);
+                }
+            } catch (extractionError) {
+                 console.error("Error during document text extraction:", extractionError);
+                 documentTextContent = `(Error extracting text from document: ${extractionError.message})`;
+            }
+        }
+        // --- End Document Processing ---
+
+        // --- Prepare for Gemini API Call (Updated Logic) ---
+        const historyForChat = history.slice(0, -1); // History context for the API
+        let messagePartsToSend = [];
+
+        // 1. Create the combined text part
+        let combinedText = question || ""; // Start with the user's typed question
+        if (documentTextContent) {
+            // Prepend document context if it was extracted
+            const docContext = `\n\n--- Document Content Start ---\n${documentTextContent}\n--- Document Content End ---\n\n`;
+            combinedText = docContext + combinedText;
+            console.log("Prepended document content to the main text part.");
+        }
+        // Always add the text part (Gemini requires at least one text part)
+        messagePartsToSend.push({ text: combinedText });
+
+        // 2. Add image parts if any were parsed
+        if (hasImages) {
+            images.forEach(img => {
+                // Ensure the image object has the required fields
+                if (img.base64Data && img.mimeType) {
+                    messagePartsToSend.push({
+                        inlineData: {
+                            mimeType: img.mimeType,
+                            data: img.base64Data // Use the base64 data parsed earlier
+                        }
+                    });
+                } else {
+                    console.warn("Skipping invalid image object during message parts construction.");
+                }
+            });
+            console.log(`Added ${images.length} image part(s) to the message.`);
+        }
+
+        // --- Now make the API call ---
+        console.log(`Starting chat with ${historyForChat.length} previous messages. Sending ${messagePartsToSend.length} parts in current message.`);
+
+        // Safety check: Ensure parts are not completely empty
+         if (messagePartsToSend.length === 0 || (messagePartsToSend.length === 1 && !messagePartsToSend[0].text && !hasImages && !hasDocFile )) {
+             console.error("Constructed messagePartsToSend is effectively empty. Aborting API call.");
+             throw new Error("Cannot send an empty message to the AI. Check input parsing.");
+         }
+
+        const chat = model.startChat({ history: historyForChat });
+        const result = await chat.sendMessage(messagePartsToSend); // Send the combined parts
+        const response = await result.response;
+        aiText = response.text() || "Sorry, I couldn't generate a response for the provided input.";
+        // --- End Gemini API Call ---
+
         return res.status(200).json({ answer: aiText });
 
       } catch (err) {
         console.error("Ask AI Text error:", err);
-        // Provide a generic error message
-        return res.status(500).json({ message: "Failed to get an answer from the AI.", error: String(err?.message || err) });
+        // Attempt to provide a more specific error message if possible
+        let errorMessage = "Failed to get an answer from the AI.";
+        if (err.message.includes("SAFETY")) {
+            errorMessage = "The response was blocked due to safety settings. Please modify your request.";
+        } else if (err.message.includes("400") || err.message.includes("Invalid")) {
+             errorMessage = "There was an issue with the format of the request sent to the AI.";
+        } else if (err.message.includes("raw body unavailable")) {
+             errorMessage = "Internal server error processing the file upload.";
+        }
+        return res.status(500).json({ message: errorMessage, error: String(err?.message || err) });
       }
     });
   }
@@ -630,8 +750,7 @@ exports.chatWithFlipCardsAI = onRequest(
 - **Create Sets Tab:** Users can upload PDF, PPTX, or DOCX files to instantly generate flashcards with a "term" and "definition".
 - **Analyze File Tab:** Users can upload PDF, PPTX, or DOCX files to get detailed explanations of key concepts. For math files, it provides step-by-step solutions. For other topics, it gives Filipino-contextualized examples in both English and Tagalog, plus synonyms.
 - **Summarizer Tab:** Users can upload PDF, PPTX, or DOCX files to get a concise summary and a paraphrased version.
-- **Ask AI (Image) Tab:** Users can upload a JPG image of a question (including math problems) to get a detailed answer.
-- **Ask AI (Text) Tab:** Users can enter a text question (including math problems) to get a detailed answer.
+- **AI Chat Tab:** Users can ask text-based questions and optionally upload images (JPEG, PNG) or documents (PDF, PPTX, DOCX) for context. The AI provides detailed answers based on the input.
 
 **Important Usage Note:**
 - **Single Task Per Tab:** While the AI is processing a file upload (on Create Sets, Analyze File, Summarizer, or Ask AI Image tabs) or answering a text question (on Ask AI Text tab), you **cannot start a new task on that same tab**. The upload buttons or the send button will be temporarily disabled, and trying to initiate a new request will prompt you to wait until the current one finishes. This ensures each request completes properly before the next one begins. You *can*, however, switch to a different tab and start a task there if needed.

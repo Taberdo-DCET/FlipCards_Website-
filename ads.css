@@ -1,0 +1,140 @@
+body {
+    font-family: sans-serif;
+    margin: 0; /* Remove default body margin */
+    background-color: #f4f4f4;
+    overflow-x: hidden;
+}
+
+h1, h2, p {
+    text-align: center;
+    color: #333;
+    padding: 10px 20px;
+}
+.nav-header {
+    max-width: 1200px;
+    margin: 10px auto;
+    padding: 0 10px;
+    text-align: left; /* Aligns the button to the left within the container */
+    position: fixed;
+}
+
+/* Styling for the Home button link */
+.home-button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #007bff; /* Primary blue color */
+    color: white; /* White text */
+    text-decoration: none; /* Remove underline */
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1.1em;
+    transition: background-color 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+.home-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+/* Flex container for main content and sidebar */
+.page-container {
+    display: flex;
+    flex-wrap: wrap; /* Allows sidebar to wrap below on small screens */
+    max-width: 1200px; /* Optional: Limit overall width */
+    margin: 20px auto; /* Center the container */
+    padding: 0 10px; /* Add some padding */
+}
+
+/* Main content takes up more space */
+.main-content {
+    flex-grow: 1; /* Allows it to grow */
+    flex-basis: 65%; /* Suggests it takes about 65% initially */
+    min-width: 300px; /* Prevent it from getting too small */
+    padding: 10px;
+}
+
+/* Sidebar takes up less space */
+.sidebar {
+    flex-basis: 30%; /* Suggests it takes about 30% initially */
+    min-width: 250px; /* Important minimum for the fluid ad */
+    padding: 10px;
+    
+}
+
+/* Shared styles for ad containers */
+.ad-main,
+.ad-sidebar,
+.ad-footer { /* <<<--- CORRECTED: .ad-footer added here */
+    background-color: #e0e0e0;
+    border: 1px dashed #999;
+    min-height: 90px;
+    margin: 20px 0; /* Vertical margin only */
+    padding: 10px;
+    text-align: center;
+    color: #666;
+    font-size: 0.9em;
+    box-sizing: border-box;
+    display: flex; /* Helps center the ad if it doesn't fill */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Specific styles if needed */
+.ad-main {
+     min-width: 250px; /* Ensure main ad also has minimum width */
+}
+
+.ad-sidebar {
+    min-width: 250px; /* Already set in sidebar, but good to have here too */
+}
+
+
+/* Style for the actual AdSense elements */
+.adsbygoogle {
+    background-color: #f8f8f8;
+    display: block;
+    min-width: 100px; /* Minimum expected by AdSense sometimes */
+    min-height: 50px; /* Minimum expected by AdSense */
+    width: 100%; /* Make the ad try to fill its container */
+}
+/* --- New Footer Ad Styles --- */
+.footer-ads-container {
+    max-width: 1200px;
+    margin: 40px auto; /* Add extra spacing at the bottom */
+    padding: 0 10px;
+    text-align: center;
+}
+
+.footer-ads-grid {
+    display: grid;
+    /* This creates a responsive grid: min 280px wide columns, scaling up to 1fr */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.ad-footer {
+    min-height: 120px; /* Slightly taller placeholder */
+    margin: 0; /* Remove vertical margin from shared rule */
+    /* Inherits styling from .ad-main, .ad-sidebar, etc., but we override margin here */
+}
+
+/* Responsive: Force to a single column on very small screens if necessary */
+@media (max-width: 768px) {
+    .footer-ads-grid {
+        grid-template-columns: 1fr; /* On small screens, force one column */
+    }
+}
+/* Responsive: Stack columns on smaller screens */
+@media (max-width: 768px) {
+    .page-container {
+        flex-direction: column;
+    }
+    .main-content,
+    .sidebar {
+        flex-basis: 100%; /* Each takes full width */
+        min-width: 250px; /* Still respect the min-width */
+    }
+    .sidebar {
+        margin-top: 20px; /* Add space when stacked */
+    }
+}
