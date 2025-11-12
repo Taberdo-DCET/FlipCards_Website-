@@ -17,7 +17,7 @@ const blockedEmails = [
   "rap@gmail.com",
   "raph5728@gmail.com",
   "testaccount@gmail.com",
-  "taberdoraphael189@gmail.com"
+  "taberdoraphal189@gmail.com"
 ];
 
 // Fetch total card count

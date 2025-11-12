@@ -19,7 +19,9 @@
         </div>
         <h2 class="shop-title">FlipCards.</h2>
     </header>
-
+<div id="toggleMistakesSidenavBtn" class="sidenav-toggle-btn right">
+        <i class="fa-solid fa-exclamation-triangle"></i>
+    </div>
     <main class="learn-main-container">
         
         <div class="meta-info">
@@ -82,6 +84,9 @@
     <kbd class="shortcut-key">R</kbd>
     <span>to select an answer.</span>
 </div>
+<button id="exitMistakeReviewBtn" class="neumorphic-button exit-review-btn hidden">
+        Exit Mistake Review
+    </button>
 <div class="definition-row">
         <div class="definition-box" id="learnDefinition">
             Loading definition...
@@ -172,11 +177,41 @@
     <button id="closeReverseInfoModal" class="neumorphic-button">Got it</button>
   </div>
 </div>
+<div id="mistakesSidenav" class="sidenav right">
+        <h3>Learn Mistakes</h3>
+        <div class="sidenav-buttons">
+            <button id="reviewMistakesBtn" class="sidenav-btn review">
+                <i class="fa-solid fa-star"></i> Review
+            </button>
+            <button id="clearMistakesBtn" class="sidenav-btn reset">
+                <i class="fa-solid fa-trash"></i> Clear All
+            </button>
+        </div>
+        <div id="mistakesCardList">
+            <p>Loading mistakes...</p>
+        </div>
+    </div>
+    <div id="customConfirmModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content error">
+    <p id="confirmMessage"></p>
+    <div class="modal-buttons">
+      <button id="confirmBtn" class="neumorphic-button">Confirm</button>
+      <button id="cancelBtn" class="neumorphic-button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="customAlertModal" class="custom-alert-backdrop hidden">
+  <div class="custom-alert-content">
+    <p id="customAlertMessage"></p>
+    <button id="customAlertOkBtn" class="neumorphic-button">OK</button>
+  </div>
+</div>
 <script src="flipTimer.js"></script>
 <script type="module">
     import { db, auth } from './firebaseinit.js';
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+    import { doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
     // --- Global Variables ---
     let flashcards = [];
@@ -185,6 +220,9 @@
     let autoAdvanceTimeout = null;
     let currentReviewingSet = null;
     let currentAudio = null;
+    let originalFlashcards = []; // Stores the complete, original deck
+let localMistakeCards = []; // Local cache of mistake cards
+let isMistakeReviewMode = false;
 
     // --- Element References ---
     const titleElement = document.getElementById("learnSetTitle");
@@ -197,6 +235,19 @@
     const reverseInfoBtn = document.getElementById('reverseInfoBtn');
     const reverseInfoModal = document.getElementById('reverseInfoModal');
     const closeReverseInfoModalBtn = document.getElementById('closeReverseInfoModal');
+    const mistakesSidenavBtn = document.getElementById('toggleMistakesSidenavBtn');
+const mistakesSidenav = document.getElementById('mistakesSidenav');
+const mistakesCardList = document.getElementById('mistakesCardList');
+const reviewMistakesBtn = document.getElementById('reviewMistakesBtn');
+const clearMistakesBtn = document.getElementById('clearMistakesBtn');
+const exitMistakeReviewBtn = document.getElementById('exitMistakeReviewBtn');
+
+const descriptionBox = document.getElementById("descriptionBox");
+    const cardCategory = document.getElementById("cardCategory");
+    const cardCreator = document.getElementById("cardCreator");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const modeButtons = document.querySelectorAll(".button-container .neumorphic-button");
 
 
 async function playGoogleAudio(textToSpeak) {
@@ -284,8 +335,33 @@ function createSpeakerIcon(textToSpeak) {
         const collectionName = localStorage.getItem("reviewingSetCollection");
 
         if (!reviewingSetId || !collectionName) {
-            document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: No set ID found.</h2>";
-            return;
+            // ▼▼▼ REPLACED BLOCK ▼▼▼
+            console.warn("No reviewingSetId or collectionName found. Displaying placeholder state.");
+            
+            titleElement.textContent = "No Set Loaded";
+            defElement.textContent = "Please select a set from the lobby to begin.";
+            descriptionBox.textContent = "Please return to the lobby and select a flashcard set.";
+            choicesContainer.innerHTML = "";
+            cardCategory.textContent = "-";
+            cardCreator.textContent = "-";
+            counterElement.textContent = "0 / 0";
+
+            [prevBtn, nextBtn].forEach(btn => {
+                btn.style.opacity = "0.5";
+                btn.style.pointerEvents = "none";
+            });
+
+            modeButtons.forEach(button => {
+                button.style.opacity = "0.6";
+                button.style.cursor = "not-allowed";
+                button.classList.remove('active');
+            });
+            
+            reverseToggle.disabled = true;
+            if (mistakesSidenavBtn) mistakesSidenavBtn.style.display = 'none'; // Hide the button
+            
+            return; // Stop execution
+            // ▲▲▲ END OF REPLACED BLOCK ▲▲▲
         }
 
         try {
@@ -295,8 +371,18 @@ function createSpeakerIcon(textToSpeak) {
             if (docSnap.exists()) {
                 currentReviewingSet = docSnap.data();
                 flashcards = currentReviewingSet.flashcards || [];
+                
+                // ▼▼▼ ADD THIS ▼▼▼
+                // Store the original deck and give each card its original index
+                originalFlashcards = [...flashcards];
+                originalFlashcards.forEach((card, index) => card.originalIndex = index);
+                // ▲▲▲ END OF ADDITION ▲▲▲
 
                 populatePageInfo(currentReviewingSet);
+
+                // ▼▼▼ ADD THIS ▼▼▼
+                setupMistakeListener(user); // Set up the real-time listener for mistakes
+                // ▲▲▲ END OF ADDITION ▲▲▲
 
                 if (flashcards.length < 4) {
                     defElement.textContent = "You need at least 4 cards in a set to use Learn Mode.";
@@ -307,11 +393,50 @@ function createSpeakerIcon(textToSpeak) {
                 updateCard(currentIndex);
 
             } else {
-                document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
+                // ▼▼▼ REPLACED BLOCK ▼▼▼
+                console.error("Set ID found, but document does not exist.");
+                titleElement.textContent = "Error: Set Not Found";
+                defElement.textContent = "The requested set could not be found in the database.";
+                descriptionBox.textContent = "Please return to the lobby and select a flashcard set.";
+                choicesContainer.innerHTML = "";
+                cardCategory.textContent = "-";
+                cardCreator.textContent = "-";
+                counterElement.textContent = "0 / 0";
+                [prevBtn, nextBtn].forEach(btn => {
+                    btn.style.opacity = "0.5";
+                    btn.style.pointerEvents = "none";
+                });
+                modeButtons.forEach(button => {
+                    button.style.opacity = "0.6";
+                    button.style.cursor = "not-allowed";
+                    button.classList.remove('active');
+                });
+                reverseToggle.disabled = true;
+                if (mistakesSidenavBtn) mistakesSidenavBtn.style.display = 'none';
+                // ▲▲▲ END OF REPLACED BLOCK ▲▲▲
             }
         } catch (error) {
             console.error("Error loading set:", error);
-            document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error loading set.</h2>";
+            // ▼▼▼ REPLACED BLOCK ▼▼▼
+            titleElement.textContent = "Error Loading Set";
+            defElement.textContent = "An error occurred while loading. Please try again.";
+            descriptionBox.textContent = "An error occurred. Please return to the lobby.";
+            choicesContainer.innerHTML = "";
+            cardCategory.textContent = "-";
+            cardCreator.textContent = "-";
+            counterElement.textContent = "0 / 0";
+            [prevBtn, nextBtn].forEach(btn => {
+                btn.style.opacity = "0.5";
+                btn.style.pointerEvents = "none";
+            });
+            modeButtons.forEach(button => {
+                button.style.opacity = "0.6";
+                button.style.cursor = "not-allowed";
+                button.classList.remove('active');
+            });
+            reverseToggle.disabled = true;
+            if (mistakesSidenavBtn) mistakesSidenavBtn.style.display = 'none';
+            // ▲▲▲ END OF REPLACED BLOCK ▲▲▲
         }
     });
 
@@ -330,7 +455,45 @@ function createSpeakerIcon(textToSpeak) {
             document.getElementById("cardCreator").textContent = "N/A";
         }
     }
-    
+    function showCustomConfirm(message, onConfirm) {
+        const confirmModal = document.getElementById('customConfirmModal');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        confirmMessage.textContent = message;
+        confirmModal.classList.remove('hidden');
+
+        const confirmHandler = () => {
+            onConfirm();
+            closeHandler();
+        };
+
+        const closeHandler = () => {
+            confirmModal.classList.add('hidden');
+            confirmBtn.removeEventListener('click', confirmHandler);
+            cancelBtn.removeEventListener('click', closeHandler);
+        };
+
+        confirmBtn.addEventListener('click', confirmHandler, { once: true });
+        cancelBtn.addEventListener('click', closeHandler, { once: true });
+    }
+
+    function showCustomAlert(message) {
+        const alertModal = document.getElementById('customAlertModal');
+        const alertMessage = document.getElementById('customAlertMessage');
+        const alertOkBtn = document.getElementById('customAlertOkBtn');
+
+        alertMessage.textContent = message;
+        alertModal.classList.remove('hidden');
+
+        const closeHandler = () => {
+            alertModal.classList.add('hidden');
+            alertOkBtn.removeEventListener('click', closeHandler);
+        };
+
+        alertOkBtn.addEventListener('click', closeHandler, { once: true });
+    }
     // --- All original Learn Mode functions remain below ---
 
     function showProgressBar(duration = 3000) {
@@ -409,9 +572,22 @@ function createSpeakerIcon(textToSpeak) {
                     // Check if the choice attribute matches the correct choice
                     if (c.getAttribute('data-choice') === correctChoice) c.style.backgroundColor = '#228B22';
                 });
+
                 if (!isCorrect) {
                     this.style.backgroundColor = '#B22222';
+                    // ▼▼▼ ADD THIS ▼▼▼
+                    // Record the mistake, but don't wait for it to finish
+                    recordMistake(flashcards[currentIndex]);
+                    // ▲▲▲ END OF ADDITION ▲▲▲
+                } else {
+                    // ▼▼▼ ADD THIS ▼▼▼
+                    // If we're in review mode and got it right, remove it
+                    if (isMistakeReviewMode) {
+                        removeMistake(flashcards[currentIndex]);
+                    }
+                    // ▲▲▲ END OF ADDITION ▲▲▲
                 }
+
                 showProgressBar(3000);
                 autoAdvanceTimeout = setTimeout(() => { goToCard(1); }, 3000);
             }, { once: true });
@@ -500,6 +676,144 @@ document.getElementById("prevBtn").addEventListener("click", () => {
       if (event.target === reverseInfoModal) {
         reverseInfoModal.classList.add('hidden');
       }
+    });
+    function setupMistakeListener(user) {
+        if (!user || user.isAnonymous) {
+            mistakesCardList.innerHTML = "<p>Please log in to see your mistakes.</p>";
+            return;
+        }
+
+        const mistakeRef = doc(db, "learnmistake", user.email);
+        onSnapshot(mistakeRef, (docSnap) => {
+            const cards = (docSnap.exists() && docSnap.data().mistakes) ? docSnap.data().mistakes : [];
+            localMistakeCards = cards;
+            updateMistakesSidenav(cards);
+        }, (error) => {
+            console.error("Error with mistake listener:", error);
+            mistakesCardList.innerHTML = "<p>Error loading mistakes.</p>";
+        });
+    }
+
+    function updateMistakesSidenav(cards) {
+        if (cards.length === 0) {
+            mistakesCardList.innerHTML = "<p>You haven't made any mistakes yet. Keep it up!</p>";
+            return;
+        }
+
+        mistakesCardList.innerHTML = ""; // Clear list
+        cards.forEach(card => {
+            const cardElement = document.createElement('div');
+            cardElement.className = 'mistake-card-item';
+            cardElement.innerHTML = `
+                <p class="term">${card.term}</p>
+                <p class="definition">${card.definition}</p>
+            `;
+            mistakesCardList.appendChild(cardElement);
+        });
+    }
+
+    async function recordMistake(card) {
+        const user = auth.currentUser;
+        if (!user || user.isAnonymous) return;
+
+        const cardData = { term: card.term, definition: card.definition };
+
+        // Check local cache first to prevent duplicate writes
+        const isAlreadySaved = localMistakeCards.some(
+            c => c.term === cardData.term && c.definition === cardData.definition
+        );
+        if (isAlreadySaved) return;
+
+        const mistakeRef = doc(db, "learnmistake", user.email);
+        try {
+            await setDoc(mistakeRef, {
+                mistakes: arrayUnion(cardData)
+            }, { merge: true });
+        } catch (error) {
+            console.error("Error recording mistake:", error);
+        }
+    }
+
+    async function removeMistake(card) {
+        const user = auth.currentUser;
+        if (!user || user.isAnonymous) return;
+
+        const cardData = { term: card.term, definition: card.definition };
+        const mistakeRef = doc(db, "learnmistake", user.email);
+        try {
+            await updateDoc(mistakeRef, {
+                mistakes: arrayRemove(cardData)
+            });
+        } catch (error) {
+            console.error("Error removing mistake:", error);
+        }
+    }
+
+    // --- Sidenav Button Event Listeners ---
+
+    mistakesSidenavBtn.addEventListener('click', () => {
+        const currentWidth = mistakesSidenav.style.width;
+        const keyIcon = mistakesSidenavBtn.querySelector('i');
+        if (currentWidth === "350px") {
+            mistakesSidenav.style.width = "0";
+            mistakesSidenavBtn.style.right = "0";
+            
+        } else {
+            mistakesSidenav.style.width = "350px";
+            mistakesSidenavBtn.style.right = "350px";
+            
+        }
+    });
+
+    clearMistakesBtn.addEventListener('click', () => {
+        const user = auth.currentUser;
+        if (!user || user.isAnonymous) return showCustomAlert("Please log in.");
+
+        showCustomConfirm("Are you sure you want to clear ALL your recorded mistakes for this mode? This cannot be undone.", () => {
+            const mistakeRef = doc(db, "learnmistake", user.email);
+            setDoc(mistakeRef, { mistakes: [] }, { merge: true })
+                .catch(err => console.error("Error clearing mistakes:", err));
+        }); // <-- 1. ADDED the missing closing parenthesis here
+    //  <-- 2. REMOVED the extra '});' from this line
+    });
+
+    reviewMistakesBtn.addEventListener('click', () => {
+        if (localMistakeCards.length === 0) {
+            return showCustomAlert("You have no mistakes to review!");
+        }
+        if (localMistakeCards.length < 4) {
+            return showCustomAlert(`Learn Mode requires at least 4 cards. You only have ${localMistakeCards.length} mistake(s).`);
+        }
+
+        isMistakeReviewMode = true;
+        flashcards = [...localMistakeCards]; // Set the main deck to only mistake cards
+        shuffleArray(flashcards); // Shuffle the mistake deck
+        currentIndex = 0;
+
+        // Update UI for review mode
+        titleElement.textContent = "Mistake Review Session";
+        descriptionBox.textContent = "Reviewing cards you got wrong.";
+        exitMistakeReviewBtn.classList.remove('hidden');
+        reverseToggle.disabled = true; // Lock the toggle
+
+        updateCard(currentIndex); // Load the first mistake
+        
+        // Close sidenav
+        mistakesSidenav.style.width = "0";
+        mistakesSidenavBtn.style.right = "0";
+    });
+
+    exitMistakeReviewBtn.addEventListener('click', () => {
+        isMistakeReviewMode = false;
+        flashcards = [...originalFlashcards]; // Restore the original full deck
+        currentIndex = 0; // Reset to start
+
+        // Restore UI
+        populatePageInfo(currentReviewingSet); // Restore original title, desc, etc.
+        exitMistakeReviewBtn.classList.add('hidden');
+        reverseToggle.disabled = false; // Re-enable toggle
+
+        updateCard(currentIndex); // Load first card of original deck
     });
 </script>
 

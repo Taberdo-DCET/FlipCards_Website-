@@ -19,6 +19,7 @@ const sortSelect = document.getElementById("folderSort");
 const container = document.querySelector(".folder-grid");
 
 let likedKeys = new Set();
+let reviewedKeys = new Set();
 
 async function fetchUserLikes(user) {
   const userLikesRef = collection(db, "liked_sets", user.email, "sets");
@@ -80,7 +81,16 @@ function formatDate(isoString) {
         day: "numeric"
       });
 }
-
+async function fetchUserReviewedSets(user) {
+  if (!user || !user.email) return;
+  const userReviewedRef = collection(db, "Reviewed", user.email, "sets");
+  try {
+    const snapshot = await getDocs(userReviewedRef);
+    reviewedKeys = new Set(snapshot.docs.map(doc => doc.id));
+  } catch (error) {
+    console.error("Error fetching reviewed sets:", error);
+  }
+}
 function setupLikeRealtimeListener(set, likeCountElem) {
   const q = query(
     collection(db, "flashcard_sets"),
@@ -112,7 +122,7 @@ async function createCard(set, docId = null, isPublic = false) {
   const setId = `${set.title}_${set.createdOn}`;
   const isLiked = likedKeys.has(setId);
   const likeCount = set.likeCount || 0;
-
+const isReviewed = reviewedKeys.has(setId);
 
   card.innerHTML = `
 <div class="folder-header">
@@ -136,16 +146,33 @@ async function createCard(set, docId = null, isPublic = false) {
       </div>
     </div>
     <div class="folder-title">${sanitize(set.title)}</div>
-    <div class="folder-subtitle">${sanitize(set.description || "Flashcards Set")}</div>
-    <button class="review-btn" onclick="reviewSet('${uniqueKey}')">REVIEW</button>
-    ${isPublic ? `
-  <div style="font-size: 13px; font-family:'Satoshi'; color: #bbb; display: flex; justify-content: center; align-items: center; gap: 4px; text-align: center; width: 100%;">
-    by ${sanitize(userInfo.name)}
-    ${userInfo.verified ? `<img src="verified.svg" alt="Verified" style="width:16px; height:16px;">` : ""}
-    ${userInfo.first ? `<img src="first.png" alt="First" style="width:16px; height:16px;">` : ""}
-    ${userInfo.plus ? `<img src="plass.png" alt="Plus" class="plus-badgemini">` : ""}
-  </div>` : ""}
+  <div class="folder-subtitle">${sanitize(set.description || "Flashcards Set")}</div>
 
+  <div class="card-action-row">
+    <button class="review-btn" onclick="reviewSet('${uniqueKey}')">REVIEW</button>
+    
+    <button 
+      class="folder-icon-btn review-toggle-btn ${isReviewed ? 'active' : ''}" 
+      data-tooltip="${isReviewed ? 'Reviewed' : 'Mark as Reviewed'}" 
+      data-set-id="${setId}"
+      data-title="${sanitize(set.title)}" 
+      data-createdon="${set.createdOn || set.createdAt}"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
+    </button>
+  </div>
+  ${isPublic ? `
+  <div class="public-card-footer">
+    <div style="font-size: 13px; font-family:'Satoshi'; color: #bbb; display: flex; justify-content: center; align-items: center; gap: 4px; text-align: center; width: 100%;">
+      by ${sanitize(userInfo.name)}
+      ${userInfo.verified ? `<img src="verified.svg" alt="Verified" style="width:16px; height:16px;">` : ""}
+      ${userInfo.first ? `<img src="first.png" alt="First" style="width:16px; height:16px;">` : ""}
+      ${userInfo.plus ? `<img src="plass.png" alt="Plus" class="plus-badgemini">` : ""}
+    </div>
+  </div>` : ""}
 
   `;
 
@@ -340,30 +367,79 @@ function renderPaginationControls(totalSets) {
 document.addEventListener("click", async (e) => {
   const editBtn = e.target.closest(".edit-btn");
   const deleteBtn = e.target.closest(".delete-btn");
+  
+  // ▼▼▼ ADD THIS NEW VARIABLE ▼▼▼
+  const reviewToggleBtn = e.target.closest(".review-toggle-btn");
+  // ▲▲▲ END OF ADDITION ▲▲▲
 
   if (editBtn) {
-  const key = editBtn.dataset.key;
-  const [titleKey, createdOnKey] = key.split("___");
-  const q = query(collection(db, "local_sets"), where("title", "==", titleKey), where("createdOn", "==", createdOnKey));
-  const snapshot = await getDocs(q);
-if (!snapshot.empty) {
-  const docSnap = snapshot.docs[0];
-  const data = { ...docSnap.data(), _id: docSnap.id }; // include _id
-  localStorage.setItem("editingFlashcardSet", JSON.stringify(data));
+    const key = editBtn.dataset.key;
+    const [titleKey, createdOnKey] = key.split("___");
+    const q = query(collection(db, "local_sets"), where("title", "==", titleKey), where("createdOn", "==", createdOnKey));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const docSnap = snapshot.docs[0];
+      const data = { ...docSnap.data(), _id: docSnap.id }; // include _id
+      localStorage.setItem("editingFlashcardSet", JSON.stringify(data));
 
 
-    // Check if any definition is an image (URL)
-    const hasImageDefinition = data.flashcards?.some(card => /^https?:\/\//.test(card.definition));
-    if (hasImageDefinition) {
-      window.location.href = "addcard_image.html?edit=true";
+      // Check if any definition is an image (URL)
+      const hasImageDefinition = data.flashcards?.some(card => /^https?:\/\//.test(card.definition));
+      if (hasImageDefinition) {
+        window.location.href = "addcard_image.html?edit=true";
+      } else {
+        window.location.href = "addcard.html?edit=true";
+      }
     } else {
-      window.location.href = "addcard.html?edit=true";
+      alert("Set not found for editing.");
     }
-  } else {
-    alert("Set not found for editing.");
   }
-}
 
+  // ▼▼▼ ADD THIS ENTIRE NEW 'if' BLOCK ▼▼▼
+  if (reviewToggleBtn) {
+    const user = auth.currentUser;
+    if (!user) return alert("⚠️ You must be logged in to mark sets as reviewed.");
+
+    // Get all the data we stored on the button
+    const setId = reviewToggleBtn.dataset.setId;
+    const title = reviewToggleBtn.dataset.title;
+    const createdOn = reviewToggleBtn.dataset.createdon;
+
+    if (!setId || !title || !createdOn) {
+      console.error("Missing data attributes on review toggle button.");
+      return;
+    }
+
+    // Define the path in the new 'Reviewed' collection
+    const reviewedRef = doc(db, "Reviewed", user.email, "sets", setId);
+    reviewToggleBtn.disabled = true; // Prevent double-clicking
+
+    try {
+      if (reviewedKeys.has(setId)) {
+        // --- It is already reviewed, so UN-REVIEW it ---
+        await deleteDoc(reviewedRef);
+        reviewedKeys.delete(setId);
+        reviewToggleBtn.classList.remove("active");
+        reviewToggleBtn.dataset.tooltip = "Mark as Reviewed"; // Update tooltip
+      } else {
+        // --- It is not reviewed, so MARK AS REVIEWED ---
+        await setDoc(reviewedRef, {
+          title: title,
+          createdOn: createdOn,
+          reviewedAt: new Date().toISOString()
+        });
+        reviewedKeys.add(setId);
+        reviewToggleBtn.classList.add("active");
+        reviewToggleBtn.dataset.tooltip = "Reviewed"; // Update tooltip
+      }
+    } catch (error) {
+      console.error("Error updating reviewed status:", error);
+      alert("There was an error saving your choice. Please try again.");
+    } finally {
+      reviewToggleBtn.disabled = false; // Re-enable button
+    }
+  }
+  // ▲▲▲ END OF NEW BLOCK ▲▲▲
 
   if (deleteBtn) {
     const docId = deleteBtn.dataset.id;
@@ -376,76 +452,76 @@ if (!snapshot.empty) {
     modal.classList.remove("hidden");
 
     const confirmHandler = async () => {
-        modal.classList.add("hidden");
-        const user = auth.currentUser;
-        if (!user) return;
+      modal.classList.add("hidden");
+      const user = auth.currentUser;
+      if (!user) return;
 
-        try {
-            if (docId) { // docId is the ID from local_sets
-                if (typeof addXP === "function") {
-                    addXP(-20); // Deduct XP first
-                }
+      try {
+        if (docId) { // docId is the ID from local_sets
+          if (typeof addXP === "function") {
+            addXP(-20); // Deduct XP first
+          }
 
-                // --- START OF CHANGES ---
+          // --- START OF CHANGES ---
 
-                // 1. Get a reference to the local document
-                const localDocRef = doc(db, "local_sets", docId);
-                // 2. Read the local document BEFORE deleting it
-                const localDocSnap = await getDoc(localDocRef);
+          // 1. Get a reference to the local document
+          const localDocRef = doc(db, "local_sets", docId);
+          // 2. Read the local document BEFORE deleting it
+          const localDocSnap = await getDoc(localDocRef);
 
-                let publicIdToDelete = null; // Variable to store the public ID
+          let publicIdToDelete = null; // Variable to store the public ID
 
-                if (localDocSnap.exists()) {
-                    const localData = localDocSnap.data();
-                    publicIdToDelete = localData.publicId; // Get the publicId if it exists
-                    console.log("Found local data, publicId is:", publicIdToDelete); // LOG
-                } else {
-                    console.warn("Local document to delete was not found. Cannot check for publicId."); // LOG
-                }
+          if (localDocSnap.exists()) {
+            const localData = localDocSnap.data();
+            publicIdToDelete = localData.publicId; // Get the publicId if it exists
+            console.log("Found local data, publicId is:", publicIdToDelete); // LOG
+          } else {
+            console.warn("Local document to delete was not found. Cannot check for publicId."); // LOG
+          }
 
-                // 3. Delete the local document
-                await deleteDoc(localDocRef);
-                console.log("Deleted document from local_sets:", docId); // LOG
+          // 3. Delete the local document
+          await deleteDoc(localDocRef);
+          console.log("Deleted document from local_sets:", docId); // LOG
 
-                // 4. If a publicId was found, delete the public document
-                if (publicIdToDelete) {
-                    try {
-                        await deleteDoc(doc(db, "flashcard_sets", publicIdToDelete));
-                        console.log("Deleted corresponding document from flashcard_sets:", publicIdToDelete); // LOG
-                    } catch (publicDeleteError) {
-                        console.error("Error deleting public set document:", publicIdToDelete, publicDeleteError); // LOG Error deleting public
-                    }
-                } else {
-                    console.log("No publicId found, skipping deletion from flashcard_sets."); // LOG No publicId
-                }
-
-                // --- END OF CHANGES ---
-
-            } else {
-                console.warn("Delete button clicked, but no docId found in data-id attribute."); // LOG missing docId
+          // 4. If a publicId was found, delete the public document
+          if (publicIdToDelete) {
+            try {
+              await deleteDoc(doc(db, "flashcard_sets", publicIdToDelete));
+              console.log("Deleted corresponding document from flashcard_sets:", publicIdToDelete); // LOG
+            } catch (publicDeleteError) {
+              console.error("Error deleting public set document:", publicIdToDelete, publicDeleteError); // LOG Error deleting public
             }
+          } else {
+            console.log("No publicId found, skipping deletion from flashcard_sets."); // LOG No publicId
+          }
 
-        } catch (err) {
-            console.error("❌ Error during delete process:", err); // LOG Catch block error
+          // --- END OF CHANGES ---
+
+        } else {
+          console.warn("Delete button clicked, but no docId found in data-id attribute."); // LOG missing docId
         }
 
-        await renderFilteredFolders(auth.currentUser);
-        cleanupListeners();
+      } catch (err) {
+        console.error("❌ Error during delete process:", err); // LOG Catch block error
+      }
+
+      await renderFilteredFolders(auth.currentUser);
+      cleanupListeners();
     };
 
     const cancelHandler = () => {
-        modal.classList.add("hidden");
-        cleanupListeners();
+      modal.classList.add("hidden");
+      cleanupListeners();
     };
 
     function cleanupListeners() {
-        confirmBtn.removeEventListener("click", confirmHandler);
-        cancelBtn.removeEventListener("click", cancelHandler);
+      confirmBtn.removeEventListener("click", confirmHandler);
+      cancelBtn.removeEventListener("click", cancelHandler);
     }
 
     confirmBtn.addEventListener("click", confirmHandler, { once: true });
     cancelBtn.addEventListener("click", cancelHandler, { once: true });
-}
+  }
 });
 
 window.reviewSet = async function (key) {
@@ -490,6 +566,7 @@ if (sortSelect && savedSort) {
   sortSelect.value = savedSort;
 }
     await fetchUserLikes(user);
+    await fetchUserReviewedSets(user);
     renderFilteredFolders(user);
   }
 });

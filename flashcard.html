@@ -111,7 +111,9 @@ Match</button>
 <div class="nav-btn" id="shuffleBtn" title="Shuffle Cards">
         <i class="fa-solid fa-shuffle"></i>
     </div>
-
+<div class="nav-btn" id="setKeyWordBtn" title="Set Key Word">
+        <i class="fa-solid fa-key"></i>
+    </div>
 
 </div>
 
@@ -183,10 +185,34 @@ Match</button>
     <button id="closeReverseInfoModal" class="neumorphic-button">Got it</button>
   </div>
 </div>
+<div id="keyWordModal" class="modal-overlay">
+<div class="modal-box info-modal-content key-word-modal-content">
+  <i class="fa-solid fa-key modal-info-icon"></i>
+  <h3>Set Key Word</h3>
+  <p>Select a phrase from the definition below to set it as your key word for this card.</p>
+
+  <div id="keyWordDefinition" class="key-word-definition-box">
+    Loading definition...
+  </div>
+
+  <p class="key-word-selected-label">Your Key Word:</p>
+  <div id="selectedKeyWord" class="key-word-selected-box">
+    Select text above...
+  </div>
+
+  <div class="modal-buttons">
+    <button id="closeKeyWordModalBtn" class="neumorphic-button">Cancel</button>
+    <button id="saveKeyWordBtn" class="neumorphic-button">Save Key Word</button>
+  </div>
+</div>
+</div>
+<!-- ▲▲▲ END OF NEW MODAL ▲▲▲ -->
 <div id="toggleSidenavBtn" class="sidenav-toggle-btn">
     <i class="fa-solid fa-chevron-right"></i>
 </div>
-
+<div id="toggleKeyWordSidenavBtn" class="sidenav-toggle-btn right">
+    <i class="fa-solid fa-key"></i>
+</div>
 <div id="reviewSidenav" class="sidenav">
     <h3>Cards for Review</h3>
     <div class="sidenav-buttons">
@@ -199,6 +225,15 @@ Match</button>
     </div>
     <div id="reviewCardsList">
         <p>Loading review cards...</p>
+    </div>
+</div>
+<div id="keyWordSidenav" class="sidenav right">
+    <h3>Key Word Presets</h3>
+    <p class="sidenav-description">
+      Presets for this set, shared by other users.
+    </p>
+    <div id="keyWordPresetList">
+        <p>Loading presets...</p>
     </div>
 </div>
 <div id="customConfirmModal" class="custom-alert-backdrop hidden">
@@ -293,7 +328,7 @@ Match</button>
   }
   // Import the Firebase functions we need
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
   import { db } from "./firebaseinit.js";
 
   const auth = getAuth();
@@ -305,6 +340,14 @@ import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, 
   let currentReviewingSet = null; // ▼▼▼ NEW: Variable to store the fresh data ▼▼▼
   let originalSetData = null; // To store the original set before review
   let currentAudio = null;
+  let originalDefinitionText = "";
+  let selectedKeyWordStartIndex = -1;
+  let activePresetId = null;
+
+  const keyWordSidenavBtn = document.getElementById('toggleKeyWordSidenavBtn');
+  const keyWordSidenav = document.getElementById('keyWordSidenav');
+  const keyWordPresetList = document.getElementById('keyWordPresetList');
+  
 const exitReviewBtn = document.getElementById('exitReviewBtn');
 
   // --- Get references to HTML elements ---
@@ -312,6 +355,12 @@ const exitReviewBtn = document.getElementById('exitReviewBtn');
   const back = document.querySelector(".flashcard .back");
   const card = document.querySelector(".flashcard");
   const counter = document.getElementById("card-counter");
+  const setKeyWordBtn = document.getElementById('setKeyWordBtn');
+const keyWordModal = document.getElementById('keyWordModal');
+const closeKeyWordModalBtn = document.getElementById('closeKeyWordModalBtn');
+const keyWordDefinition = document.getElementById('keyWordDefinition');
+const selectedKeyWord = document.getElementById('selectedKeyWord');
+const saveKeyWordBtn = document.getElementById('saveKeyWordBtn');
   const reverseToggle = document.getElementById("reverseToggle");
   const backToFoldersBtn = document.getElementById("backToFoldersBtn");
   const feedbackText = document.getElementById('feedbackText');
@@ -372,7 +421,7 @@ const shortcutPerformanceText = document.querySelector('.shortcut-performance');
       counter.textContent = "0 / 0";
 
       // Disable navigation buttons visually and functionally
-      [prevBtnElem, nextBtnElem, shuffleBtnElem].forEach(btn => {
+      [prevBtnElem, nextBtnElem, shuffleBtnElem, setKeyWordBtn].forEach(btn => {
         btn.style.opacity = "0.5";
         btn.style.pointerEvents = "none";
         btn.onclick = null; // Remove click listeners if any were added dynamically
@@ -426,6 +475,43 @@ const shortcutPerformanceText = document.querySelector('.shortcut-performance');
 
     currentReviewingSet = reviewingSetData;
     flashcards = reviewingSetData.flashcards || [];
+    flashcards.forEach((card, index) => {
+        card.originalIndex = index;
+    });
+if (user && !user.isAnonymous) {
+        const presetRef = collection(db, "KeyWordPresets");
+        const reviewingSetId = localStorage.getItem("reviewingSetId");
+
+        // Query for a preset matching this user AND this set
+        const q = query(presetRef, where("userEmail", "==", user.email), where("setId", "==", reviewingSetId));
+        
+        try {
+            const querySnap = await getDocs(q);
+            if (!querySnap.empty) {
+                const myPreset = querySnap.docs[0].data();
+                activePresetId = querySnap.docs[0].id;
+                if (myPreset.keyWords) {
+                    const fetchedKeyWords = myPreset.keyWords;
+                    console.log("DEBUG 1: Fetched *own* Key Word Preset:", JSON.stringify(fetchedKeyWords, null, 2));
+
+                    // Merge key words into the main flashcards array
+                    flashcards.forEach((card, index) => {
+                        const stringKey = String(index);
+                        if (fetchedKeyWords[stringKey]) {
+                            console.log(`DEBUG 2: Merging key word for index ${index}`);
+                            card.keyWord = fetchedKeyWords[stringKey];
+                        }
+                    });
+                    console.log("DEBUG 3: Flashcards array *after* merge:", JSON.parse(JSON.stringify(flashcards)));
+                }
+            } else {
+                console.log("No personal key word preset found for this set.");
+                activePresetId = null;
+            }
+        } catch (e) {
+            console.error("Error fetching personal key word preset:", e);
+        }
+    }
 
         document.getElementById("setTitle").textContent = reviewingSetData.title || "Untitled Set";
         document.getElementById("descriptionBox").textContent = reviewingSetData.description || "No description provided.";
@@ -453,7 +539,7 @@ const shortcutPerformanceText = document.querySelector('.shortcut-performance');
           back.textContent = "Add some cards!";
           counter.textContent = "0 / 0";
            // Disable nav buttons if empty
-           [prevBtnElem, nextBtnElem, shuffleBtnElem].forEach(btn => {
+           [prevBtnElem, nextBtnElem, shuffleBtnElem, setKeyWordBtn].forEach(btn => {
                 btn.style.opacity = "0.5";
                 btn.style.pointerEvents = "none";
            });
@@ -461,7 +547,7 @@ const shortcutPerformanceText = document.querySelector('.shortcut-performance');
         // --- End card display/empty set handling ---
 
         // --- +++ Ensure controls are ENABLED (ADD THIS BLOCK) +++ ---
-        [prevBtnElem, nextBtnElem, shuffleBtnElem].forEach(btn => {
+        [prevBtnElem, nextBtnElem, shuffleBtnElem, setKeyWordBtn].forEach(btn => {
             if (flashcards.length > 0) { // Only enable if there are cards
                  btn.style.opacity = "1";
                  btn.style.pointerEvents = "auto";
@@ -536,7 +622,7 @@ const shortcutPerformanceText = document.querySelector('.shortcut-performance');
         creatorElem.textContent = "-";
         counter.textContent = "0 / 0";
         // +++ Disable buttons like in the placeholder state +++
-         [prevBtnElem, nextBtnElem, shuffleBtnElem].forEach(btn => {
+         [prevBtnElem, nextBtnElem, shuffleBtnElem, setKeyWordBtn].forEach(btn => {
             btn.style.opacity = "0.5";
             btn.style.pointerEvents = "none";
          });
@@ -563,7 +649,7 @@ const shortcutPerformanceText = document.querySelector('.shortcut-performance');
       creatorElem.textContent = "-";
       counter.textContent = "0 / 0";
       // +++ Disable buttons like in the placeholder state +++
-      [prevBtnElem, nextBtnElem, shuffleBtnElem].forEach(btn => {
+      [prevBtnElem, nextBtnElem, shuffleBtnElem, setKeyWordBtn].forEach(btn => {
         btn.style.opacity = "0.5";
         btn.style.pointerEvents = "none";
       });
@@ -583,7 +669,32 @@ const shortcutPerformanceText = document.querySelector('.shortcut-performance');
   // --- Helper Functions ---
 // --- Helper Functions ---
   function isImageUrl(text) { return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com"); }
+// ▼▼▼ REPLACE THE setCardFace FUNCTION WITH THIS ▼▼▼
+function setCardFace(element, content, isHTML) {
+    // 1. Clear the card face completely
+    element.innerHTML = ''; 
 
+    // 2. Create a new wrapper span
+    const contentWrapper = document.createElement('span');
+
+    // 3. Set the content INSIDE the new wrapper
+    // This handles both image tags and highlighted text
+    if (isHTML) {
+        contentWrapper.innerHTML = content;
+    } else {
+        contentWrapper.textContent = content;
+    }
+
+    // 4. Append the wrapper as the *single* child
+    // This makes it the sole flex item to be centered by the card's CSS
+    element.appendChild(contentWrapper);
+}
+// ▲▲▲ END OF REPLACED FUNCTION ▲▲▲
+
+// ▼▼▼ ADD THIS HELPER FUNCTION ▼▼▼
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+}
   // --- NEW: Helper function to adjust font size ---
  function getRequiredFontSize(element, checkHorizontal = false) {
     element.style.fontSize = '2rem'; // Reset font size to the default from CSS
@@ -617,12 +728,19 @@ function shuffleFlashcards() {
   // --- REPLACE your old updateCard function with this new one ---
 
   // --- REPLACE your old updateCard function with this new one ---
-  function updateCard(index) {
-    
+ // ▼▼▼ REPLACE THE ENTIRE updateCard FUNCTION WITH THIS ▼▼▼
+// ▼▼▼ This is the complete function from your file, updated ▼▼▼
+function updateCard(index) {
+  const cardDataForLog = flashcards[index];
+    console.log(`DEBUG 4: updateCard(${index}) called.`, {
+        cardData: JSON.parse(JSON.stringify(cardDataForLog)),
+        keyWordFound: cardDataForLog ? cardDataForLog.keyWord : "N/A",
+        reverseMode: reverseMode
+    });
     // --- Stop any playing audio when the card changes ---
     if (currentAudio) {
-      currentAudio.pause();
-      currentAudio = null;
+        currentAudio.pause();
+        currentAudio = null;
     }
 
     card.style.transition = "none";
@@ -634,38 +752,99 @@ function shuffleFlashcards() {
     front.querySelectorAll('.speaker-icon').forEach(icon => icon.remove());
     back.querySelectorAll('.speaker-icon').forEach(icon => icon.remove());
 
-    // Temporarily set content for both sides to calculate sizes
-    front.textContent = cardData.term;
-    if (isImageUrl(cardData.definition)) {
-      back.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />`;
-    } else {
-      back.textContent = cardData.definition;
-    }
+    // --- NEW: Get base text and check for images ---
+    let termText = cardData.term;
+    let defText = cardData.definition;
+    let isTermImage = isImageUrl(termText);
+    let isDefImage = isImageUrl(defText);
+
+    // --- NEW: Check for and apply key word highlighting ---
     
+    // ▼▼▼ THIS IS THE UPDATED LOGIC ▼▼▼
+    
+    const keyWord = cardData.keyWord; // This is now an object: { text: "...", index: ... }
+    
+    console.log(`DEBUG 5: Checking for highlight. Key word object is:`, keyWord ? JSON.parse(JSON.stringify(keyWord)) : "undefined");
+
+    let definitionHasHighlight = false;
+
+    // --- NEW LOGIC: Check for the new object structure ---
+    if (keyWord && typeof keyWord === 'object' && keyWord.text && keyWord.index !== undefined && !isDefImage) {
+        
+        const keyWordText = keyWord.text;
+        const startIndex = keyWord.index;
+        const endIndex = startIndex + keyWordText.length;
+
+        // Safety check: Does the text at that index still match?
+        if (defText.substring(startIndex, endIndex) === keyWordText) {
+            // It matches! Build the highlight using substring
+            const beforeText = defText.substring(0, startIndex);
+            const afterText = defText.substring(endIndex);
+            
+            defText = `${beforeText}<span class="highlighted-key-word">${keyWordText}</span>${afterText}`;
+            definitionHasHighlight = true;
+        } else {
+            // Mismatch! The definition may have been edited.
+            // Fall back to highlighting just the FIRST match (no 'g' flag).
+            console.warn("Key word index mismatch. Highlighting first match.");
+            const escapedKeyWord = escapeRegExp(keyWord.text);
+            const regex = new RegExp(`(${escapedKeyWord})`, 'i'); // 'i' = case-insensitive, NO 'g'
+            defText = defText.replace(regex, `<span class="highlighted-key-word">$1</span>`);
+            definitionHasHighlight = true;
+        }
+
+    } 
+    // --- FALLBACK: For old key words you saved as strings ---
+    else if (keyWord && typeof keyWord === 'string' && !isDefImage) {
+        console.warn("Legacy key word (string) found. Highlighting all instances.");
+        const escapedKeyWord = escapeRegExp(keyWord);
+        const regex = new RegExp(`(${escapedKeyWord})`, 'gi'); // 'g' for global
+        if (defText.match(regex)) {
+           defText = defText.replace(regex, `<span class="highlighted-key-word">$1</span>`);
+           definitionHasHighlight = true;
+        }
+    }
+
+    // ▲▲▲ END OF UPDATED LOGIC ▲▲▲
+
+
+    // --- FONT SIZE CALCULATION (uses original text) ---
+    // Temporarily set textContent for both sides to calculate sizes
+    front.textContent = cardData.term;
+    if (isDefImage) {
+      back.textContent = "Image"; // Placeholder for sizing
+    } else {
+      back.textContent = cardData.definition; // Use original def text
+    }
+
     // Calculate the required font size for both term and definition
     const termFontSize = getRequiredFontSize(front, true);
-    const defFontSize = isImageUrl(cardData.definition) ? 2 : getRequiredFontSize(back, false);
-    
+    const defFontSize = isDefImage ? 2 : getRequiredFontSize(back, false);
+
     // Use the smaller of the two font sizes for both sides
     const finalSize = Math.min(termFontSize, defFontSize);
     front.style.fontSize = `${finalSize}rem`;
     back.style.fontSize = `${finalSize}rem`;
 
-    // Now, set the final content based on reverse mode
-    if (reverseMode) {
-      if (isImageUrl(cardData.definition)) {
-        front.innerHTML = `<img src="${cardData.definition}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />`;
-      } else {
-        front.textContent = cardData.definition;
-      }
-      back.textContent = cardData.term;
-    }
-    // If not reverse mode, the content is already correct from our calculation step.
+    // --- SET FINAL CONTENT ---
 
-    // --- NEW: Add Speaker Icons to BOTH sides ---
-    
+    // Create image strings if needed
+    let frontContent = isTermImage ? `<img src="${termText}" alt="Term Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />` : termText;
+    let backContent = isDefImage ? `<img src="${defText}" alt="Definition Image" style="max-width:100%; max-height:100%; border-radius: 8px;" />` : defText; // defText is already highlighted or plain
+
+    // Apply content based on reverse mode
+    if (reverseMode) {
+      setCardFace(front, backContent, isDefImage || definitionHasHighlight);
+      setCardFace(back, frontContent, isTermImage);
+    } else {
+      setCardFace(front, frontContent, isTermImage);
+      setCardFace(back, backContent, isDefImage || definitionHasHighlight);
+    }
+
+    // --- NEW: Add Speaker Icons (AFTER setting content) ---
+
     // 1. Add icon for the TERM
-    if (!isImageUrl(cardData.term)) {
+    if (!isTermImage) {
         const termIcon = createSpeakerIcon(cardData.term);
         if (reverseMode) {
             back.appendChild(termIcon); // In reverse mode, term is on the back
@@ -675,7 +854,7 @@ function shuffleFlashcards() {
     }
 
     // 2. Add icon for the DEFINITION
-    if (!isImageUrl(cardData.definition)) {
+    if (!isDefImage) {
         const defIcon = createSpeakerIcon(cardData.definition);
         if (reverseMode) {
             front.appendChild(defIcon); // In reverse mode, definition is on the front
@@ -683,11 +862,11 @@ function shuffleFlashcards() {
             back.appendChild(defIcon); // In normal mode, definition is on the back
         }
     }
-    // --- End of New Code ---
+    // --- End of Speaker Icon Code ---
 
     counter.textContent = `${index + 1} / ${flashcards.length}`;
     setTimeout(() => { card.style.transition = "transform 0.3s"; }, 10);
-  }
+}
   function showFeedback(type) {
     // Don't show feedback if we're in the locked "My Review Session" mode
     if (performanceToggle.disabled) return;
@@ -708,6 +887,228 @@ function shuffleFlashcards() {
   // --- Event Listeners ---
 reverseToggle.addEventListener("change", (event) => { reverseMode = event.target.checked; updateCard(currentIndex); });
 card.addEventListener("click", () => { card.classList.toggle("flipped"); });
+setKeyWordBtn.addEventListener('click', () => {
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) {
+        showCustomAlert("Please log in to set key words.");
+        return;
+    }
+
+    if (!flashcards || flashcards.length === 0) {
+        showCustomAlert("There are no cards in this set.");
+        return;
+    }
+
+const currentCard = flashcards[currentIndex];
+// Check definition based on reverse mode
+const currentDef = currentCard.definition;
+
+if (isImageUrl(currentDef)) {
+    showCustomAlert("Cannot set key words for image-based content.");
+    return;
+}
+
+// ▼▼▼ MODIFY THESE LINES ▼▼▼
+originalDefinitionText = currentDef; // Store the original plain text
+keyWordDefinition.textContent = originalDefinitionText; // Set the initial display
+// ▲▲▲ END OF MODIFICATIONS ▲▲▲
+
+selectedKeyWord.textContent = "Select text above...";
+keyWordModal.classList.add('visible');
+});
+
+// Close the modal with Cancel button
+closeKeyWordModalBtn.addEventListener('click', () => {
+    keyWordModal.classList.remove('visible');
+
+    // ▼▼▼ ADD THESE 2 LINES TO RESET ▼▼▼
+    keyWordDefinition.textContent = originalDefinitionText;
+    selectedKeyWord.textContent = "Select text above...";
+});
+
+// Close the modal by clicking overlay
+// Close the modal by clicking overlay
+keyWordModal.addEventListener('click', (event) => {
+  if (event.target === keyWordModal) {
+    keyWordModal.classList.remove('visible');
+
+    // ▼▼▼ ADD THESE 2 LINES TO RESET ▼▼▼
+    keyWordDefinition.textContent = originalDefinitionText;
+    selectedKeyWord.textContent = "Select text above...";
+  }
+});
+
+// Handle text selection
+
+
+// Handle text selection
+// ... around line 800 ...
+
+// Handle text selection
+// ... around line 800 ...
+
+// Handle text selection
+keyWordDefinition.addEventListener('mouseup', () => {
+    const selection = window.getSelection(); // Get the full Selection object
+    const selectedText = selection.toString().trim(); // Get the text, trimmed
+
+    // Check if the selection is valid and is inside our definition box
+    // (selection.anchorNode is the element where the selection started)
+    if (selectedText && keyWordDefinition.contains(selection.anchorNode)) {
+        
+        // 1. Update the "Your Key Word" box with the trimmed text
+        selectedKeyWord.textContent = selectedText;
+
+        // 2. Get the precise start/end character indexes of the selection
+        // This works regardless of which direction the user selected (left-to-right or right-to-left)
+        const startIndex = Math.min(selection.anchorOffset, selection.focusOffset);
+        const endIndex = Math.max(selection.anchorOffset, selection.focusOffset);
+
+        // ▼▼▼ ADD THIS LINE ▼▼▼
+        selectedKeyWordStartIndex = startIndex; // Store the index
+        // ▲▲▲ END OF ADDITION ▲▲▲
+
+        // 3. Re-build the HTML from the *original plain text*
+        // This ensures we only highlight this single instance.
+        const beforeText = originalDefinitionText.substring(0, startIndex);
+        const highlightedText = originalDefinitionText.substring(startIndex, endIndex);
+        const afterText = originalDefinitionText.substring(endIndex);
+
+        // 4. Set the innerHTML to display the new highlight
+        // We are NOT using a regex, so only the text at these exact indexes is wrapped
+        keyWordDefinition.innerHTML = 
+            `${beforeText}<span class="highlighted-key-word">${highlightedText}</span>${afterText}`;
+
+    } else if (selectedText.length === 0) {
+        // Optional: If user just clicks without dragging, reset the view
+        keyWordDefinition.textContent = originalDefinitionText;
+        selectedKeyWord.textContent = "Select text above...";
+        
+        // ▼▼▼ ADD THIS LINE ▼▼▼
+        selectedKeyWordStartIndex = -1; // Reset the index
+        // ▲▲▲ END OF ADDITION ▲▲▲
+    }
+});
+// Save the key word
+// ... around line 830 ...
+
+// Save the key word
+saveKeyWordBtn.addEventListener('click', async () => {
+    const keyWordText = selectedKeyWord.textContent;
+
+    if (!keyWordText || keyWordText === "Select text above...") {
+        showCustomAlert("Please select a key word first.");
+        return;
+    }
+    if (selectedKeyWordStartIndex === -1 && keyWordText) {
+        showCustomAlert("Error: Could not find selection index. Please re-select your key word.");
+        return;
+    }
+
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) {
+        showCustomAlert("You must be logged in to save.");
+        return;
+    }
+
+    const userEmail = user.email;
+    const reviewingSetId = localStorage.getItem("reviewingSetId");
+    if (!reviewingSetId) {
+        showCustomAlert("Error: Could not find set ID.");
+        return;
+    }
+
+    // --- NEW SAVE LOGIC FOR 'KeyWordPresets' ---
+    try {
+        const keyWordData = {
+            text: keyWordText,
+            index: selectedKeyWordStartIndex
+        };
+
+        const presetRef = collection(db, "KeyWordPresets");
+        
+        // 1. Check if a preset doc already exists for this user and set
+        const q = query(presetRef, where("userEmail", "==", userEmail), where("setId", "==", reviewingSetId));
+        const querySnap = await getDocs(q);
+
+        // 2. Define the path to update the specific key word
+        // Note: Firestore field paths with dots must use FieldPath object or dot notation in the update object.
+        const fieldPath = `keyWords.${currentIndex}`;
+
+        if (querySnap.empty) {
+            // 3a. No preset exists: Create a new document
+            await addDoc(presetRef, {
+                userEmail: userEmail,
+                setId: reviewingSetId,
+                keyWords: {
+                    [currentIndex]: keyWordData // Save the single key word
+                }
+            });
+        } else {
+            // 3b. Preset exists: Update the existing document
+            const docId = querySnap.docs[0].id;
+            const docRef = doc(db, "KeyWordPresets", docId);
+            
+            // Use setDoc with merge:true to create/update the nested key
+            // This is safer for nested objects than updateDoc
+            await setDoc(docRef, { 
+                keyWords: {
+                    [currentIndex]: keyWordData
+                }
+            }, { merge: true });
+        }
+        // --- END OF NEW SAVE LOGIC ---
+
+        showCustomAlert("Key word saved successfully!");
+
+        // Update the live flashcard object
+        flashcards[currentIndex].keyWord = keyWordData;
+        updateCard(currentIndex);
+
+        keyWordModal.classList.remove('visible');
+        keyWordDefinition.textContent = originalDefinitionText;
+        selectedKeyWord.textContent = "Select text above...";
+        selectedKeyWordStartIndex = -1; // Reset index after saving
+
+    } catch (error) {
+        console.error("Error saving key word preset:", error);
+        showCustomAlert("An error occurred while saving. Please try again.");
+    }
+});
+// --- Also add the reset to the modal close buttons ---
+
+closeKeyWordModalBtn.addEventListener('click', () => {
+    keyWordModal.classList.remove('visible');
+    keyWordDefinition.textContent = originalDefinitionText;
+    selectedKeyWord.textContent = "Select text above...";
+    selectedKeyWordStartIndex = -1; // <-- ADD THIS
+});
+
+keyWordModal.addEventListener('click', (event) => {
+  if (event.target === keyWordModal) {
+    keyWordModal.classList.remove('visible');
+    keyWordDefinition.textContent = originalDefinitionText;
+    selectedKeyWord.textContent = "Select text above...";
+    selectedKeyWordStartIndex = -1; // <-- ADD THIS
+  }
+});
+// --- Also add the reset to the modal close buttons ---
+
+closeKeyWordModalBtn.addEventListener('click', () => {
+    keyWordModal.classList.remove('visible');
+    keyWordDefinition.textContent = originalDefinitionText;
+    selectedKeyWord.textContent = "Select text above...";
+    selectedKeyWordStartIndex = -1; // <-- ADD THIS
+});
+
+keyWordModal.addEventListener('click', (event) => {
+  if (event.target === keyWordModal) {
+    keyWordModal.classList.remove('visible');
+    keyWordDefinition.textContent = originalDefinitionText;
+    selectedKeyWord.textContent = "Select text above...";
+    selectedKeyWordStartIndex = -1; // <-- ADD THIS
+  }
+});
 shuffleBtn.addEventListener("click", () => {
     // Prevent shuffling while in a "My Review Session"
     if (performanceToggle.disabled) {
@@ -943,6 +1344,136 @@ onSnapshot(reviewRef, (docSnap) => {
 }
 // Attach a single event listener to the toggle button
 toggleSidenavBtn.addEventListener('click', toggleNav);
+keyWordSidenavBtn.addEventListener('click', () => {
+    const currentWidth = keyWordSidenav.style.width;
+    const keyIcon = keyWordSidenavBtn.querySelector('i'); // Get the correct icon
+    if (currentWidth === "350px") {
+        // If it's open, close it
+        keyWordSidenav.style.width = "0";
+        keyWordSidenavBtn.style.right = "0";
+        keyIcon.style.transform = "rotate(0deg)"; // Use the correct icon
+    } else {
+        // If it's closed, open it
+        keyWordSidenav.style.width = "350px";
+        keyWordSidenavBtn.style.right = "350px";
+        keyIcon.style.transform = "rotate(180deg)"; // Use the correct icon
+        
+        // Load the presets *when the panel is opened*
+        loadKeyWordPresets();
+    }
+});
+
+// --- Function to query and display presets ---
+async function loadKeyWordPresets() {
+    keyWordPresetList.innerHTML = "<p>Loading presets...</p>";
+    const reviewingSetId = localStorage.getItem("reviewingSetId");
+    if (!reviewingSetId) {
+        keyWordPresetList.innerHTML = "<p>Error: No set loaded.</p>";
+        return;
+    }
+
+    try {
+        const presetRef = collection(db, "KeyWordPresets");
+        // Query for ALL presets matching this set ID
+        const q = query(presetRef, where("setId", "==", reviewingSetId));
+        const querySnap = await getDocs(q);
+
+        if (querySnap.empty) {
+            keyWordPresetList.innerHTML = "<p>No presets found for this set. Be the first to make one!</p>";
+            return;
+        }
+
+        keyWordPresetList.innerHTML = ""; // Clear "Loading..."
+querySnap.forEach(doc => {
+            const preset = doc.data();
+            const presetDocId = doc.id; // Get the preset's document ID
+            const presetElement = document.createElement('div');
+            presetElement.className = 'preset-item';
+
+            const emailSpan = document.createElement('span');
+            emailSpan.className = 'preset-email';
+            
+            const useButton = document.createElement('button');
+            useButton.className = 'preset-use-btn';
+
+            let emailDisplay = preset.userEmail;
+            const isCurrentUserPreset = auth.currentUser && auth.currentUser.email === preset.userEmail;
+
+            // Set the email text (e.g., "You" or the email)
+            if (isCurrentUserPreset) {
+                emailDisplay = "You";
+            }
+            emailSpan.textContent = emailDisplay;
+            
+            // --- REPLACED LOGIC: Set button state based on global active ID ---
+            if (activePresetId === presetDocId) {
+                useButton.textContent = "Using";
+                useButton.classList.add('active');
+            } else {
+                useButton.textContent = "Use Preset";
+            }
+            
+            useButton.addEventListener('click', () => {
+                if (useButton.classList.contains('active')) {
+                    return;
+                }
+                // Pass the doc ID to the apply function
+                applyKeyWordPreset(preset.keyWords, useButton, presetDocId);
+            });
+
+            presetElement.appendChild(emailSpan);
+            presetElement.appendChild(useButton);
+            keyWordPresetList.appendChild(presetElement);
+        });
+
+    } catch (error) {
+        console.error("Error loading key word presets:", error);
+        keyWordPresetList.innerHTML = "<p>Error loading presets.</p>";
+    }
+}
+
+// --- Function to apply a selected preset ---
+function applyKeyWordPreset(keyWordsToApply, clickedButton, presetId) { // <-- Added presetId
+    if (!keyWordsToApply) {
+        showCustomAlert("This preset is empty.");
+        return;
+    }
+
+    activePresetId = presetId;
+    // --- NEW: Reset all other 'active' buttons ---
+    const allPresetButtons = keyWordPresetList.querySelectorAll('.preset-use-btn.active');
+    allPresetButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.textContent = "Use Preset";
+    });
+
+    // --- NEW: Set the clicked button to 'active' ---
+    if (clickedButton) {
+        clickedButton.classList.add('active');
+        clickedButton.textContent = "Using";
+    }
+
+    // Loop through all flashcards and apply/remove key words
+    flashcards.forEach((card) => { // We don't need 'index' from the loop anymore
+        const stringKey = String(card.originalIndex); // Use the card's "memory"
+        if (keyWordsToApply[stringKey]) {
+            card.keyWord = keyWordsToApply[stringKey]; // Apply preset
+        } else {
+            delete card.keyWord; // Remove any existing key word
+        }
+    });
+
+    // Refresh the current card display
+    updateCard(currentIndex);
+    
+    // Close the sidenav (and fix icon bug)
+    const keyIcon = keyWordSidenavBtn.querySelector('i'); // Get the correct icon
+    keyWordSidenav.style.width = "0";
+    keyWordSidenavBtn.style.right = "0";
+    if (keyIcon) keyIcon.style.transform = "rotate(0deg)"; // Use the correct icon
+    
+    showCustomAlert("Key word preset applied!");
+}
 // --- Event listener for the "Reset" button ---
 // --- Event listener for the "Reset" button ---
 resetReviewBtn.addEventListener('click', () => {
@@ -1022,6 +1553,9 @@ reviewBtn.addEventListener('click', async () => {
         const reviewCards = docSnap.data().cardsForReview;
 
         flashcards = reviewCards; 
+        flashcards.forEach((card, index) => {
+            card.originalIndex = index;
+        });
         currentIndex = 0; 
 
         updateCard(currentIndex); 
@@ -1102,6 +1636,9 @@ exitReviewBtn.addEventListener('click', () => {
 
             // 1. Restore the original flashcard data
             flashcards = originalSetData.flashcards;
+            flashcards.forEach((card, index) => {
+                card.originalIndex = index;
+            });
             currentIndex = 0;
 
             // 2. Update the UI with original data

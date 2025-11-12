@@ -19,6 +19,9 @@
     </div>
     <h2 class="shop-title">FlipCards.</h2>
 </header>
+<div id="toggleKeyWordSidenavBtn" class="sidenav-toggle-btn right">
+    <i class="fa-solid fa-key"></i>
+</div>
     <main class="test-main-container">
         
         <div class="meta-info">
@@ -80,10 +83,20 @@
       Loading...
     </div>
 
-    <div class="input-area">
+<div class="input-area">
+    
+    <div class="input-wrapper">
+      <div id="inputMirror"></div>
+      
       <input type="text" id="termInput" placeholder="What is the term? Enter answer here...">
-      <button onclick="submitAnswer()">Submit</button>
+      <span id="inputSuggestion"></span>
     </div>
+    <button onclick="submitAnswer()">Submit</button>
+    <button id="showClueBtn" class="show-hint-button">
+  <i class="fa-solid fa-search"></i> Show Clue
+</button>
+  </div>
+
   </div>
   <div class="custom-alert" id="customAlert">
   <div class="custom-alert-box">
@@ -192,17 +205,42 @@
     <button id="closeReverseInfoModal" class="neumorphic-button">Got it</button>
   </div>
 </div>
+
+
+<!-- Modal for setting a keyword/hint -->
+
+<div id="showClueModal" class="modal-overlay">
+  <div class="modal-box info-modal-content">
+    <h3><i class="fa-solid fa-search" style="color: #ffcf00;"></i> Clue</h3>
+    <div id="clueDisplayArea">Click "Show Clue" to see the first two letters.</div>
+    <button class="neumorphic-button" id="closeShowClueBtn" style="width: 100%; margin-top: 20px;">Close</button>
+  </div>
+</div>
+<div id="keyWordSidenav" class="sidenav right">
+    <h3>Key Word Presets</h3>
+    <p class="sidenav-description">
+      Presets for this set, shared by other users.
+    </p>
+    <div id="keyWordPresetList">
+        <p>Loading presets...</p>
+    </div>
+</div>
 <script src="flipTimer.js"></script>
 <script type="module">
   import { db, auth } from './firebaseinit.js';
   import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
-  import {
+import {
     doc,
     getDoc,
     updateDoc,
     setDoc,
     arrayUnion,
-    arrayRemove
+    arrayRemove,
+    collection,
+    query,
+    where,
+    getDocs,
+    addDoc
   } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
   // --- Global Variables ---
@@ -214,6 +252,7 @@
   let currentIndex = 0;
   let currentReviewingSet = null;
   let currentAudio = null;
+  let activePresetId = null;
 
   // --- Element References ---
   const termInput = document.getElementById("termInput");
@@ -225,6 +264,16 @@
   const reverseInfoModal = document.getElementById('reverseInfoModal');
   const closeReverseInfoModalBtn = document.getElementById('closeReverseInfoModal');
 
+// New Key Word Preset Refs
+  const keyWordSidenavBtn = document.getElementById('toggleKeyWordSidenavBtn');
+  const keyWordSidenav = document.getElementById('keyWordSidenav');
+  const keyWordPresetList = document.getElementById('keyWordPresetList');
+
+  // New Clue Refs
+  const showClueBtn = document.getElementById('showClueBtn');
+  const showClueModal = document.getElementById('showClueModal');
+  const clueDisplayArea = document.getElementById('clueDisplayArea');
+  const closeShowClueBtn = document.getElementById('closeShowClueBtn');
 async function playGoogleAudio(textToSpeak) {
     if (currentAudio) {
         currentAudio.pause();
@@ -365,6 +414,8 @@ function createSpeakerIcon(textToSpeak) {
 
       // Disable reverse toggle
       if (reverseToggle) reverseToggle.disabled = true;
+      
+      
 
       // Disable mistake review section
       mistakeReviewSection.style.opacity = "0.5";
@@ -385,9 +436,50 @@ function createSpeakerIcon(textToSpeak) {
       const docSnap = await getDoc(setRef);
 
       if (docSnap.exists()) {
-        currentReviewingSet = docSnap.data();
+currentReviewingSet = docSnap.data();
         originalFlashcards = currentReviewingSet.flashcards || [];
         flashcards = [...originalFlashcards];
+
+        // Stamp original index for preset logic
+        flashcards.forEach((card, index) => {
+            card.originalIndex = index;
+        });
+
+        // --- NEW: Load Key Word Presets (for highlighting) ---
+        if (user && !user.isAnonymous) {
+            const presetRef = collection(db, "KeyWordPresets");
+            const q = query(presetRef, where("userEmail", "==", user.email), where("setId", "==", reviewingSetId));
+            try {
+                const querySnap = await getDocs(q);
+                if (!querySnap.empty) {
+                    const myPreset = querySnap.docs[0].data();
+                    activePresetId = querySnap.docs[0].id; // Set the active preset
+                    if (myPreset.keyWords) {
+                        const fetchedKeyWords = myPreset.keyWords;
+
+                        // ▼▼▼ ADD THIS LOG ▼▼▼
+                        console.log("DEBUG 1: Fetched Key Words Object:", JSON.parse(JSON.stringify(fetchedKeyWords)));
+                        // ▲▲▲ END OF LOG ▲▲▲
+
+                        // Merge key words into the main flashcards array
+                        flashcards.forEach((card) => {
+                            const stringKey = String(card.originalIndex); // Use originalIndex
+                            if (fetchedKeyWords[stringKey]) {
+                                // ▼▼▼ ADD THIS LOG ▼▼▼
+                                console.log(`DEBUG 2: Merging key word for originalIndex ${stringKey}`);
+                                // ▲▲▲ END OF LOG ▲▲▲
+                                card.keyWord = fetchedKeyWords[stringKey];
+                            }
+                        });
+                    }
+                } else {
+                    activePresetId = null;
+                }
+            } catch (e) {
+                console.error("Error fetching personal key word preset:", e);
+            }
+        }
+        // --- END OF PRESET LOADING ---
         
         populatePageInfo(currentReviewingSet);
         
@@ -439,6 +531,8 @@ function createSpeakerIcon(textToSpeak) {
 
         // Enable reverse toggle
          if (reverseToggle) reverseToggle.disabled = false;
+         
+         
 
         // Enable mistake review section
          mistakeReviewSection.style.opacity = "1";
@@ -452,6 +546,7 @@ function createSpeakerIcon(textToSpeak) {
         // --- +++ End enabling controls +++ ---
         } else {
             defElement.textContent = "This set is empty.";
+            
         }
       } else {
         document.body.innerHTML = "<h2 style='color:white; text-align:center;'>Error: Could not find set.</h2>";
@@ -473,6 +568,7 @@ function createSpeakerIcon(textToSpeak) {
             button.classList.remove('active');
          });
          if (reverseToggle) reverseToggle.disabled = true;
+         
          mistakeReviewSection.style.opacity = "0.5";
          mistakeButtons.forEach(btn => {
              btn.disabled = true;
@@ -502,6 +598,7 @@ function createSpeakerIcon(textToSpeak) {
         button.classList.remove('active');
       });
       if (reverseToggle) reverseToggle.disabled = true;
+      
       mistakeReviewSection.style.opacity = "0.5";
       mistakeButtons.forEach(btn => {
           btn.disabled = true;
@@ -536,27 +633,191 @@ function createSpeakerIcon(textToSpeak) {
       document.getElementById("cardCreator").textContent = "N/A";
     }
   }
+// --- NEW: "Show Clue" Functions ---
+  // --- NEW: "Show Clue" Functions ---
+// --- NEW: "Show Clue" Functions ---
+ // --- NEW: "Show Clue" Functions ---
+  function showClue() {
+    if (!flashcards[currentIndex]) return;
 
+    const card = flashcards[currentIndex];
+    const correctAnswer = reverseMode ? card.definition : card.term;
+
+    // 1. Split the answer by any non-word character (like spaces, -, /)
+    //    but KEEP the delimiters.
+    const parts = correctAnswer.split(/(\W+)/).filter(Boolean); // filter(Boolean) removes empty strings
+
+    // 2. Process each part
+    const clueParts = parts.map(part => {
+      // Check if the part is a "word" (letters or numbers)
+      const isWord = /\w+/.test(part);
+
+      // If it's NOT a word (e.g., it's a " ", "-", "/"), reveal it completely.
+      if (!isWord) {
+        return part;
+      }
+
+      // If it IS a word and is short (2 letters or less), reveal it completely
+      // This handles short words like "at", "is", "a"
+      if (part.length <= 2) {
+        return part;
+      }
+      
+      // If it's a longer word, reveal the first 2 letters
+      const firstTwo = part.substring(0, 2);
+      const underscores = "_".repeat(part.length - 2);
+      
+      return firstTwo + underscores;
+    });
+
+    // 3. Join the parts back together (with no extra spaces)
+    const finalClue = clueParts.join('');
+
+    // 4. Display the final clue
+    clueDisplayArea.textContent = finalClue;
+    showClueModal.style.display = 'flex';
+  }
+
+  function closeClueModal() {
+    showClueModal.style.display = 'none';
+  }
+
+  // --- NEW: Key Word Preset Sidenav Functions ---
+  keyWordSidenavBtn.addEventListener('click', () => {
+    const currentWidth = keyWordSidenav.style.width;
+    const keyIcon = keyWordSidenavBtn.querySelector('i');
+    if (currentWidth === "350px") {
+        keyWordSidenav.style.width = "0";
+        keyWordSidenavBtn.style.right = "0";
+        if (keyIcon) keyIcon.style.transform = "rotate(0deg)";
+    } else {
+        keyWordSidenav.style.width = "350px";
+        keyWordSidenavBtn.style.right = "350px";
+        if (keyIcon) keyIcon.style.transform = "rotate(180deg)";
+        loadKeyWordPresets();
+    }
+  });
+
+  async function loadKeyWordPresets() {
+    keyWordPresetList.innerHTML = "<p>Loading presets...</p>";
+    const reviewingSetId = localStorage.getItem("reviewingSetId");
+    if (!reviewingSetId) {
+        keyWordPresetList.innerHTML = "<p>Error: No set loaded.</p>";
+        return;
+    }
+    try {
+        const presetRef = collection(db, "KeyWordPresets");
+        const q = query(presetRef, where("setId", "==", reviewingSetId));
+        const querySnap = await getDocs(q);
+
+        if (querySnap.empty) {
+            keyWordPresetList.innerHTML = "<p>No presets found for this set.</p>";
+            return;
+        }
+
+        keyWordPresetList.innerHTML = ""; // Clear "Loading..."
+        querySnap.forEach(doc => {
+            const preset = doc.data();
+            const presetDocId = doc.id;
+            const presetElement = document.createElement('div');
+            presetElement.className = 'preset-item';
+
+            const emailSpan = document.createElement('span');
+            emailSpan.className = 'preset-email';
+            const useButton = document.createElement('button');
+            useButton.className = 'preset-use-btn';
+
+            let emailDisplay = preset.userEmail;
+            const isCurrentUserPreset = auth.currentUser && auth.currentUser.email === preset.userEmail;
+
+            if (isCurrentUserPreset) emailDisplay = "You";
+            emailSpan.textContent = emailDisplay;
+            
+            if (activePresetId === presetDocId) {
+                useButton.textContent = "Using";
+                useButton.classList.add('active');
+            } else {
+                useButton.textContent = "Use Preset";
+            }
+            
+            useButton.addEventListener('click', () => {
+                if (useButton.classList.contains('active')) return;
+                applyKeyWordPreset(preset.keyWords, useButton, presetDocId);
+            });
+
+            presetElement.appendChild(emailSpan);
+            presetElement.appendChild(useButton);
+            keyWordPresetList.appendChild(presetElement);
+        });
+    } catch (error) {
+        console.error("Error loading key word presets:", error);
+        keyWordPresetList.innerHTML = "<p>Error loading presets.</p>";
+    }
+  }
+
+  function applyKeyWordPreset(keyWordsToApply, clickedButton, presetId) {
+    activePresetId = presetId; // Set the new active ID
+
+    // Reset all other buttons
+    const allPresetButtons = keyWordPresetList.querySelectorAll('.preset-use-btn.active');
+    allPresetButtons.forEach(btn => {
+        btn.classList.remove('active');
+        btn.textContent = "Use Preset";
+    });
+
+    // Set the clicked button to 'active'
+    if (clickedButton) {
+        clickedButton.classList.add('active');
+        clickedButton.textContent = "Using";
+    }
+
+    // Loop through all flashcards and apply/remove key words
+    flashcards.forEach((card) => {
+        const stringKey = String(card.originalIndex); // Use the card's originalIndex
+        if (keyWordsToApply && keyWordsToApply[stringKey]) {
+            card.keyWord = keyWordsToApply[stringKey]; // Apply preset
+        } else {
+            delete card.keyWord; // Remove any existing key word
+        }
+    });
+
+    // Refresh the current card display to show new highlights
+    updateDefinition(currentIndex);
+    
+    // Close the sidenav
+    const keyIcon = keyWordSidenavBtn.querySelector('i');
+    keyWordSidenav.style.width = "0";
+    keyWordSidenavBtn.style.right = "0";
+    if (keyIcon) keyIcon.style.transform = "rotate(0deg)";
+    
+    showCustomAlert("Key word preset applied!");
+  }
   // --- All original Test Mode functions remain below ---
-  
+  // --- Sidebar & Hint Functions ---
   function isImageUrl(text) { return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com"); }
-  
+  // ▼▼▼ ADD THIS NEW FUNCTION ▼▼▼
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+  }
+  // ▲▲▲ END OF NEW FUNCTION ▲▲▲
   function updateTitle() {
     const titleText = retryMode ? "Retry Mode: Mistakes Only" : currentReviewingSet.title || "Flashcard Quiz";
     document.getElementById('setTitle').textContent = titleText;
   }
-
+function normalizeString(str) {
+    if (typeof str !== 'string') return '';
+    return str
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, ''); // This regex removes anything that is NOT a letter or number
+  }
 function updateDefinition(index) {
-    console.log("updateDefinition called for index:", index); // Log start
+    if (document.getElementById("inputSuggestion")) document.getElementById("inputSuggestion").textContent = '';
     if (currentAudio) {
         currentAudio.pause();
         currentAudio = null;
     }
+    defElement.innerHTML = ''; // Clear old content
 
-    // Always clear the definition element first
-    defElement.innerHTML = '';
-
-    // ▼▼▼ MODIFIED LOGIC ▼▼▼
     const card = flashcards[index];
     if (!card) {
         defElement.textContent = "All done!";
@@ -564,40 +825,62 @@ function updateDefinition(index) {
         return;
     }
 
-    const textToShow = reverseMode ? card.term : card.definition;
-    const textToSpeak = textToShow; // Text for the speaker icon
-    // ▲▲▲ END OF MODIFIED LOGIC ▲▲▲
-    
-    const definitionIsImage = isImageUrl(textToShow); // Use textToShow
-    console.log("Is definition an image?", definitionIsImage); // Log image check
+    let textToShow = reverseMode ? card.term : card.definition;
+    const textToSpeak = textToShow;
+    const definitionIsImage = isImageUrl(textToShow);
+
+    // --- NEW: Key Word Highlighting Logic ---
+    const keyWord = card.keyWord; // This is the object { text: "...", index: ... }
+
+    // ▼▼▼ ADD THIS LOG ▼▼▼
+    console.log(`DEBUG 3: updateCard(index ${index}). KeyWord is:`, keyWord);
+    // ▲▲▲ END OF LOG ▲▲▲
+
+    let definitionHasHighlight = false;
+
+        if (keyWord && typeof keyWord === 'object' && keyWord.text && keyWord.index !== undefined && !definitionIsImage && !reverseMode) {
+            const keyWordText = keyWord.text;
+            const startIndex = keyWord.index;
+            const endIndex = startIndex + keyWordText.length;
+
+            if (textToShow.substring(startIndex, endIndex) === keyWordText) {
+                // It matches! Build the highlight using substring
+                const beforeText = textToShow.substring(0, startIndex);
+                const afterText = textToShow.substring(endIndex);
+                textToShow = `${beforeText}<span class="highlighted-key-word">${keyWordText}</span>${afterText}`;
+                definitionHasHighlight = true;
+                
+            } else {
+                // ▼▼▼ ADD THIS FALLBACK BLOCK ▼▼▼
+                // Mismatch! The definition may have been edited.
+                // Fall back to highlighting just the FIRST match (no 'g' flag).
+                console.warn("Key word index mismatch. Highlighting first match.");
+                const escapedKeyWord = escapeRegExp(keyWord.text);
+                const regex = new RegExp(`(${escapedKeyWord})`, 'i'); // 'i' = case-insensitive, NO 'g'
+                if (textToShow.match(regex)) {
+                  textToShow = textToShow.replace(regex, `<span class="highlighted-key-word">$1</span>`);
+                  definitionHasHighlight = true;
+                }
+                // ▲▲▲ END OF FALLBACK BLOCK ▲▲▲
+            }
+        }
+        // --- END of Highlighting Logic ---
 
     if (definitionIsImage) {
-        console.log("Setting definition as image:", textToShow);
         const img = document.createElement('img');
         img.src = textToShow;
         img.alt = "Definition Image";
         defElement.appendChild(img);
     } else {
-        console.log("Setting definition as text:", textToShow);
-        // Create a text node for the definition content
-        const textNode = document.createTextNode(textToShow);
-        defElement.appendChild(textNode); // Add the text first
-
-        console.log("Attempting to add speaker icon...");
-        try {
-            const newIcon = createSpeakerIcon(textToSpeak); // Use textToSpeak
-            if (newIcon) {
-                 defElement.appendChild(newIcon); // Add the icon AFTER the text
-                 console.log("Speaker icon added successfully."); // Log success
-            } else {
-                 console.error("createSpeakerIcon returned null or undefined.");
-            }
-        } catch (e) {
-            console.error("Error adding speaker icon:", e); // Log any error during append
+        if (definitionHasHighlight) {
+            defElement.innerHTML = textToShow; // Use innerHTML to render the span
+        } else {
+            defElement.textContent = textToShow; // Use textContent for plain text
         }
+        defElement.appendChild(createSpeakerIcon(textToSpeak));
     }
     updateDotTracker(index, flashcards.length);
-}
+  }
   async function saveMistakeToFirebase(card) {
     const user = auth.currentUser; if (!user) return;
     const title = currentReviewingSet.title || "Untitled Set";
@@ -626,6 +909,7 @@ function updateDefinition(index) {
   }
 
 async function submitAnswer() {
+   if (document.getElementById("inputSuggestion")) document.getElementById("inputSuggestion").textContent = '';
     if (currentAudio) {
         currentAudio.pause();
         currentAudio = null;
@@ -636,8 +920,15 @@ async function submitAnswer() {
     const currentCard = flashcards[currentIndex];
 
     // ▼▼▼ MODIFIED LOGIC ▼▼▼
-    const correctAnswer = reverseMode ? currentCard.definition : currentCard.term;
-    const isCorrect = input.toLowerCase() === correctAnswer.toLowerCase();
+const correctAnswer = reverseMode ? currentCard.definition : currentCard.term;
+
+    // --- START OF CHANGES ---
+    // We now use the normalizeString function on both the input and the answer
+    const normalizedInput = normalizeString(input);
+    const normalizedAnswer = normalizeString(correctAnswer);
+
+    const isCorrect = normalizedInput === normalizedAnswer && normalizedInput !== '';
+    // --- END OF CHANGES ---
     // ▲▲▲ END OF MODIFIED LOGIC ▲▲▲
 
     if (isCorrect) {
@@ -805,6 +1096,44 @@ if (currentAudio) {
   }
 
   termInput.addEventListener("keypress", e => { if (e.key === "Enter") { e.preventDefault(); submitAnswer(); } });
+termInput.addEventListener("input", () => {
+    const suggestionSpan = document.getElementById("inputSuggestion");
+    const mirror = document.getElementById("inputMirror"); // ◄◄◄ NEW
+    
+    // Exit if elements don't exist or no card is loaded
+    if (!flashcards[currentIndex] || !suggestionSpan || !mirror) return;
+
+    const currentInput = termInput.value;
+
+    // --- Start of new positioning logic ---
+    
+    // 1. Update the mirror's text so we can measure it
+    mirror.textContent = currentInput; 
+    
+    // 2. Measure the rendered width of the mirror text
+    const textWidth = mirror.offsetWidth; 
+    
+    // 3. Set the 's' position: (input's left padding) + (text width) + (small gap)
+    // We hard-code '15' because it matches the 'left: 15px' in the CSS
+    suggestionSpan.style.left = (15 + textWidth + 2) + 'px'; 
+
+    // --- End of new positioning logic ---
+
+    // Get the current correct answer
+    const currentCard = flashcards[currentIndex];
+    const correctAnswer = reverseMode ? currentCard.definition : currentCard.term;
+
+    // Normalize both
+    const normalizedInput = normalizeString(currentInput);
+    const normalizedAnswer = normalizeString(correctAnswer);
+
+    // Check for the "plural" case
+    if (normalizedAnswer === normalizedInput + 's' && normalizedInput !== '') {
+      suggestionSpan.textContent = 's';
+    } else {
+      suggestionSpan.textContent = '';
+    }
+  });
   document.addEventListener('keydown', function(event) {
   // Checks if the alert is visible and the Enter key was pressed
   if (alertBox.style.display === 'flex' && event.key === 'Enter') {
@@ -833,6 +1162,12 @@ reverseToggle.addEventListener("change", (event) => {
       reverseInfoModal.style.display = 'none';
     }
   });
+// --- New "Show Clue" Listeners ---
+  showClueBtn.addEventListener('click', showClue);
+  closeShowClueBtn.addEventListener('click', closeClueModal);
+  showClueModal.addEventListener('click', (event) => {
+    if (event.target === showClueModal) { closeClueModal(); }
+  });
   // Make functions available to HTML onclick attributes
   window.submitAnswer = submitAnswer;
   window.closeCustomAlert = closeCustomAlert;
@@ -841,6 +1176,9 @@ reverseToggle.addEventListener("change", (event) => {
   window.goBackToNormal = goBackToNormal;
   window.clearAllMistakes = clearAllMistakes;
   window.navigateToMode = navigateToMode;
+
+window.showClue = showClue;
+  window.closeClueModal = closeClueModal;
 </script>
 <script type="module" src="xpTracker.js"></script>
 
