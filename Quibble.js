@@ -2,7 +2,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth
 import { 
     getFirestore, doc, getDoc, collection, getDocs, query, where, 
     addDoc, updateDoc, arrayUnion, onSnapshot, deleteDoc, serverTimestamp,
-    setDoc, increment
+    setDoc, increment, runTransaction // <-- ADDED THIS
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-storage.js";
 import { db } from "./firebaseinit.js";
@@ -114,6 +114,7 @@ let allFlashcardSets = []; // <-- NEW: To store set data
 window.previousPlayerEmails = new Set(); // <-- ADD THIS
 window.gameLoopId = null;
 window.currentNormalizedAnswer = "";
+let lastPlayersJSON = "";
 // --- Modal Controls ---
 
 // --- UPDATED: createLobbyBtn Listener ---
@@ -162,6 +163,7 @@ createLobbyBtn.addEventListener('click', async () => {
 
         currentLobbyId = lobbyRef.id; 
         window.hostLobbyId = currentLobbyId;
+        lastPlayersJSON = "";
 
         // 2. Update the modal UI
         lobbyModalTitle.textContent = "Lobby Settings";
@@ -340,6 +342,7 @@ auth.onAuthStateChanged(user => {
                 const lobbyData = lobbyDoc.data(); // <-- Get lobby data
                 currentLobbyId = lobbyDoc.id;
                 window.hostLobbyId = currentLobbyId;
+                lastPlayersJSON = "";
                 
                 console.log("Existing lobby found:", currentLobbyId);
                 
@@ -885,61 +888,108 @@ if (lobbyData.gameMode === 'learn') {
         selectTimerDropdown.value = lobbyData.timer || "5"; 
         selectGameModeDropdown.value = lobbyData.gameMode || "test";
 
-        lobbyScoreboard.innerHTML = '';
-        if (lobbyData.players && lobbyData.players.length > 0) {
-            lobbyData.players.forEach(player => {
-                const li = document.createElement('li');
-                const readyIcon = player.isReady ? 
-                    '<i class="fa-solid fa-circle-check" style="color: #4ade80;"></i>' : 
-                    '<i class="fa-solid fa-circle-xmark" style="color: #999;"></i>';
-                li.innerHTML = `<span>${readyIcon} ${player.username}</span> <strong>${player.score}</strong>`;
-                lobbyScoreboard.appendChild(li);
-            });
-        } else {
-            lobbyScoreboard.innerHTML = '<li class="empty-slot">Waiting for players...</li>';
-        }
-
-        lobbyAvatars.innerHTML = '';
-        modalPlayerList.innerHTML = ''; 
+// --- NEW: Only re-render if players changed ---
+        const currentPlayersJSON = JSON.stringify(lobbyData.players);
         
-        if (lobbyData.players) {
-            lobbyData.players.forEach(player => {
-                const sidebarAvatar = document.createElement('div');
-                sidebarAvatar.className = 'avatar-circle';
-                const modalAvatar = document.createElement('div');
-                modalAvatar.className = 'avatar-circle';
-                
-                if (player.isReady) {
-                    sidebarAvatar.style.borderColor = "#4ade80"; 
-                    modalAvatar.style.borderColor = "#4ade80";
-                }
-                
-                const avatarRef = ref(storage, `avatars/${player.email}`);
-                getDownloadURL(avatarRef)
-                    .then(url => {
-                        sidebarAvatar.style.backgroundImage = `url(${url})`;
-                        modalAvatar.style.backgroundImage = `url(${url})`;
-                    })
-                    .catch(err => {
-                        console.warn(`No avatar found for ${player.email}`);
-                    });
-                
-                lobbyAvatars.appendChild(sidebarAvatar);
-                const playerItem = document.createElement('div');
-                playerItem.className = 'modal-player-item';
-                playerItem.appendChild(modalAvatar);
+        if (currentPlayersJSON !== lastPlayersJSON) {
+            lastPlayersJSON = currentPlayersJSON;
 
-                if (player.email !== hostEmail) {
-                    const kickBtn = document.createElement('button');
-                    kickBtn.className = 'kick-player-btn';
-                    kickBtn.innerHTML = '&times;';
-                    kickBtn.title = `Kick ${player.username}`;
-                    kickBtn.addEventListener('click', () => kickPlayer(player.email));
-                    playerItem.appendChild(kickBtn);
+            // 1. Render Scoreboard
+            lobbyScoreboard.innerHTML = '';
+            if (lobbyData.players && lobbyData.players.length > 0) {
+                lobbyData.players.forEach(player => {
+                    const li = document.createElement('li');
+                    const readyIcon = player.isReady ? 
+                        '<i class="fa-solid fa-circle-check" style="color: #4ade80;"></i>' : 
+                        '<i class="fa-solid fa-circle-xmark" style="color: #999;"></i>';
+                    li.innerHTML = `<span>${readyIcon} ${player.username}</span> <strong>${player.score}</strong>`;
+                    lobbyScoreboard.appendChild(li);
+                });
+            } else {
+                lobbyScoreboard.innerHTML = '<li class="empty-slot">Waiting for players...</li>';
+            }
+
+            // 2. Render Avatars & Modal List
+           // 2. Render Avatars (SMART UPDATE - Prevents Flicker)
+            // We do NOT clear lobbyAvatars.innerHTML here.
+            
+            // Always clear modal list (it's hidden usually, so flicker doesn't matter there)
+            modalPlayerList.innerHTML = ''; 
+            
+            const currentAvatarIds = new Set();
+
+            if (lobbyData.players) {
+                lobbyData.players.forEach(player => {
+                    // --- A. SIDEBAR AVATARS (Smart Logic) ---
+                    // Create a safe ID for the element based on email
+                    const safeEmailId = player.email.replace(/[^a-zA-Z0-9]/g, '');
+                    const avatarElementId = `sidebar-avatar-${safeEmailId}`;
+                    currentAvatarIds.add(avatarElementId);
+
+                    let sidebarAvatar = document.getElementById(avatarElementId);
+
+                    // If avatar doesn't exist yet, create it and fetch image
+                    if (!sidebarAvatar) {
+                        sidebarAvatar = document.createElement('div');
+                        sidebarAvatar.className = 'avatar-circle';
+                        sidebarAvatar.id = avatarElementId;
+                        lobbyAvatars.appendChild(sidebarAvatar);
+
+                        // Only fetch the image URL once when creating
+                        const avatarRef = ref(storage, `avatars/${player.email}`);
+                        getDownloadURL(avatarRef)
+                            .then(url => {
+                                sidebarAvatar.style.backgroundImage = `url(${url})`;
+                            })
+                            .catch(err => { /* Ignore missing avatars */ });
+                    }
+
+                    // Always update the border/ready status (this is instant, no flicker)
+                    if (player.isReady) {
+                        sidebarAvatar.style.borderColor = "#4ade80"; 
+                    } else {
+                        sidebarAvatar.style.borderColor = ""; 
+                    }
+
+                    // --- B. MODAL PLAYER LIST (Standard Rebuild) ---
+                    // We rebuild this every time to ensure Kick buttons work correctly
+                    const playerItem = document.createElement('div');
+                    playerItem.className = 'modal-player-item';
+                    
+                    const modalAvatar = document.createElement('div');
+                    modalAvatar.className = 'avatar-circle';
+                    if (player.isReady) modalAvatar.style.borderColor = "#4ade80";
+                    
+                    // We have to re-fetch/set bg for modal (or you could cache URLs globally)
+                    // Since modal is usually closed, this performance hit is negligible
+                    const avatarRef = ref(storage, `avatars/${player.email}`);
+                    getDownloadURL(avatarRef).then(url => {
+                        modalAvatar.style.backgroundImage = `url(${url})`;
+                    }).catch(() => {});
+
+                    playerItem.appendChild(modalAvatar);
+
+                    if (player.email !== hostEmail) {
+                        const kickBtn = document.createElement('button');
+                        kickBtn.className = 'kick-player-btn';
+                        kickBtn.innerHTML = '&times;';
+                        kickBtn.title = `Kick ${player.username}`;
+                        kickBtn.addEventListener('click', () => kickPlayer(player.email));
+                        playerItem.appendChild(kickBtn);
+                    }
+                    modalPlayerList.appendChild(playerItem);
+                });
+            }
+
+            // Cleanup: Remove avatars of players who left the lobby
+            const existingAvatars = lobbyAvatars.querySelectorAll('.avatar-circle');
+            existingAvatars.forEach(avatar => {
+                if (!currentAvatarIds.has(avatar.id)) {
+                    avatar.remove();
                 }
-                modalPlayerList.appendChild(playerItem);
             });
         }
+        // --- END NEW ---
         
         const playerEmails = lobbyData.players.map(p => p.email);
         const invitedEmails = lobbyData.invited || [];
@@ -1038,11 +1088,10 @@ if (lobbyData.gameMode === 'learn') {
         }
 
         // --- Chat Logic ---
-        // --- Chat Logic ---
         chatMessages.innerHTML = ''; 
         const chat = lobbyData.chat || [];
         chat.forEach(message => {
-            addChatMessageToUI(message);
+            addChatMessageToUI(message, lobbyData.players); // <--- NEW: Pass players
         });
         
         // --- NEW: Host checks all chat messages for answers ---
@@ -1152,9 +1201,14 @@ function handleCountdown(lobbyData) {
         if (hostEmail === lobbyData.host.email) {
             // Host transitions to the question phase
             console.log("Countdown finished, host updating to 'question'");
+            
+            // --- BUG FIX: Generate choices once and save them ---
+            const choices = generateChoicesForRound(lobbyData.flashcards, 0); // Start at index 0
+            
             updateDoc(doc(db, "quibble_lobbies", currentLobbyId), {
                 status: 'question',
-                gameStateTimestamp: serverTimestamp()
+                gameStateTimestamp: serverTimestamp(),
+                currentChoices: choices // <-- Save to DB
             }).catch(e => console.error("Error updating to question:", e));
         }
     } else {
@@ -1237,11 +1291,16 @@ function handleShowQuestion(lobbyData) {
                     window.currentNormalizedAnswer = "";
                     // --- Go to next question ---
                     console.log("Time's up, loading next question");
+                    
+                    // --- BUG FIX: Generate choices for NEXT card and save them ---
+                    const choices = generateChoicesForRound(lobbyData.flashcards, nextCardIndex);
+
                     updateDoc(doc(db, "quibble_lobbies", currentLobbyId), {
-                        status: 'question', // Stay in question state
-                        currentCardIndex: nextCardIndex, // Go to next card
-                        gameStateTimestamp: serverTimestamp(), // Reset timer
-                        currentQuestionAnswers: []
+                        status: 'question', 
+                        currentCardIndex: nextCardIndex, 
+                        gameStateTimestamp: serverTimestamp(),
+                        currentQuestionAnswers: [],
+                        currentChoices: choices // <-- Save to DB
                     }).catch(e => console.error("Error updating to next question:", e));
                 } else {
                     // --- Game Over ---
@@ -1265,19 +1324,25 @@ function handleShowQuestion(lobbyData) {
                         // === 2. MULTIPLAYER MODE (Standard Logic) ===
                         else {
                             const sortedPlayers = [...lobbyData.players].sort((a, b) => b.score - a.score);
+                            const highestScore = sortedPlayers.length > 0 ? sortedPlayers[0].score : 0;
                             
-                            // Check for a valid winner (score > 0)
-                            const winner = (sortedPlayers.length > 0 && sortedPlayers[0].score > 0) ? sortedPlayers[0] : null;
+                            // Find ALL players who have the highest score (must be > 0)
+                            const winners = sortedPlayers.filter(p => p.score === highestScore && p.score > 0);
 
-                            if (winner) {
-                                console.log(`Winner is ${winner.username} with ${winner.score} points`);
+                            if (winners.length > 0) {
+                                console.log(`Winners found: ${winners.map(w => w.username).join(', ')}`);
                                 
-                                // Increment 'quibblwinner' collection
-                                await incrementWinnerWins(winner.email);
+                                // 1. Increment 'quibblwinner' for EVERY winner
+                                for (const winner of winners) {
+                                    await incrementWinnerWins(winner.email);
+                                }
 
-                                // Add XP for all players
+                                // 2. Distribute XP
                                 for (const player of lobbyData.players) {
-                                    if (player.email === winner.email) {
+                                    // Check if this player is in the winners array
+                                    const isAWinner = winners.some(w => w.email === player.email);
+
+                                    if (isAWinner) {
                                         console.log(`Adding 1000 XP to winner ${player.email}`);
                                         await addXP(1000, player.email); // Winner XP
                                     } else {
@@ -1289,7 +1354,6 @@ function handleShowQuestion(lobbyData) {
                                 console.log("No winner or all scores are 0. Giving all players 300 XP.");
                                 // Give all players non-winner XP
                                 for (const player of lobbyData.players) {
-                                    console.log(`Adding 300 XP to non-winner ${player.email}`);
                                     await addXP(300, player.email);
                                 }
                             }
@@ -1321,32 +1385,30 @@ function handleShowQuestion(lobbyData) {
     
     gameLoopId = requestAnimationFrame(updateTimerBar);
 }
-// --- NEW: Sends a user message to the lobby chat ---
-// --- UPDATED: Sends user message and checks for correct answer (HOST) ---
 // --- UPDATED: Sends user message and checks for correct answer (HOST) ---
 async function sendUserMessage(lobbyId, text) {
-    
-    // --- END ADD ---
-    if (!lobbyId || !text) return;
+    if (!lobbyId || !text) return false;
     const lobbyRef = doc(db, "quibble_lobbies", lobbyId);
 
-    // 1. Check for correct answer FIRST
     try {
-        const lobbySnap = await getDoc(lobbyRef);
-        if (!lobbySnap.exists()) return;
-        const lobbyData = lobbySnap.data();
-// --- ADD THIS CHECK ---
-        // If user is no longer in playerEmails, stop all actions.
+        // --- FIX START: Use the VISUAL data to check answer ---
+        let lobbyData = window.currentLobbyDataForRender;
+        if (!lobbyData) {
+            const lobbySnap = await getDoc(lobbyRef);
+            if (!lobbySnap.exists()) return false;
+            lobbyData = lobbySnap.data();
+        }
+
+        // If user is no longer in playerEmails, stop.
         if (!lobbyData.playerEmails || !lobbyData.playerEmails.includes(hostEmail)) {
             console.warn("User is not in lobby, cannot send message.");
-            return; 
+            return false; 
         }
-        // --- END OF ADDED CHECK ---
 
-        // --- UPDATED: Only check for answers in "test" mode ---
+        // Only check for answers in "test" mode + question phase
         if (lobbyData.status === 'question' && lobbyData.gameMode === 'test') {
             const currentCard = lobbyData.flashcards[lobbyData.currentCardIndex];
-            if (!currentCard) return;
+            if (!currentCard) return false;
 
             const normalizedGuess = normalizeText(text);
             const normalizedAnswer = normalizeText(currentCard.term);
@@ -1354,31 +1416,83 @@ async function sendUserMessage(lobbyId, text) {
             if (normalizedGuess === normalizedAnswer) {
                 // Correct answer!
                 
-                // Check if host already answered
+                // --- FIX: Check if host already answered ---
                 if (lobbyData.currentQuestionAnswers.includes(hostEmail)) {
-                    showCustomAlert("You've already answered this question!"); // <-- FIX 3
-                    return; // Stop, don't send message
+                    // ... (This part you already have correct) ...
+                    addChatMessageToUI({ type: 'system', text: "You have already answered this question.", timestamp: new Date() }, lobbyData.players);
+                    const chatContainer = document.getElementById('mainChatMessages');
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    return false; 
                 }
+                // -------------------------------------------
+
+                const targetCardIndex = lobbyData.currentCardIndex; // <--- 1. CAPTURE THE INDEX
+                
+                // --- OPTIMISTIC UI ... (Keep your existing UI code here) ...
+                triggerInstantFeedback();
+                const optimisticMsg = { type: 'system', text: `${hostUsername} got the correct answer!`, timestamp: new Date() };
+                addChatMessageToUI(optimisticMsg, lobbyData.players);
+                const chatContainer = document.getElementById('mainChatMessages');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
 
                 // Update the score in the players array
-                const updatedPlayers = lobbyData.players.map(player => {
-                    if (player.email === hostEmail) {
-                        player.score += 1; // Add 1 point
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const freshDoc = await transaction.get(lobbyRef);
+                        if (!freshDoc.exists()) throw "Lobby missing";
+                        const freshData = freshDoc.data();
+
+                        // --- 2. CRITICAL FIX: Abort if round changed ---
+                        if (freshData.currentCardIndex !== targetCardIndex) {
+                            throw "Round Changed";
+                        }
+                        // ----------------------------------------------
+
+                        if (freshData.currentQuestionAnswers.includes(hostEmail)) {
+                            throw "Already answered"; 
+                        }
+
+                        const updatedPlayers = freshData.players.map(p => {
+                            if (p.email === hostEmail) return { ...p, score: p.score + 1 };
+                            return p;
+                        });
+
+                        const sysMsg = {
+                            type: 'system', text: `${hostUsername} got the correct answer!`, timestamp: new Date()
+                        };
+
+                        transaction.update(lobbyRef, {
+                            players: updatedPlayers,
+                            currentQuestionAnswers: [...freshData.currentQuestionAnswers, hostEmail],
+                            chat: arrayUnion(sysMsg) // <--- 3. OPTIMIZATION: Use arrayUnion to prevent conflict
+                        });
+                    });
+                    
+                    await addXP(50);
+                    return true; // Success
+                    
+                } catch (e) {
+                    // --- 4. HANDLE THE "TOO LATE" ERROR ---
+                    if (e === "Round Changed") {
+                        console.log("Answer too late, round changed.");
+                        // Show the system notification for "Too Late"
+                        addChatMessageToUI({
+                            type: 'system',
+                            text: "Time ran out! Your answer was too late.",
+                            timestamp: new Date()
+                        }, lobbyData.players);
+                        const chatContainer = document.getElementById('mainChatMessages');
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                        return false; // Keep text in input so they can try again if they want
+                    } else if (e !== "Already answered") {
+                        console.error("Transaction error: ", e);
                     }
-                    return player;
-                });
-await addXP(50); // <-- ADD THIS LINE (25 XP)
-                // Announce and update in Firestore
-                sendSystemMessage(lobbyId, `${hostUsername} got the correct answer!`); // <-- FIX 1
-                await updateDoc(lobbyRef, {
-                    players: updatedPlayers,
-                    currentQuestionAnswers: arrayUnion(hostEmail)
-                });
-                return; // Stop, don't send the answer to chat
+                }
+                return true; 
             }
         }
     } catch (e) {
-        console.error("Error checking answer: ", e);
+        if (e !== "Already answered") console.error("Error checking answer: ", e);
     }
 
     // 2. If not a correct answer, send the user's chat message
@@ -1393,6 +1507,7 @@ await addXP(50); // <-- ADD THIS LINE (25 XP)
     } catch (e) {
         console.error("Error sending message: ", e);
     }
+    return true; // <-- RETURN TRUE: Message sent, clear input
 }
 // --- NEW: Color Hashing for Chat ---
 const chatUsernameColors = [
@@ -1429,9 +1544,26 @@ async function sendSystemMessage(lobbyId, text) {
         console.error("Error sending system message: ", e);
     }
 }
-
+// 15 Fixed Colors for Slots
+const SLOT_COLORS = [
+    '#FF5252', // Red
+    '#00FA9A', // Pink
+    '#E040FB', // Purple
+    '#7C4DFF', // Deep Purple
+    '#536DFE', // Indigo
+    '#448AFF', // Blue
+    '#40C4FF', // Light Blue
+    '#18FFFF', // Cyan
+    '#64FFDA', // Teal
+    '#69F0AE', // Green
+    '#B2FF59', // Light Green
+    '#EEFF41', // Lime
+    '#FFFF00', // Yellow
+    '#FFD740', // Amber
+    '#FF6E40'  // Deep Orange
+];
 // --- NEW: Renders a message object to the chat UI ---
-function addChatMessageToUI(message) {
+function addChatMessageToUI(message, players = []) {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message';
 
@@ -1439,15 +1571,24 @@ function addChatMessageToUI(message) {
         msgDiv.classList.add('system');
         msgDiv.textContent = message.text;
     } else {
-        // --- NEW: Hashing logic ---
-        const hash = stringToHash(message.username);
-        const color = chatUsernameColors[hash % chatUsernameColors.length];
+        // 1. Find the player's index (Slot)
+        const playerIndex = players.findIndex(p => p.username === message.username);
+        
+        // 2. Pick color based on slot (Index % 15)
+        let color;
+        if (playerIndex !== -1) {
+            color = SLOT_COLORS[playerIndex % SLOT_COLORS.length];
+        } else {
+            // Fallback if player left or not found (Grey)
+            color = '#aaaaaa'; 
+        }
 
-        // --- NEW: Hide correct answers ---
         const normalizedText = normalizeText(message.text);
         if (window.currentNormalizedAnswer && normalizedText === window.currentNormalizedAnswer) {
+            // Correct syntax: style="color: ..."
             msgDiv.innerHTML = `<strong style="color: ${color};">${message.username}:</strong> <em style="color:#888;">[correct answer]</em>`;
         } else {
+            // Correct syntax: style="color: ..."
             msgDiv.innerHTML = `<strong style="color: ${color};">${message.username}:</strong> ${message.text}`;
         }
     }
@@ -1456,6 +1597,49 @@ function addChatMessageToUI(message) {
 // --- Event Listeners ---
 // --- UPDATED: selectSetDropdown Listener ---
 // --- Event Listeners ---
+// --- NEW: Input Mirror & Suggestion Logic (Test Mode Only) ---
+const chatInputMirror = document.getElementById('chatInputMirror');
+const chatInputSuggestion = document.getElementById('chatInputSuggestion');
+
+mainChatInput.addEventListener('input', () => {
+    // 1. Reset Suggestion
+    if (chatInputSuggestion) chatInputSuggestion.textContent = '';
+
+    // 2. Check Game Mode & Status (Must be Test Mode + Question Phase)
+    const lobbyData = window.currentLobbyDataForRender;
+    if (!lobbyData || lobbyData.gameMode !== 'test' || lobbyData.status !== 'question') {
+        return; 
+    }
+
+    // 3. Get Current Data
+    const currentCard = lobbyData.flashcards[lobbyData.currentCardIndex];
+    if (!currentCard) return;
+
+    const currentInput = mainChatInput.value;
+    
+    // 4. Update Mirror to measure width
+    // 4. Update Mirror to measure width
+    if (chatInputMirror) {
+        chatInputMirror.textContent = currentInput;
+        // Measure width: Mirror width + padding-left (20px) + border/adjustment (2px)
+        // Note: 20px must match CSS .chat-input-area input padding
+        const textWidth = chatInputMirror.offsetWidth;
+        
+        // We subtract 20px to remove the Right Padding included in offsetWidth
+        chatInputSuggestion.style.left = (textWidth - 20) + 'px'; 
+    }
+
+    // 5. Logic to show 's'
+    const correctAnswer = currentCard.term;
+    const normalizedInput = normalizeText(currentInput);
+    const normalizedAnswer = normalizeText(correctAnswer);
+
+    // Check: If Answer is exactly Input + 's'
+    if (normalizedAnswer === normalizedInput + 's' && normalizedInput !== '') {
+        chatInputSuggestion.textContent = 's';
+    }
+});
+// --- END NEW ---
 // --- NEW: Select Set Button Listener ---
 selectSetButton.addEventListener('click', () => {
     renderSetList(); // Render all sets
@@ -1629,35 +1813,41 @@ function renderEndGameScoreboard(players) {
     // Sort by score, descending
     const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
     
-    // --- NEW: Check for a valid winner (score > 0) ---
-    const winner = (sortedPlayers.length > 0 && sortedPlayers[0].score > 0) ? sortedPlayers[0] : null;
+    const highestScore = sortedPlayers.length > 0 ? sortedPlayers[0].score : 0;
+    // Identify ALL winners
+    const winners = sortedPlayers.filter(p => p.score === highestScore && p.score > 0);
 
-    if (winner) {
-        endGameWinnerMessage.textContent = `${winner.username} wins with ${winner.score} points!`;
+    // --- Set Title Message ---
+    if (winners.length === 1) {
+        endGameWinnerMessage.textContent = `${winners[0].username} wins with ${winners[0].score} points!`;
+    } else if (winners.length > 1) {
+        const winnerNames = winners.map(w => w.username).join(", ");
+        endGameWinnerMessage.textContent = `It's a tie! Winners: ${winnerNames} (${highestScore} pts)`;
     } else {
-        endGameWinnerMessage.textContent = "It's a draw! No winner this time.";
+        endGameWinnerMessage.textContent = "No points scored. No winners this time.";
     }
     
     endGameScoreboard.innerHTML = ''; // Clear list
 
     sortedPlayers.forEach((player, index) => {
         
-        // --- NEW: Determine XP Gained ---
-        let xpGained = 0; // Default
+        // --- Determine XP Gained ---
+        let xpGained = 0; 
         let isWinner = false;
 
         // Check for Solo Mode
         if (players.length === 1) {
             if (player.score > 0) {
-                xpGained = 300; // Solo Nerf: Max 300
-                isWinner = true; // Still visually a "winner" if they got points
+                xpGained = 300; // Solo Nerf
+                isWinner = true; 
             } else {
-                xpGained = 0;   // Solo Nerf: 0 if no score
+                xpGained = 0;   
             }
         } 
         // Multiplayer Mode
         else {
-            if (winner && player.email === winner.email) {
+            // Check if this specific player is inside the 'winners' array
+            if (winners.some(w => w.email === player.email)) {
                 xpGained = 1000;
                 isWinner = true;
             } else {
@@ -1675,7 +1865,6 @@ function renderEndGameScoreboard(players) {
         
         const winnerLabel = isWinner ? '<span class="winner-label">WINNER</span>' : '';
 
-        // --- UPDATED: Added player-xp-gain span ---
         li.innerHTML = `
             <div class="avatar-circle" id="endGameAvatar-${player.email}"></div>
             <span class="ready-status">${readyIcon}</span>
@@ -1837,13 +2026,17 @@ async function incrementWinnerWins(userEmail) {
     }
 }
 // --- NEW: Send Chat Button Listener ---
-sendChatBtn.addEventListener('click', () => {
+sendChatBtn.addEventListener('click', async () => {
     const text = chatInput.value.trim();
     if (text && currentLobbyId) {
-        sendUserMessage(currentLobbyId, text);
-        chatInput.value = '';
+        // Wait for result: true = clear, false = keep
+        const shouldClear = await sendUserMessage(currentLobbyId, text);
+        if (shouldClear) {
+            chatInput.value = '';
+        }
     }
 });
+
 // Also send on Enter key
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1879,6 +2072,7 @@ document.addEventListener('lobbyJoined', (e) => {
     
     // Set the currentLobbyId for the joined player
     currentLobbyId = joinedLobbyId; 
+    lastPlayersJSON = "";
 
     // Start listening to the lobby we just joined
     listenToLobby(joinedLobbyId);
@@ -2053,19 +2247,16 @@ function getWrongAnswers(lobbyData, correctAnswer) {
     return wrongTerms.slice(0, 3);
 }
 
-/** Renders the 4 multiple choice buttons */
 function renderLearnModeChoices(lobbyData) {
     const card = lobbyData.flashcards[lobbyData.currentCardIndex];
-    const correctAnswer = card.term;
-    const wrongAnswers = getWrongAnswers(lobbyData, correctAnswer);
+    
+    // --- BUG FIX: Use choices from DB ---
+    let choices = lobbyData.currentChoices;
 
-    // Ensure we have 4 choices, even if the deck is small
-    while (wrongAnswers.length < 3) {
-        wrongAnswers.push(`Wrong Answer ${wrongAnswers.length + 1}`);
+    // Fallback if choices aren't in DB yet (legacy/error prevention)
+    if (!choices || choices.length === 0) {
+        choices = generateChoicesForRound(lobbyData.flashcards, lobbyData.currentCardIndex);
     }
-
-    let choices = [correctAnswer, ...wrongAnswers];
-    choices = shuffleArray(choices); // Reuse your existing shuffle function
 
     const choiceButtons = choiceContainer.querySelectorAll('.choice-btn');
     
@@ -2074,8 +2265,8 @@ function renderLearnModeChoices(lobbyData) {
 
     choiceButtons.forEach((btn, index) => {
         btn.textContent = choices[index];
-        btn.className = 'choice-btn'; // Reset classes
-        btn.disabled = hasAnswered; // Disable if user already answered
+        btn.className = 'choice-btn'; 
+        btn.disabled = hasAnswered; 
 
         // Add click listener
         btn.onclick = () => handleLearnModeAnswer(choices[index], card, lobbyData);
@@ -2116,37 +2307,46 @@ async function handleLearnModeAnswer(selectedTerm, card, lobbyData) {
 
 /** Updates Firestore for a correct Learn Mode answer */
 async function submitLearnModeAnswer(lobbyData) {
-    // Check if user (host or guest) already answered
-    if (lobbyData.currentQuestionAnswers.includes(hostEmail)) {
-        console.log("User already answered this round.");
-        return;
-    }
+    const lobbyRef = doc(db, "quibble_lobbies", currentLobbyId);
 
     try {
-        await addXP(50); // Grant XP
-
-        // Update the score in the players array
-        const updatedPlayers = lobbyData.players.map(player => {
-            if (player.email === hostEmail) { // hostEmail is the current user's email
-                player.score += 1; // Add 1 point
+        await runTransaction(db, async (transaction) => {
+            const lobbyDoc = await transaction.get(lobbyRef);
+            if (!lobbyDoc.exists()) throw "Lobby does not exist!";
+            
+            const freshData = lobbyDoc.data();
+            
+            // Double check inside transaction
+            if (freshData.currentQuestionAnswers.includes(hostEmail)) {
+                return; // Already answered
             }
-            return player;
+
+            const updatedPlayers = freshData.players.map(player => {
+                if (player.email === hostEmail) {
+                    return { ...player, score: player.score + 1 };
+                }
+                return player;
+            });
+            
+            // Add system message
+            const newMessage = {
+                type: 'system',
+                text: `${hostUsername} got the correct answer!`,
+                timestamp: new Date()
+            };
+            const updatedChat = [...freshData.chat, newMessage];
+
+            transaction.update(lobbyRef, {
+                players: updatedPlayers,
+                chat: updatedChat,
+                currentQuestionAnswers: [...freshData.currentQuestionAnswers, hostEmail]
+            });
         });
-
-        const lobbyRef = doc(db, "quibble_lobbies", currentLobbyId);
-
-        // Announce and update in Firestore (Host only)
-        if (lobbyData.host.email === hostEmail) {
-            sendSystemMessage(currentLobbyId, `${hostUsername} got the correct answer!`);
-        }
         
-        await updateDoc(lobbyRef, {
-            players: updatedPlayers,
-            currentQuestionAnswers: arrayUnion(hostEmail) // Add user to answered list
-        });
-
+        await addXP(50); // Grant XP after transaction succeeds
+        
     } catch (e) {
-        console.error("Error submitting learn mode answer:", e);
+        console.error("Transaction failed: ", e);
     }
 }
 // --- END NEW Learn Mode Functions ---
@@ -2277,4 +2477,52 @@ tutorialSidenavBtns.forEach(btn => {
         }
     });
 });
+// --- NEW HELPER: Generate Choices ---
+function generateChoicesForRound(flashcards, cardIndex) {
+    const currentCard = flashcards[cardIndex];
+    const correctAnswer = currentCard.term;
+    
+    const allTerms = flashcards.map(card => card.term);
+    const wrongTerms = allTerms.filter(term => normalizeText(term) !== normalizeText(correctAnswer));
+    
+    // Shuffle wrong terms
+    for (let i = wrongTerms.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [wrongTerms[i], wrongTerms[j]] = [wrongTerms[j], wrongTerms[i]];
+    }
+    
+    const selectedWrong = wrongTerms.slice(0, 3);
+    while (selectedWrong.length < 3) {
+        selectedWrong.push(`Wrong Answer ${selectedWrong.length + 1}`);
+    }
+
+    let choices = [correctAnswer, ...selectedWrong];
+    // Shuffle the final set of 4
+    for (let i = choices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [choices[i], choices[j]] = [choices[j], choices[i]];
+    }
+    return choices;
+}
 // --- END NEW ---
+function triggerInstantFeedback() {
+    // 1. Clear Input immediately
+    const input = document.getElementById('mainChatInput');
+    input.value = ""; 
+    
+    // 2. Add Green Flash Class
+    input.classList.add('input-correct-flash');
+    setTimeout(() => input.classList.remove('input-correct-flash'), 500);
+
+    // 3. Create Floating Toast
+    const wrapper = document.querySelector('.chat-input-wrapper');
+    if (wrapper) {
+        const toast = document.createElement('div');
+        toast.className = 'correct-toast';
+        toast.innerHTML = '<i class="fa-solid fa-check"></i> Correct! (+50 XP)';
+        wrapper.appendChild(toast);
+
+        // Remove from DOM after animation finishes
+        setTimeout(() => toast.remove(), 1500);
+    }
+}

@@ -113,7 +113,12 @@
                 <div class="chat-message system">Welcome to Quibble!</div>
             </div>
             <div class="chat-input-area">
-                <input type="text" id="mainChatInput" placeholder="Type a message..." autocomplete="off">
+                <div class="chat-input-wrapper">
+                    <div id="chatInputMirror"></div>
+                    <input type="text" id="mainChatInput" placeholder="Type a message..." autocomplete="off">
+                    <span id="chatInputSuggestion"></span>
+                </div>
+                
                 <button id="mainSendChatBtn" class="modern-button">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>

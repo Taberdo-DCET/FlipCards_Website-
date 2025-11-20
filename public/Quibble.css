@@ -1,0 +1,2073 @@
+/* --- Import Base Fonts --- */
+@font-face {
+  font-family: 'Accasia';
+  src: url('Accasia_Demo.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Satoshi';
+  src: url('Satoshi-Black.ttf') format('truetype');
+}
+
+/* --- Base Body Styles --- */
+body {
+  background-color: #171717;
+  font-family: 'Satoshi', sans-serif;
+  color: white;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden; /* Prevents whole page from scrolling */
+}
+
+/* =========================== */
+/* === 3-COLUMN LAYOUT === */
+/* =========================== */
+.quibble-container {
+  display: grid;
+  grid-template-columns: 320px 1fr 320px;
+  height: 100vh;
+  gap: 20px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.left-sidenav,
+.right-sidenav,
+.main-content {
+  height: calc(100vh - 40px); /* Full height minus padding */
+  display: flex;
+  flex-direction: column;
+}
+
+.left-sidenav,
+.right-sidenav {
+  background-color: #1e1e1e;
+  border-radius: 20px;
+  padding: 25px;
+  box-sizing: border-box;
+  border: 1px solid #333;
+}
+
+.left-sidenav h3,
+.right-sidenav h3 {
+  color: #ffcf00;
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #333;
+}
+
+/* =========================== */
+/* === LEFT SIDENAV === */
+/* =========================== */
+.sidenav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.shop-title {
+  margin: 0;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.title-icon {
+  width: 28px; /* Match font-size */
+  height: 28px; /* Match font-size */
+  margin-right: 8px; /* Space between icon and text */
+  margin-top: 5px;
+}
+.home-btn {
+  padding: 12px 20px; /* Match other full-size buttons */
+  font-size: 1rem;    /* Match other full-size buttons */
+  background-color: #333;
+  margin-top: auto; /* This pushes it (and Leave) to the bottom */
+  margin-bottom: 9px; /* This adds space between Home and Leave */
+}
+.home-btn:hover {
+  background-color: #444;
+}
+
+.lobby-controls {
+  display: grid;
+ 
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.create-lobby-btn {
+  background-color: #ffcf00 !important;
+  color: #171717 !important;
+}
+.create-lobby-btn:hover {
+  background-color: #ffe066 !important;
+}
+.start-btn {
+  background-color: #e53e3e;
+  color: #fff;
+}
+.start-btn:hover {
+  background-color: #c53030;
+}
+
+.avatar-display h3 {
+  margin-bottom: 15px;
+}
+.avatar-circles {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  margin-bottom: 25px;
+  min-height: 44px; 
+  /* --- NEW: Enable Horizontal Scroll --- */
+  overflow-x: auto; 
+  overflow-y: hidden;
+  padding-bottom: 8px; /* Adds space so scrollbar doesn't overlap avatars */
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  /* --- NEW: Prevent Squishing --- */
+  flex-shrink: 0; 
+  border-radius: 50%;
+  background-color: #333;
+  border: 2px solid #555;
+  background-size: cover;
+  background-position: center;
+}
+
+.scoreboard {
+  flex-grow: 1; 
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+.scoreboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.scoreboard-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2a2a2a;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+.scoreboard-list li strong {
+  color: #ffcf00;
+  font-size: 1.1rem;
+}
+
+.scoreboard-list li.empty-slot {
+  background-color: transparent;
+  color: #666;
+  justify-content: center;
+  font-style: italic;
+}
+
+.leave-btn {
+  background-color: #e53e3e;
+  color: #fff;
+
+}
+.leave-btn:hover {
+  background-color: #c53030;
+}
+
+/* =========================== */
+/* === MAIN CONTENT === */
+/* =========================== */
+.main-content {
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.flashcard-container {
+  perspective: 1000px;
+  width: 100%;
+}
+.flashcard {
+  width: 100%;
+  height: 60vh;
+  border-radius: 25px;
+  position: relative;
+  transition: transform 0.4s;
+  transform-style: preserve-3d;
+  border: 1px solid #333;
+}
+.flashcard .front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background: #171717;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  box-sizing: border-box;
+  font-size: 2rem;
+  overflow-y: auto;
+  text-align: center;
+  position: relative; /* <-- ADD THIS */
+  flex-direction: column;
+}
+
+/* =========================== */
+/* === RIGHT SIDENAV (CHAT) === */
+/* =========================== */
+.right-sidenav h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.chat-messages {
+  flex-grow: 1;
+  background-color: #171717;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  overflow-y: auto;
+  border: 1px solid #333;
+}
+.chat-message {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+.chat-username {
+  color: #ffcf00; /* This uses your yellow accent color */
+  font-weight: bold;
+}
+.chat-message.system {
+  color: #aaa;
+  font-style: italic;
+}
+.chat-input-area {
+  display: flex;
+  gap: 10px;
+}
+.chat-input-area input {
+  flex-grow: 1;
+  background: #2a2a2a; 
+  border: 1px solid #444; 
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  border-radius: 12px; 
+  color: #ffffff;
+  font-family: 'Satoshi', sans-serif;
+}
+.chat-input-area input:focus {
+  outline: none;
+  border: 1px solid #ffcf00;
+}
+.chat-input-area .modern-button {
+  flex-shrink: 0;
+  width: 55px;
+}
+
+/* =========================== */
+/* === MODERN BUTTON (Base) === */
+/* =========================== */
+.modern-button {
+  background: #333; 
+  border: none; 
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 12px; 
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out; 
+  font-family: 'Satoshi', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.modern-button:hover {
+  background-color: #444; 
+}
+.modern-button:disabled {
+  background-color: #222;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.modern-button i {
+  color: #ffcf00;
+}
+.create-lobby-btn i,
+.ready-btn i {
+  color: #171717;
+}
+
+/* =========================== */
+/* === MODAL STYLES === */
+/* =========================== */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 10001;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+}
+.modal-box {
+  background-color: #1e1e1e;
+  border-radius: 20px;
+  border: 1px solid #000;
+  border-top: 4px solid #ffcf00;
+  transition: transform 0.3s ease-in-out;
+  transform: scale(0.95);
+  max-width: 800px;
+  width: 90%;
+  padding: 30px;
+  text-align: left; /* <-- CHANGED */
+  position: relative;
+}
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-overlay.visible .modal-box {
+  transform: scale(1);
+}
+.alert-modal-content {
+  text-align: center; /* <-- This overrides the rule above */
+  max-width: 450px;
+}
+.modal-info-icon {
+  font-size: 32px; /* <-- Resized to fit */
+  color: #ffcf00;
+  margin-bottom: 0; /* <-- CHANGED */
+  margin-right: 15px; /* <-- ADDED */
+}
+.modal-box h3 {
+  margin: 0; /* <-- CHANGED */
+  font-size: 1.8rem;
+  color: #ffcf00;
+  border-bottom: none;
+}
+.modal-header-left {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}
+.lobby-modal-controls {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px; /* <-- CHANGED from margin-bottom */
+}
+.lobby-modal-controls .modern-button {
+  flex: 1;
+}
+.ready-btn {
+  background-color: #ffcf00;
+  color: #171717;
+}
+.ready-btn:hover {
+  background-color: #ffe066;
+}
+
+.lobby-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  text-align: left;
+  /* --- ADDED styles to match invite list --- */
+  background-color: #1c1c1c;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 15px;
+}
+.setting-item {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 15px;
+}
+.setting-item label {
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.modern-select {
+  width: 100%;
+  background: #333; 
+  border: 1px solid #444; 
+  padding: 12px 20px;
+  font-size: 0.9rem;
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: 'Satoshi', sans-serif;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffcf00%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20128c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4l128-128c3.6-3.6%205.4-7.8%205.4-12.8%200-5-1.8-9.2-5.4-12.8z%22%2F%3E%3C%2Fsvg%3E');
+  background-repeat: no-repeat;
+  background-position: right 15px top 50%;
+  background-size: 12px;
+}
+.modern-select:focus {
+  outline: none;
+  border: 1px solid #ffcf00;
+}
+.modern-select:disabled {
+  background-color: #222;
+  color: #666;
+}
+
+.invite-container {
+  text-align: left;
+}
+.invite-container h4 {
+  color: #aaa;
+  font-size: 1rem;
+  margin: 0 0 10px 0;
+}
+.user-search-input {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: 'Satoshi', sans-serif;
+  margin-bottom: 10px;
+  box-sizing: border-box; /* Important for 100% width */
+}
+.user-search-input:focus {
+  outline: none;
+  border-color: #ffcf00;
+}
+.user-invite-list {
+  background-color: #1c1c1c; 
+  border: 1px solid #333; 
+  border-radius: 12px;
+  padding: 15px;
+  /* height: 200px; <-- REMOVED */
+  overflow-y: auto;
+}
+.user-invite-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2a2a2a;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.2s ease; /* <-- ADDED */
+}
+
+.user-invite-item:hover {
+  background-color: #333; /* <-- ADDED */
+}
+.user-invite-item .invite-btn {
+  background-color: #ffcf00;
+  color: #171717;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.user-invite-item .invite-btn:hover {
+  transform: scale(1.1);
+}
+.user-invite-item .invite-btn:disabled {
+  background-color: #2f4f2f; /* <-- CHANGED (Dark Green) */
+  color: #4ade80; /* <-- CHANGED (Light Green) */
+  transform: none;
+}
+
+/* --- Scrollbar --- */
+.scoreboard::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar,
+.user-invite-list::-webkit-scrollbar,
+.avatar-circles::-webkit-scrollbar { /* <-- ADDED HERE */
+  width: 8px;
+  height: 8px; /* <-- ADDED FOR HORIZONTAL SCROLL */
+}
+
+.scoreboard::-webkit-scrollbar-track,
+.chat-messages::-webkit-scrollbar-track,
+.user-invite-list::-webkit-scrollbar-track,
+.avatar-circles::-webkit-scrollbar-track { /* <-- ADDED HERE */
+  background: #1e1e1e; 
+}
+
+.scoreboard::-webkit-scrollbar-thumb,
+.chat-messages::-webkit-scrollbar-thumb,
+.user-invite-list::-webkit-scrollbar-thumb,
+.avatar-circles::-webkit-scrollbar-thumb { /* <-- ADDED HERE */
+  background-color: #444; 
+  border-radius: 10px;
+  border: 2px solid #1e1e1e;
+}
+
+.scoreboard::-webkit-scrollbar-thumb:hover,
+.chat-messages::-webkit-scrollbar-thumb:hover,
+.user-invite-list::-webkit-scrollbar-thumb:hover,
+.avatar-circles::-webkit-scrollbar-thumb:hover { /* <-- ADDED HERE */
+  background-color: #ffcf00;
+}
+
+/* --- Invite Modal Styles --- */
+.invite-modal-content p {
+  font-size: 1.1rem;
+  color: #ccc;
+  margin-bottom: 30px;
+}
+.invite-modal-content .lobby-modal-controls {
+  margin-bottom: 0;
+}
+
+/* =========================== */
+/* === CUSTOM ALERT STYLES === */
+/* =========================== */
+.alert-modal-content .modal-info-icon {
+  color: #ffcf00; /* Yellow for a neutral alert */
+  margin-bottom: 15px; /* <-- ADD THIS */
+  margin-right: 0; /* <-- ADD THIS to reset from lobby modal */
+}
+.alert-modal-content p {
+  font-size: 1.1rem;
+  color: #ccc;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+.alert-modal-content .lobby-modal-controls {
+  justify-content: center;
+}
+.alert-modal-content #customAlertOkBtn {
+  flex-grow: 0;
+  min-width: 120px;
+}
+
+/* --- ADD THIS NEW RULE --- */
+.alert-modal-content h3 {
+  margin: 0 0 25px 0; /* Restores the original h3 margin */
+}
+
+/* =========================== */
+/* === LOBBY STATUS BOX STYLES === */
+/* =========================== */
+.lobby-status-box {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 15px 20px;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-left: 50px;
+  
+  /* Hidden by default */
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.lobby-status-box.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.lobby-status-box p {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.95rem;
+}
+
+.lobby-status-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.small-btn {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  gap: 8px;
+}
+/* =========================== */
+/* === READY CONFIRM STYLES === */
+/* =========================== */
+#readyConfirmModal .modal-info-icon {
+  color: #ffcf00;
+}
+#readyConfirmModal #confirmReadyBtn {
+  flex-grow: 1; /* Make buttons equal width */
+}
+#readyConfirmModal #cancelReadyBtn {
+  flex-grow: 1;
+  background-color: #444;
+}
+#readyConfirmModal #cancelReadyBtn:hover {
+  background-color: #555;
+}
+/* =========================== */
+/* === MODAL CLOSE X BUTTON === */
+/* =========================== */
+.modal-close-x {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 2.5rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+.modal-close-x:hover {
+  color: #fff;
+}
+/* =========================== */
+/* === MAIN CONTENT TITLE === */
+/* =========================== */
+
+
+/* =========================== */
+/* === MAIN CONTENT TITLE === */
+/* =========================== */
+.main-title-container {
+  display: none; /* Hidden by default, JS will show it */
+  text-align: center;
+  
+  /* --- NEW POSITIONING --- */
+  position: absolute;
+  top: 4vh; /* 5% from the top of the main area */
+  left: 0;
+  right: 0;
+  width: 90%; /* Give it some padding */
+  margin: 0 auto; /* Center it */
+}
+
+.main-set-title-label {
+  font-size: 1rem;
+  color: #888;
+  display: block;
+  font-family: 'Satoshi', sans-serif;
+}
+
+.main-set-title {
+  font-size: 1.8rem;
+  color: #ffcf00;
+  margin: 0; /* Remove existing margins */
+  font-family: 'Satoshi', sans-serif;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* =========================== */
+/* === MODAL 2-COLUMN LAYOUT === */
+/* =========================== */
+.modal-body-columns {
+  display: flex;
+  gap: 25px;
+  text-align: left;
+}
+
+.modal-left-column {
+  flex: 1; /* Takes up 50% */
+  display: flex;
+  flex-direction: column;
+}
+.modal-left-column .lobby-settings {
+  flex-grow: 1; /* Pushes ready buttons to the bottom */
+}
+
+.modal-right-column {
+  flex: 1; /* Takes up 50% */
+  display: flex;
+  flex-direction: column;
+}
+.modal-right-column .invite-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.modal-right-column .user-invite-list {
+  flex-grow: 1; /* Makes list fill available space */
+  height: 205px; /* Set a specific height (250 - 45 for input) */
+}
+/* --- NEW: Set Select Button --- */
+.set-select-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  background: #333;
+  width: 100%;
+
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.set-select-button:hover {
+  background-color: #444;
+}
+.set-select-button:disabled {
+  background-color: #222;
+  color: #666;
+}
+.set-select-button span {
+  /* Truncate long text */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.set-select-button i {
+  color: #ffcf00;
+  font-size: 0.9rem;
+}
+
+/* --- NEW: Select Set Modal --- */
+.select-set-modal-content {
+  max-width: 500px; /* Make it smaller than lobby modal */
+}
+.set-list-container {
+  height: 300px; /* Give the set list a fixed height */
+}
+.set-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #2a2a2a;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+  border: 1px solid #2a2a2a;
+}
+.set-list-item:hover {
+  background-color: #333;
+  border-color: #ffcf00;
+}
+
+/* --- NEW STYLES FOR DESCRIPTION --- */
+.set-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Required for text-overflow */
+  margin-right: 15px; /* Space between text and card count */
+}
+
+.set-title {
+  font-weight: bold;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.set-description {
+  margin: 4px 0 0 0;
+  font-size: 0.85rem;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px; /* Adjust based on modal width to force truncation */
+}
+
+.set-count {
+  color: #999;
+  white-space: nowrap; /* Prevent wrapping */
+}
+/* =========================== */
+/* === MODAL PLAYER LIST === */
+/* =========================== */
+.modal-player-list-container {
+  margin-top: 20px;
+  text-align: left;
+}
+.modal-player-list-container h4 {
+  color: #aaa;
+  font-size: 1rem;
+  margin: 0 0 10px 0;
+}
+
+.modal-player-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background-color: #1c1c1c;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 10px;
+  min-height: 54px; /* Height for one row of avatars */
+}
+
+.modal-player-item {
+  position: relative;
+}
+
+/* Use the existing avatar-circle style */
+.modal-player-item .avatar-circle {
+  width: 40px;
+  height: 40px;
+}
+
+.kick-player-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: all 0.2s ease;
+}
+.kick-player-btn:hover {
+  background-color: #c53030;
+  transform: scale(1.1);
+}
+/* =========================== */
+/* === LOBBY STATUS BOX STYLES === */
+/* =========================== */
+
+
+/* This .visible class is added by JS */
+.lobby-status-box.visible {
+  opacity: 1;
+  
+  pointer-events: auto;
+}
+
+.lobby-collapse-btn {
+  position: absolute;
+  top: 22px;
+  left: 12px;
+  background: #444;
+  color: #aaa;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.8rem; /* <-- CHANGED */
+  font-weight: normal;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+.lobby-collapse-btn:hover {
+  background-color: #ff0000;
+  color: rgb(255, 255, 255);
+}
+
+.lobby-status-box p {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.95rem;
+}
+
+.lobby-status-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.small-btn {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  gap: 8px;
+}
+
+/* --- Collapsed State --- */
+.lobby-status-box.collapsed {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px);
+}
+
+.lobby-status-open-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999;
+  
+  /* Style as a small circle button */
+  background-color: #ffcf00;
+  color: #171717;
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  
+  /* Hidden by default */
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.lobby-status-open-btn.visible {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+.lobby-status-open-btn:hover {
+  background-color: #fff;
+}
+/* =========================== */
+/* === MAIN SETTINGS DISPLAY === */
+/* =========================== */
+.main-settings-display {
+  display: none; /* Hidden by default, JS will show it */
+  position: absolute;
+  top: 11vh; /* Positioned just below the title */
+  left: 0;
+  right: 0;
+  width: 90%;
+  margin: 10px auto;
+  
+  /* Flex styles */
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+
+  /* Text styles */
+  color: #888;
+  font-size: 0.9rem;
+  font-family: 'Satoshi', sans-serif;
+}
+.main-settings-display i {
+  color: #aaa;
+  margin-right: 4px;
+}
+.main-settings-display b {
+  color: #ccc;
+  font-weight: bold;
+}
+.settings-divider {
+  color: #444;
+  font-size: 1rem;
+}
+/* =========================== */
+/* === GAME COUNTDOWN & TIMER === */
+/* =========================== */
+
+/* Style for the 5-second countdown text */
+.game-countdown {
+  font-size: 6rem;
+  font-weight: bold;
+  color: #ffcf00;
+  animation: countdown-pulse 1s infinite;
+}
+
+@keyframes countdown-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Container for the timer bar */
+.timer-bar-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background-color: #333;
+  border-radius: 0 0 25px 25px; /* Match flashcard radius */
+  overflow: hidden;
+  
+  /* Hidden by default */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.timer-bar-progress {
+  width: 100%;
+  height: 100%;
+  background-color: #ffcf00;
+  transition: width 0.1s linear; /* Smooths the bar movement */
+}
+.definition-label {
+  display: none; /* Hidden by default */
+  font-size: 1rem;
+  color: #888;
+  font-family: 'Satoshi', sans-serif;
+  margin-bottom: 15px;
+}
+/* ================================ */
+/* === NEW: CUSTOM CONFIRM STYLES === */
+/* ================================ */
+#customConfirmModal .modal-info-icon {
+  color: #e53e3e; /* Red for warning */
+}
+#customConfirmModal #customConfirmOkBtn {
+  background-color: #e53e3e; /* Red */
+  color: #fff;
+  flex-grow: 1;
+}
+#customConfirmModal #customConfirmOkBtn:hover {
+  background-color: #c53030;
+}
+#customConfirmModal #customConfirmCancelBtn {
+  background-color: #444;
+  flex-grow: 1;
+}
+#customConfirmModal #customConfirmCancelBtn:hover {
+  background-color: #555;
+}
+/* ================================ */
+/* === NEW: END GAME MODAL STYLES === */
+/* ================================ */
+.end-game-modal-content {
+  max-width: 500px;
+}
+.end-game-modal-content .modal-info-icon {
+  color: #ffcf00;
+  margin-bottom: 15px;
+  margin-right: 0;
+}
+.end-game-modal-content h3 {
+  margin: 0 0 10px 0;
+}
+.end-game-modal-content p {
+  font-size: 1.1rem;
+  color: #ccc;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.end-game-scoreboard-container {
+  width: 100%;
+  max-height: 30vh;
+  overflow-y: auto;
+  border: 1px solid #333;
+  background-color: #171717;
+  border-radius: 12px;
+  padding: 15px;
+  box-sizing: border-box;
+}
+
+/* Re-use scoreboard-list, but define new item styles */
+.end-game-player-item {
+  display: flex;
+  align-items: center;
+  background-color: #2a2a2a;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.end-game-player-item .avatar-circle {
+  width: 35px;
+  height: 35px;
+  flex-shrink: 0; /* Prevent avatar from shrinking */
+}
+
+.end-game-player-item .ready-status {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.end-game-player-item .ready-status .fa-circle-check {
+  color: #4ade80;
+}
+.end-game-player-item .ready-status .fa-circle-xmark {
+  color: #999;
+}
+
+.end-game-player-item .player-name {
+  font-weight: bold;
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.end-game-player-item .winner-label {
+  background-color: #ffcf00;
+  color: #171717;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 6px;
+  margin-left: 5px;
+}
+
+.end-game-player-item .player-score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #ffcf00;
+}
+
+/* Scrollbar for end game list & flashcard */
+.end-game-scoreboard-container::-webkit-scrollbar,
+.flashcard .front::-webkit-scrollbar {
+  width: 8px;
+}
+.end-game-scoreboard-container::-webkit-scrollbar-track,
+.flashcard .front::-webkit-scrollbar-track {
+  background: #171717; /* Match container background */
+}
+.end-game-scoreboard-container::-webkit-scrollbar-thumb,
+.flashcard .front::-webkit-scrollbar-thumb {
+  background-color: #444; 
+  border-radius: 10px;
+  border: 2px solid #171717; /* "Floating" thumb */
+}
+.end-game-scoreboard-container::-webkit-scrollbar-thumb:hover,
+.flashcard .front::-webkit-scrollbar-thumb:hover {
+  background-color: #ffcf00;
+}
+/* --- NEW: Alert Modal Z-Index Fix --- */
+/* Make sure alerts appear on top of other modals (like the end game modal) */
+#customAlertModal,
+#customConfirmModal,
+#readyConfirmModal {
+  z-index: 10002;
+}
+.sidenav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  position: relative; /* <-- ADD THIS */
+}
+
+/* NEW: Style for the icon-only button */
+.icon-btn {
+  background: transparent;
+  padding: 8px 12px; /* Make it a bit wider than tall */
+}
+.icon-btn:hover {
+  background: #333;
+}
+.icon-btn i {
+  color: #aaa; /* Muted color */
+  transition: color 0.2s ease;
+}
+.icon-btn:hover i {
+  color: #ffcf00; /* Bright on hover */
+}
+
+/* NEW: Options menu container */
+.options-menu {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 60px; /* Position below the header */
+  right: 0; /* Align to the right edge */
+  background-color: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 8px;
+  z-index: 100; /* On top of other sidebar content */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  width: 180px; /* Set a fixed width */
+}
+.options-menu.visible {
+  display: block;
+}
+
+/* NEW: Buttons inside the options menu */
+.options-menu-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  color: #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  font-family: 'Satoshi', sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.options-menu-btn:hover {
+  background-color: #333;
+  color: #ffcf00;
+}
+.options-menu-btn i {
+  color: #888;
+  width: 20px; /* Align icons */
+  text-align: center;
+  transition: color 0.2s ease;
+}
+.options-menu-btn:hover i {
+  color: #ffcf00;
+}
+.end-game-player-item .player-xp-gain {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #4ade80; /* Green for XP gain */
+  background-color: rgba(74, 222, 128, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+/* --- New Button on Flashcard --- */
+#openQuibbleAssistantBtn {
+  all: unset;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(23, 23, 23, 0.7);
+  backdrop-filter: blur(5px);
+  border: 1px solid #333;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+
+#openQuibbleAssistantBtn:hover {
+  background-color: rgba(255, 207, 0, 0.2);
+  border-color: #ffcf00;
+}
+
+#openQuibbleAssistantBtn .ai-sparkle-icon {
+  width: 24px;
+  height: 24px;
+  stroke: #ffcf00;
+}
+
+/* --- Sparkle Animation (Copied from lobby.css) --- */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+}
+
+.ai-sparkle-icon .sparkle-small {
+  animation: twinkle 2.5s ease-in-out infinite;
+}
+.ai-sparkle-icon .s2 { animation-delay: 0.3s; }
+.ai-sparkle-icon .s3 { animation-delay: 0.7s; }
+.ai-sparkle-icon .s4 { animation-delay: 1.1s; }
+
+/* ======================================= */
+/* ▼▼▼ NEW AI ASSISTANT STYLES (MODIFIED) ▼▼▼ */
+/* ======================================= */
+
+/* --- New Button on Flashcard --- */
+#openQuibbleAssistantBtn {
+  all: unset;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(23, 23, 23, 0.7);
+  backdrop-filter: blur(5px);
+  border: 1px solid #333;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+
+#openQuibbleAssistantBtn:hover {
+  background-color: rgba(255, 207, 0, 0.2);
+  border-color: #ffcf00;
+}
+
+#openQuibbleAssistantBtn .ai-sparkle-icon {
+  width: 24px;
+  height: 24px;
+  stroke: #ffcf00;
+}
+
+/* --- Sparkle Animation (Copied from lobby.css) --- */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+}
+
+.ai-sparkle-icon .sparkle-small {
+  animation: twinkle 2.5s ease-in-out infinite;
+}
+.ai-sparkle-icon .s2 { animation-delay: 0.3s; }
+.ai-sparkle-icon .s3 { animation-delay: 0.7s; }
+.ai-sparkle-icon .s4 { animation-delay: 1.1s; }
+
+/* --- Chat Widget Styling (Modified) --- */
+
+
+.chat-container {
+    position: fixed; /* MODIFIED: Now fixed to the viewport */
+    /* REMOVED: bottom: 80px; */
+    /* REMOVED: right: 0; */
+    width: 350px;
+    max-height: 500px;
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform-origin: top left; /* MODIFIED: Set origin for new animation */
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1001; /* Make sure it's on top */
+}
+
+@keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+@keyframes popOut {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0.5); opacity: 0; }
+}
+.chat-container.closing {
+    animation: popOut 0.3s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+.chat-header {
+    background-color: #ffcf00;
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #333;
+    cursor: move; /* ADDED: Lets user know they can drag it */
+}
+.chat-header h3 {
+    margin: 0;
+    color: #000000;
+    font-size: 1.1rem;
+}
+/* Re-selecting chatMessages to override right-sidebar chat */
+#aiChatContainer .chat-messages {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+#aiChatContainer .chat-message {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 12px;
+    line-height: 1.5;
+}
+#aiChatContainer .chat-message p { margin: 0; }
+/* Re-selecting chat-input-area */
+#aiChatContainer .chat-input-area {
+    display: flex;
+    border-top: 1px solid #333;
+    padding: 10px;
+}
+/* ▼▼▼ ADD THIS NEW BLOCK ▼▼▼ */
+/* --- AI Chat Bubble Styles --- */
+#aiChatContainer .user-message {
+    background-color: #ffcf00;
+    color: #171717;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+#aiChatContainer .ai-message {
+    background-color: #333;
+    color: #e0e0e0;
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+/* ▲▲▲ END OF NEW BLOCK ▲▲▲ */
+/* Re-selecting chatInput */
+#aiChatContainer #aiChatInput {
+    flex-grow: 1;
+    border: none;
+    background: none;
+    padding: 10px;
+    color: #fff;
+    font-size: 1rem;
+    font-family: 'Satoshi', sans-serif;
+}
+#aiChatContainer #aiChatInput:focus { outline: none; }
+/* Re-selecting chatSendBtn */
+
+#aiChatContainer #aiChatInput:disabled, 
+#aiChatContainer #aiChatSendBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+#aiChatContainer .chat-messages::-webkit-scrollbar { width: 8px; }
+#aiChatContainer .chat-messages::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 4px; }
+#aiChatContainer .chat-messages::-webkit-scrollbar-thumb { background-color: #ffcf00; border-radius: 4px; border: 2px solid #2a2a2a; }
+#aiChatContainer .chat-messages::-webkit-scrollbar-thumb:hover { background-color: #ffe066; }
+/* ▼▼▼ ADD THIS NEW BLOCK ▼▼▼ */
+/* --- AI Typing Indicator --- */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    align-self: flex-start;
+}
+.typing-indicator p {
+    margin: 0;
+    color: #888;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+.ai-sparkle-icon-typing {
+    width: 20px;
+    height: 20px;
+    stroke: #ffcf00;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.9); opacity: 0.7; }
+}
+/* --- Quick Question Buttons --- */
+.quick-question-button {
+    all: unset;
+    display: inline-block;
+    margin-top: 10px;
+    margin-right: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-family: 'Satoshi', sans-serif;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffcf00;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.quick-question-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+/* ▲▲▲ END OF NEW BLOCK ▲▲▲ */
+/* =========================== */
+/* === INFO MODAL STYLES === */
+/* =========================== */
+
+.info-modal-content {
+  max-width: 600px; /* Make it a bit wider for more text */
+}
+
+.info-modal-body {
+  margin-top: 20px;
+  max-height: 60vh; /* Make the body scrollable */
+  overflow-y: auto;
+  padding: 5px 15px 5px 5px; /* Add padding for scrollbar */
+  text-align: left;
+}
+
+.info-modal-body h4 {
+  font-size: 1.1rem;
+  color: #ffcf00;
+  border-bottom: 1px solid #333;
+  padding-bottom: 5px;
+  margin: 20px 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.info-modal-body p,
+.info-modal-body ul {
+  font-size: 0.95rem;
+  color: #ccc;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+}
+
+.info-modal-body ul {
+  list-style: none;
+  padding-left: 15px;
+}
+
+.info-modal-body li {
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 8px;
+}
+
+.info-modal-body li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #ffcf00;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Scrollbar for info modal */
+.info-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+.info-modal-body::-webkit-scrollbar-track {
+  background: #1e1e1e; 
+}
+.info-modal-body::-webkit-scrollbar-thumb {
+  background-color: #444; 
+  border-radius: 10px;
+  border: 2px solid #1e1e1e;
+}
+.info-modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: #ffcf00;
+}
+/* =========================== */
+/* === LEARN MODE CHOICES  === */
+/* =========================== */
+
+.choice-container {
+  display: grid;
+ grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  width: 100%;
+  max-width: 800px; /* Or match your flashcard width */
+  margin-top: 20px;
+  margin-bottom: -115px;
+  transition: opacity 0.3s ease;
+}
+
+.choice-container.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.choice-btn {
+  background: #333; 
+  border: 2px solid #555; 
+  padding: 20px;
+  font-size: 1.1rem;
+  border-radius: 12px; 
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out; 
+  font-family: 'Satoshi', sans-serif;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.choice-btn:not(:disabled):hover {
+  background-color: #444;
+  border-color: #ffcf00;
+  transform: translateY(-2px);
+}
+
+.choice-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* State when an answer is clicked */
+.choice-btn.correct {
+  background-color: #28a745; /* Green */
+  border-color: #84d194;
+  color: #fff;
+  opacity: 1;
+}
+
+.choice-btn.incorrect {
+  background-color: #dc3545; /* Red */
+  border-color: #e0818b;
+  color: #fff;
+  opacity: 1;
+}
+/* =========================== */
+/* === TUTORIAL MODAL STYLES === */
+/* =========================== */
+
+.tutorial-modal-content {
+  max-width: 900px;
+  width: 90%;
+  height: 70vh;
+  padding: 0; /* Remove padding to allow flex layout to fill */
+  display: flex;
+  flex-direction: column;
+}
+
+.tutorial-layout {
+  display: flex;
+  flex-grow: 1; /* Make this fill the modal-box */
+  overflow: hidden; /* Prevent internal scrolling from breaking radius */
+}
+
+.tutorial-sidenav {
+  width: 250px;
+  flex-shrink: 0;
+  background-color: #171717;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-right: 1px solid #333;
+}
+
+.tutorial-nav-btn {
+  background: transparent;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-size: 0.95rem;
+  color: #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  font-family: 'Satoshi', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.tutorial-nav-btn:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+.tutorial-nav-btn.active {
+  background-color: #ffcf00;
+  color: #171717;
+  border-color: #ffcf00;
+}
+
+.tutorial-nav-btn i {
+  color: #888;
+  width: 20px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.tutorial-nav-btn:hover i {
+  color: #fff;
+}
+
+.tutorial-nav-btn.active i {
+  color: #171717;
+}
+
+.tutorial-main-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+.tutorial-page {
+  display: none; /* Hidden by default */
+  animation: fadeIn 0.3s ease;
+}
+
+.tutorial-page.active {
+  display: block; /* Shown by JS */
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tutorial-main-content h3 {
+  font-size: 1.5rem;
+  color: #ffcf00;
+  margin: 0 0 15px 0;
+}
+
+.tutorial-main-content p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.tutorial-main-content ul,
+.tutorial-main-content ol {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #ccc;
+  padding-left: 30px;
+}
+
+.tutorial-main-content li {
+  margin-bottom: 10px;
+}
+
+.tutorial-main-content li::marker {
+  color: #ffcf00;
+}
+
+.tutorial-main-content code {
+  background-color: #333;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #fff;
+}
+/* =========================== */
+/* === TUTORIAL MODAL SCROLL === */
+/* =========================== */
+
+.tutorial-main-content::-webkit-scrollbar {
+  width: 8px;
+}
+.tutorial-main-content::-webkit-scrollbar-track {
+  background: #1e1e1e; /* Match modal background */
+}
+.tutorial-main-content::-webkit-scrollbar-thumb {
+  background-color: #444; 
+  border-radius: 10px;
+  border: 2px solid #1e1e1e; /* "Floating" thumb */
+}
+.tutorial-main-content::-webkit-scrollbar-thumb:hover {
+  background-color: #ffcf00;
+}
+/* =========================== */
+/* === PAUSE BUTTON STYLES === */
+/* =========================== */
+
+#pauseGameBtn {
+  all: unset;
+  position: absolute;
+  bottom: 20px;
+  left: 74px; /* 20px (assistant left) + 44px (width) + 10px (gap) */
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(23, 23, 23, 0.7);
+  backdrop-filter: blur(5px);
+  border: 1px solid #333;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+
+#pauseGameBtn:hover {
+  background-color: rgba(255, 207, 0, 0.2);
+  border-color: #ffcf00;
+}
+
+#pauseGameBtn i {
+  font-size: 18px;
+  color: #ffcf00;
+}
+
+/* Hide button if disabled (e.g. for guests) */
+#pauseGameBtn:disabled {
+  display: none;
+}
+/* --- UPDATED Chat Input Area --- */
+.chat-input-area {
+  display: flex;
+  gap: 10px;
+  align-items: center; /* Aligns button and input vertically */
+}
+
+/* Wrapper is needed to position the ghost text relative to input */
+.chat-input-wrapper {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+}
+
+/* The actual input */
+.chat-input-area input {
+  width: 100%; /* Fill the wrapper */
+  background: #2a2a2a; 
+  border: 1px solid #444; 
+  padding: 12px 20px; /* NOTE: Padding must match #chatInputMirror */
+  font-size: 0.9rem;  /* NOTE: Font size must match #chatInputMirror */
+  border-radius: 12px; 
+  color: #ffffff;
+  font-family: 'Satoshi', sans-serif; /* NOTE: Font must match #chatInputMirror */
+  box-sizing: border-box;
+  z-index: 2; /* Sit above the mirror */
+  background-color: transparent; /* Allows bg color of wrapper if needed, but usually opaque is fine */
+  background: #2a2a2a; /* Re-apply background */
+}
+
+.chat-input-area input:focus {
+  outline: none;
+  border: 1px solid #ffcf00;
+}
+
+/* --- Hidden Mirror (Used to measure text width) --- */
+#chatInputMirror {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre; /* Keep spaces */
+  pointer-events: none;
+  
+  /* THESE MUST MATCH INPUT STYLES EXACTLY */
+  font-family: 'Satoshi', sans-serif;
+  font-size: 0.9rem;
+  padding: 12px 20px; 
+  border: 1px solid transparent; /* Match border width */
+  top: 0;
+  left: 0;
+}
+
+/* --- The Ghost 's' Suggestion --- */
+#chatInputSuggestion {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Satoshi', sans-serif;
+  font-size: 0.9rem;
+  color: #ffcf00; /* Yellow accent color */
+  pointer-events: none;
+  z-index: 3; /* Sit on top of input */
+  /* Left is calculated by JS */
+}
+
+.chat-input-area .modern-button {
+  flex-shrink: 0;
+  width: 55px;
+}
+/* --- INSTANT FEEDBACK ANIMATIONS --- */
+
+/* Flash the input green */
+.input-correct-flash {
+    border-color: #4ade80 !important;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.5) !important;
+    transition: all 0.1s ease;
+}
+
+/* Floating Toast Notification */
+.correct-toast {
+    position: absolute;
+    top: -40px; /* Float above the input */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4ade80; /* Bright Green */
+    color: #171717;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-family: 'Satoshi', sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+    animation: floatUpFade 1.5s forwards;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+@keyframes floatUpFade {
+    0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+    80% { opacity: 1; transform: translate(-50%, -20px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -30px) scale(0.9); }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1024px) {
+  .quibble-container {
+    grid-template-columns: 280px 1fr 280px;
+    gap: 15px;
+    padding: 15px;
+  }
+  .left-sidenav,
+  .right-sidenav {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow: auto;
+  }
+  .quibble-container {
+    grid-template-columns: 1fr; /* Stack all columns */
+    height: auto;
+    padding: 10px;
+  }
+  .left-sidenav,
+  .right-sidenav,
+  .main-content {
+    height: auto; /* Auto height for scrolling */
+  }
+  .right-sidenav {
+    min-height: 400px;
+  }
+  .flashcard {
+    height: 50vw; 
+    min-height: 300px;
+  }
+  .choice-container {
+    grid-template-columns: 1fr 1fr; /* Reverts to 2x2 on mobile */
+  }
+
+  /* --- NEW SMALL SCREEN RULES --- */
+  .left-sidenav,
+  .right-sidenav {
+    padding: 15px; /* Reduce padding */
+  }
+
+  /* Stack main settings display */
+  .main-settings-display {
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    top: 10vh; /* Adjust position */
+  }
+  .main-settings-display .settings-divider {
+    display: none; /* Hide dividers */
+  }
+
+  /* Make flashcard text smaller */
+  .flashcard .front {
+    font-size: 1.5rem;
+    padding: 20px;
+  }
+  .game-countdown {
+    font-size: 4rem;
+  }
+
+  /* Make choice buttons slightly smaller */
+  .choice-btn {
+    padding: 15px;
+    font-size: 0.95rem;
+    min-height: 60px;
+  }
+  .choice-container {
+    gap: 10px;
+  }
+
+  /* Make AI chat modal take full width */
+  .chat-container {
+    /* Reset JS positioning and center it */
+    width: 95vw !important;
+    max-width: 400px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: auto !important; 
+    bottom: 10px !important;
+    transform-origin: bottom center !important;
+  }
+
+  /* Stack lobby modal columns */
+  .modal-body-columns {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .modal-right-column .user-invite-list {
+    height: 200px; /* Give a fixed height when stacked */
+  }
+  
+  /* Stack tutorial layout */
+  .tutorial-layout {
+    flex-direction: column;
+  }
+  .tutorial-sidenav {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap; /* Allow buttons to wrap */
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid #333;
+    flex-shrink: 1;
+  }
+  .tutorial-nav-btn {
+    flex-grow: 1; /* Allow buttons to share space */
+    justify-content: center;
+  }
+  .tutorial-main-content {
+    padding: 20px;
+  }
+}

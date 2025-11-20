@@ -170,7 +170,8 @@ box-sizing: border-box;
 #flashcardsContainer,
 #explanationContainer,
 #summaryContainer,
-#askContainer {
+#askContainer,
+#researchContainer {
     margin-top: 40px;
     text-align: left;
     display: flex;
@@ -1225,7 +1226,8 @@ body {
 }
 /* --- Ask AI Text Input --- */
 
-#askAiTextInput {
+#askAiTextInput,
+#researchTextInput {
     flex-grow: 1; /* Allows it to take available vertical space */
     padding: 8px 0;
     font-size: 1rem;
@@ -1242,7 +1244,8 @@ body {
     box-sizing: border-box;
     /* height: calc(1em * 1.5 + 16px); */ /* <<< REMOVED */
 }
-#askAiTextInput:focus {
+#askAiTextInput:focus,
+#researchTextInput:focus {
     outline: none;
     border: none;
     background-color: transparent;
@@ -1267,7 +1270,8 @@ body {
 #askAiTextInput::-webkit-scrollbar-thumb:hover {
     background-color: #ffe066; /* Lighter yellow on hover */
 }
-#askAiTextInput:focus {
+#askAiTextInput:focus,
+#researchTextInput:focus {
     outline: none;
     border-color: none; /* This likely does nothing as border is none */
     background-color: #33333341;
@@ -1296,7 +1300,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
-    max-width: 700px;
+    max-width: 900px;
 
     display: flex;
     flex-direction: column; /* <<<--- CHANGED: Stack items vertically */
@@ -1940,6 +1944,153 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+/* --- Research Assistant Tab Styles --- */
+
+
+.research-result-card {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.research-section {
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+.research-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.research-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.research-title {
+    font-size: 1.1rem;
+    color: #ffcf00;
+    margin: 0;
+}
+
+.research-content p {
+    color: #ccc;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.research-content .source-link {
+    color: #aaa;
+    font-size: 0.9rem;
+    font-style: italic;
+    word-break: break-all;
+}
+
+.research-content .citation-text {
+    color: #ccc;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding-left: 20px;
+    text-indent: -20px; /* Creates hanging indent for APA */
+}
+
+/* Adjust padding for the research tab panel */
+#research-panel {
+    padding-bottom: 20px !important; /* Make space for fixed input */
+}
+
+/* Adjust fixed input for research tab (it's not chat) */
+/* --- Research Assistant Selector Styles --- */
+.research-selectors-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: auto; /* Pushes model display to the right */
+}
+
+.research-selector {
+    background-color: #1e1e1e;
+    color: #aaa;
+    border: 1px solid #555;
+    border-radius: 6px;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 0.8rem;
+    padding: 4px 6px;
+    -webkit-appearance: none; /* Removes default browser styling */
+    -moz-appearance: none;
+    appearance: none;
+    /* Custom arrow icon */
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27292.4%27%20height%3D%27292.4%27%3E%3Cpath%20fill%3D%27%23888888%27%20d%3D%27M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-13%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2013l128%20128c3.5%203.5%208%205.4%2013%205.4s9.7-1.8%2013-5.4l128-128c3.5-3.5%205.4-8%205.4-13%200-5-1.8-9.3-5.4-13z%27%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 8px 8px;
+    padding-right: 20px; /* Make space for the arrow */
+    cursor: pointer;
+}
+
+.research-selector:focus {
+    outline: none;
+    border-color: #ffcf00;
+}
+
+.selector-divider {
+    color: #888;
+    font-size: 0.9rem;
+    margin: 0 2px;
+}
+
+/* Find this existing rule and change margin-left */
+.input-controls .model-display {
+    margin-left: 0; /* CHANGED from margin-left: auto */
+}
+/* --- Research Result Updates --- */
+
+/* Warning Banner for Date Mismatch */
+/* Warning Banner for Date Mismatch - RED VERSION */
+.date-warning-banner {
+    background-color: rgba(239, 68, 68, 0.15); /* Light red background */
+    border: 1px solid #ef4444; /* Solid red border */
+    color: #ef4444; /* Red text and icon */
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-warning-banner i {
+    font-size: 1rem;
+}
+
+/* Google Scholar Source Footer */
+.scholar-footer {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px dashed #333;
+    text-align: right;
+    font-size: 0.8rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.scholar-footer img {
+    height: 14px; /* Small Scholar logo if you had one, or just use text */
+    opacity: 0.7;
+}
 
 
 
@@ -2030,7 +2181,75 @@ body {
          bottom: 140px; 
     }
 }
+/* =========================================
+   Research Tab Responsive Improvements (FINAL FIX)
+   ========================================= */
 
+@media (max-width: 768px) {
+    /* 1. Raise the yellow chat button so it doesn't block the input */
+    .chat-widget {
+        bottom: 220px !important;
+    }
+
+    /* 2. The Main Container */
+    #researchInputArea .input-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-top: 5px;
+        width: 100%;
+    }
+
+    /* 3. MAGIC FIX: 'Unbox' the selector group so children can mix with the button */
+    #researchInputArea .research-selectors-group {
+        display: contents; /* This ignores the div wrapper! */
+    }
+
+    /* --- ROW 1: Source Selector (Google/Crossref) --- */
+    #researchSource {
+        order: 1;
+        width: 100% !important; /* Force full width to override inline styles */
+        margin-bottom: 2px;
+    }
+
+    /* --- ROW 2: Years (From / To) --- */
+    #researchYearFrom,
+    #researchYearTo {
+        order: 2;
+        flex: 1; /* Grow to share space */
+        min-width: 70px;
+    }
+
+    #researchInputArea .selector-divider {
+        order: 2;
+        width: auto;
+        padding: 0 5px;
+        color: #888;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+    }
+
+    /* --- ROW 3: Language & Send Button --- */
+    #researchLanguage {
+        order: 3;
+        flex: 1; /* Take up all remaining space */
+        width: auto !important;
+    }
+
+    #researchSendBtn {
+        order: 3;
+        width: 45px;
+        height: 38px; /* Match height of dropdowns */
+        margin-left: 0 !important; /* Stick to the language selector */
+        border-radius: 8px;
+    }
+
+    /* Hide the model badge to save space */
+    #researchInputArea .model-display {
+        display: none;
+    }
+}
 /* Small screens (phones) */
 @media (max-width: 600px) {
   .shop-header {

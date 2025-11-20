@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlipCards | Fill-in Mode</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
+    <link rel="stylesheet" href="card.css">
+    <link rel="stylesheet" href="fillin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+
+    <header class="shop-header">
+        <div class="header-left">
+            <a href="lobby.html" id="backToFoldersBtn" class="back-button">← Back to Folders</a>
+            <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
+        </div>
+        <h2 class="shop-title">FlipCards.</h2>
+    </header>
+
+    <div class="layout-wrapper">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Library</h2>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="dropdown-container">
+                    <button class="dropdown-btn" id="setDropdownBtn">
+                        <span>Select Source</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content" id="setDropdownContent">
+                        <a href="#" class="active">My Sets</a>
+                        <a href="#">Public Sets</a>
+                    </div>
+                </div>
+
+                <button id="triggerAddSetBtn" class="sidebar-create-btn">
+                    <i class="fa-solid fa-plus"></i> Create New Set
+                </button>
+
+                <div class="set-list-container">
+                   <p style="padding: 20px; color: #666;">Loading sets...</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <div id="fillInDashboard" class="dashboard-view">
+                <header class="fillin-intro">
+                    <div class="set-meta-info" style="display: none;">
+                        <span class="meta-label">Category:</span>
+                        <span class="meta-value" id="metaCategory">--</span>
+                        <span class="meta-divider">|</span>
+                        <span class="meta-label">Creator:</span>
+                        <span class="meta-value" id="metaCreator">--</span>
+                    </div>
+
+                    <h1 class="fillin-title">
+                        <span class="title-label" style="display: none;">Title:</span>
+                        <span id="fillinTitleText">Fill-in Review</span>
+                    </h1>
+
+                    <div class="description-box">
+                        <p class="fillin-description" id="fillinDescriptionText">
+                            Master your terms by typing the answers. Read the definition and fill in the missing term to test your recall accuracy.
+                        </p>
+                    </div>
+                </header>
+
+                <div class="game-container">
+                    <div class="definition-display">
+                        <span class="placeholder-text">Select a set from the sidebar to begin practicing.</span>
+                    </div>
+                    
+                    <div class="game-controls" style="display: none;">
+                        <div class="controls-left">
+                            <button id="hintBtn" class="control-icon-btn" title="Hint (Reveal 1 Letter)">
+                                <i class="fa-regular fa-lightbulb"></i>
+                            </button>
+                            <button id="shuffleBtn" class="control-icon-btn" title="Shuffle Cards">
+                                <i class="fa-solid fa-shuffle"></i>
+                            </button>
+                        </div>
+                        
+                        <span class="card-counter"></span>
+
+                        <div class="controls-right">
+                            <button class="btn check-btn" disabled>Check</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="createSetView" class="create-view hidden">
+                <div class="create-view-header">
+                    <div class="header-left-group">
+                        <button id="backToDashboardBtn" class="back-btn">&larr; Back to Review</button>
+                        <button class="save-set-btn" id="saveSetBtn">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Set
+                        </button>
+                    </div>
+                    <h2 class="header-title">Create New Set</h2>
+                </div>
+
+                <div class="flashcard-wrapper">
+                    <label class="public-toggle">
+                        <span>Make this set public</span>
+                        <div class="toggle-container">
+                            <input type="checkbox" id="publicToggle" />
+                            <span class="toggle-slider"></span>
+                        </div>
+                        <select id="categorySelect" class="category-select">
+                            <option value="">Select Category</option>
+                            <option value="Medical field">Health & Medicine</option>
+                            <option value="Education Studies">Education Studies</option>
+                            <option value="Science">Science</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="General">General</option>
+                        </select>
+                    </label>
+
+                    <input type="text" class="input title" id="setTitle" placeholder="Title" />
+                    <textarea class="input description" id="setDescription" placeholder="Add a description...(Optional)"></textarea>
+
+                    <div id="cardsContainer">
+                        <div class="flashcard" data-index="0">
+                            <div class="flashcard-header">
+                                <span>1</span>
+                                <div class="card-buttons">
+                                    <button class="add-btn"><i class="fa-solid fa-plus"></i></button>
+                                    <button class="delete-btn"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <div class="flashcard-body">
+                                <div class="highlight-toolbar">
+                                    <label class="toggle-label">
+                                        <div class="switch">
+                                            <input type="checkbox" class="highlight-toggle">
+                                            <span class="slider round"></span>
+                                        </div>
+                                        <span class="label-text">Highlight Mode (Select text to create blanks)</span>
+                                    </label>
+                                </div>
+                                <div class="input-group">
+                                    <div class="input content-box" contenteditable="true" placeholder="Enter the full sentence or definition here..."></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div> 
+    
+    <div id="customAlertModal" class="custom-alert-backdrop hidden">
+        <div class="custom-alert-content">
+            <p id="customAlertMessage"></p>
+            <button id="customAlertOkBtn" class="neumorphic-button">OK</button>
+        </div>
+    </div>
+
+    <div id="customConfirmModal" class="custom-alert-backdrop hidden">
+        <div class="custom-alert-content error">
+            <p id="confirmMessage"></p>
+            
+            <div id="publicDeleteOption" class="modal-checkbox-container hidden">
+                <label>
+                    <input type="checkbox" id="confirmPublicDeleteCheckbox">
+                    Delete public version too?
+                </label>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="confirmBtn" class="neumorphic-button danger">Delete</button>
+                <button id="cancelBtn" class="neumorphic-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="fillin.js"></script>
+</body>
+</html>

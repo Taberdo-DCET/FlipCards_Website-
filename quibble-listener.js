@@ -1,7 +1,7 @@
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
 import { 
     getFirestore, doc, onSnapshot, query, collection, where, 
-    updateDoc, arrayRemove, arrayUnion, getDoc, getDocs
+    updateDoc, arrayRemove, arrayUnion, getDoc, getDocs, runTransaction // <-- ADDED
 } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 import { db } from "./firebaseinit.js";
 import { addXP } from './xpTracker.js';
@@ -38,6 +38,7 @@ const chatMessages = document.getElementById('mainChatMessages');
 const chatInput = document.getElementById('mainChatInput');
 const sendChatBtn = document.getElementById('mainSendChatBtn');
 const customAlertModal = document.getElementById('customAlertModal');
+const customAlertTitle = document.getElementById('customAlertTitle');
 const customAlertMessage = document.getElementById('customAlertMessage');
 const customAlertOkBtn = document.getElementById('customAlertOkBtn');
 
@@ -45,6 +46,7 @@ let pendingLobbyId = null;
 let joinedLobbyId = null; 
 let inviteTimeout = null; // <-- ADD THIS LINE
 window.currentNormalizedAnswer = "";
+let lastAnsweredCardIndex = -1;
 
 onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -256,7 +258,8 @@ async function declineInvite() {
 declineInviteBtn.addEventListener('click', declineInvite);
 
 // --- NEW: Custom Alert Function (for guest) ---
-function showCustomAlert(message) {
+function showCustomAlert(message, title = "Alert") {
+    if (customAlertTitle) customAlertTitle.textContent = title;
     customAlertMessage.textContent = message;
     customAlertModal.classList.add('visible');
 }
@@ -291,9 +294,18 @@ async function sendUserMessage(lobbyId, text) {
 
     // 1. Check for correct answer FIRST
     try {
-        const lobbySnap = await getDoc(lobbyRef);
-        if (!lobbySnap.exists()) return;
-        const lobbyData = lobbySnap.data();
+        // --- FIX START: Use the VISUAL data, not a fresh fetch ---
+        // This ensures we validate against what the user actually sees on screen.
+        let lobbyData = window.currentLobbyDataForRender;
+        
+        // Fallback if the global variable isn't set for some reason
+        if (!lobbyData) {
+            console.warn("[DEBUG] No local data found, fetching...");
+            const lobbySnap = await getDoc(lobbyRef);
+            if (!lobbySnap.exists()) return;
+            lobbyData = lobbySnap.data();
+        }
+        // --- FIX END ---
 
         if (lobbyData.status !== 'question') {
             // Game not running, just send chat message
@@ -309,27 +321,101 @@ async function sendUserMessage(lobbyId, text) {
 
             if (normalizedGuess === normalizedAnswer) {
                 // Correct answer!
+                const targetCardIndex = lobbyData.currentCardIndex; // Capture the index we validated against
                 
-                // Check if guest already answered
-                if (lobbyData.currentQuestionAnswers.includes(currentUserEmail)) {
-                    showCustomAlert("You've already answered this question!"); // <-- FIX 3
-                    return; // Stop, don't send message
-                }
+                // LOGGING FOR DEBUGGING
+                console.log(`[DEBUG] Answer Attempt. User sees Index: ${targetCardIndex}. Answer: "${text}"`);
 
-                // Update the score in the players array
-                const updatedPlayers = lobbyData.players.map(player => {
-                    if (player.email === currentUserEmail) {
-                        player.score += 1; // Add 1 point
+                // --- FIX: Race Condition Handling ---
+                // We ONLY check our local tracker. 
+                if (lastAnsweredCardIndex === targetCardIndex) {
+                    console.log(`[DEBUG] Blocked locally: You already answered Index ${targetCardIndex}`);
+                    
+                    // --- UPDATED: Show System Message instead of Modal ---
+                    addChatMessageToUI({
+                        type: 'system',
+                        text: "You have already answered this question.",
+                        timestamp: new Date()
+                    });
+                    
+                    // Scroll chat to bottom
+                    const chatContainer = document.getElementById('mainChatMessages');
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                    // Return FALSE to tell the listener NOT to clear the input
+                    return false; 
+                }
+                // ------------------------------------
+                lastAnsweredCardIndex = targetCardIndex;
+                
+                // --- OPTIMISTIC UI: Trigger Visuals IMMEDIATELY ---
+                triggerInstantFeedback(); 
+
+                // 1. Inject "Fake" System Message Instantly
+                const optimisticMsg = {
+                    type: 'system',
+                    text: `${currentUsername} got the correct answer!`,
+                    timestamp: new Date()
+                };
+                addChatMessageToUI(optimisticMsg, lobbyData.players);
+
+                // 2. Force Scroll to Bottom
+                const chatContainer = document.getElementById('mainChatMessages');
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                // -------------------------------------------------
+
+                // --- BUG FIX: Transaction for Guests ---
+                try {
+                    console.log("[DEBUG] Starting Transaction to save score...");
+                    await runTransaction(db, async (transaction) => {
+                        const freshDoc = await transaction.get(lobbyRef);
+                        if (!freshDoc.exists()) throw "Lobby missing";
+                        const freshData = freshDoc.data();
+                        
+                        console.log(`[DEBUG] Transaction Read. Server Index: ${freshData.currentCardIndex} | Your Target: ${targetCardIndex}`);
+
+                        // --- CRITICAL FIX: Prevent answer form applying to the wrong round ---
+                        // If the server moved to the next card while we were sending, abort.
+                        if (freshData.currentCardIndex !== targetCardIndex) {
+                            console.warn(`[DEBUG] Too Late! Round changed during transaction. Aborting.`);
+                            throw "Round Changed";
+                        }
+                        
+                        if (freshData.currentQuestionAnswers.includes(currentUserEmail)) {
+                             console.warn("[DEBUG] Server says you already answered this specific round.");
+                             throw "Already Answered";
+                        }
+
+                        const updatedPlayers = freshData.players.map(p => {
+                            if (p.email === currentUserEmail) return { ...p, score: p.score + 1 };
+                            return p;
+                        });
+
+                        transaction.update(lobbyRef, {
+                            players: updatedPlayers,
+                            currentQuestionAnswers: [...freshData.currentQuestionAnswers, currentUserEmail]
+                        });
+                    });
+                    
+                    console.log("[DEBUG] Transaction Success. Awarding XP.");
+                    await addXP(50);
+                    
+                } catch (e) {
+                    if (e === "Round Changed") {
+                        console.log("[DEBUG] Answer ignored because the round ended before save.");
+                        
+                        // --- FIX: Show the modal here! ---
+                        showCustomAlert("Time ran out! Your answer was too late to be counted.", "Too Late!");
+
+                    } else if (e === "Already Answered") {
+                        console.log("[DEBUG] Answer ignored because already recorded.");
+                    } else {
+                        console.error("Transaction error:", e);
                     }
-                    return player;
-                });
-await addXP(50);
-                // Update Firestore. Host listener will send announcement.
-                await updateDoc(lobbyRef, {
-                    players: updatedPlayers,
-                    currentQuestionAnswers: arrayUnion(currentUserEmail)
-                });
-                return; // Stop, don't send the answer to chat
+                }
+                // --- END FIX ---
+                return true;
+                
             }
         }
     } catch (e) {
@@ -339,7 +425,7 @@ await addXP(50);
     // 2. If not a correct answer, send the user's chat message
     const message = {
         type: 'user',
-        username: currentUsername, // Guest's username
+        username: currentUsername,
         text: text,
         timestamp: new Date()
     };
@@ -348,6 +434,7 @@ await addXP(50);
     } catch (e) {
         console.error("Error sending message: ", e);
     }
+    return true;
 }
 
 // --- Lobby Status Box Actions ---
@@ -450,17 +537,7 @@ lobbyStatusOpenBtn.addEventListener('click', () => {
     lobbyStatusOpenBtn.classList.remove('visible');
 });
 
-// --- NEW: Color Hashing for Chat ---
-const chatUsernameColors = [
-  '#FF8A80', // Light Red
-  '#FFD180', // Orange
-  '#FFFF8D', // Yellow
-  '#CCFF90', // Light Green
-  '#A7FFEB', // Teal
-  '#8C9EFF', // Blue
-  '#B388FF', // Purple
-  '#F8BBD0'  // Pink
-];
+
 
 function stringToHash(str) {
   let hash = 0;
@@ -470,8 +547,14 @@ function stringToHash(str) {
   return Math.abs(hash); // Ensure it's a positive number
 }
 
-// --- NEW: Renders a message object to the chat UI ---
-function addChatMessageToUI(message) {
+// Ensure SLOT_COLORS is defined here too if not imported
+const SLOT_COLORS = [
+    '#FF5252', '#00FA9A', '#E040FB', '#7C4DFF', '#536DFE', 
+    '#448AFF', '#40C4FF', '#18FFFF', '#64FFDA', '#69F0AE', 
+    '#B2FF59', '#EEFF41', '#FFFF00', '#FFD740', '#FF6E40'
+];
+
+function addChatMessageToUI(message, players = []) {
     const msgDiv = document.createElement('div');
     msgDiv.className = 'chat-message';
 
@@ -479,32 +562,61 @@ function addChatMessageToUI(message) {
         msgDiv.classList.add('system');
         msgDiv.textContent = message.text;
     } else {
-        const hash = stringToHash(message.username);
-        const color = chatUsernameColors[hash % chatUsernameColors.length];
+        // Find player index to determine slot color
+        const playerIndex = players.findIndex(p => p.username === message.username);
+        
+        let color;
+        if (playerIndex !== -1) {
+            color = SLOT_COLORS[playerIndex % SLOT_COLORS.length];
+        } else {
+            color = '#aaaaaa'; // Fallback
+        }
 
-        // Hide correct answers
         const normalizedText = normalizeText(message.text);
         if (window.currentNormalizedAnswer && normalizedText === window.currentNormalizedAnswer) {
             msgDiv.innerHTML = `<strong style="color: ${color};">${message.username}:</strong> <em style="color:#888;">[correct answer]</em>`;
         } else {
-            msgDiv.innerHTML = `<strong style."color: ${color};">${message.username}:</strong> ${message.text}`;
+            msgDiv.innerHTML = `<strong style="color: ${color};">${message.username}:</strong> ${message.text}`;
         }
     }
     chatMessages.appendChild(msgDiv);
 }
-
 // --- NEW: Guest Chat Listeners ---
-// --- NEW: Guest Chat Listeners ---
-sendChatBtn.addEventListener('click', () => {
+sendChatBtn.addEventListener('click', async () => { // <--- Make ASYNC
     const text = chatInput.value.trim();
     if (text && joinedLobbyId) {
-        sendUserMessage(joinedLobbyId, text);
-        chatInput.value = '';
+        // Wait for result. If true (sent), clear input. If false (already answered), keep input.
+        const shouldClear = await sendUserMessage(joinedLobbyId, text);
+        if (shouldClear) {
+            chatInput.value = '';
+        }
     }
 });
+
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendChatBtn.click();
     }
 });
+function triggerInstantFeedback() {
+    // 1. Clear Input immediately
+    const input = document.getElementById('mainChatInput');
+    input.value = ""; 
+    
+    // 2. Add Green Flash Class
+    input.classList.add('input-correct-flash');
+    setTimeout(() => input.classList.remove('input-correct-flash'), 500);
+
+    // 3. Create Floating Toast
+    const wrapper = document.querySelector('.chat-input-wrapper');
+    if (wrapper) {
+        const toast = document.createElement('div');
+        toast.className = 'correct-toast';
+        toast.innerHTML = '<i class="fa-solid fa-check"></i> Correct! (+50 XP)';
+        wrapper.appendChild(toast);
+
+        // Remove from DOM after animation finishes
+        setTimeout(() => toast.remove(), 1500);
+    }
+}

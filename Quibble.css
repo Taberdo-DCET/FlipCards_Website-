@@ -121,10 +121,17 @@ body {
   justify-content: flex-start;
   margin-bottom: 25px;
   min-height: 44px; 
+  /* --- NEW: Enable Horizontal Scroll --- */
+  overflow-x: auto; 
+  overflow-y: hidden;
+  padding-bottom: 8px; /* Adds space so scrollbar doesn't overlap avatars */
 }
+
 .avatar-circle {
   width: 40px;
   height: 40px;
+  /* --- NEW: Prevent Squishing --- */
+  flex-shrink: 0; 
   border-radius: 50%;
   background-color: #333;
   border: 2px solid #555;
@@ -495,24 +502,32 @@ body {
 /* --- Scrollbar --- */
 .scoreboard::-webkit-scrollbar,
 .chat-messages::-webkit-scrollbar,
-.user-invite-list::-webkit-scrollbar {
+.user-invite-list::-webkit-scrollbar,
+.avatar-circles::-webkit-scrollbar { /* <-- ADDED HERE */
   width: 8px;
+  height: 8px; /* <-- ADDED FOR HORIZONTAL SCROLL */
 }
+
 .scoreboard::-webkit-scrollbar-track,
 .chat-messages::-webkit-scrollbar-track,
-.user-invite-list::-webkit-scrollbar-track {
+.user-invite-list::-webkit-scrollbar-track,
+.avatar-circles::-webkit-scrollbar-track { /* <-- ADDED HERE */
   background: #1e1e1e; 
 }
+
 .scoreboard::-webkit-scrollbar-thumb,
 .chat-messages::-webkit-scrollbar-thumb,
-.user-invite-list::-webkit-scrollbar-thumb {
+.user-invite-list::-webkit-scrollbar-thumb,
+.avatar-circles::-webkit-scrollbar-thumb { /* <-- ADDED HERE */
   background-color: #444; 
   border-radius: 10px;
   border: 2px solid #1e1e1e;
 }
+
 .scoreboard::-webkit-scrollbar-thumb:hover,
 .chat-messages::-webkit-scrollbar-thumb:hover,
-.user-invite-list::-webkit-scrollbar-thumb:hover {
+.user-invite-list::-webkit-scrollbar-thumb:hover,
+.avatar-circles::-webkit-scrollbar-thumb:hover { /* <-- ADDED HERE */
   background-color: #ffcf00;
 }
 
@@ -1807,8 +1822,108 @@ body {
 #pauseGameBtn:disabled {
   display: none;
 }
+/* --- UPDATED Chat Input Area --- */
+.chat-input-area {
+  display: flex;
+  gap: 10px;
+  align-items: center; /* Aligns button and input vertically */
+}
 
+/* Wrapper is needed to position the ghost text relative to input */
+.chat-input-wrapper {
+  position: relative;
+  flex-grow: 1;
+  display: flex;
+}
 
+/* The actual input */
+.chat-input-area input {
+  width: 100%; /* Fill the wrapper */
+  background: #2a2a2a; 
+  border: 1px solid #444; 
+  padding: 12px 20px; /* NOTE: Padding must match #chatInputMirror */
+  font-size: 0.9rem;  /* NOTE: Font size must match #chatInputMirror */
+  border-radius: 12px; 
+  color: #ffffff;
+  font-family: 'Satoshi', sans-serif; /* NOTE: Font must match #chatInputMirror */
+  box-sizing: border-box;
+  z-index: 2; /* Sit above the mirror */
+  background-color: transparent; /* Allows bg color of wrapper if needed, but usually opaque is fine */
+  background: #2a2a2a; /* Re-apply background */
+}
+
+.chat-input-area input:focus {
+  outline: none;
+  border: 1px solid #ffcf00;
+}
+
+/* --- Hidden Mirror (Used to measure text width) --- */
+#chatInputMirror {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre; /* Keep spaces */
+  pointer-events: none;
+  
+  /* THESE MUST MATCH INPUT STYLES EXACTLY */
+  font-family: 'Satoshi', sans-serif;
+  font-size: 0.9rem;
+  padding: 12px 20px; 
+  border: 1px solid transparent; /* Match border width */
+  top: 0;
+  left: 0;
+}
+
+/* --- The Ghost 's' Suggestion --- */
+#chatInputSuggestion {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Satoshi', sans-serif;
+  font-size: 0.9rem;
+  color: #ffcf00; /* Yellow accent color */
+  pointer-events: none;
+  z-index: 3; /* Sit on top of input */
+  /* Left is calculated by JS */
+}
+
+.chat-input-area .modern-button {
+  flex-shrink: 0;
+  width: 55px;
+}
+/* --- INSTANT FEEDBACK ANIMATIONS --- */
+
+/* Flash the input green */
+.input-correct-flash {
+    border-color: #4ade80 !important;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.5) !important;
+    transition: all 0.1s ease;
+}
+
+/* Floating Toast Notification */
+.correct-toast {
+    position: absolute;
+    top: -40px; /* Float above the input */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4ade80; /* Bright Green */
+    color: #171717;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-family: 'Satoshi', sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+    animation: floatUpFade 1.5s forwards;
+    z-index: 10;
+    white-space: nowrap;
+}
+
+@keyframes floatUpFade {
+    0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+    80% { opacity: 1; transform: translate(-50%, -20px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -30px) scale(0.9); }
+}
 
 
 

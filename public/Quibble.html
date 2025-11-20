@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quibble</title>
+    <link rel="stylesheet" href="Quibble.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="Group-100.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <div class="quibble-container">
+        
+        <aside class="left-sidenav">
+            <div class="sidenav-header">
+                <h2 class="shop-title">
+                    <img src="quibble.svg" alt="Quibble Icon" class="title-icon"> Quibble.
+                </h2>
+                <button class="modern-button icon-btn" id="sidenavOptionsBtn">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                </button>
+                <div class="options-menu" id="sidenavOptionsMenu">
+                    
+                    <button class="options-menu-btn" id="tutorialGameBtn">
+                        <i class="fa-solid fa-book-open"></i> Tutorial
+                    </button>
+                    <button class="options-menu-btn" id="infoGameBtn">
+                        <i class="fa-solid fa-circle-info"></i> Information
+                    </button>
+                </div>
+            </div>
+
+            <div class="lobby-controls">
+                <button id="startBtn" class="modern-button start-btn">
+                    <i class="fa-solid fa-play"></i> Start
+                </button>
+                <button id="createLobbyBtn" class="modern-button create-lobby-btn" disabled>
+                    <i class="fa-solid fa-spinner fa-spin"></i> Loading...
+                </button>
+            </div>
+
+            <div class="avatar-display">
+                <h3>Players</h3>
+                <div class="avatar-circles" id="lobbyAvatars">
+                    </div>
+            </div>
+
+            <div class="scoreboard">
+                <h3>Scoreboard</h3>
+                <ul class="scoreboard-list" id="lobbyScoreboard">
+                    <li class="empty-slot">Waiting for players...</li>
+                </ul>
+            </div>
+            <button id="homeBtn" class="modern-button home-btn" onclick="window.location.href='lobby.html'">
+                    <i class="fa-solid fa-house"></i> Home
+                </button>
+            <button id="leaveBtn" class="modern-button leave-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Leave
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <div class="main-title-container" id="mainTitleContainer">
+                <span class="main-set-title-label">Title:</span>
+                <h2 class="main-set-title" id="mainSetTitle"></h2>
+            </div>
+            <div class="main-settings-display" id="mainSettingsDisplay">
+                <span><i class="fa-solid fa-clone"></i> <b id="mainCardCountDisplay">0</b> Cards</span>
+                <span class="settings-divider">|</span>
+                <span><i class="fa-solid fa-clock"></i> <b id="mainTimerDisplay">0</b>s Timer</span>
+                <span class="settings-divider">|</span>
+                <span><i class="fa-solid fa-gamepad"></i> <b id="mainGameModeDisplay">Test Mode</b></span>
+            </div>
+            <div class="flashcard-container">
+                <div class="flashcard">
+                    <div class="front" id="mainCardDisplay">
+                        <span class="definition-label" id="definitionLabel"></span>
+                        <span id="cardTextDisplay">Waiting for game to start...</span>
+                        
+                        <div class="timer-bar-container" id="timerBarContainer">
+                            <div class="timer-bar-progress" id="timerBar"></div>
+                        </div>
+                        <button id="openQuibbleAssistantBtn" class="modern-button icon-btn" title="Ask FlipCards Assistant">
+                            <svg class="ai-sparkle-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path class="sparkle-main" d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z"></path>
+                                <path class="sparkle-small s1" d="M4 4l2 2m0-2l-2 2"></path>
+                                <path class="sparkle-small s2" d="M18 4l2 2m0-2l-2 2"></path>
+                                <path class="sparkle-small s3" d="M4 18l2 2m0-2l-2 2"></path>
+                                <path class="sparkle-small s4" d="M18 18l2 2m0-2l-2 2"></path>
+                            </svg>
+                        </button>
+                        <button id="pauseGameBtn" class="modern-button icon-btn" title="Pause/Resume Game">
+                            <i class="fa-solid fa-pause"></i>
+                        </button>
+                        </div>
+                </div>
+            </div>
+            <div id="choiceContainer" class="choice-container hidden">
+                <button class="choice-btn"></button>
+                <button class="choice-btn"></button>
+                <button class="choice-btn"></button>
+                <button class="choice-btn"></button>
+            </div>
+        </main>
+
+        <aside class="right-sidenav">
+            <h3><i class="fa-solid fa-comments"></i> Chat</h3>
+            <div class="chat-messages" id="mainChatMessages">
+                <div class="chat-message system">Welcome to Quibble!</div>
+            </div>
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <div id="chatInputMirror"></div>
+                    <input type="text" id="mainChatInput" placeholder="Type a message..." autocomplete="off">
+                    <span id="chatInputSuggestion"></span>
+                </div>
+                
+                <button id="mainSendChatBtn" class="modern-button">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </aside>
+
+    </div>
+
+    <div id="createLobbyModal" class="modal-overlay">
+        <div class="modal-box lobby-modal-content">
+            <button id="modalCloseX" class="modal-close-x">&times;</button>
+            <div class="modal-header-left">
+                <i class="fa-solid fa-gear modal-info-icon"></i> <h3 id="lobbyModalTitle">Create Lobby</h3>
+            </div>
+
+            <div class="modal-body-columns">
+                
+                <div class="modal-left-column">
+                    <div class="lobby-settings">
+                        <div class="setting-item">
+                            <label for="selectSetButton">Select Set:</label>
+                            <button id="selectSetButton" class="modern-select set-select-button">
+                                <span id="selectedSetSpan">Select a set...</span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="setting-item">
+                            <label for="selectCardsDropdown">Cards:</label>
+                            <select id="selectCardsDropdown" class="modern-select">
+                                <option>Select a set first...</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="selectTimerDropdown">Timer:</label>
+                            <select id="selectTimerDropdown" class="modern-select">
+                                <option value="5">5 sec</option>
+                                <option value="10">10 sec</option>
+                                <option value="15">15 sec</option>
+                                <option value="20">20 sec</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="selectGameModeDropdown">Game Mode:</label>
+                            <select id="selectGameModeDropdown" class="modern-select">
+                                <option value="test">Test Mode (Type Answer)</option>
+                                <option value="learn">Learn Mode (Multiple Choice)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-player-list-container">
+                        <h4>Current Players</h4>
+                        <div id="modalPlayerList" class="modal-player-list">
+                            </div>
+                    </div>
+                    <div class="lobby-modal-controls">
+                        <button id="readyBtn" class="modern-button ready-btn">
+                            <i class="fa-solid fa-check"></i> I'm Ready
+                        </button>
+                        <button id="closeLobbyBtn" class="modern-button">
+                            <i class="fa-solid fa-times"></i> Close Lobby
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-right-column">
+                    <div class="invite-container">
+                        <h4>Invite Players</h4>
+                        <input type="text" id="userSearchInput" class="user-search-input" placeholder="Search by username or email...">
+                        <div id="userInviteList" class="user-invite-list">
+                            <p>Loading users...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div> </div>
+    </div>
+<!-- ======================= -->
+    <!--   NEW SELECT SET MODAL    -->
+    <!-- ======================= -->
+    <div id="selectSetModal" class="modal-overlay">
+        <div class="modal-box select-set-modal-content">
+            <button id="modalCloseXSet" class="modal-close-x">&times;</button>
+            <div class="modal-header-left">
+                <i class="fa-solid fa-layer-group modal-info-icon"></i>
+                <h3>Select a Set</h3>
+            </div>
+            <input type="text" id="setSearchInput" class="user-search-input" placeholder="Search for a set...">
+            <div id="setListContainer" class="user-invite-list set-list-container">
+                <p>Loading sets...</p>
+            </div>
+        </div>
+    </div>
+    <div id="inviteModal" class="modal-overlay">
+        <div class="modal-box invite-modal-content">
+            <i class="fa-solid fa-gamepad modal-info-icon"></i>
+            <h3>You're Invited!</h3>
+            <p id="inviteMessage">A player has invited you to a game.</p>
+            <div class="lobby-modal-controls">
+                <button id="declineInviteBtn" class="modern-button leave-btn">
+                    Decline
+                </button>
+                <button id="acceptInviteBtn" class="modern-button ready-btn">
+                    Accept
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="customAlertModal" class="modal-overlay">
+        <div class="modal-box alert-modal-content">
+            <i class="fa-solid fa-circle-exclamation modal-info-icon"></i>
+            <h3 id="customAlertTitle">Alert</h3>
+            <p id="customAlertMessage">This is an alert message.</p>
+            <div class="lobby-modal-controls" style="margin-bottom: 0;">
+                <button id="customAlertOkBtn" class="modern-button ready-btn">OK</button>
+            </div>
+        </div>
+    </div>
+<div id="readyConfirmModal" class="modal-overlay">
+        <div class="modal-box alert-modal-content">
+            <i class="fa-solid fa-shield-halved modal-info-icon"></i>
+            <h3 id="readyConfirmTitle">Ready Up?</h3>
+            <p id="readyConfirmMessage">
+                Once you are ready, the lobby settings (Set and Card Count) will be locked. You can still invite players.
+            </p>
+            <div class="lobby-modal-controls" style="margin-bottom: 0;">
+                <button id="cancelReadyBtn" class="modern-button">Cancel</button>
+                <button id="confirmReadyBtn" class="modern-button ready-btn">Confirm</button>
+            </div>
+        </div>
+    </div>
+    <div id="customConfirmModal" class="modal-overlay">
+        <div class="modal-box alert-modal-content">
+            <i id="customConfirmIcon" class="fa-solid fa-circle-question modal-info-icon"></i>
+            <h3 id="customConfirmTitle">Are you sure?</h3>
+            <p id="customConfirmMessage">Do you want to proceed?</p>
+            <div class="lobby-modal-controls" style="margin-bottom: 0;">
+                <button id="customConfirmCancelBtn" class="modern-button">Cancel</button>
+                <button id="customConfirmOkBtn" class="modern-button">Confirm</button>
+            </div>
+        </div>
+    </div>
+    <div id="lobbyStatusBox" class="lobby-status-box">
+        <button id="lobbyCollapseBtn" class="lobby-collapse-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        <p>You are in a lobby.</p>
+        <div class="lobby-status-buttons">
+            <button id="lobbyReadyBtn" class="modern-button ready-btn small-btn">
+                <i class="fa-solid fa-check"></i> Ready
+            </button>
+            <button id="lobbyLeaveBtn" class="modern-button leave-btn small-btn">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Leave
+            </button>
+        </div>
+    </div>
+<button id="lobbyStatusOpenBtn" class="lobby-status-open-btn">
+        <i class="fa-solid fa-users"></i>
+    </button>
+
+    <div id="endGameModal" class="modal-overlay">
+        <div class="modal-box end-game-modal-content">
+            <i class="fa-solid fa-trophy modal-info-icon"></i>
+            <h3 id="endGameTitle">Game Over!</h3>
+            <p id="endGameWinnerMessage">Calculating winner...</p>
+            
+            <div class="end-game-scoreboard-container">
+                <ul class="scoreboard-list" id="endGameScoreboard">
+                    </ul>
+            </div>
+
+            <div id="endGameControls" class="lobby-modal-controls">
+                </div>
+        </div>
+    </div>
+    <div id="chatWidget" class="chat-widget">
+        
+        <div id="aiChatContainer" class="chat-container hidden">
+            <div class="chat-header">
+                <h3>FlipCards Assistant</h3>
+            </div>
+            <div id="aiChatMessages" class="chat-messages">
+                <div class="chat-message ai-message" id="initialAiMessage">
+                    <p>Hi there! How can I help you with Quibble?</p>
+                    <!-- Quick question buttons will be added by JS here -->
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="aiChatInput" placeholder="Ask about Quibble..." autocomplete="off">
+                <button id="aiChatSendBtn" class="modern-button"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-box info-modal-content">
+            <button id="infoModalCloseBtn" class="modal-close-x">&times;</button>
+            <div class="modal-header-left">
+                <i class="fa-solid fa-circle-info modal-info-icon"></i>
+                <h3>About Quibble</h3>
+            </div>
+            
+            <div class="info-modal-body">
+                <h4><i class="fa-solid fa-bullseye"></i> Game Goal</h4>
+                <p>
+                    The goal of **Quibble** is to be the player with the highest score. You earn points by being the first to guess the correct **Term** that matches the **Definition** shown on the main screen.
+                </p>
+
+                <h4><i class="fa-solid fa-gamepad"></i> Gameplay</h4>
+                <ul>
+                    <li>The Host selects a flashcard set, number of cards, and a timer (5-20 seconds) for each round.</li>
+                    <li>When the game starts, a definition will appear. Type your answer (the matching term) into the chat box.</li>
+                    <li>You get **+1 point** for your first correct answer each round. You cannot score more than once per round.</li>
+                    <li>The game ends after all cards have been shown.</li>
+                </ul>
+
+                <h4><i class="fa-solid fa-star"></i> XP Rewards</h4>
+                <ul>
+                    <li>You earn **+50 XP** for each correct answer you get during the game.</li>
+                    <li>At the end of the match, the player with the highest score (must be > 0) wins and gets **+1000 XP**.</li>
+                    <li>All other players (or all players in a 0-0 draw) receive **+300 XP**.</li>
+                </ul>
+
+                <h4><i class="fa-solid fa-user-shield"></i> Host Controls</h4>
+                <ul>
+                    <li>**Pause:** The host can pause and resume the game at any time using the 3-dot menu.</li>
+                    <li>**Restart:** The host can restart the game from the main "Start" button or the end-game screen.</li>
+                    <li>**Kick:** The host can remove players from the lobby modal.</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+    <!-- ======================= -->
+    <!--     NEW TUTORIAL MODAL      -->
+    <!-- ======================= -->
+    <div id="tutorialModal" class="modal-overlay">
+        <div class="modal-box tutorial-modal-content">
+            <button id="tutorialModalCloseBtn" class="modal-close-x">&times;</button>
+
+            <div class="tutorial-layout">
+                <!-- Sidenav -->
+                <aside class="tutorial-sidenav">
+                    <button class="tutorial-nav-btn active" data-target="page-create-lobby">
+                        <i class="fa-solid fa-plus"></i> How to Create Lobby
+                    </button>
+                    <button class="tutorial-nav-btn" data-target="page-join-lobby">
+                        <i class="fa-solid fa-right-to-bracket"></i> How to Join Lobby
+                    </button>
+                    <button class="tutorial-nav-btn" data-target="page-test-mode">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="m10.4 12.6-2.8 2.8"></path><path d="m10.4 15.4-2.8-2.8"></path><path d="M12 18h6"></path></svg> What is Test Mode
+                    </button>
+                    <button class="tutorial-nav-btn" data-target="page-learn-mode">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.232 5.232a3 3 0 0 1 0 4.242L12 12.728l-3.232-3.232a3 3 0 0 1 0-4.242a3 3 0 0 1 4.242 0z"></path><path d="M12 12.728 8.768 9.496a3 3 0 0 1 0 4.242L12 17.228l3.232-3.232a3 3 0 0 1 0-4.242z"></path>
+</svg> What is Learn Mode
+                    </button>
+                </aside>
+
+                <!-- Main Content Area -->
+                <main class="tutorial-main-content">
+                    
+                    <div id="page-create-lobby" class="tutorial-page active">
+                        <h3>How to Create a Lobby (Host)</h3>
+                        <p>As the host, you are in complete control of the game.</p>
+                        <ol>
+                            <li>Click the yellow **"Create Lobby"** button in the sidebar to start.</li>
+                            <li>The Lobby Modal will open. Here, you can click **"Select Set"** to choose a flashcard deck.</li>
+                            <li>You can also set the **Card Count**, **Timer** (5-20 seconds), and **Game Mode**.</li>
+                            <li>Use the **Invite Players** list on the right to send invites to other users.</li>
+                            <li>Once you are happy with the settings and your players are in the lobby, click **"I'm Ready"**.</li>
+                            <li>When all players are ready, the **"Start"** button (in the main sidebar) will turn yellow. Click it to begin!</li>
+                        </ol>
+                    </div>
+
+                    <div id="page-join-lobby" class="tutorial-page">
+                        <h3>How to Join a Lobby (Guest)</h3>
+                        <p>To join a game, you must be invited by a host.</p>
+                        <ol>
+                            <li>Wait on this page. When a host invites you, an **invitation modal** will appear.</li>
+                            <li>You have **10 seconds** to click **"Accept"** or **"Decline"**. If you don't choose, the invite will expire.</li>
+                            <li>After accepting, you will be in the lobby. You can chat with other players, but you cannot change the game settings.</li>
+                            <li>Click the **"Ready"** button in the small box at the bottom-right of your screen to let the host know you're ready to play.</li>
+                        </ol>
+                    </div>
+
+                    <div id="page-test-mode" class="tutorial-page">
+                        <h3>Game Mode: Test Mode</h3>
+                        <p>This is the default and classic game mode, perfect for testing your knowledge.</p>
+                        <ul>
+                            <li>A definition will appear on the main screen.</li>
+                            <li>All players must type the matching **Term** into the **main chat box** on the right side of the screen.</li>
+                            <li>The first player to type the correct answer wins the round and gets +1 point.</li>
+                            <li>You can chat normally, but any message that matches the answer will be counted!</li>
+                        </ul>
+                    </div>
+
+                    <div id="page-learn-mode" class="tutorial-page">
+                        <h3>Game Mode: Learn Mode</h3>
+                        <p>This mode is great for learning new material without the pressure of typing.</p>
+                        <ul>
+                            <li>A definition will appear on the main screen.</li>
+                            <li>**Four multiple-choice buttons** will appear at the bottom of the screen.</li>
+                            <li>All players must click the button with the correct **Term**.</li>
+                            <li>If you are correct, you get +1 point.</li>
+                            <li>If you are wrong, all choice buttons will be disabled *for you* until the next round.</li>
+                            <li>The main chat box can be used for normal chatting and will not check for answers.</li>
+                        </ul>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </div>
+    <!-- ======================= -->
+    <!--  END TUTORIAL MODAL     -->
+    <!-- ======================= -->
+    <script type="module" src="firebaseinit.js"></script>
+    <script type="module" src="Quibble.js"></script>
+    <script type="module" src="quibble-listener.js"></script>
+    <script src="protect.js"></script>
+</body>
+</html>

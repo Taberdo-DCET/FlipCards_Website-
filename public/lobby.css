@@ -3335,7 +3335,7 @@ box-shadow: none !important;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 150px;
+  width: 170px;
   padding: 12px 16px;
  
   font-family: 'Satoshi', sans-serif;
@@ -3362,8 +3362,14 @@ box-shadow: none !important;
 }
 
 .quibbl-new-icon {
-  width: 28px;
+  width: 35px;
   height: 28px;
+  object-fit: contain;
+  margin-top: 3px;
+}
+.quibbl-new-icon2 {
+  width: 48px;
+  height: 43px;
   object-fit: contain;
   margin-top: 3px;
 }
