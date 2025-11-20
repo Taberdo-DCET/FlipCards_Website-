@@ -58,6 +58,9 @@
          <button class="tab-btn" data-tab="ask-text">
     <i class="fa-solid fa-comment-dots"></i> <span>AI Chat</span>
 </button>
+<button class="tab-btn" data-tab="research">
+    <i class="fa-solid fa-book-atlas"></i> <span>Research Assistant</span>
+</button>
         <button class="tab-btn active" data-tab="create">
     <i class="fa-solid fa-layer-group"></i> <span>Create Sets</span>
 </button>
@@ -224,6 +227,55 @@
     <div id="askTextContainer">
         </div>
      
+</div>
+<div id="research-panel" class="tab-panel">
+    <p class="page-description">
+        Need sources for your paper? Enter a topic, and the AI will find a relevant paragraph, source link, and APA 7 citation for you.
+    </p>
+
+    <div class="ask-ai-input-area" id="researchInputArea">
+        <textarea id="researchTextInput" placeholder="Enter a topic (e.g., 'impact of social media on adolescent mental health')..." rows="1"></textarea>
+        <div class="input-controls">
+            <div class="research-selectors-group">
+                <select id="researchYearFrom" class="research-selector" title="Start Year">
+    <option value="">From Year</option>
+</select>
+<span class="selector-divider">to</span>
+<select id="researchYearTo" class="research-selector" title="End Year">
+    <option value="">To Year</option>
+</select>
+
+<select id="researchSource" class="research-selector" title="Search Source" style="width: 140px;">
+    <option value="google">🌐 Standard (Google Gemini 3 pro)</option>
+    <option value="crossref">🎓 Recommended: Strict (Crossref)</option>
+</select>
+
+<select id="researchLanguage" class="research-selector" title="Language">
+    <option value="">Any Language</option>
+    <option value="en">English</option>
+    <option value="tl">Filipino</option>
+</select>
+            </div>
+            <span class="model-display">Model: Gemini 3 Pro</span>
+             <button id="researchSendBtn" class="send-icon-btn" title="Find Literature">
+                 <i class="fa-solid fa-magnifying-glass"></i>
+             </button>
+        </div>
+    </div>
+
+    <button class="how-it-works-btn" data-tab="research">How does this work?</button>
+
+    <div id="usageTrackerResearch" class="usage-tracker hidden">
+        <i id="usageInfoBtnResearch" class="fa-solid fa-circle-info usage-info-icon"></i>
+        <span id="usageCountResearch"></span>
+        <span id="resetTimerResearch"></span>
+    </div>
+    <a href="shop.html" id="upgradeNoteResearch" class="upgrade-note hidden">
+        Upgrade your plan to gain more usage
+    </a>
+
+    <div id="researchContainer">
+        </div>
 </div>
 <p class="ai-disclaimer">
         <i class="fa-solid fa-triangle-exclamation"></i>

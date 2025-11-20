@@ -1,0 +1,1104 @@
+/* Import Fonts matching your other files */
+@font-face {
+    font-family: 'Satoshi';
+    src: url('Satoshi-Black.ttf') format('truetype');
+    font-weight: 900;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #171717;
+    color: #fff;
+    font-family: 'Satoshi', sans-serif;
+    display: flex;
+    flex-direction: column; 
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* --- HEADER STYLES --- */
+.shop-header {
+  position: relative; 
+  width: 100%;
+  padding: 15px 5%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  background-color: #171717;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.back-button {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  background-color: rgba(255,255,255,0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: white;
+  color: black;
+}
+
+.shop-title {
+  margin: 0;
+  font-size: 28px;
+  font-family: 'Satoshi', sans-serif;
+}
+
+.upgrade-button {
+  background-color: #ffcf00;
+  color: #171717;
+  padding: 8px 16px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border: 2px solid #ffcf00;
+}
+
+.upgrade-button:hover {
+  background-color: #171717;
+  color: #ffcf00;
+}
+
+/* --- LAYOUT WRAPPER --- */
+.layout-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    width: 100%;
+}
+
+/* --- SIDEBAR STYLES --- */
+.sidebar {
+    width: 280px;
+    background-color: #1e1e1e;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    z-index: 10;
+    height: 100%;
+}
+
+.sidebar-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #333;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #ffcf00;
+}
+
+.sidebar-menu {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Dropdown Styles */
+.dropdown-container {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.dropdown-btn {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s;
+}
+
+.dropdown-btn:hover {
+    background-color: #333;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    margin-top: 5px;
+    overflow: hidden;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.dropdown-content.show {
+    display: block;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 12px 15px;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.dropdown-content a.active {
+    background-color: #ffcf00;
+    color: #171717;
+}
+
+/* Set List Styles */
+/* Set List Styles - Card Design */
+.set-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: #262626; /* Dark card background */
+    border: 1px solid #333;    /* Subtle border */
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.set-item:hover {
+    background-color: #333;
+    border-color: #555;
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.set-item.active {
+    background-color: #2a2a2a;
+    border-color: #ffcf00; /* Yellow border for active */
+    box-shadow: 0 0 0 1px rgba(255, 207, 0, 0.2);
+}
+
+/* New Icon Container Style */
+.set-icon-box {
+    width: 38px;
+    height: 38px;
+    background-color: rgba(255, 207, 0, 0.1); /* Faint yellow bg */
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.set-icon-box i {
+    color: #ffcf00; /* Yellow icon */
+    font-size: 16px;
+}
+
+.set-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.set-name {
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+}
+
+.set-desc {
+    font-size: 11px;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- 3-DOT MENU STYLES --- */
+.set-actions {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.action-dots-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.action-dots-btn:hover {
+    color: #fff;
+    background-color: #333;
+}
+
+.action-menu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    right: 0;
+    top: 25px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    z-index: 50;
+    min-width: 100px;
+    overflow: hidden;
+}
+
+.action-menu.show {
+    display: block;
+}
+/* FIX: Elevate the set item when its menu is open so it covers other items */
+.set-item.menu-open {
+    z-index: 1000;
+    position: relative; /* Ensure z-index applies */
+}
+.action-menu button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 13px;
+    font-family: 'Satoshi', sans-serif;
+    cursor: pointer;
+    text-align: left;
+}
+
+.action-menu button:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.action-menu button.delete-option:hover {
+    background-color: #3c1a1a;
+    color: #ff5555;
+}
+
+.set-item:hover {
+    background-color: #252525;
+}
+
+.set-item.active {
+    background-color: #252525;
+    border-color: #ffcf00;
+}
+
+.set-name {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.set-count {
+    font-size: 12px;
+    color: #888;
+}
+
+/* --- MAIN CONTENT LAYOUT --- */
+.main-content {
+    flex: 1;
+    position: relative;
+    overflow-y: auto;
+    background-color: #171717;
+    
+    /* Firefox Scrollbar Support */
+    scrollbar-width: thin;
+    scrollbar-color: #444 #171717;
+}
+
+/* --- CUSTOM SCROLLBAR STYLING (Chrome, Edge, Safari) --- */
+.main-content::-webkit-scrollbar {
+    width: 10px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: #171717; /* Matches background */
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background-color: #333; /* Dark grey thumb */
+    border-radius: 10px;
+    border: 2px solid #171717; /* Creates padding effect */
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background-color: #ffcf00; /* Yellow accent on hover */
+}
+
+/* --- DASHBOARD VIEW --- */
+.dashboard-view {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    text-align: center;
+}
+
+.fillin-intro {
+    margin-bottom: 40px;
+}
+
+.fillin-title {
+    font-size: 42px;
+    margin-bottom: 15px;
+    margin-top: 0;
+}
+
+.fillin-description {
+    color: #aaa;
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto 40px auto;
+}
+
+.large-btn {
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 50px;
+}
+
+.game-container {
+    background-color: #222;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 40px;
+    
+    /* Fixed height to ensure consistent layout */
+    height: 500px; 
+    
+    display: flex;
+    flex-direction: column;
+    /* Pushes footer to bottom, content to center */
+    justify-content: space-between; 
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+/* --- REDESIGNED DEFINITION DISPLAY --- */
+.definition-display {
+    /* Text Settings */
+    font-size: 20px;
+    color: #e0e0e0;
+    line-height: 2.2; 
+    white-space: normal; 
+    text-align: center;
+    
+    /* Container Settings */
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0 20px; 
+    width: 100%;
+    box-sizing: border-box;
+
+    /* Fixed Size & NO SCROLL */
+    height: 300px;           
+    overflow: hidden; 
+    margin-bottom: 0;
+
+    /* Flexbox Centering (Centers the wrapper div) */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers vertically */
+    align-items: center;     /* Centers horizontally */
+    flex: 1;
+}
+.word-wrapper {
+    display: inline-flex;
+    margin: 0 0.3em; 
+    /* Align bottom prevents the inputs from jumping up/down relative to text */
+    vertical-align: bottom; 
+}
+
+/* --- CHARACTER INPUT STYLES (_ _ _ _) --- */
+.char-input {
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid #555; 
+    color: #ffcf00; 
+    font-family: 'Satoshi', sans-serif;
+    
+    /* FIX: Inherit font size from the container so it scales */
+    font-size: inherit; 
+    font-weight: bold;
+    text-align: center;
+    
+    /* FIX: Use 'em' units so width/height adjust with font size */
+    width: 1.2em;  /* Relative width (was 30px) */
+    height: 1.5em; /* Relative height (was 40px) */
+    margin: 0 0.1em; /* Relative margin */
+    
+    padding: 0;
+    outline: none;
+    transition: all 0.2s ease;
+    text-transform: uppercase; 
+    border-radius: 2px; 
+}
+/* --- SIDEBAR CREATE BUTTON --- */
+.sidebar-create-btn {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: #ffcf00; /* Yellow Accent */
+    color: #171717;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center text */
+    gap: 10px;
+    margin-bottom: 20px; /* Space between button and list */
+    transition: all 0.2s ease;
+}
+
+.sidebar-create-btn:hover {
+    background-color: #fff; /* White on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.sidebar-create-btn:active {
+    transform: translateY(0);
+}
+.char-input:focus {
+    border-bottom-color: #ffcf00;
+    background-color: rgba(255, 207, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+/* Feedback States */
+.char-input.correct {
+    border-bottom-color: #22c55e;
+    color: #22c55e;
+    pointer-events: none;
+}
+
+.char-input.incorrect {
+    border-bottom-color: #ef4444;
+    color: #ef4444;
+    animation: shake 0.3s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    50% { transform: translateX(3px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+.placeholder-text {
+    color: #555;
+    font-style: italic;
+    
+    /* FIX: Center the text specifically for this element */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Fills the 300px parent height */
+    width: 100%;
+    text-align: center;
+}
+
+.answer-input-area {
+    width: 100%;
+    max-width: 500px;
+    display: none; /* FIX: Hidden by default until a set is clicked */
+    justify-content: center; /* Center the button */
+    gap: 10px;
+}
+
+.answer-input-area input {
+    display: none; /* FIX: Permanently hide the unused text input */
+}
+
+.answer-input-area input:focus {
+    outline: none;
+    border-color: #ffcf00;
+}
+
+.check-btn {
+    background-color: #ffcf00;
+    color: #171717;
+    border: none;
+    border-radius: 30px;
+    padding: 12px 40px;
+    font-size: 16px;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: none !important; /* Force remove glow */
+    margin-top: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.check-btn:hover {
+    background-color: #fff;
+    transform: translateY(-2px);
+    box-shadow: none !important; /* Force remove glow */
+}
+
+.check-btn:active {
+    transform: translateY(0);
+}
+
+.check-btn:disabled {
+    background-color: #444;
+    color: #888;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* --- CREATE SET VIEW STYLES --- */
+.create-view {
+    padding: 40px;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+/* New Header Layout: Grouped left buttons + Title on right */
+.create-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Re-designed Save Button */
+.save-set-btn {
+    background-color: #ffcf00;
+    color: #171717;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px; /* Pill shape */
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Satoshi', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(255, 207, 0, 0.2);
+}
+
+.save-set-btn:hover {
+    background-color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(255, 207, 0, 0.3);
+}
+
+.save-set-btn:disabled {
+    background-color: #555;
+    color: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+
+.hidden {
+    display: none !important;
+}
+
+/* --- NEW: Highlight Toolbar (Switch Design) & Content Box --- */
+
+.highlight-toolbar {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+/* Toggle Switch CSS */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 10px;
+    color: #ccc;
+    font-size: 14px;
+    user-select: none;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    border: 1px solid #555;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #ffcf00;
+    border-color: #ffcf00;
+}
+
+input:checked + .slider:before {
+    transform: translateX(18px);
+    background-color: #171717;
+}
+
+/* Ensure the group takes full width */
+.input-group {
+    width: 100%;
+}
+
+/* Content Box - Fixed Size & Scrolling */
+.content-box {
+    width: 100%;
+    /* STRICT FIX for shrinking issue */
+    height: 150px !important; 
+    min-height: 150px !important; 
+    max-height: 150px !important;
+    
+    background-color: #222;
+    border: 2px solid #444;
+    border-radius: 8px;
+    padding: 15px;
+    box-sizing: border-box; /* STRICT FIX for overflow issue */
+    color: white;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color 0.2s;
+    white-space: pre-wrap;
+    overflow-y: auto; /* Scrollable */
+    resize: none;
+}
+
+.content-box:focus {
+    border-color: #ffcf00;
+}
+
+/* Placeholder simulation */
+/* Placeholder simulation */
+.content-box:empty:before {
+    content: attr(placeholder);
+    color: #777; /* Slightly lighter to be more readable on dark bg */
+    pointer-events: none;
+    display: block;
+}
+
+/* Highlight Style */
+.answer-highlight {
+    background-color: #ffcf00;
+    color: #171717;
+    border-radius: 4px;
+    padding: 0 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.flashcard-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+/* --- CARD BUTTON FIXES (FontAwesome) --- */
+/* This targets the <i> tags inside your buttons to give them color */
+
+.card-buttons button i {
+    font-size: 18px;
+    color: #888; /* Default Gray */
+    transition: color 0.2s ease;
+}
+
+/* Add Button Green Hover */
+.card-buttons .add-btn:hover {
+    background-color: rgba(34, 197, 94, 0.15);
+}
+
+.card-buttons .add-btn:hover i {
+    color: #ffcf00; /* Green */
+}
+
+/* Delete Button Red Hover */
+.card-buttons .delete-btn:hover {
+    background-color: rgba(239, 68, 68, 0.15);
+}
+
+.card-buttons .delete-btn:hover i {
+    color: #ef4444; /* Red */
+}
+/* --- GAME CONTROLS FOOTER --- */
+.game-controls {
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* Left and Right align */
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #333;
+    margin-top: 20px;
+}
+.card-counter {
+    color: #666;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+    user-select: none;
+}
+.controls-left {
+    display: flex;
+    gap: 15px;
+}
+
+.control-icon-btn {
+    background-color: #2a2a2a;
+    color: #888;
+    border: 1px solid #444;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%; /* Circle shape */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.control-icon-btn:hover {
+    background-color: #ffcf00;
+    color: #171717;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+}
+
+.control-icon-btn:active {
+    transform: translateY(0);
+}
+
+/* Update Check Button to remove top margin since container handles it */
+.check-btn {
+    margin-top: 0; 
+    min-width: 140px;
+}
+
+/* Hide the old input area styles just in case */
+.answer-input-area {
+    display: none !important;
+}
+/* --- HEADER REDESIGN --- */
+
+/* 1. Metadata Pill */
+.set-meta-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #1e1e1e; /* Dark Pill Background */
+    border: 1px solid #333;
+    border-radius: 10px !important;
+    padding: 8px 20px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.meta-label {
+    color: #777; /* Grey Label */
+    font-weight: bold;
+}
+
+.meta-value {
+    color: #ffcf00; /* Yellow Value */
+    font-weight: bold;
+}
+
+.meta-divider {
+    color: #444;
+    margin: 0 5px;
+}
+
+/* 2. Title Label Styling */
+.fillin-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Space between "Title:" and the actual title */
+}
+
+.title-label {
+    font-size: 0.5em; /* Smaller relative to H1 */
+    color: #666;
+    font-weight: bold;
+    text-transform: none;
+    margin-top: 5px; /* Slight adjustment for alignment */
+}
+
+/* 3. Description Box */
+.description-box {
+    width: 100%;
+    max-width: 100%; /* Fills the width of dashboard view */
+    background-color: #292828; /* Darker than background */
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-bottom: 40px;
+    text-align: left; /* Align description text to left */
+}
+
+/* Override existing description margins */
+.fillin-description {
+    margin: 0 !important;
+    max-width: none !important;
+    color: #ccc;
+    font-size: 16px;
+}
+#fillinTitleText {
+    color: #ffcf00;
+}
+/* ============================ */
+/* ▼▼▼ CUSTOM MODAL STYLES (From Flashcard) ▼▼▼ */
+/* ============================ */
+
+.custom-alert-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.custom-alert-backdrop.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.custom-alert-content {
+  background: #171717;
+  color: white;
+  padding: 25px 30px;
+  border-radius: 16px;
+  border: 1px solid #000;
+  box-shadow:
+    12px 12px 24px #0f0f0f,
+    -12px -12px 24px #1f1f1f;
+  font-family: 'Satoshi', sans-serif;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+  border-top: 4px solid #ffcf00; /* Yellow default accent */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Error variant (Red border) */
+.custom-alert-content.error {
+  border-top-color: #ef4444;
+}
+
+.custom-alert-content p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0 0 20px 0;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  width: 100%;
+}
+
+/* Neumorphic Button Style (Specific for Modals) */
+.neumorphic-button {
+  background: #171717;
+  border: 1px solid #000;
+  padding: 10px 24px;
+  font-size: 14px;
+  border-radius: 12px;
+  box-shadow: 5px 5px 10px #0f0f0f, -5px -5px 10px #1f1f1f;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-family: 'Satoshi', sans-serif;
+  min-width: 80px;
+}
+
+.neumorphic-button:hover {
+  box-shadow: inset 3px 3px 6px #0f0f0f, inset -3px -3px 6px #1f1f1f;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #ffcf00;
+}
+
+/* Danger Button Style */
+.neumorphic-button.danger {
+    color: #ff8f8f;
+}
+.neumorphic-button.danger:hover {
+    color: #ff4d4d;
+    border-color: #552222;
+}
+/* Modal Checkbox Styles */
+.modal-checkbox-container {
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-checkbox-container.hidden {
+    display: none;
+}
+
+.modal-checkbox-container label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.modal-checkbox-container input[type="checkbox"] {
+    accent-color: #ef4444; /* Red to match the danger theme */
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        display: none; 
+    }
+    .dashboard-view {
+        padding: 30px 20px;
+    }
+    .fillin-title {
+        font-size: 32px;
+    }
+    .shop-header {
+        padding: 15px;
+    }
+}

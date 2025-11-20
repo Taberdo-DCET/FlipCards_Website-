@@ -16,6 +16,7 @@ const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 
 const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
+const SEARCH_ENGINE_ID = defineSecret("SEARCH_ENGINE_ID");
 
 // ===== INITIALIZATION =====
 admin.initializeApp();
@@ -57,22 +58,45 @@ exports.generateFlashcards = onRequest(
           if (!fileBuffer) return res.status(400).json({ message: "No file uploaded." });
           
           let documentText = "";
-          const basePrompt = `You are an expert flashcard creator. Your task is to extract key information from the provided document and format it into a JSON array of flashcards.
+          const basePrompt = `You are an expert, rule-based text-extraction bot. Your sole task is to extract key information from the provided document text and format it into a JSON array of flashcards.
 
-**Instructions:**
-1.  Identify ALL **terms** or **concepts** available in the document.
-2.  For each term, provide its corresponding **definition** as found in the text.
-3.  Do NOT create questions and answers. You MUST use the keys "term" and "definition".
+**Critical Rules:**
+1.  **Strict JSON Format:** You MUST use the exact keys "term" and "definition". Your response must be ONLY the raw JSON array.
+2.  **Verbatim Text:** The "term" and "definition" MUST be extracted **100% word-for-word** from the provided text.
+3.  **NO INVENTING:** You MUST NOT invent, create, paraphrase, or summarize. If a term is not written verbatim in the text, you cannot use it.
+4.  **MANDATORY COMPREHENSIVE SCAN:** You are REQUIRED to process the **entire** document from top to bottom and extract **every** piece of text that matches one of the extraction rules below. Do not stop after the first match.
 
-**Your response MUST be a JSON array of objects. Each object must have the following exact structure:**
+**MANDATORY EXTRACTION RULES (Apply in this order):**
+
+* **RULE 1: Explicit Definitions:**
+    * Scan for all explicit definitions marked by keywords like "**is**", "**means**", "**or**", and **parentheses ()**. Extract the term and its definition verbatim.
+    * **Example:** \`{"term": "Industrial engineering", "definition": "is a diverse (various) discipline..."}\`
+    * **Example:** \`{"term": "diverse", "definition": "various"}\`
+    * **Example:** \`{"term": "“soldiering”", "definition": "laziness of workers"}\`
+
+* **RULE 2: Heading + List:**
+    * Scan for a main heading or title (like "EFFICIENCY") that is immediately followed by a bulleted or numbered list.
+    * For **each** list item, create one flashcard.
+    * The 'term' is the **verbatim heading**.
+    * The 'definition' is the **verbatim text of the list item**.
+    * **Example:** \`{"term": "EFFICIENCY", "definition": "Industrial engineers determine the most effective ways..."}\`
+
+* **RULE 3: Subject + List (NEW RULE):**
+    * Scan for a subject line (like a person's name, e.g., "Frederick W. Taylor (1856-1915)") that is **NOT** a main heading but **IS** immediately followed by a bulleted list.
+    * For **each** list item in that subject's list, create one flashcard.
+    * The 'term' is the **verbatim subject line**.
+    * The 'definition' is the **verbatim text of the list item**.
+    * **Example:** \`{"term": "Frederick W. Taylor (1856-1915)", "definition": "1876: Observed “soldiering” or laziness of workers in Midvale Steel Works"}\`
+    * **Example:** \`{"term": "Frederick W. Taylor (1856-1915)", "definition": "1881: Introduced Time Study in Midvale"}\`
+
+**Final Output:**
+Respond ONLY with the raw JSON array.
 [
   {
     "term": "A key term from the document",
-    "definition": "The definition for that term"
+    "definition": "The exact, word-for-word definition from the document"
   }
-]
-
-Respond ONLY with the raw JSON array.`;
+]`;
 
           switch (fileMimeType) {
             case "application/pdf":
@@ -751,9 +775,10 @@ exports.chatWithFlipCardsAI = onRequest(
 - **Analyze File Tab:** Users can upload PDF, PPTX, or DOCX files to get detailed explanations of key concepts. For math files, it provides step-by-step solutions. For other topics, it gives Filipino-contextualized examples in both English and Tagalog, plus synonyms.
 - **Summarizer Tab:** Users can upload PDF, PPTX, or DOCX files to get a concise summary and a paraphrased version.
 - **AI Chat Tab:** Users can ask text-based questions and optionally upload images (JPEG, PNG) or documents (PDF, PPTX, DOCX) for context. The AI provides detailed answers based on the input.
+- **Research Assistant Tab:** Users can input a research topic to find academic sources. The AI generates a relevant paragraph, a paraphrased version suitable for RRLs, a key takeaway, and a full APA 7 citation. Users can filter results by year and language, and switch between "Standard (Google)" for broad sources or "Strict (Crossref)" for peer-reviewed journals.
 
 **Important Usage Note:**
-- **Single Task Per Tab:** While the AI is processing a file upload (on Create Sets, Analyze File, Summarizer, or Ask AI Image tabs) or answering a text question (on Ask AI Text tab), you **cannot start a new task on that same tab**. The upload buttons or the send button will be temporarily disabled, and trying to initiate a new request will prompt you to wait until the current one finishes. This ensures each request completes properly before the next one begins. You *can*, however, switch to a different tab and start a task there if needed.
+- **Single Task Per Tab:** While the AI is processing a task—whether it's uploading a file (Create Sets, Analyze, Summarizer), answering a question (AI Chat), or finding literature (Research Assistant)—you **cannot start a new task on that same tab**. The buttons will be temporarily disabled to ensure the current request completes properly. You *can*, however, switch to a different tab and start a task there if needed.
 
 **Usage Limits & Subscriptions:**
 - Free users have a limited number of daily uses shared across *all* AI features. To get more uses, users can buy subscriptions from the shop. The shop is located at: https://flipcards-7adab.web.app/shop
@@ -953,7 +978,76 @@ FlipNotes is like your personal digital notebook integrated into FlipCards.
     });
   }
 );
+// ===================================
+// ▼▼▼ ADD THIS ENTIRE NEW FUNCTION ▼▼▼
+// ===================================
+const quibbleChatPrompt = `You are "Quibble AI Assistant," a friendly and helpful guide for the "Quibble" game mode on the FlipCards.ai website. Your only purpose is to answer questions about this specific game mode.
 
+**Quibble Game Goal:**
+The goal is to get the highest score. Players earn points by guessing the correct "Term" for a given "Definition".
+
+**Game Modes:**
+1.  **Test Mode (Default):** Players type their answers into the main chat box on the right. The first correct answer gets the point.
+2.  **Learn Mode:** Players choose from four multiple-choice buttons on the main screen. In this mode, the main chat box is just for talking, not for submitting answers.
+
+**Core Gameplay:**
+- A Host creates a lobby and invites players.
+- The Host selects a flashcard set, the number of cards, the timer (5-20 seconds), and the Game Mode (Test or Learn).
+- When the game starts, a definition appears.
+- In **Test Mode**, players race to type the answer in the main chat.
+- In **Learn Mode**, players race to click the correct choice. If a player chooses wrong, the buttons lock for them until the next round.
+- The round ends when the timer runs out.
+
+**Scoring & XP:**
+- **+1 point** for the first correct answer each round.
+- **+50 XP** for *each* correct answer (in both modes).
+- At the end of the match:
+    - **Winner** (highest score > 0) gets **+1000 XP**.
+    - **Non-winners** (or all players in a 0-0 draw) get **+300 XP**.
+
+**Host Controls (Host Only):**
+- **Pause/Resume:** In the 3-dot menu in the top-left.
+- **Restart:** From the main sidebar or the end-game screen.
+- **Kick:** From the lobby modal.
+- **Settings:** Hosts configure the game from the lobby modal.
+
+**Your Rules:**
+- Answer concisely and directly based *only* on the Quibble features listed above.
+- If a user asks about other parts of the website (like FlipNotes, the main lobby, etc.), politely state: "I can only answer questions about the Quibble game mode. You can ask the Lobby Assistant about other features!"
+- If a user asks a general knowledge question (e.g., "What is a 'schema'?"), politely decline and state your purpose. Say something like: "I'm not a dictionary, but I can tell you how to play Quibble! How can I help?"`;
+
+exports.chatWithQuibbleAI = onRequest(
+  { region: "us-central1", timeoutSeconds: 60, memory: "1Gi", secrets: [GEMINI_API_KEY] },
+  async (req, res) => {
+    cors(req, res, async () => {
+      if (req.method !== "POST") {
+        return res.status(405).send("Method Not Allowed");
+      }
+      if (!req.body.question) {
+        return res.status(400).json({ message: "Request body must contain a 'question'." });
+      }
+
+      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
+      const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
+
+      try {
+        const userQuestion = req.body.question;
+        
+        const finalPrompt = `${quibbleChatPrompt}\n\nUser Question: "${userQuestion}"`;
+        
+        const result = await model.generateContent(finalPrompt);
+        const aiText = result.response?.text?.() || "Sorry, I couldn't come up with a response.";
+
+        return res.status(200).json({ answer: aiText });
+
+      } catch (err) {
+        console.error("Quibble Chat error:", err);
+        return res.status(500).json({ message: "Failed to get a response from the AI." });
+      }
+    });
+  }
+);
+// ▲▲▲ END OF NEW FUNCTION ▲▲▲
 /**
  * A scheduled function that runs every 2 hours to delete expired anonymous guest users.
  */
@@ -982,3 +1076,217 @@ exports.autoDeleteExpiredGuests = onSchedule("every 2 hours", async (event) => {
     return null;
   }
 });
+/**
+ * A function to find and cite 5 literature examples based on a user's prompt
+ * using the LIVE Google Custom Search API with academic filtering and date fallback.
+ */
+exports.findLiterature = onRequest(
+  { region: "us-central1", timeoutSeconds: 180, memory: "2Gi", secrets: [GEMINI_API_KEY, SEARCH_ENGINE_ID] },
+  async (req, res) => {
+    cors(req, res, async () => {
+      if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+      if (!req.body.prompt) return res.status(400).json({ message: "Request body must contain a 'prompt'." });
+
+      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
+      const model = genAI.getGenerativeModel({ 
+          model: "models/gemini-3-pro-preview", 
+          generationConfig: { responseMimeType: "application/json" }
+      }); 
+
+      try {
+        const { prompt, yearFrom, yearTo, language, sourceMode } = req.body;
+        const apiKey = GEMINI_API_KEY.value();
+        const pseId = SEARCH_ENGINE_ID.value();
+        
+        let searchResults = [];
+        let isDateFallback = false;
+        let usedSource = sourceMode || 'google';
+
+        // ==========================================
+        // STRATEGY A: CROSSREF (Strict Academic)
+        // ==========================================
+        if (usedSource === 'crossref') {
+            console.log("Using Crossref API...");
+            const fetchCrossref = async (useDates) => {
+                let filters = [`type:journal-article`];
+                if (useDates && yearFrom) filters.push(`from-pub-date:${yearFrom}`);
+                if (useDates && yearTo) filters.push(`until-pub-date:${yearTo}`);
+                
+                const filterParam = filters.length > 0 ? `&filter=${filters.join(',')}` : '';
+                const encodedQuery = encodeURIComponent(prompt);
+                const url = `https://api.crossref.org/works?query=${encodedQuery}${filterParam}&rows=7&select=title,author,published-print,container-title,DOI,abstract,URL`;
+                
+                const response = await fetch(url);
+                if (!response.ok) return [];
+                const data = await response.json();
+                return data.message?.items || [];
+            };
+
+            let items = await fetchCrossref(true);
+            if (items.length === 0 && (yearFrom || yearTo)) {
+                console.log("Crossref fallback...");
+                items = await fetchCrossref(false);
+                isDateFallback = true;
+            }
+
+            searchResults = items.map(item => {
+                let snippet = item.abstract ? item.abstract.replace(/<[^>]*>?/gm, '') : item.title?.[0];
+                const authorList = item.author ? item.author.map(a => `${a.given} ${a.family}`).join(', ') : "Unknown Author";
+                const year = item['published-print']?.['date-parts']?.[0]?.[0] || "n.d.";
+                const sourceTitle = item['container-title']?.[0] || "Academic Journal";
+                const doiLink = item.DOI ? `https://doi.org/${item.DOI}` : item.URL;
+
+                return {
+                    title: item.title?.[0] || "Untitled Study",
+                    link: doiLink,
+                    snippet: `Title: ${item.title?.[0]}. Authors: ${authorList}. Journal: ${sourceTitle}. Year: ${year}. Abstract: ${snippet}`,
+                    source_type: "crossref"
+                };
+            });
+        } 
+        // ==========================================
+        // STRATEGY B: GOOGLE (Standard / Broad)
+        // ==========================================
+        else { 
+            console.log("Using Google Custom Search API...");
+            const academicFilters = `(site:.edu OR site:.gov OR site:.org OR site:.ac OR "journal" OR "research" OR "thesis" OR "dissertation" OR "study") -inurl:blog -site:wordpress.com -site:blogspot.com -site:wikipedia.org -site:pinterest.com -site:quora.com -site:reddit.com`;
+            const finalQuery = `${prompt} ${academicFilters}`;
+
+            const performGoogleSearch = async (useDateFilter) => {
+                let url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${pseId}&q=${encodeURIComponent(finalQuery)}&num=6`;
+                if (language) url += `&lr=lang_${language}`;
+                if (useDateFilter && yearFrom && yearTo) url += `&sort=date-sdate:r:${yearFrom}0101:${yearTo}1231`;
+                else if (useDateFilter && yearFrom) url += `&sort=date-sdate:r:${yearFrom}0101:`;
+                else if (useDateFilter && yearTo) url += `&sort=date-sdate:r::${yearTo}1231`;
+
+                const response = await fetch(url);
+                if (!response.ok) return { items: [] };
+                return await response.json();
+            };
+
+            let googleData = await performGoogleSearch(true);
+            if ((!googleData.items || googleData.items.length === 0) && (yearFrom || yearTo)) {
+                console.log("Google fallback...");
+                googleData = await performGoogleSearch(false);
+                isDateFallback = true;
+            }
+
+            if (googleData.items) {
+                searchResults = googleData.items.map(result => {
+                    let fullTitle = result.title; 
+                    if (result.pagemap && result.pagemap.metatags && result.pagemap.metatags.length > 0) {
+                        const tags = result.pagemap.metatags[0];
+                        if (tags['og:title']) fullTitle = tags['og:title'];
+                        else if (tags['twitter:title']) fullTitle = tags['twitter:title'];
+                        else if (tags['dc.title']) fullTitle = tags['dc.title'];
+                    }
+                    return {
+                        title: fullTitle,
+                        link: result.link,
+                        snippet: result.snippet.replace(/\n/g, ' '),
+                        source_type: "google"
+                    };
+                });
+            }
+        }
+
+        if (searchResults.length === 0) {
+             const msg = usedSource === 'crossref' 
+                ? "No strict academic papers found. Try switching to 'Standard (Google)' mode." 
+                : "No relevant studies found.";
+             throw new Error(msg);
+        }
+
+        // ==========================================
+        // AI PROCESSING
+        // ==========================================
+        const systemPrompt = `You are an expert academic research assistant.
+Your task is to analyze the provided search results and extract relevant information for a Review of Related Literature (RRL).
+
+**Input Context:**
+- User Topic: "${prompt}"
+- Source Mode: ${usedSource === 'crossref' ? "Strict Academic (Crossref)" : "General Web (Google)"}
+
+**Your Output:**
+Generate a JSON array containing one object for EACH relevant source.
+Return **null** for an index if the source is irrelevant to the topic.
+
+**JSON Structure:**
+[
+  {
+    "paragraph": "A detailed, academic paragraph (75-150 words) paraphrasing the findings.",
+    "paraphrased_paragraph": "A rewrite suitable for an RRL section, including in-text citation.",
+    "key_takeaway": "A 1-sentence summary of the conclusion.",
+    "source_link": "The URL provided in the input data.",
+    "apa_7_citation": "The full APA 7 reference entry.",
+    "year": 2023,
+    "is_scholar": true
+  }
+]
+
+**CRITICAL RULES:**
+1.  **Language:** ${language === 'tl' ? 'Write the "paragraph", "paraphrased_paragraph", and "key_takeaway" in **TAGALOG/FILIPINO**.' : 'Write everything in English.'}
+2.  **CITATION ACCURACY:** - Do **NOT** translate the title in the 'apa_7_citation'. Keep it in the original language.
+    - If using Crossref data, the snippet contains the exact author and year. Use them.
+    - If using Google data, look for "by [Name]" in the snippet or use the Organization Name.
+    - **NO MARKDOWN:** Do NOT use asterisks (*) for italics in the 'apa_7_citation'. Return plain text only.
+    - **MANDATORY URL:** You MUST end the 'apa_7_citation' with the exact URL provided in 'source_link'.
+
+**Source Data:**
+${JSON.stringify(searchResults, null, 2)}`;
+
+        const result = await model.generateContent(systemPrompt);
+        let aiText = result.response?.text?.() || "[]";
+        let cleaned = aiText.replace(/```json/gi, "").replace(/```/g, "").trim();
+        
+        let literatureDataArray;
+        try {
+            literatureDataArray = JSON.parse(cleaned);
+        } catch (e) {
+            throw new Error("AI response invalid JSON.");
+        }
+
+        if (Array.isArray(literatureDataArray)) {
+            literatureDataArray = literatureDataArray.filter(item => item !== null);
+        } else {
+            literatureDataArray = [];
+        }
+
+        // --- Smart Date Warning & Final Cleanup ---
+        literatureDataArray = literatureDataArray.map(item => {
+            let showWarning = false;
+            
+            if (item.apa_7_citation) {
+                // 1. Force clean asterisks
+                item.apa_7_citation = item.apa_7_citation.replace(/\*/g, '');
+                
+                // 2. ✅ FIX: Force Append Link if Missing
+                // Sometimes AI forgets the link even if told. We check if the link is inside the citation string.
+                // We remove protocols (https://) for a softer check, or just check strict inclusion.
+                if (item.source_link && !item.apa_7_citation.includes(item.source_link)) {
+                    // Append it to the end
+                    item.apa_7_citation = item.apa_7_citation.trim() + " " + item.source_link;
+                }
+            }
+
+            if (isDateFallback) {
+                if (item.year) {
+                    const y = parseInt(item.year);
+                    if (yearFrom && y < parseInt(yearFrom)) showWarning = true;
+                    if (yearTo && y > parseInt(yearTo)) showWarning = true;
+                } else {
+                    showWarning = true; 
+                }
+            }
+            return { ...item, date_warning: showWarning };
+        });
+
+        return res.status(200).json(literatureDataArray);
+
+      } catch (err) {
+        console.error("Find Literature error:", err);
+        return res.status(500).json({ message: err.message || "Failed to find literature." });
+      }
+    });
+  }
+);

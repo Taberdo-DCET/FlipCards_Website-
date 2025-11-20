@@ -33,7 +33,7 @@ if (savedTabId && savedTabId !== 'create') {
 
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     let currentExplanations = [];
-    let aiProcessingState = { create: false, explain: false, summarizer: false, ask: false, askText: false }; // <-- ADD THIS LINE
+    let aiProcessingState = { create: false, explain: false, summarizer: false, ask: false, askText: false, research: false };
     // DOM Elements
     // --- DOM Elements for Create Sets Tab ---
     const uploadPdfBtn = document.getElementById('uploadPdfBtn');
@@ -95,6 +95,22 @@ const fileInfoSummarizer = document.getElementById('fileInfoSummarizer');
     const usageTrackerAskText = document.getElementById('usageTrackerAskText');
     const usageCountAskText = document.getElementById('usageCountAskText');
     const resetTimerAskText = document.getElementById('resetTimerAskText');
+
+const researchTextInput = document.getElementById('researchTextInput');
+    const researchSendBtn = document.getElementById('researchSendBtn');
+    const researchContainer = document.getElementById('researchContainer');
+    const usageTrackerResearch = document.getElementById('usageTrackerResearch');
+    const usageCountResearch = document.getElementById('usageCountResearch');
+    const resetTimerResearch = document.getElementById('resetTimerResearch');
+    const upgradeNoteResearch = document.getElementById('upgradeNoteResearch');
+    const usageInfoBtnResearch = document.getElementById('usageInfoBtnResearch');
+
+    const researchYearFrom = document.getElementById('researchYearFrom');
+const researchYearTo = document.getElementById('researchYearTo');
+const researchLanguage = document.getElementById('researchLanguage');
+
+const researchSource = document.getElementById('researchSource');
+
     const upgradeNoteAskText = document.getElementById('upgradeNoteAskText');
     const usageInfoBtnAskText = document.getElementById('usageInfoBtnAskText');
 
@@ -233,7 +249,7 @@ async function getUserRole() {
 
     
     // --- Info Modal Logic ---
-   [usageInfoBtn, usageInfoBtnExplain, usageInfoBtnSummarizer, usageInfoBtnAskText].forEach(btn => { // <-- ADD usageInfoBtnAskText
+   [usageInfoBtn, usageInfoBtnExplain, usageInfoBtnSummarizer, usageInfoBtnAskText, usageInfoBtnResearch].forEach(btn => {
     if (btn) { // Add a check in case an ID is wrong
          btn.addEventListener('click', () => infoModal.classList.add('visible'));
     } else {
@@ -717,6 +733,10 @@ if (askAiAttachImageBtn && askAiImageInput) {
     const askTextPanelResize = document.getElementById('ask-text-panel');
     const inputAreaContainerResize = askTextInputResize.closest('.ask-ai-input-area'); // Find parent container
 
+    const researchTextInputResize = document.getElementById('researchTextInput');
+    const researchTextPanelResize = document.getElementById('research-panel');
+    const researchInputAreaContainerResize = researchTextInputResize ? researchTextInputResize.closest('.ask-ai-input-area') : null;
+
     if (askTextInputResize && askTextPanelResize && inputAreaContainerResize) {
         const initialInputAreaHeight = inputAreaContainerResize.offsetHeight;
         const initialPanelPadding = parseInt(window.getComputedStyle(askTextPanelResize).paddingBottom, 10) || 100; // Default if style not loaded yet
@@ -764,6 +784,41 @@ if (askAiAttachImageBtn && askAiImageInput) {
     } else {
          console.error("Error: Could not find one or more elements needed for textarea resize. Check IDs: askAiTextInput, ask-text-panel, and ensure the input has a parent with class .ask-ai-input-area");
     }
+    if (researchTextInputResize && researchTextPanelResize && researchInputAreaContainerResize) {
+    const initialInputAreaHeight = researchInputAreaContainerResize.offsetHeight;
+    const initialPanelPadding = parseInt(window.getComputedStyle(researchTextPanelResize).paddingBottom, 10) || 100;
+    const maxTextareaHeight = parseInt(window.getComputedStyle(researchTextInputResize).maxHeight, 10);
+
+    console.log("Initial Resize Values (Research):", { initialInputAreaHeight, initialPanelPadding, maxTextareaHeight });
+
+    researchTextInputResize.addEventListener('input', () => {
+        // Reset height first
+        researchTextInputResize.style.height = 'auto';
+        let scrollH = researchTextInputResize.scrollHeight;
+        let newHeight = scrollH;
+
+        // Apply max height limit
+        if (newHeight > maxTextareaHeight) {
+            newHeight = maxTextareaHeight;
+            researchTextInputResize.style.overflowY = 'auto'; // Show scrollbar
+        } else {
+            researchTextInputResize.style.overflowY = 'hidden'; // Hide scrollbar
+        }
+
+        // Set the new height
+        researchTextInputResize.style.height = `${newHeight}px`;
+
+        // Adjust bottom padding of the content panel
+        requestAnimationFrame(() => {
+            const currentInputAreaHeight = researchInputAreaContainerResize.offsetHeight;
+            const heightDifference = currentInputAreaHeight - initialInputAreaHeight;
+            const newPadding = initialPanelPadding + heightDifference;
+            researchTextPanelResize.style.paddingBottom = `${newPadding}px`;
+        });
+    });
+} else {
+     console.error("Error: Could not find one or more elements needed for textarea resize. Check IDs: researchTextInput, research-panel, and ensure the input has a parent with class .ask-ai-input-area");
+}
 // --- File Processing Functions ---
     async function processFileForFlashcards(file) {
         const CLOUD_FUNCTION_URL = 'https://generateflashcards-zpanpdg2va-uc.a.run.app';
@@ -776,7 +831,7 @@ if (askAiAttachImageBtn && askAiImageInput) {
         await handleFileUpload(file, explanationContainer, fileInfoExplain, CLOUD_FUNCTION_URL, displayExplanations);
     }
     
-    async function handleFileUpload(file, container, fileInfoContainer, url, displayFn, tabId) {
+async function handleFileUpload(file, container, fileInfoContainer, url, displayFn, tabId) {
     if (aiProcessingState[tabId]) {
         showCustomAlert('Processing...', `Please wait for the current ${tabId} process to complete before starting a new one.`, 'error');
         switch (tabId) {
@@ -1426,11 +1481,13 @@ async function displayExplanations(explanations) {
     usageCountElExplain.textContent = remainingText;
     usageCountSummarizer.textContent = remainingText;
     usageCountAskText.textContent = remainingText;
+    usageCountResearch.textContent = remainingText;
 
     usageTracker.classList.remove('hidden');
     usageTrackerExplain.classList.remove('hidden');
     usageTrackerSummarizer.classList.remove('hidden');
     usageTrackerAskText.classList.remove('hidden');
+    usageTrackerResearch.classList.remove('hidden');
 
     if (countdownInterval) {
         clearInterval(countdownInterval);
@@ -1449,6 +1506,7 @@ async function displayExplanations(explanations) {
         resetTimerElExplain.textContent = timerText;
         resetTimerSummarizer.textContent = timerText;
         resetTimerAskText.textContent = timerText;
+        resetTimerResearch.textContent = timerText;
     }, 1000);
 
     // Using admin role from Firestore check now
@@ -1458,12 +1516,14 @@ async function displayExplanations(explanations) {
         upgradeNoteExplain.classList.add('hidden');
         upgradeNoteSummarizer.classList.add('hidden');
         upgradeNoteAskText.classList.add('hidden');
+        upgradeNoteResearch.classList.add('hidden');
     } else {
         upgradeBtn.classList.remove('hidden');
         upgradeNote.classList.remove('hidden');
         upgradeNoteExplain.classList.remove('hidden');
         upgradeNoteSummarizer.classList.remove('hidden');
         upgradeNoteAskText.classList.remove('hidden');
+        upgradeNoteResearch.classList.remove('hidden');
     }
 }
     
@@ -1608,6 +1668,17 @@ const howItWorksInfo = {
                       <li><strong>Send to AI:</strong> Click the "Send" button.</li>
                       <li><strong>Get Response:</strong> The AI will process your question and provide a textual answer below. For math problems, it will use LaTeX formatting and provide steps where appropriate.</li>
                   </ul>`
+    },
+    'research': { // <-- ADD THIS NEW ENTRY
+        title: 'How the Research Assistant Works',
+        content: `<p>This tool helps you find sources for your papers and projects. It uses AI to generate relevant information based on your prompt.</p>
+                  <ul>
+                      <li><strong>Enter a Topic:</strong> Type any academic topic into the text box (e.g., "the causes of the French Revolution").</li>
+                      <li><strong>AI Generation:</strong> The AI will generate a single, detailed paragraph on that topic, simulating a quote from a real source.</li>
+                      <li><strong>Get Citations:</strong> Along with the paragraph, you will get a "Key Takeaway", a plausible source link, and a full APA 7 citation, all generated by the AI.</li>
+                      <li><strong>Copy & Use:</strong> You can copy any piece of this information to use in your notes or research.</li>
+                  </ul>
+                  <p><strong>Disclaimer:</strong> This tool is a research *simulator*. The sources and links are *generated by AI* to be plausible examples. Always verify information with real, independent academic sources.</p>`
     }
 };
 howItWorksBtns.forEach(btn => {
@@ -1972,5 +2043,269 @@ async function handleGoogleDocImport() {
         // This will show the loader, upload the "file", and display flashcards.
         await processFileForFlashcards(textFile);
     }
+
+    // --- ADD THIS NEW FUNCTION ---
+    function populateYearSelectors() {
+        const currentYear = new Date().getFullYear();
+        const startYear = 1990; // Start year for the dropdown
+
+        if (researchYearFrom && researchYearTo) {
+            // Populate "From Year" and "To Year"
+            for (let year = startYear; year <= currentYear; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.text = year;
+                researchYearFrom.appendChild(option.cloneNode(true));
+                researchYearTo.appendChild(option);
+            }
+            // Set default selections based on your request
+            
+        }
+    }
+    // Call the function to populate the dropdowns on load
+    populateYearSelectors();
+    // --- END OF NEW FUNCTION ---
+    if (researchSendBtn) {
+    researchSendBtn.addEventListener('click', handleFindLiterature);
+}
+
+if (researchTextInput) {
+    researchTextInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey && !researchSendBtn.disabled) {
+            e.preventDefault();
+            handleFindLiterature();
+        }
+    });
+}
+
+async function handleFindLiterature() {
+    if (aiProcessingState.research) {
+        showCustomAlert('Processing...', 'Please wait for the current research request to complete.', 'error');
+        return;
+    }
+
+    const prompt = researchTextInput.value.trim();
+    if (!prompt) {
+        showCustomAlert('Input Required', 'Please enter a research topic or prompt.', 'error');
+        return;
+    }
+
+    // Get the value from the selector
+    const sourceMode = researchSource ? researchSource.value : 'google'; 
+
+    // --- NEW: One-Time Crossref Recommendation Alert ---
+    if (sourceMode === 'google') {
+        const hasSeenRecommendation = localStorage.getItem('flipai_seen_crossref_recommendation');
+        
+        if (!hasSeenRecommendation) {
+            // Show alert
+            showCustomAlert(
+                'Recommendation', 
+                'For strict academic citations (APA 7) and peer-reviewed journals, we recommend switching the source to "Strict (Crossref)".\n\nClick OK to acknowledge. You can click Send again to proceed with Google, or switch modes now.', 
+                'success' // Uses the green checkmark style for a positive suggestion
+            );
+            
+            // Mark as seen so it doesn't show again
+            localStorage.setItem('flipai_seen_crossref_recommendation', 'true');
+            
+            // Stop execution here so the user can decide what to do
+            return;
+        }
+    }
+    // ---------------------------------------------------
+
+    const yearFrom = researchYearFrom.value;
+    const yearTo = researchYearTo.value;
+    const language = researchLanguage.value;
+
+    // Check if the year range is valid
+    if (yearFrom && yearTo && parseInt(yearTo) < parseInt(yearFrom)) {
+        showCustomAlert('Invalid Year Range', 'The "From" year must be earlier than the "To" year.', 'error');
+        return;
+    }
+
+    const role = await getUserRole();
+    const maxUsage = USAGE_LIMITS[role] || 3;
+    const usageData = await getUsageData();
+    
+    if (usageData.count >= maxUsage) {
+        showCustomAlert('Daily Limit Reached', 'Your AI usage limit will reset soon.', 'error');
+        return;
+    }
+
+    aiProcessingState.research = true;
+    researchTextInput.disabled = true;
+    researchSendBtn.disabled = true;
+    
+    // Custom loader message based on mode
+    const loadingMsg = sourceMode === 'crossref' 
+        ? "Searching academic journals (Crossref)..." 
+        : "Researching (Google Scholar mode)...";
+        
+    researchContainer.innerHTML = `<div class="loader-container"><div class="loader"></div><p>${loadingMsg}</p></div>`;
+
+    const CLOUD_FUNCTION_URL = 'https://findliterature-zpanpdg2va-uc.a.run.app'; 
+
+    try {
+        const response = await fetch(CLOUD_FUNCTION_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                prompt: prompt,
+                yearFrom: yearFrom,
+                yearTo: yearTo,
+                language: language,
+                sourceMode: sourceMode // <--- Sending the selected mode to Backend
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || errorData.message || 'An error occurred while fetching literature.');
+        }
+
+        const result = await response.json();
+        await displayLiteratureResults(result); 
+        await incrementUsage(); 
+
+    } catch (error) {
+        console.error('[CLIENT] Find Literature Error:', error);
+        researchContainer.innerHTML = ''; 
+        showCustomAlert('Research Failed', error.message, 'error');
+    } finally {
+        aiProcessingState.research = false;
+        researchTextInput.disabled = false;
+        researchSendBtn.disabled = false;
+        researchTextInput.focus();
+    }
+}
+
+async function displayLiteratureResults(dataArray) {
+    const researchContainer = document.getElementById('researchContainer'); // Ensure we have the container
+    researchContainer.innerHTML = ''; // Clear the loader
+
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+        researchContainer.innerHTML = '<p>The AI returned no academic results for this topic. Try broadening your search.</p>';
+        return;
+    }
+
+    // 1. Determine the Source Label based on the user's selection
+    const sourceSelect = document.getElementById('researchSource');
+    const sourceMode = sourceSelect ? sourceSelect.value : 'google';
+    const sourceLabel = sourceMode === 'crossref' 
+        ? 'Source: Crossref / Academic Database' 
+        : 'Source: Google Scholar / Academic Database';
+
+    dataArray.forEach((data, index) => {
+        const resultId = `research-${Date.now()}-${index}`;
+        const resultCard = document.createElement('div');
+        resultCard.className = 'research-result-card';
+        resultCard.style.animationDelay = `${index * 100}ms`;
+
+        // --- Check for Date Warning ---
+        let warningHTML = '';
+        if (data.date_warning) {
+            warningHTML = `
+                <div class="date-warning-banner">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span><strong>Note:</strong> No studies found within your specific date range. This result is relevant but may be outside your requested years.</span>
+                </div>
+            `;
+        }
+
+        resultCard.innerHTML = `
+            <h3 class="research-result-label" style="color: #ffcf00; margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                Result ${index + 1}
+            </h3>
+
+            ${warningHTML}
+            
+            <div class="research-section">
+                <div class="research-header">
+                    <h4 class="research-title">Relevant Paragraph</h4>
+                    <button class="copy-btn copy-inline" data-copy-target="${resultId}-paragraph" title="Copy Paragraph">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <div class="research-content">
+                    <p id="${resultId}-paragraph">"${data.paragraph || 'No paragraph provided.'}"</p>
+                </div>
+            </div>
+
+            <div class="research-section">
+                <div class="research-header">
+                    <h4 class="research-title">Paraphrased Version</h4>
+                    <button class="copy-btn copy-inline" data-copy-target="${resultId}-paraphrased" title="Copy Paraphrased Version">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <div class="research-content">
+                    <p id="${resultId}-paraphrased">${data.paraphrased_paragraph || 'No paraphrased version provided.'}</p>
+                </div>
+            </div>
+
+            <div class="research-section">
+                <div class="research-header">
+                    <h4 class="research-title">Key Takeaway</h4>
+                    <button class="copy-btn copy-inline" data-copy-target="${resultId}-takeaway" title="Copy Takeaway">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <div class="research-content">
+                    <p id="${resultId}-takeaway">${data.key_takeaway || 'No takeaway provided.'}</p>
+                </div>
+            </div>
+
+            <div class="research-section">
+                <div class="research-header">
+                    <h4 class="research-title">Source</h4>
+                    <button class="copy-btn copy-inline" data-copy-target="${resultId}-link" title="Copy Link">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <div class="research-content">
+                    <a href="${data.source_link}" target="_blank" rel="noopener noreferrer" id="${resultId}-link" class="source-link">${data.source_link || 'No link provided.'}</a>
+                </div>
+            </div>
+
+            <div class="research-section">
+                <div class="research-header">
+                    <h4 class="research-title">APA 7 Citation</h4>
+                    <button class="copy-btn copy-inline" data-copy-target="${resultId}-citation" title="Copy Citation">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+                <div class="research-content">
+                    <p id="${resultId}-citation" class="citation-text">${data.apa_7_citation || 'No citation provided.'}</p>
+                </div>
+            </div>
+
+            <div class="scholar-footer" style="justify-content: flex-start; text-align: left;">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>${sourceLabel}</span>
+            </div>
+        `;
+
+        researchContainer.appendChild(resultCard);
+
+        // Add event listeners to copy buttons
+        resultCard.querySelectorAll('.copy-btn.copy-inline').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.dataset.copyTarget;
+                const elementToCopy = document.getElementById(targetId);
+                
+                if (elementToCopy) {
+                    const textToCopy = (elementToCopy.tagName === 'A') ? elementToCopy.href : elementToCopy.innerText;
+                    navigator.clipboard.writeText(textToCopy.trim()).then(() => {
+                        showCustomAlert('Copied!', 'Text copied to clipboard.', 'success');
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                        showCustomAlert('Copy Failed', 'Could not copy text.', 'error');
+                    });
+                }
+            });
+        });
+    });
+}
 
 });
