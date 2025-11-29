@@ -77,14 +77,23 @@
             </div>
             <div class="flashcard-container">
                 <div class="flashcard">
-                    <div class="front" id="mainCardDisplay">
-                        <span class="definition-label" id="definitionLabel"></span>
-                        <span id="cardTextDisplay">Waiting for game to start...</span>
-                        
-                        <div class="timer-bar-container" id="timerBarContainer">
-                            <div class="timer-bar-progress" id="timerBar"></div>
-                        </div>
-                        <button id="openQuibbleAssistantBtn" class="modern-button icon-btn" title="Ask FlipCards Assistant">
+    <div class="front" id="mainCardDisplay">
+        <button id="hintBtn" class="modern-button icon-btn" title="Get Hint">
+            <i class="fa-solid fa-lightbulb"></i>
+        </button>
+        <button id="revealBtn" class="modern-button icon-btn" title="Reveal Answer">
+            <i class="fa-solid fa-eye"></i>
+        </button>
+
+        <span class="definition-label" id="definitionLabel"></span>
+        <span id="cardTextDisplay">Waiting for game to start...</span>
+        
+        <span id="hintTextDisplay" class="hint-text-display"></span>
+
+        <div class="timer-bar-container" id="timerBarContainer">
+            <div class="timer-bar-progress" id="timerBar"></div>
+        </div>
+        <button id="openQuibbleAssistantBtn" class="modern-button icon-btn" title="Ask FlipCards Assistant">
                             <svg class="ai-sparkle-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path class="sparkle-main" d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5Z"></path>
                                 <path class="sparkle-small s1" d="M4 4l2 2m0-2l-2 2"></path>
@@ -433,8 +442,9 @@
     <!--  END TUTORIAL MODAL     -->
     <!-- ======================= -->
     <script type="module" src="firebaseinit.js"></script>
+    <script type="module" src="presence.js"></script>
     <script type="module" src="Quibble.js"></script>
     <script type="module" src="quibble-listener.js"></script>
-    <script src="protect.js"></script>
+    
 </body>
 </html>

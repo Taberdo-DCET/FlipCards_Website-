@@ -1596,7 +1596,29 @@ body {
   display: none;
   opacity: 0;
 }
+/* 1. Initial State (Waiting) */
+.choice-container.waiting-for-delay {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(20px); /* Pushed down slightly */
+}
 
+/* 2. Entrance Animation Class */
+.choice-container.choices-entrance {
+  animation: slideUpFadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* 3. The Keyframes */
+@keyframes slideUpFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .choice-btn {
   background: #333; 
   border: 2px solid #555; 
@@ -1821,6 +1843,93 @@ body {
 /* Hide button if disabled (e.g. for guests) */
 #pauseGameBtn:disabled {
   display: none;
+}
+/* --- NEW: Hint Button Styles --- */
+#hintBtn {
+  all: unset;
+  position: absolute;
+  top: 20px; /* Top Left Position */
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(23, 23, 23, 0.7);
+  backdrop-filter: blur(5px);
+  border: 1px solid #333;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+
+#hintBtn:hover {
+  background-color: rgba(255, 207, 0, 0.2);
+  border-color: #ffcf00;
+}
+
+#hintBtn i {
+  font-size: 18px;
+  color: #ffcf00;
+}
+
+#hintBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  display: none; /* Hide if not active round */
+}
+#revealBtn {
+  all: unset;
+  position: absolute;
+  top: 20px; 
+  left: 74px; /* 20px (Hint Left) + 44px (Width) + 10px (Gap) */
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(23, 23, 23, 0.7);
+  backdrop-filter: blur(5px);
+  border: 1px solid #333;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s ease;
+}
+
+#revealBtn:hover {
+  background-color: rgba(255, 207, 0, 0.2);
+  border-color: #ffcf00;
+}
+
+#revealBtn i {
+  font-size: 18px;
+  color: #ffcf00;
+}
+
+#revealBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  display: none;
+}
+
+/* --- NEW: Gold System Message Class --- */
+.chat-message.system.gold-msg {
+  color: #ffcf00 !important;
+  font-weight: bold;
+  border-left: 3px solid #ffcf00;
+  padding-left: 10px;
+  background-color: rgba(255, 207, 0, 0.1);
+}
+/* --- NEW: Hint Text Display --- */
+.hint-text-display {
+  display: block;
+  margin-top: 15px;
+  font-family: 'Courier New', monospace; /* Monospace for alignment */
+  font-size: 1.5rem;
+  color: #ffcf00;
+  letter-spacing: 3px;
+  font-weight: bold;
+  min-height: 28px;
 }
 /* --- UPDATED Chat Input Area --- */
 .chat-input-area {

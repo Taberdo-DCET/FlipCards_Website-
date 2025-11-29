@@ -32,7 +32,10 @@ const mainGameModeDisplay = document.getElementById('mainGameModeDisplay');
 
 const cardTextDisplay = document.getElementById('cardTextDisplay');
 const definitionLabel = document.getElementById('definitionLabel');
+const hintBtn = document.getElementById('hintBtn');
+const hintTextDisplay = document.getElementById('hintTextDisplay');
 const leaveBtn = document.getElementById('leaveBtn');
+const revealBtn = document.getElementById('revealBtn');
 
 const homeBtn = document.getElementById('homeBtn');
 
@@ -115,6 +118,10 @@ window.previousPlayerEmails = new Set(); // <-- ADD THIS
 window.gameLoopId = null;
 window.currentNormalizedAnswer = "";
 let lastPlayersJSON = "";
+
+let localCurrentCardIndex = -1;
+let localHasAttemptedRound = false;
+let localLastStatus = "";
 // --- Modal Controls ---
 
 // --- UPDATED: createLobbyBtn Listener ---
@@ -772,7 +779,72 @@ function listenToLobby(lobbyId) {
         }
 
         const lobbyData = docSnap.data();
+
+        // Plays when status changes to 'countdown' (and wasn't just paused)
+        if (lobbyData.status === 'countdown' && localLastStatus !== 'countdown' && localLastStatus !== 'paused') {
+            const startSound = new Audio('start.mp3'); // (Ensuring filename matches your previous request)
+            startSound.volume = 1; // Set consistent volume
+            startSound.play().catch(e => console.warn("Audio autoplay blocked:", e));
+        }
+        localLastStatus = lobbyData.status;
+        // --- END NEW ---
+
+        if (lobbyData.currentCardIndex !== localCurrentCardIndex) {
+            localCurrentCardIndex = lobbyData.currentCardIndex;
+            localHasAttemptedRound = false; // New round, unlock buttons
+            
+            // NEW: Reset Hint and Reveal State on new round
+            if (hintTextDisplay) hintTextDisplay.textContent = "";
+            window.localHasRevealed = false; // <--- Reset Reveal Lock
+            
+            // Also clear any previous visual styling from buttons
+            // Also clear any previous visual styling from buttons
+            const allChoiceBtns = document.querySelectorAll('.choice-btn');
+            allChoiceBtns.forEach(btn => {
+                btn.className = 'choice-btn';
+                btn.disabled = false;
+            });
+
+            // --- FIX: Hard Reset Learn Mode Container on Round Change ---
+            if (choiceContainer) {
+                choiceContainer.classList.add('hidden');
+                choiceContainer.classList.remove('choices-entrance', 'waiting-for-delay');
+                choiceContainer.style.opacity = ''; // Clear persistent inline opacity
+            }
+            // --- END FIX ---
+        }
+        
+        // NEW: Manage Hint & Reveal Button Visibility
+        if (lobbyData.status === 'question') {
+            if (hintBtn) {
+                hintBtn.disabled = false;
+                hintBtn.style.display = 'grid';
+            }
+            if (revealBtn) {
+                revealBtn.disabled = false; 
+                revealBtn.style.display = 'grid';
+            }
+        } else {
+            if (hintBtn) {
+                hintBtn.disabled = true;
+                hintBtn.style.display = 'none';
+            }
+            if (revealBtn) {
+                revealBtn.disabled = true;
+                revealBtn.style.display = 'none';
+            }
+        }
+        
         const amIHost = hostEmail === lobbyData.host.email;
+        
+        // Host-only restriction AND One-time check
+        if (revealBtn) {
+            // Disable if: Not Host OR Already Revealed this round
+            revealBtn.disabled = !amIHost || window.localHasRevealed;
+            
+            // Optional: Visually hide it for guests entirely if you prefer
+            if (!amIHost) revealBtn.style.display = 'none';
+        }
     if (pauseGameBtn) {
         pauseGameBtn.disabled = !amIHost;
     }
@@ -1221,15 +1293,57 @@ function handleCountdown(lobbyData) {
 
 // --- NEW: Game Loop Function 2: Show Question ---
 function handleShowQuestion(lobbyData) {
+    // --- UPDATED: Learn Mode 2-Second Delay Logic ---
+// --- UPDATED: Learn Mode 1.5-Second Delay Logic ---
     if (lobbyData.gameMode === 'learn') {
-    choiceContainer.classList.remove('hidden');
-    renderLearnModeChoices(lobbyData);
-} else {
-    // Test Mode
-    chatInput.focus();
-    choiceContainer.classList.add('hidden');
-}
+        // 1. Calculate how much time has passed since the card started
+        const startTime = lobbyData.gameStateTimestamp ? lobbyData.gameStateTimestamp.toDate().getTime() : Date.now();
+        const now = Date.now();
+        const elapsed = now - startTime;
+        const delayDuration = 1500; // 1.5 seconds
+
+        // 2. Render the content (so it's ready in the DOM)
+        renderLearnModeChoices(lobbyData);
+
+        if (elapsed < delayDuration) {
+            // A. Still within delay: Apply invisible state BEFORE removing display:none to prevent flash
+            
+            // --- FIX: Clear inline opacity to allow CSS class to hide it ---
+            choiceContainer.style.opacity = ''; 
+            // --------------------------------------------------------------
+
+            choiceContainer.classList.add('waiting-for-delay');
+            choiceContainer.classList.remove('choices-entrance');
+            choiceContainer.classList.remove('hidden'); 
+
+            // B. Schedule the reveal
+            setTimeout(() => {
+                choiceContainer.classList.remove('waiting-for-delay');
+                choiceContainer.classList.add('choices-entrance');
+            }, delayDuration - elapsed);
+        } else {
+            // C. Time passed (or page refresh): Show immediately
+            choiceContainer.classList.remove('hidden'); // Remove hidden first
+            choiceContainer.classList.remove('waiting-for-delay');
+            // Check if we need to add the class (prevents restarting anim on every snapshot)
+            if (!choiceContainer.classList.contains('choices-entrance')) {
+                choiceContainer.classList.add('choices-entrance');
+            }
+            // Ensure opacity is 1 just in case animation finished previously
+            choiceContainer.style.opacity = '1';
+        }
+
+    } else {
+        // Test Mode
+        chatInput.focus();
+        choiceContainer.classList.add('hidden');
+        // Clean up classes in case we switch modes
+        choiceContainer.classList.remove('waiting-for-delay', 'choices-entrance');
+    }
+    // --- END UPDATED LOGIC ---
+
     mainTitleContainer.style.display = 'block';
+    // ... rest of function ...
     mainSetTitle.textContent = lobbyData.setTitle; // <-- ADD THIS
     mainSettingsDisplay.style.display = 'flex';
 
@@ -1251,7 +1365,32 @@ function handleShowQuestion(lobbyData) {
     // Display the definition
     try {
         const card = lobbyData.flashcards[lobbyData.currentCardIndex];
-        cardTextDisplay.textContent = card.definition;
+        
+        // --- UPDATED: Check for Image Definition ---
+        const defText = card.definition;
+        
+        if (isImageUrl(defText)) {
+            // Render as Image
+            cardTextDisplay.innerHTML = `<img src="${defText}" alt="Definition Image" style="max-width: 100%; max-height: 40vh; border-radius: 12px; object-fit: contain; margin-top: 10px;">`;
+            cardTextDisplay.style.fontSize = ''; // Reset font size for images
+        } else {
+            // Render as Text
+            cardTextDisplay.textContent = defText;
+
+            // --- NEW: Auto-Resize Font Logic ---
+            let currentSize = 3.5; // Start with a large font
+            cardTextDisplay.style.fontSize = `${currentSize}rem`;
+            
+            // Loop: Check if the card content is taller than the card itself
+            // We decrease the font size until it fits or hits a minimum of 1.0rem
+            while (mainCardDisplay.scrollHeight > mainCardDisplay.clientHeight && currentSize > 1.0) {
+                currentSize -= 0.2;
+                cardTextDisplay.style.fontSize = `${currentSize}rem`;
+            }
+            // -----------------------------------
+        }
+        // --- END UPDATED ---
+
         cardTextDisplay.className = '';
     } catch (e) {
         console.error("Failed to get card:", e, lobbyData);
@@ -1415,6 +1554,12 @@ async function sendUserMessage(lobbyId, text) {
 
             if (normalizedGuess === normalizedAnswer) {
                 // Correct answer!
+
+                // --- NEW: Play Correct Sound ---
+                const correctSound = new Audio('correct.mp3');
+                correctSound.volume = 1; // Set consistent volume
+                correctSound.play().catch(e => console.warn("Audio play blocked:", e));
+                // --- END NEW ---
                 
                 // --- FIX: Check if host already answered ---
                 if (lobbyData.currentQuestionAnswers.includes(hostEmail)) {
@@ -1489,6 +1634,12 @@ async function sendUserMessage(lobbyId, text) {
                     }
                 }
                 return true; 
+            } else {
+                // --- NEW: Play Wrong Sound (Host Test Mode) ---
+                const wrongSound = new Audio('chat.mp3');
+                wrongSound.volume = .3;
+                wrongSound.play().catch(e => console.warn("Audio play blocked:", e));
+                // ----------------------------------------------
             }
         }
     } catch (e) {
@@ -1570,7 +1721,13 @@ function addChatMessageToUI(message, players = []) {
     if (message.type === 'system') {
         msgDiv.classList.add('system');
         msgDiv.textContent = message.text;
+        
+        // NEW: Check for Gold Flag
+        if (message.isGold) {
+            msgDiv.classList.add('gold-msg');
+        }
     } else {
+        // Find player index to determine slot color
         // 1. Find the player's index (Slot)
         const playerIndex = players.findIndex(p => p.username === message.username);
         
@@ -2026,14 +2183,24 @@ async function incrementWinnerWins(userEmail) {
     }
 }
 // --- NEW: Send Chat Button Listener ---
+// --- NEW: Send Chat Button Listener ---
 sendChatBtn.addEventListener('click', async () => {
     const text = chatInput.value.trim();
-    if (text && currentLobbyId) {
-        // Wait for result: true = clear, false = keep
-        const shouldClear = await sendUserMessage(currentLobbyId, text);
-        if (shouldClear) {
-            chatInput.value = '';
-        }
+    
+    // --- FIX: Prevent Double Sending for Guests ---
+    // 1. Get the current lobby data to see who the host is
+    const lobbyData = window.currentLobbyDataForRender;
+    
+    // 2. Check if I am the Host
+    // (If I am a Guest, 'quibble-listener.js' will handle the sending)
+    const isHost = lobbyData && lobbyData.host.email === hostEmail;
+
+    if (text && currentLobbyId && isHost) {
+        // FIX: Clear input IMMEDIATELY (Optimistic UI)
+        chatInput.value = '';
+
+        // Send in background
+        await sendUserMessage(currentLobbyId, text);
     }
 });
 
@@ -2250,38 +2417,61 @@ function getWrongAnswers(lobbyData, correctAnswer) {
 function renderLearnModeChoices(lobbyData) {
     const card = lobbyData.flashcards[lobbyData.currentCardIndex];
     
-    // --- BUG FIX: Use choices from DB ---
+    // Use choices from DB or fallback
     let choices = lobbyData.currentChoices;
-
-    // Fallback if choices aren't in DB yet (legacy/error prevention)
     if (!choices || choices.length === 0) {
         choices = generateChoicesForRound(lobbyData.flashcards, lobbyData.currentCardIndex);
     }
 
     const choiceButtons = choiceContainer.querySelectorAll('.choice-btn');
     
-    // Check if user has already answered this round
-    const hasAnswered = lobbyData.currentQuestionAnswers.includes(hostEmail);
+    // --- FIX START: Check DB AND Local Lock ---
+    // Check if user is in DB (Correct answer) OR has locally attempted (Wrong answer)
+    const hasAnsweredDB = lobbyData.currentQuestionAnswers.includes(hostEmail);
+    const shouldDisable = hasAnsweredDB || localHasAttemptedRound;
+    // --- FIX END ---
 
     choiceButtons.forEach((btn, index) => {
-        btn.textContent = choices[index];
-        btn.className = 'choice-btn'; 
-        btn.disabled = hasAnswered; 
+        // Only update text if it's a new round or empty (Prevents overwriting "Correct/Wrong" styles)
+        if (btn.textContent !== choices[index]) {
+             btn.textContent = choices[index];
+             btn.className = 'choice-btn'; // Reset styles on content change
+        }
 
-        // Add click listener
+        // FIX: Enforce disabled state based on local lock
+        btn.disabled = shouldDisable; 
+
+        // Update visual state if we already answered
+        if (hasAnsweredDB && normalizeText(choices[index]) === normalizeText(card.term)) {
+             btn.classList.add('correct');
+        }
+
+        // Add click listener (overwrites previous ones)
         btn.onclick = () => handleLearnModeAnswer(choices[index], card, lobbyData);
     });
 }
 
 /** Handles the click of a multiple choice button */
 async function handleLearnModeAnswer(selectedTerm, card, lobbyData) {
+    
+    // --- FIX START: Immediate Local Lock ---
+    localHasAttemptedRound = true; 
+    // ---------------------------------------
+
     const isCorrect = normalizeText(selectedTerm) === normalizeText(card.term);
     const allButtons = choiceContainer.querySelectorAll('.choice-btn');
 
     // Disable all buttons immediately
+    // Disable all buttons immediately
     allButtons.forEach(btn => btn.disabled = true);
 
-    if (isCorrect) {
+if (isCorrect) {
+        // --- NEW: Play Correct Sound ---
+        const correctSound = new Audio('correct.mp3');
+        correctSound.volume = 1; // Set consistent volume
+        correctSound.play().catch(e => console.warn("Audio play blocked:", e));
+        // --- END NEW ---
+
         // Find the clicked button and mark it correct
         allButtons.forEach(btn => {
             if (btn.textContent === selectedTerm) {
@@ -2292,6 +2482,12 @@ async function handleLearnModeAnswer(selectedTerm, card, lobbyData) {
         await submitLearnModeAnswer(lobbyData);
 
     } else {
+        // --- NEW: Play Wrong Sound (Learn Mode) ---
+        const wrongSound = new Audio('wrong.mp3');
+        wrongSound.volume = 1;
+        wrongSound.play().catch(e => console.warn("Audio play blocked:", e));
+        // ------------------------------------------
+
         // Mark clicked button incorrect, and find and mark the correct one
         allButtons.forEach(btn => {
             if (btn.textContent === selectedTerm) {
@@ -2301,7 +2497,8 @@ async function handleLearnModeAnswer(selectedTerm, card, lobbyData) {
                 btn.classList.add('correct');
             }
         });
-        // Do not update firestore, user was wrong
+        // Do not update firestore, user was wrong. 
+        // Buttons remain disabled because localHasAttemptedRound is now true.
     }
 }
 
@@ -2438,6 +2635,74 @@ if (initialAiMessageDiv) {
     });
 }
 // --- NEW: Tutorial Modal Listeners ---
+if (hintBtn) {
+    hintBtn.addEventListener('click', () => {
+        const lobbyData = window.currentLobbyDataForRender;
+        
+        // Security/State check
+        if (!lobbyData || lobbyData.status !== 'question') return;
+        
+        const currentCard = lobbyData.flashcards[lobbyData.currentCardIndex];
+        if (!currentCard) return;
+        
+        const term = currentCard.term;
+        
+        // Logic: Split by space, keep first char, replace rest with underscores
+        const words = term.split(' ');
+        const hintString = words.map(word => {
+            // Handle empty strings just in case
+            if (!word) return '';
+            
+            // Split word into characters
+            const chars = word.split('');
+            
+            // Map characters: First one stays, rest become '_'
+            return chars.map((char, index) => {
+                // Keep first letter, replace letters/numbers with _, keep symbols like hyphens
+                if (index === 0) return char;
+                if (/[a-zA-Z0-9]/.test(char)) return '_';
+                return char; // Keep symbols like - or '
+            }).join(' '); // Add space between underscores for readability
+        }).join('   '); // Triple space between actual words
+        
+        hintTextDisplay.textContent = hintString;
+    });
+}
+if (revealBtn) {
+    revealBtn.addEventListener('click', async () => {
+        const lobbyData = window.currentLobbyDataForRender;
+        
+        // 1. Check strict conditions: Must be Host, Must be Question phase
+        if (!currentLobbyId || !lobbyData || lobbyData.status !== 'question') return;
+        if (lobbyData.host.email !== hostEmail) return; // Strict Host Check
+
+        // 2. Lock the button immediately
+        window.localHasRevealed = true;
+        revealBtn.disabled = true;
+
+        const currentCard = lobbyData.flashcards[lobbyData.currentCardIndex];
+        const answer = currentCard.term;
+
+        // 3. Construct Message with isGold flag
+        const message = {
+            type: 'system',
+            text: `ANSWER REVEALED: ${answer}`,
+            isGold: true, 
+            timestamp: new Date()
+        };
+
+        // 4. Send to Firestore
+        try {
+            const lobbyRef = doc(db, "quibble_lobbies", currentLobbyId);
+            await updateDoc(lobbyRef, { chat: arrayUnion(message) });
+        } catch (e) {
+            console.error("Error revealing answer:", e);
+            // Optional: Re-enable if error occurred
+            revealBtn.disabled = false;
+            window.localHasRevealed = false;
+        }
+    });
+}
 if (tutorialGameBtn) {
     tutorialGameBtn.addEventListener('click', () => {
         tutorialModal.classList.add('visible');
@@ -2503,6 +2768,10 @@ function generateChoicesForRound(flashcards, cardIndex) {
         [choices[i], choices[j]] = [choices[j], choices[i]];
     }
     return choices;
+}
+
+function isImageUrl(text) {
+    return typeof text === "string" && text.startsWith("https://") && text.includes("firebasestorage.googleapis.com");
 }
 // --- END NEW ---
 function triggerInstantFeedback() {

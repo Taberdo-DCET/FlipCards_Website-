@@ -8,25 +8,48 @@
     <link rel="stylesheet" href="card.css">
     <link rel="stylesheet" href="fillin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4779578721359852"
+     crossorigin="anonymous"></script>
 </head>
 <body>
 
-    <header class="shop-header">
+  <header class="shop-header">
         <div class="header-left">
+            <button id="mobileMenuBtn" class="mobile-menu-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
             <a href="lobby.html" id="backToFoldersBtn" class="back-button">← Back to Folders</a>
             <a href="shop.html" id="upgradeBtn" class="upgrade-button" style="display: none;">Upgrade your Plan</a>
         </div>
         <h2 class="shop-title">FlipCards.</h2>
     </header>
 
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
     <div class="layout-wrapper">
         
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>Library</h2>
-            </div>
-            
-            <div class="sidebar-menu">
+                <div class="library-title-group">
+                    <h2>Library</h2>
+                    <div class="library-actions">
+                        <button id="libraryMenuBtn" class="action-dots-btn" title="Library Options">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                        </button>
+                        <div id="libraryMenu" class="action-menu">
+                            <button id="deleteAllSetsBtn" class="delete-option">
+                                <i class="fa-solid fa-trash"></i> Delete All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="setSearchInput" placeholder="Search title, desc, or user...">
+                </div>
+
                 <div class="dropdown-container">
                     <button class="dropdown-btn" id="setDropdownBtn">
                         <span>Select Source</span>
@@ -41,6 +64,10 @@
                 <button id="triggerAddSetBtn" class="sidebar-create-btn">
                     <i class="fa-solid fa-plus"></i> Create New Set
                 </button>
+            </div>
+            
+            <div class="sidebar-menu">
+                
 
                 <div class="set-list-container">
                    <p style="padding: 20px; color: #666;">Loading sets...</p>
@@ -62,7 +89,7 @@
 
                     <h1 class="fillin-title">
                         <span class="title-label" style="display: none;">Title:</span>
-                        <span id="fillinTitleText">Fill-in Review</span>
+                        <span id="fillinTitleText">Fill-in Mode</span>
                     </h1>
 
                     <div class="description-box">
@@ -70,9 +97,39 @@
                             Master your terms by typing the answers. Read the definition and fill in the missing term to test your recall accuracy.
                         </p>
                     </div>
+
+                    <div class="shortcut-bar">
+                        <i class="fa-solid fa-keyboard"></i>
+                        <span>Shortcut: Press <kbd class="shortcut-key">Enter</kbd> to Check or Next.</span>
+                    </div>
                 </header>
 
                 <div class="game-container">
+                    <div class="game-card-header" style="display: none;">
+                        
+                        <div class="header-tools-left">
+                            <button id="gameInfoBtn" class="info-icon-btn" title="How to Play">
+                                <i class="fa-solid fa-circle-info"></i>
+                            </button>
+
+                            <div class="alignment-controls">
+                                <button class="align-btn active" data-align="left" title="Align Left">
+                                    <i class="fa-solid fa-align-left"></i>
+                                </button>
+                                <button class="align-btn" data-align="center" title="Align Center">
+                                    <i class="fa-solid fa-align-center"></i>
+                                </button>
+                                <button class="align-btn" data-align="right" title="Align Right">
+                                    <i class="fa-solid fa-align-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="caseBadge" class="case-badge">
+                            <i class="fa-solid fa-font"></i> <span>Normal Mode</span>
+                        </div>
+                    </div>
+
                     <div class="definition-display">
                         <span class="placeholder-text">Select a set from the sidebar to begin practicing.</span>
                     </div>
@@ -85,11 +142,20 @@
                             <button id="shuffleBtn" class="control-icon-btn" title="Shuffle Cards">
                                 <i class="fa-solid fa-shuffle"></i>
                             </button>
+                            <button id="prevCardBtn" class="control-icon-btn" title="Previous Card">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <button id="nextCardBtn" class="control-icon-btn" title="Next Card">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
                         </div>
                         
                         <span class="card-counter"></span>
 
                         <div class="controls-right">
+                            <button id="revealBtn" class="control-icon-btn" title="Reveal Answer">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
                             <button class="btn check-btn" disabled>Check</button>
                         </div>
                     </div>
@@ -137,15 +203,34 @@
                                 </div>
                             </div>
                             <div class="flashcard-body">
-                                <div class="highlight-toolbar">
-                                    <label class="toggle-label">
-                                        <div class="switch">
-                                            <input type="checkbox" class="highlight-toggle">
-                                            <span class="slider round"></span>
-                                        </div>
-                                        <span class="label-text">Highlight Mode (Select text to create blanks)</span>
-                                    </label>
-                                </div>
+                <div class="highlight-toolbar">
+                    <label class="toggle-label">
+                        <div class="switch">
+                            <input type="checkbox" class="highlight-toggle">
+                            <span class="slider round"></span>
+                        </div>
+                        <span class="label-text">Highlight Mode</span>
+                    </label>
+
+                    <!-- NEW: Image Import Controls -->
+                    <div class="image-controls">
+                        <input type="file" accept="image/*" class="hidden card-img-input">
+                        <button class="toolbar-btn import-img-btn" title="Import Image File">
+                            <i class="fa-regular fa-image"></i>
+                        </button>
+                        <button class="toolbar-btn paste-img-btn" title="Paste Image from Clipboard">
+                            <i class="fa-regular fa-clipboard"></i>
+                        </button>
+                    </div>
+
+                    <label class="toggle-label">
+                        <div class="switch">
+                            <input type="checkbox" class="case-sensitive-toggle">
+                            <span class="slider round"></span>
+                        </div>
+                        <span class="label-text">Case Sensitive</span>
+                    </label>
+                </div>
                                 <div class="input-group">
                                     <div class="input content-box" contenteditable="true" placeholder="Enter the full sentence or definition here..."></div>
                                 </div>
@@ -182,7 +267,29 @@
             </div>
         </div>
     </div>
-
+<div id="revealAnswerModal" class="custom-alert-backdrop hidden">
+        <div class="custom-alert-content" style="max-width: 600px;">
+            <h3 style="margin-top: 0; color: #ffcf00;">Full Text</h3>
+            <div id="revealContent" class="reveal-content-box"></div>
+            <button id="closeRevealBtn" class="neumorphic-button">Close</button>
+        </div>
+    </div>
+<div id="howToPlayModal" class="custom-alert-backdrop hidden">
+        <div class="custom-alert-content info-modal-content">
+            <i class="fa-solid fa-keyboard modal-icon-large"></i>
+            <h3 style="color: #ffcf00; margin-bottom: 15px;">How to Use Fill-in Mode</h3>
+            <div class="modal-text-body">
+                <p><strong>1. Fill the Blanks:</strong> Type the missing word or phrase based on the context provided.</p>
+                <p><strong>2. Navigation:</strong> Press <kbd class="shortcut-key">Enter</kbd> to check your answer. If correct, press <kbd class="shortcut-key">Enter</kbd> again to proceed.</p>
+                <p><strong>3. Tools:</strong> Use the <strong>Hint</strong> button <i class="fa-regular fa-lightbulb" style="color:#888;"></i> to reveal a letter, or <strong>Reveal</strong> <i class="fa-regular fa-eye" style="color:#888;"></i> to see the full text.</p>
+                <p><strong>4. Formatting:</strong> Use the alignment buttons (Left, Center, Right) to adjust the text layout for easier reading.</p>
+            </div>
+            <button id="closeHowToPlayBtn" class="neumorphic-button">Got it</button>
+        </div>
+    </div>
     <script type="module" src="fillin.js"></script>
+    <script type="module" src="presence.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+    <script src="protect.js"></script>
 </body>
 </html>

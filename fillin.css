@@ -430,8 +430,10 @@ body {
     font-size: 20px;
     color: #e0e0e0;
     line-height: 2.2; 
-    white-space: normal; 
-    text-align: center;
+    
+    /* FIX: Preserve formatting exactly as input */
+    white-space: pre-wrap; 
+    text-align: left;
     
     /* Container Settings */
     background-color: transparent;
@@ -446,12 +448,30 @@ body {
     overflow: hidden; 
     margin-bottom: 0;
 
-    /* Flexbox Centering (Centers the wrapper div) */
+    /* Flexbox Settings */
     display: flex;
     flex-direction: column;
     justify-content: center; /* Centers vertically */
-    align-items: center;     /* Centers horizontally */
+    align-items: flex-start; /* FIX: Aligns text block to the left */
     flex: 1;
+}
+/* --- CUSTOM SCROLLBAR FOR SIDEBAR MENU --- */
+.sidebar-menu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+    background: #1e1e1e; /* Matches sidebar background */
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background-color: #444; 
+    border-radius: 4px;
+    border: 2px solid #1e1e1e; /* Creates padding effect */
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+    background-color: #ffcf00; /* Yellow on hover */
 }
 .word-wrapper {
     display: inline-flex;
@@ -481,7 +501,7 @@ body {
     padding: 0;
     outline: none;
     transition: all 0.2s ease;
-    text-transform: uppercase; 
+    text-transform: none; 
     border-radius: 2px; 
 }
 /* --- SIDEBAR CREATE BUTTON --- */
@@ -500,7 +520,7 @@ body {
     align-items: center;
     justify-content: center; /* Center text */
     gap: 10px;
-    margin-bottom: 20px; /* Space between button and list */
+    margin-bottom: 0px; /* Space between button and list */
     transition: all 0.2s ease;
 }
 
@@ -669,8 +689,81 @@ body {
     margin-bottom: 15px;
     display: flex;
     align-items: center;
+    gap: 20px; /* Added spacing between the two toggles */
+    flex-wrap: wrap; /* Allows wrapping on small screens */
+}
+/* --- GAME CARD HEADER --- */
+.game-card-header {
+    width: 100%;
+    border-bottom: 1px solid #333; /* The Separator */
+    padding-bottom: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between; /* Aligns badge to the right */
+    align-items: center;
 }
 
+.case-badge {
+    font-size: 13px;
+    font-family: 'Satoshi', sans-serif;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background-color: #2a2a2a;
+    color: #777; /* Default Grey */
+    border: 1px solid #444;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+/* Active State (Case Sensitive) */
+.case-badge.active {
+    background-color: rgba(255, 207, 0, 0.1);
+    color: #ffcf00;
+    border-color: #ffcf00;
+}
+/* --- ALIGNMENT CONTROLS --- */
+.alignment-controls {
+    display: flex;
+    gap: 5px;
+    margin-right: 15px; /* Space between buttons and the Case Badge */
+    background-color: #2a2a2a;
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid #444;
+}
+
+.align-btn {
+    background: none;
+    border: none;
+    color: #888;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.align-btn i {
+    font-size: 14px;
+}
+
+.align-btn:hover {
+    background-color: #3a3a3a;
+    color: #ccc;
+}
+
+/* Active State (Yellow) */
+.align-btn.active {
+    background-color: #ffcf00;
+    color: #171717;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 /* Toggle Switch CSS */
 .toggle-label {
     display: flex;
@@ -860,7 +953,14 @@ input:checked + .slider:before {
 .control-icon-btn:active {
     transform: translateY(0);
 }
-
+.control-icon-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background-color: #2a2a2a;
+    color: #555;
+    box-shadow: none;
+    transform: none;
+}
 /* Update Check Button to remove top margin since container handles it */
 .check-btn {
     margin-top: 0; 
@@ -1056,13 +1156,259 @@ input:checked + .slider:before {
     height: 16px;
     cursor: pointer;
 }
+/* Update Controls Right to hold two buttons */
+.controls-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
+/* --- REVEAL MODAL STYLES --- */
+.reveal-content-box {
+    background-color: #222;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    margin: 20px 0;
+    font-size: 22px;
+    line-height: 1.8;
+    color: #eee;
+    text-align: center;
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
 
+/* Override the highlight style INSIDE the modal to be underlined */
+.reveal-content-box .answer-highlight {
+    background-color: transparent; /* Remove yellow background */
+    color: #ffcf00;                /* Keep text yellow */
+    text-decoration: underline;    /* Underline it */
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    padding: 0;
+    border-radius: 0;
+    font-weight: bold;
+}
+/* --- SIDEBAR SEARCH BAR --- */
+.sidebar-search {
+    position: relative;
+    margin-bottom: 15px;
+    margin-top: 20PX;
+}
 
+.sidebar-search input {
+    width: 100%;
+    padding: 12px 15px 12px 38px; /* Left padding for icon */
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Satoshi', sans-serif;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
 
+.sidebar-search input:focus {
+    outline: none;
+    border-color: #ffcf00;
+}
 
+.sidebar-search input::placeholder {
+    color: #666;
+}
 
+.sidebar-search i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #888;
+    font-size: 14px;
+    pointer-events: none;
+}
+/* --- SHORTCUT BAR (Tutorial) --- */
+.shortcut-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    max-width: 600px;
+    margin: 20px auto 0 auto; /* Top margin separates from description */
+    padding: 12px 20px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid #333;
+    border-radius: 12px;
+    color: #ccc;
+    font-size: 0.95rem;
+    font-family: 'Satoshi', sans-serif;
+}
 
+.shortcut-bar i {
+    color: #ffcf00; /* Yellow accent color */
+    font-size: 1.1rem;
+}
+
+/* Style for the <kbd> element to look like a key */
+.shortcut-key {
+    background-color: #ddd;
+    color: #171717;
+    padding: 3px 9px;
+    border-radius: 5px;
+    border: 1px solid #999;
+    border-bottom: 3px solid #bbb;
+    font-family: 'Consolas', 'Menlo', monospace;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+/* --- HEADER TOOLS WRAPPER --- */
+.header-tools-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* --- INFO ICON BUTTON --- */
+.info-icon-btn {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.info-icon-btn:hover {
+    color: #ffcf00;
+    transform: scale(1.1);
+}
+
+/* --- MODAL CONTENT STYLING --- */
+.modal-icon-large {
+    font-size: 32px;
+    color: #ffcf00;
+    margin-bottom: 15px;
+}
+
+.info-modal-content {
+    max-width: 450px;
+    text-align: center; /* Keep headers centered */
+}
+
+.modal-text-body {
+    text-align: left; /* Align instruction text to left */
+    margin-bottom: 20px;
+}
+
+.modal-text-body p {
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #ccc;
+    line-height: 1.6;
+}
+
+.modal-text-body strong {
+    color: #fff;
+}
+/* --- IMAGE IMPORT CONTROLS --- */
+.image-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 20px; /* Space before the next toggle */
+}
+
+.toolbar-btn {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    color: #ccc;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toolbar-btn:hover {
+    background-color: #ffcf00;
+    color: #171717;
+    border-color: #ffcf00;
+}
+
+.toolbar-btn i {
+    font-size: 16px;
+}
+
+/* Loading state for content box */
+.content-box.processing {
+    color: #888;
+    background-color: #1a1a1a;
+    cursor: wait;
+}
+/* --- LIBRARY HEADER LAYOUT --- */
+.library-title-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px; /* Moved margin here from h2 */
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #ffcf00;
+}
+
+.library-actions {
+    position: relative;
+}
+
+/* Reuse existing .action-dots-btn and .action-menu styles, 
+   but override positioning for this specific menu if needed */
+#libraryMenu {
+    top: 30px;
+    right: 0;
+    min-width: 120px;
+}
+/* --- MOBILE MENU BUTTON --- */
+.mobile-menu-btn {
+    display: none; /* Hidden on desktop */
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+/* --- SIDEBAR OVERLAY --- */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 99; /* Below sidebar, above content */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.show {
+    opacity: 1;
+}
 
 
 
@@ -1088,10 +1434,37 @@ input:checked + .slider:before {
 
 
 /* Responsive */
+/* Responsive */
 @media (max-width: 768px) {
-    .sidebar {
-        display: none; 
+    /* Show Hamburger */
+    .mobile-menu-btn {
+        display: block;
     }
+
+    /* Transform Sidebar to Off-Canvas */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 280px;
+        transform: translateX(-100%); /* Hide off-screen */
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000; /* On top of everything */
+        box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+        display: flex; /* Ensure it keeps flex layout */
+    }
+
+    /* Class to Open Sidebar */
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Show Overlay when active */
+    .sidebar-overlay.show {
+        display: block;
+    }
+
     .dashboard-view {
         padding: 30px 20px;
     }
@@ -1100,5 +1473,15 @@ input:checked + .slider:before {
     }
     .shop-header {
         padding: 15px;
+    }
+    
+    /* Adjust Controls Layout for Mobile */
+    .game-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .controls-left, .controls-right {
+        width: 100%;
+        justify-content: center;
     }
 }

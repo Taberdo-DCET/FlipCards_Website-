@@ -45,6 +45,7 @@ const customAlertOkBtn = document.getElementById('customAlertOkBtn');
 let pendingLobbyId = null; 
 let joinedLobbyId = null; 
 let inviteTimeout = null; // <-- ADD THIS LINE
+let lastInvitedLobbyId = null;
 window.currentNormalizedAnswer = "";
 let lastAnsweredCardIndex = -1;
 
@@ -121,6 +122,16 @@ if (pauseGameBtn) pauseGameBtn.disabled = true;
                         
                         inviteMessage.textContent = `${lobbyData.host.username} invited you to play "${lobbyData.setTitle}"!`;
                         inviteModal.classList.add('visible');
+
+                        // --- NEW: Play Invite Sound (Fixed Volume & Stacking) ---
+                        // Only play if this is a NEW invite (prevents stacking on DB updates)
+                        if (inviteDoc.id !== lastInvitedLobbyId) {
+                            const inviteSound = new Audio('invite.mp3');
+                            inviteSound.volume = 1; // Set consistent volume
+                            inviteSound.play().catch(e => console.warn("Audio autoplay blocked:", e));
+                            lastInvitedLobbyId = inviteDoc.id;
+                        }
+                        // --- END NEW ---
 
                         // --- ADD THIS BLOCK ---
                         // Clear any old timeout just in case
@@ -249,9 +260,10 @@ async function declineInvite() {
         console.error("Error declining invite: ", e);
     }
 
-    // 3. Hide modal and clear pending state
+// 3. Hide modal and clear pending state
     inviteModal.classList.remove('visible');
     pendingLobbyId = null;
+    lastInvitedLobbyId = null; // <-- Reset so next invite plays sound
 }
 
 // Update the button to use the new function
@@ -288,6 +300,7 @@ async function sendSystemMessage(lobbyId, text) {
 }
 
 // --- NEW: Sends user message and checks for correct answer (GUEST) ---
+// --- NEW: Sends user message and checks for correct answer (GUEST) ---
 async function sendUserMessage(lobbyId, text) {
     if (!lobbyId || !text || !currentUserEmail) return;
     const lobbyRef = doc(db, "quibble_lobbies", lobbyId);
@@ -295,22 +308,25 @@ async function sendUserMessage(lobbyId, text) {
     // 1. Check for correct answer FIRST
     try {
         // --- FIX START: Use the VISUAL data, not a fresh fetch ---
-        // This ensures we validate against what the user actually sees on screen.
         let lobbyData = window.currentLobbyDataForRender;
         
-        // Fallback if the global variable isn't set for some reason
         if (!lobbyData) {
-            console.warn("[DEBUG] No local data found, fetching...");
+            // Fallback if global var is missing
             const lobbySnap = await getDoc(lobbyRef);
             if (!lobbySnap.exists()) return;
             lobbyData = lobbySnap.data();
         }
-        // --- FIX END ---
+
+        // --- CHANGE 1: Prevent Double Sending (If I am Host, STOP) ---
+        // Quibble.js handles the host. This script handles guests.
+        if (lobbyData.host && lobbyData.host.email === currentUserEmail) {
+            return false; 
+        }
+        // --- END CHANGE 1 ---
 
         if (lobbyData.status !== 'question') {
-            // Game not running, just send chat message
+            // Game not running, just send chat message below
         
-        // --- UPDATED: Only check for answers in "test" mode ---
         } else if (lobbyData.gameMode === 'test') { 
             // Game is running, check answer
             const currentCard = lobbyData.flashcards[lobbyData.currentCardIndex];
@@ -321,68 +337,53 @@ async function sendUserMessage(lobbyId, text) {
 
             if (normalizedGuess === normalizedAnswer) {
                 // Correct answer!
-                const targetCardIndex = lobbyData.currentCardIndex; // Capture the index we validated against
                 
-                // LOGGING FOR DEBUGGING
-                console.log(`[DEBUG] Answer Attempt. User sees Index: ${targetCardIndex}. Answer: "${text}"`);
+                // --- NEW: Play Correct Sound ---
+                const correctSound = new Audio('correct.mp3');
+                correctSound.volume = 1; // Set consistent volume
+                correctSound.play().catch(e => console.warn("Audio play blocked:", e));
+                // --- END NEW ---
 
-                // --- FIX: Race Condition Handling ---
-                // We ONLY check our local tracker. 
+                const targetCardIndex = lobbyData.currentCardIndex; 
+
+                // --- FIX: Race Condition Handling (Local Check) ---
                 if (lastAnsweredCardIndex === targetCardIndex) {
-                    console.log(`[DEBUG] Blocked locally: You already answered Index ${targetCardIndex}`);
-                    
-                    // --- UPDATED: Show System Message instead of Modal ---
                     addChatMessageToUI({
                         type: 'system',
                         text: "You have already answered this question.",
                         timestamp: new Date()
                     });
-                    
-                    // Scroll chat to bottom
                     const chatContainer = document.getElementById('mainChatMessages');
                     chatContainer.scrollTop = chatContainer.scrollHeight;
-
-                    // Return FALSE to tell the listener NOT to clear the input
                     return false; 
                 }
-                // ------------------------------------
                 lastAnsweredCardIndex = targetCardIndex;
+                // ------------------------------------
                 
-                // --- OPTIMISTIC UI: Trigger Visuals IMMEDIATELY ---
+                // --- OPTIMISTIC UI ---
                 triggerInstantFeedback(); 
-
-                // 1. Inject "Fake" System Message Instantly
                 const optimisticMsg = {
                     type: 'system',
                     text: `${currentUsername} got the correct answer!`,
                     timestamp: new Date()
                 };
                 addChatMessageToUI(optimisticMsg, lobbyData.players);
-
-                // 2. Force Scroll to Bottom
                 const chatContainer = document.getElementById('mainChatMessages');
                 chatContainer.scrollTop = chatContainer.scrollHeight;
-                // -------------------------------------------------
 
                 // --- BUG FIX: Transaction for Guests ---
                 try {
-                    console.log("[DEBUG] Starting Transaction to save score...");
                     await runTransaction(db, async (transaction) => {
                         const freshDoc = await transaction.get(lobbyRef);
                         if (!freshDoc.exists()) throw "Lobby missing";
                         const freshData = freshDoc.data();
-                        
-                        console.log(`[DEBUG] Transaction Read. Server Index: ${freshData.currentCardIndex} | Your Target: ${targetCardIndex}`);
 
-                        // --- CRITICAL FIX: Prevent answer form applying to the wrong round ---
                         // If the server moved to the next card while we were sending, abort.
                         if (freshData.currentCardIndex !== targetCardIndex) {
-                            console.warn(`[DEBUG] Too Late! Round changed during transaction. Aborting.`);
                             throw "Round Changed";
                         }
-                        
+
                         if (freshData.currentQuestionAnswers.includes(currentUserEmail)) {
-                             console.warn("[DEBUG] Server says you already answered this specific round.");
                              throw "Already Answered";
                         }
 
@@ -391,37 +392,58 @@ async function sendUserMessage(lobbyId, text) {
                             return p;
                         });
 
-                        transaction.update(lobbyRef, {
-                            players: updatedPlayers,
-                            currentQuestionAnswers: [...freshData.currentQuestionAnswers, currentUserEmail]
-                        });
+                        // --- FIX START: Create System Message ---
+const sysMsg = {
+    type: 'system',
+    text: `${currentUsername} got the correct answer!`,
+    timestamp: new Date()
+};
+// ----------------------------------------
+
+transaction.update(lobbyRef, {
+    players: updatedPlayers,
+    currentQuestionAnswers: [...freshData.currentQuestionAnswers, currentUserEmail],
+    chat: arrayUnion(sysMsg) // <--- FIX: SAVE MESSAGE TO DB
+});
                     });
-                    
-                    console.log("[DEBUG] Transaction Success. Awarding XP.");
                     await addXP(50);
                     
                 } catch (e) {
+                    // --- CHANGE 2: Handle Errors Gracefully (No Modals) ---
                     if (e === "Round Changed") {
                         console.log("[DEBUG] Answer ignored because the round ended before save.");
                         
-                        // --- FIX: Show the modal here! ---
-                        showCustomAlert("Time ran out! Your answer was too late to be counted.", "Too Late!");
+                        addChatMessageToUI({
+                            type: 'system',
+                            text: "Time ran out! Your answer was too late to be counted.",
+                            timestamp: new Date()
+                        }, lobbyData.players);
+                        
+                        const chatContainer = document.getElementById('mainChatMessages');
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                        return false; // Don't clear input
 
                     } else if (e === "Already Answered") {
                         console.log("[DEBUG] Answer ignored because already recorded.");
+                        return false; // Don't clear input
                     } else {
                         console.error("Transaction error:", e);
                     }
                 }
-                // --- END FIX ---
-                return true;
-                
+                // --- END CHANGE 2 ---
+                return true; // Success
+            } else {
+                // --- NEW: Play Wrong Sound (Test Mode) ---
+                const wrongSound = new Audio('chat.mp3');
+                wrongSound.volume = .3;
+                wrongSound.play().catch(e => console.warn("Audio play blocked:", e));
+                // -----------------------------------------
             }
         }
     } catch (e) {
         console.error("Error checking answer: ", e);
     }
-
     // 2. If not a correct answer, send the user's chat message
     const message = {
         type: 'user',
@@ -561,6 +583,11 @@ function addChatMessageToUI(message, players = []) {
     if (message.type === 'system') {
         msgDiv.classList.add('system');
         msgDiv.textContent = message.text;
+        
+        // NEW: Handle Gold System Messages
+        if (message.isGold) {
+            msgDiv.classList.add('gold-msg'); 
+        }
     } else {
         // Find player index to determine slot color
         const playerIndex = players.findIndex(p => p.username === message.username);
@@ -581,24 +608,38 @@ function addChatMessageToUI(message, players = []) {
     }
     chatMessages.appendChild(msgDiv);
 }
-// --- NEW: Guest Chat Listeners ---
-sendChatBtn.addEventListener('click', async () => { // <--- Make ASYNC
+sendChatBtn.addEventListener('click', async () => { 
+    // --- FIX START: STRICT HOST BLOCK ---
+    // 1. Check if I am the Host. If I am, STOP immediately.
+    // Quibble.js handles the Host's chat logic. This listener is ONLY for Guests.
+    const lobbyData = window.currentLobbyDataForRender;
+    if (lobbyData && lobbyData.host && lobbyData.host.email === currentUserEmail) {
+        return; 
+    }
+    // --- FIX END ---
+
     const text = chatInput.value.trim();
     if (text && joinedLobbyId) {
-        // Wait for result. If true (sent), clear input. If false (already answered), keep input.
-        const shouldClear = await sendUserMessage(joinedLobbyId, text);
-        if (shouldClear) {
-            chatInput.value = '';
-        }
+        // FIX: Clear input IMMEDIATELY (Optimistic UI)
+        chatInput.value = ''; 
+        
+        // Send in background (we don't wait to clear)
+        await sendUserMessage(joinedLobbyId, text);
     }
 });
 
+// --- FIX: REMOVED DUPLICATE KEYPRESS LISTENER ---
+// Quibble.js already contains this exact listener. 
+// Having it in both files caused the "Send" button to be clicked TWICE 
+// whenever 'Enter' was pressed, creating double messages.
+/*
 chatInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         sendChatBtn.click();
     }
 });
+*/
 function triggerInstantFeedback() {
     // 1. Clear Input immediately
     const input = document.getElementById('mainChatInput');

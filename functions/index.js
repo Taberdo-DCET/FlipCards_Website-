@@ -21,6 +21,25 @@ const SEARCH_ENGINE_ID = defineSecret("SEARCH_ENGINE_ID");
 // ===== INITIALIZATION =====
 admin.initializeApp();
 const visionClient = new ImageAnnotatorClient();
+
+// ===== HELPER: RETRY LOGIC (New) =====
+// This function wraps the AI call. If it hits a 429 error, it waits and retries.
+async function generateContentWithRetry(model, promptParts, retries = 3, delay = 2000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            return await model.generateContent(promptParts);
+        } catch (error) {
+            // Check if error is 429 (Too Many Requests) or 503 (Service Unavailable)
+            if ((error.status === 429 || error.status === 503 || error.message?.includes('429')) && i < retries - 1) {
+                console.warn(`API Rate Limit (429) hit. Retrying in ${delay}ms... (Attempt ${i + 1}/${retries})`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Exponential backoff: 2s, 4s, 8s...
+            } else {
+                throw error; // If it's another error or we ran out of retries, crash.
+            }
+        }
+    }
+}
 // ===== CLOUD FUNCTIONS =====
 exports.generateFlashcards = onRequest(
   { region: "us-central1", timeoutSeconds: 300, memory: "1Gi", secrets: [GEMINI_API_KEY] },
@@ -34,7 +53,7 @@ exports.generateFlashcards = onRequest(
       }
 
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "models/gemini-3-pro-preview" });
 
       const busboy = Busboy({ headers: req.headers });
       let fileBuffer = null;
@@ -194,7 +213,10 @@ Respond ONLY with the raw JSON array.
           }
 
           const promptParts = [basePrompt, "---", documentText];
-          const result = await model.generateContent(promptParts);
+          
+          // ✅ FIX: USE RETRY WRAPPER
+          const result = await generateContentWithRetry(model, promptParts);
+          
           const aiText = result.response?.text?.() || "";
 
           let cleaned = aiText.replace(/```json/gi, "").replace(/```/g, "").trim();
@@ -229,7 +251,7 @@ exports.extractAndExplainTerms = onRequest(
       }
 
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "models/gemini-3-pro-preview" });
 
       const busboy = Busboy({ headers: req.headers });
       let fileBuffer = null;
@@ -350,12 +372,15 @@ Based on your classification, choose ONE of the structures above and respond ONL
           }
 
           if (!documentText || !documentText.trim()) {
-  console.log("No text content found after parsing document and images.");
-  return res.status(400).json({ message: "No text content could be extracted from the uploaded file. Please ensure the file contains readable text." }); // <<<--- CHANGED LINE
-}
+            console.log("No text content found after parsing document and images.");
+            return res.status(400).json({ message: "No text content could be extracted from the uploaded file. Please ensure the file contains readable text." }); 
+          }
 
           const promptParts = [extractionPrompt, "---", documentText];
-          const result = await model.generateContent(promptParts);
+          
+          // ✅ FIX: USE RETRY WRAPPER
+          const result = await generateContentWithRetry(model, promptParts);
+          
           const aiText = result.response?.text?.() || "";
 
           let cleaned = aiText.replace(/```json/gi, "").replace(/```/g, "").trim();
@@ -390,7 +415,7 @@ exports.summarizeDocument = onRequest(
       }
 
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "models/gemini-3-pro-preview" });
 
       const busboy = Busboy({ headers: req.headers });
       let fileBuffer = null;
@@ -436,7 +461,10 @@ exports.summarizeDocument = onRequest(
           if (!documentText.trim()) throw new Error("Parsed document but no text was found.");
 
           const promptParts = [summarizerPrompt, "---", documentText];
-          const result = await model.generateContent(promptParts);
+          
+          // ✅ FIX: USE RETRY WRAPPER
+          const result = await generateContentWithRetry(model, promptParts);
+          
           const aiText = result.response?.text?.() || "";
 
           let cleaned = aiText.replace(/```json/gi, "").replace(/```/g, "").trim();
@@ -481,7 +509,7 @@ exports.askAIText = onRequest(
       }
 
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      const selectedModelName = "gemini-2.5-pro"; // Or "gemini-2.5-flash" if preferred
+      const selectedModelName = "models/gemini-3-pro-preview"; // Or "gemini-2.5-flash" if preferred
       console.log(`Using model: ${selectedModelName}`);
       const model = genAI.getGenerativeModel({ model: selectedModelName });
 
@@ -763,7 +791,7 @@ exports.chatWithFlipCardsAI = onRequest(
 
       // Initialize AI model
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" }); // Using gemini-pro-latest as per previous context
+      const model = genAI.getGenerativeModel({ model: "models/gemini-3-pro-preview" }); // Using gemini-pro-latest as per previous context
 
       try {
         const userQuestion = req.body.question;
@@ -794,7 +822,9 @@ exports.chatWithFlipCardsAI = onRequest(
         const finalPrompt = `${chatPrompt}\n\nUser Question: "${userQuestion}"`;
 
         // Generate the AI's response text
-        const result = await model.generateContent(finalPrompt);
+        // ✅ FIX: USE RETRY WRAPPER HERE
+        const result = await generateContentWithRetry(model, finalPrompt);
+        
         let aiText = result.response?.text?.() || "Sorry, I couldn't come up with a response.";
 
         // --- Logic to detect shop mention and structure response ---
@@ -853,7 +883,7 @@ exports.chatWithLobbyAI = onRequest(
       }
 
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
+      const model = genAI.getGenerativeModel({ model: "models/gemini-3-pro-preview" });
 
       try {
         const userQuestion = req.body.question;
@@ -1028,7 +1058,7 @@ exports.chatWithQuibbleAI = onRequest(
       }
 
       const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
-      const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
+      const model = genAI.getGenerativeModel({ model: "models/gemini-3-pro-preview" });
 
       try {
         const userQuestion = req.body.question;
